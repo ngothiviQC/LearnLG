@@ -1,0 +1,13 @@
+{
+  "hosting": {
+    "public": ".",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**",
+      "images/Gemini_Generated_Image_*.png",
+      "images/Image from iOS.jpg",
+      "images/icon/**"
+    ]
+  }
+}

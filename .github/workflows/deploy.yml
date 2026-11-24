@@ -1,0 +1,27 @@
+# Mỗi lần push lên nhánh main: tạo firebase-config.js từ secret rồi deploy lên Firebase Hosting (learnlg.web.app)
+name: Deploy to Firebase Hosting
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Tạo firebase-config.js từ secret FIREBASE_CONFIG
+        env:
+          FIREBASE_CONFIG: ${{ secrets.FIREBASE_CONFIG }}
+        run: |
+          if [ -z "$FIREBASE_CONFIG" ]; then echo "Thiếu secret FIREBASE_CONFIG"; exit 1; fi
+          printf 'export default %s;\n' "$FIREBASE_CONFIG" > firebase-config.js
+
+      - uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_LEARNLG }}
+          projectId: learnlg
+          channelId: live

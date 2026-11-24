@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Học Việt - Nhật</title>
+    <meta name="claude:viewport-fit-sides" content="cover">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@500;600;700;900&family=Inter:wght@400;500;600&family=Noto+Sans+JP:wght@400;500;700;900&family=Noto+Serif+JP:wght@400;600;700&family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Montserrat:wght@400;500;600&display=swap">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ===== Màn chào: ảnh áo dài origami ===== -->
+<section class="hello" id="hello" hidden aria-labelledby="helloTitle">
+    <div class="hello-bg">
+        <img class="hello-img" id="helloImg" src="images/aoda-dai-origami.png" alt="Cô gái Việt Nam mặc áo dài và nón lá">
+        <canvas class="dress" id="dressCanvas" aria-hidden="true"></canvas>
+    </div>
+    <canvas class="petals" id="petalsBack" aria-hidden="true"></canvas>
+    <canvas class="petals front" id="petalsFront" aria-hidden="true"></canvas>
+    <div class="hello-in">
+        <div class="step s1" id="step1">
+            <div class="s1-main">
+                <p class="eyebrow"><span>Học</span><span>ngôn ngữ</span><span>Việt – Nhật</span><span class="jp" lang="ja">二か国語 文章練習</span></p>
+                <h1 class="hero" id="helloTitle">
+                    <span class="l1">Xin</span><span class="l1 i2">chào</span>
+                    <span class="l2 jp" lang="ja">こんにちは</span>
+                    <svg class="swash" viewBox="0 0 600 200" aria-hidden="true" focusable="false"><path d="M8 150 C 140 214, 330 196, 452 118 S 590 26, 520 18 C 470 12, 438 70, 488 92"/></svg>
+                    <span class="spark" aria-hidden="true">✦</span>
+                </h1>
+                <!-- Lời nhắn ngắn (trước đây ở cột phải) -->
+                <div class="notes">
+                    <p class="side-note">1500 câu<br>50 bài học<br>cho người Việt<br>và người Nhật.</p>
+                    <p class="side-note">Mỗi ngày<br>một câu nói.<span class="jp" lang="ja">毎日、ひとこと。</span></p>
+                </div>
+                <div class="ctas">
+                    <button type="button" class="pill" id="goAsk"><span>Bắt đầu · <span class="jp" lang="ja">はじめる</span></span><span class="arr" aria-hidden="true">→</span></button>
+                    <button type="button" class="pill ghost" id="goResume" hidden><span>Tiếp tục học · <span class="jp" lang="ja">続きから</span></span><span class="arr" aria-hidden="true">↻</span></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="step" id="step2" hidden>
+            <p class="eyebrow">Trước khi bắt đầu<br><span class="jp" lang="ja">はじめる前に</span></p>
+            <h2 class="ask">Bạn đến từ đâu?<span class="jp" lang="ja">ご出身はどちらですか？</span></h2>
+            <div class="origins">
+                <button type="button" class="origin" data-ui="vi" lang="vi">
+                    <img class="o-mark" src="images/origin-vi.png" alt="" aria-hidden="true">
+                    <span class="o-c">Việt Nam · <span class="jp" lang="ja">ベトナム</span></span>
+                    <b>Tôi là người Việt</b>
+                    <span class="o-s">Tôi muốn học tiếng Nhật</span>
+                </button>
+                <button type="button" class="origin" data-ui="ja" lang="ja">
+                    <img class="o-mark" src="images/origin-ja.png" alt="" aria-hidden="true">
+                    <span class="o-c">日本 · <span lang="vi">Nhật Bản</span></span>
+                    <b>日本から来ました</b>
+                    <span class="o-s">ベトナム語を学びたいです</span>
+                </button>
+            </div>
+            <p class="foot">Bạn có thể đổi lại bất cứ lúc nào ở góc trên trang. · <span class="jp" lang="ja">選択は画面右上からいつでも変更できます。</span></p>
+            <button type="button" class="go back" id="goBack"><span class="ring" aria-hidden="true">←</span><span>Quay lại · <span class="jp" lang="ja">戻る</span></span></button>
+        </div>
+    </div>
+</section>
+
+<!-- ===== Trang học ===== -->
+<canvas class="page-petals" id="petalsPage" aria-hidden="true" hidden></canvas>
+<div class="page">
+    <header class="top">
+        <div class="brandcol">
+            <button type="button" class="go back" id="homeBtn"><span class="ring" aria-hidden="true">←</span><span id="homeTxt">Trang chủ</span></button>
+            <div class="kicker" id="kicker">Luyện câu song ngữ</div>
+            <h1 id="h1">Việt ⇄ Nhật · 1500 câu</h1>
+        </div>
+        <div class="r">
+            <span class="stamp" aria-hidden="true">日本語練習</span>
+            <button class="themebtn" id="langBtn" type="button" hidden>日本語</button>
+            <button class="themebtn" id="themeBtn" type="button">Sáng/Tối</button>
+        </div>
+    </header>
+    <nav class="tabs" aria-label="Chọn mục" id="sub"></nav>
+    <main id="view"></main>
+</div>
+
+<!-- Đếm học viên bằng Firebase Analytics (chỉ chạy trên learnlg.web.app / learnlg.firebaseapp.com) -->
+<script type="module">
+    if (/^learnlg\.(web\.app|firebaseapp\.com)$/.test(location.hostname)) {
+        try {
+            const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js');
+            const { getAnalytics, logEvent } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js');
+            // Cấu hình nằm ở firebase-config.js (không có trong repo; GitHub Actions tạo từ secret FIREBASE_CONFIG)
+            const { default: config } = await import('./firebase-config.js');
+            const app = initializeApp(config);
+            const an = getAnalytics(app);
+            window.hvnTrack = (name, params) => logEvent(an, name, params);
+            (window.hvnQ || []).splice(0).forEach(e => window.hvnTrack(e[0], e[1]));
+        } catch (e) { /* bị chặn (adblock, mất mạng) thì bỏ qua, site vẫn chạy bình thường */ }
+    }
+</script>
+<script src="data/lessons.js"></script>
+<script src="data/grammar.js"></script>
+<script src="data/notes-1.js"></script>
+<script src="data/notes-2.js"></script>
+<script src="data/notes-3.js"></script>
+<script src="data/notes-4.js"></script>
+<script src="data/notes-5.js"></script>
+<script src="data/notes-6.js"></script>
+<script src="data/notes-7.js"></script>
+<script src="data/notes-8.js"></script>
+<script src="data/notes-9.js"></script>
+<script src="data/notes-10.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
