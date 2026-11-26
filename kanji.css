@@ -1,0 +1,92 @@
+/* ===== Kanji N5 (#kanji, kanji.js) ===== */
+.kj-hero { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px; align-items: center; }
+.kj-hero-t { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.kj-hero-t h2 { font-size: 22px; font-weight: 900; letter-spacing: -.01em; }
+.kj-actions { display: flex; flex-direction: column; gap: 8px; }
+.kj-group { gap: 12px; }
+.kj-gh { display: flex; align-items: center; gap: 10px; }
+.kj-gh h3 { font-size: 16px; font-family: var(--f-display); flex: 1; }
+.kj-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 8px; }
+.kj-tile { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 4px 6px; border: 1px solid var(--line); border-radius: 10px; background: var(--paper); color: var(--ink); transition: border-color .15s, background .15s, transform .15s; }
+.kj-tile:hover { border-color: var(--ai); transform: translateY(-1px); }
+.kj-c { font-family: var(--f-jp-serif); font-weight: 600; font-size: 28px; line-height: 1.1; }
+.kj-hv { font-size: 10.5px; font-weight: 600; letter-spacing: .04em; color: var(--muted); text-transform: uppercase; }
+.kj-tile.ok { background: var(--ok-soft); border-color: var(--ok); }
+.kj-tile.ok .kj-hv { color: var(--ok); }
+.kj-tile.sel { border-color: var(--ai); box-shadow: 0 0 0 3px var(--ai-soft); }
+.kj-tile.picked { background: var(--ai-soft); border-color: var(--ai); border-width: 2px; }
+.kj-tile.picked .kj-hv { color: var(--ai); }
+.kj-detail { display: flex; gap: 18px; align-items: flex-start; padding: 16px; border-radius: 12px; background: var(--sunken); }
+.kj-big { flex: none; width: 120px; height: 120px; border-radius: 14px; background: var(--paper); display: grid; place-items: center; font-family: var(--f-jp-serif); font-weight: 700; font-size: 84px; line-height: 1; color: var(--ai);
+    background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px); background-size: 50% 50%; background-position: center; }
+.kj-dt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.kj-dt h3 { font-size: 22px; font-family: var(--f-display); }
+.kj-m { font-weight: 500; color: var(--muted); font-size: 18px; }
+.kj-rd { margin: 0; display: flex; flex-direction: column; gap: 2px; }
+.kj-rd .jp { font-size: 16px; }
+.kj-ex { margin: 0; display: flex; gap: 10px; align-items: center; }
+.kj-ex .jp { font-size: 18px; line-height: 1.9; }
+.kj-okbtn { border-color: var(--ok); background: var(--ok-soft); color: var(--ok); }
+.kj-pickbar { position: sticky; top: 8px; z-index: 5; flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; box-shadow: 0 8px 22px rgba(59, 33, 20, .12); border-color: var(--ai); }
+.kj-pickbar p { margin: 2px 0 0; }
+.kj-quiz { border-color: var(--ai); }
+.kj-quiz .row .r { margin-left: auto; }
+.kj-qbox { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 16px; border-radius: 12px; background: var(--sunken); }
+.kj-qc { font-family: var(--f-jp-serif); font-weight: 700; font-size: 56px; line-height: 1.2; }
+.kj-qbox p { margin: 0; font-weight: 600; }
+.kj-quiz .rm-opt .jp { font-size: 17px; }
+.kj-wrong { display: flex; flex-wrap: wrap; gap: 8px; }
+.kj-wrong .kj-tile { width: 64px; }
+@media (max-width: 560px) {
+    .kj-hero { grid-template-columns: 1fr; }
+    .kj-actions { flex-direction: row; flex-wrap: wrap; }
+    .kj-detail { flex-direction: column; align-items: center; text-align: center; }
+    .kj-ex { justify-content: center; }
+    .kj-grid { grid-template-columns: repeat(auto-fill, minmax(56px, 1fr)); }
+}
+
+/* File luyện viết: xem trước toàn màn hình, in mỗi trang A4 10 chữ */
+#kjSheet { position: fixed; inset: 0; z-index: 50; background: #e9e2d6; overflow: auto; color: #222; }
+body.kjs-open { overflow: hidden; }
+.kjs-bar { position: sticky; top: 0; z-index: 1; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 16px; padding: 12px 20px; background: var(--paper); border-bottom: 1px solid var(--line); color: var(--ink); }
+.kjs-bar .row { margin-left: auto; }
+.kjs-sheets { display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 20px; }
+.kjs-page { width: 210mm; min-height: 297mm; padding: 12mm; background: #fff; box-shadow: 0 4px 18px rgba(0, 0, 0, .15); box-sizing: border-box; display: flex; flex-direction: column; gap: 3mm; }
+.kjs-head { display: flex; justify-content: space-between; align-items: baseline; gap: 6mm; font-size: 10pt; border-bottom: 1px solid #999; padding-bottom: 2mm; margin-bottom: 2mm; font-family: var(--f-body); }
+.kjs-head b { font-size: 13pt; }
+.kjs-row { display: flex; gap: 3mm; align-items: stretch; }
+.kjs-info { flex: none; width: 28mm; display: flex; flex-direction: column; justify-content: center; font-family: var(--f-body); line-height: 1.25; }
+.kjs-info b { font-size: 16pt; font-family: var(--f-jp-serif); }
+.kjs-info span { font-size: 9pt; font-weight: 700; }
+.kjs-info small { font-size: 7pt; color: #555; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.kjs-cells { display: flex; }
+.kjs-cell { width: 13mm; height: 13mm; border: 1px solid #888; margin-left: -1px; display: grid; place-items: center; font-family: var(--f-jp-serif); font-size: 10mm; line-height: 1;
+    background-image: linear-gradient(90deg, transparent calc(50% - .5px), #ccc calc(50% - .5px), #ccc calc(50% + .5px), transparent calc(50% + .5px)), linear-gradient(transparent calc(50% - .5px), #ccc calc(50% - .5px), #ccc calc(50% + .5px), transparent calc(50% + .5px)); }
+.kjs-cell:first-child { margin-left: 0; }
+.kjs-cell.solid { color: #111; }
+.kjs-cell.trace { color: #cfcfcf; }
+@media print {
+    @page { size: A4; margin: 0; }
+    body.kjs-open > *:not(#kjSheet) { display: none !important; }
+    body.kjs-open { overflow: visible; background: #fff; }
+    #kjSheet { position: static; overflow: visible; background: #fff; }
+    .kjs-bar { display: none; }
+    .kjs-sheets { padding: 0; gap: 0; }
+    .kjs-page { box-shadow: none; break-after: page; }
+    .kjs-page:last-child { break-after: auto; }
+    .kjs-cell { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+
+/* Kanji nằm trong thẻ “Kanji N5” của Lộ trình N5 */
+.kj-fold .kj-group { display: flex; flex-direction: column; gap: 10px; border-top: 1px solid var(--line); padding-top: 12px; }
+.kj-fold .kj-pickbar { display: flex; background: var(--paper); border: 1px solid var(--ai); border-radius: 12px; padding: 12px 14px; }
+.kj-fold .kj-quiz { display: flex; flex-direction: column; gap: 12px; border: 1px solid var(--ai); border-radius: 12px; padding: 14px; }
+.kj-fold .kj-hero { align-items: center; }
+
+/* Ý nghĩa, mẹo nhớ, văn hóa (data/kanji-story.js) */
+.kj-story { display: flex; flex-direction: column; gap: 8px; margin: 4px 0 2px; padding: 12px 14px; border-radius: 10px; background: var(--paper); border: 1px solid var(--line); }
+.kj-story p { margin: 0; font-size: 14px; line-height: 1.6; }
+.kj-story b { display: block; font-size: 12px; letter-spacing: .04em; text-transform: uppercase; color: var(--ai); margin-bottom: 1px; }
+.kj-story .jp { font-size: 15px; }
+.kj-story .kj-cul { padding-top: 8px; border-top: 1px dashed var(--line); }
+@media (max-width: 560px) { .kj-story { text-align: left; } }

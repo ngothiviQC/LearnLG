@@ -11,7 +11,8 @@ const load = (k, d) => { try { const v = localStorage.getItem(k); return v ? JSO
 const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { } };
 
 let pref = Object.assign({ furi: true, wmode: 'seq', rate: 1, script: 'hira' }, load('hvn.pref', {}));
-if (!pref.dir) pref.dir = 'vj';
+// Không còn mục chọn chiều dịch: chiều dịch theo xuất thân (người Việt: Việt → Nhật, người Nhật: Nhật → Việt).
+pref.dir = pref.ui === 'ja' ? 'jv' : 'vj';
 if (!pref.mode) pref.mode = 'write';
 if (pref.nodau == null) pref.nodau = pref.ui === 'ja';
 const savePref = () => save('hvn.pref', pref);
@@ -56,6 +57,10 @@ const TOPICS = [
     { mark: '健', vi: 'Sức khỏe & thủ tục', ja: '健康と手続き', dvi: 'Bệnh viện, sự cố khẩn cấp, bưu điện, thủ tục hành chính, làm tóc, môi trường.', dja: '病院、緊急時、郵便、役所の手続き、美容院、環境。', ls: [31, 35, 36, 37, 38, 49] },
 ];
 const topicOf = no => TOPICS.findIndex(T => T.ls.includes(no)) + 1;   // số chủ đề (1–8) của một bài
+// Số bài hiển thị: đánh số liên tục theo thứ tự chủ đề (chủ đề 1 = bài 1–6, chủ đề 2 = bài 7–13 …).
+// Mã bài gốc (no) vẫn dùng cho đường dẫn #bai-no, tiến độ và file nghe.
+const LESSON_ORDER = TOPICS.reduce((a, T) => a.concat(T.ls), []);
+const dispNo = no => LESSON_ORDER.indexOf(no) + 1 || no;
 
 /* ===================== Ngôn ngữ giao diện (vi / ja) ===================== */
 // pref.ui: 'vi' | 'ja'; pref.dir: 'vj' (Việt → Nhật) | 'jv' (Nhật → Việt); pref.mode: 'write' | 'mc'.
@@ -79,6 +84,7 @@ const TX = {
         mcAsk: 'Chọn câu đúng nghĩa', mcOk: 'Chính xác', mcNg: 'Chưa đúng · đáp án đúng được tô xanh',
         sayVi: 'Nghe tiếng Việt', sayJa: 'Nghe tiếng Nhật', slow: 'Chậm', normal: 'Bình thường',
         noVoice: { vi: 'Máy này chưa có giọng đọc tiếng Việt. Cài giọng tiếng Việt trong cài đặt hệ điều hành rồi mở lại trang.', ja: 'Máy này chưa có giọng đọc tiếng Nhật. Cài giọng tiếng Nhật trong cài đặt hệ điều hành rồi mở lại trang.' },
+        recLoading: n => 'Đang tải file nghe bài ' + n + '…', recFail: 'Chưa phát được bản ghi. Bấm lại thử.', clipWarn: 'Bản ghi bài này được chia câu tự động và có thể lệch.',
         noSpeech: 'Trình duyệt này không hỗ trợ đọc thành tiếng.',
         tOk: 'câu đã đạt / ', tTried: 'câu đã làm', tFull: 'bài đạt đủ 30 câu', cont: (n, t) => 'Học tiếp bài ' + n + ' · ' + t, perL: c => c + '/30 câu đạt',
         how: { vj: { write: 'Đọc câu tiếng Việt, tự viết câu tiếng Nhật, rồi so với đáp án.', mc: 'Đọc câu tiếng Việt, chọn câu tiếng Nhật đúng nghĩa.' },
@@ -109,6 +115,7 @@ const TX = {
         mcAsk: '正しい意味の文を選んでください', mcOk: '正解', mcNg: '不正解 · 正しい答えは緑色です',
         sayVi: 'ベトナム語を聞く', sayJa: '日本語を聞く', slow: 'ゆっくり', normal: '普通',
         noVoice: { vi: 'この端末にはベトナム語の音声がありません。OSの設定でベトナム語の音声を追加してから開き直してください。', ja: 'この端末には日本語の音声がありません。OSの設定で日本語の音声を追加してから開き直してください。' },
+        recLoading: n => '第' + n + '課の音声を読み込み中…', recFail: '再生できませんでした。もう一度押してください。', clipWarn: 'この課の音声は自動で区切っているため、ずれることがあります。',
         noSpeech: 'このブラウザは音声読み上げに対応していません。',
         tOk: '達成した文 / ', tTried: '練習した文', tFull: '30問すべて達成した課', cont: (n, t) => '第' + n + '課から続ける · ' + t, perL: c => c + '/30 達成',
         how: { vj: { write: 'ベトナム語の文を読んで、日本語で書いてみましょう。', mc: 'ベトナム語の文を読んで、正しい日本語を選びましょう。' },
@@ -126,13 +133,54 @@ let playing = null;   // khóa của nút đang phát
 const voiceFor = lang => { try { return speechSynthesis.getVoices().find(v => v.lang.toLowerCase().startsWith(lang)) || null; } catch (e) { return null; } };
 try { speechSynthesis.getVoices(); } catch (e) { }
 function setPlaying(v) { playing = v; document.querySelectorAll('[data-play]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.play === v))); }
-function stopAudio() { try { speechSynthesis.cancel(); } catch (e) { } setPlaying(null); }
+function stopAudio() { clearInterval(audTimer); AUD.pause(); try { speechSynthesis.cancel(); } catch (e) { } setPlaying(null); }
+
+/* File nghe đáp án: tiếng Nhật = audio/bN.mp3 (bản ghi người dùng gửi, mốc trong data/clips.js);
+   tiếng Việt = audio/vN.mp3 (tạo bằng giọng "Microsoft An", mốc trong data/clips-vi.js) */
+const AUD = new Audio(); AUD.preload = 'none';
+let audTimer = 0;
+const BLOB = {};
+const REC = { ja: { file: 'b', clips: () => typeof CLIPS === 'object' ? CLIPS : {} },
+              vi: { file: 'v', clips: () => typeof CLIPS_VI === 'object' ? CLIPS_VI : {} } };
+const clipFor = (lang, no, i) => { const C = REC[lang].clips()[no]; return C && i >= 0 && i < C.t.length ? C.t[i] : null; };
+// Tải nguyên file một lần rồi phát từ bộ nhớ, để tua tới đúng câu ở mọi trình duyệt
+function loadRec(lang, no) {
+    const k = REC[lang].file + no;
+    if (!BLOB[k]) BLOB[k] = fetch('audio/' + k + '.mp3').then(r => { if (!r.ok) throw new Error(r.status); return r.blob(); })
+        .then(b => URL.createObjectURL(b)).catch(e => { delete BLOB[k]; throw e; });
+    return BLOB[k];
+}
+// Phát câu i của bài no (ngôn ngữ lang) từ file nghe; không có file thì gọi fallback() (giọng của máy)
+function playClip(lang, no, i, fallback) {
+    const c = clipFor(lang, no, i);
+    if (!c) { fallback(); return; }
+    stopAudio();
+    const st = Math.max(0, c[0] / 10 - 0.15), en = c[1] / 10 + 0.3;
+    setPlaying(lang); sayMsg(BLOB[REC[lang].file + no] ? '' : t('recLoading', dispNo(no)));
+    loadRec(lang, no).then(url => {
+        if (playing !== lang) return;
+        const go = () => {
+            try { AUD.currentTime = st; } catch (e) { }
+            AUD.playbackRate = pref.rate;
+            AUD.play().then(() => {
+                sayMsg(REC[lang].clips()[no].ok ? '' : t('clipWarn'));
+                audTimer = setInterval(() => { if (AUD.currentTime >= en) { AUD.pause(); clearInterval(audTimer); setPlaying(null); } }, 40);
+            }).catch(() => { setPlaying(null); sayMsg(t('recFail')); });
+        };
+        if (AUD.src !== url) { AUD.src = url; AUD.addEventListener('loadedmetadata', go, { once: true }); AUD.load(); } else go();
+    }).catch(() => { setPlaying(null); fallback(); });
+}
+AUD.addEventListener('pause', () => { if (playing) { clearInterval(audTimer); setPlaying(null); } });
 function sayMsg(text) { document.querySelectorAll('.saymsg').forEach(el => { el.textContent = text; }); }
 function speak(text, lang, key) {
     stopAudio();
     if (!('speechSynthesis' in window)) { sayMsg(t('noSpeech')); return; }
     const v = voiceFor(lang);
     sayMsg(v ? '' : t('noVoice')[lang]);
+    // Danh sách giọng đã có mà thiếu giọng đúng ngôn ngữ: không phát, vì trình duyệt sẽ dùng giọng khác
+    // (vd. giọng Anh đọc câu Nhật chỉ ra mỗi con số) → âm thanh không khớp câu.
+    let n = 0; try { n = speechSynthesis.getVoices().length; } catch (e) { }
+    if (!v && n) return;
     const u = new SpeechSynthesisUtterance(text);
     u.lang = v ? v.lang : (lang === 'ja' ? 'ja-JP' : 'vi-VN');
     if (v) u.voice = v;
@@ -142,6 +190,7 @@ function speak(text, lang, key) {
     speechSynthesis.speak(u);
 }
 const rateChips = () => '<span class="chips">' + [[0.75, t('slow')], [1, t('normal')]].map(r => '<button type="button" class="chip" data-rate="' + r[0] + '" aria-pressed="' + (pref.rate === r[0]) + '">' + r[1] + '</button>').join('') + '</span>';
+// Nút nghe chỉ có ở phần đáp án (câu hỏi không có nút nghe).
 const sayRow = lang => '<div class="row"><button type="button" class="btn sm" data-play="' + lang + '" aria-pressed="' + (playing === lang) + '">🔊 ' + t(lang === 'vi' ? 'sayVi' : 'sayJa') + '</button>' +
     rateChips() + '<span class="hint saymsg" role="status"></span></div>';
 
@@ -180,7 +229,8 @@ const diffVi = (mine, ans) => diffTokens(words(mine), words(ans), (x, y) => wkey
 let route = 'luyen-cau';
 function parseHash() {
     const h = location.hash.slice(1);
-    if (h === 'ngu-phap') return h;
+    if (h === 'ngu-phap' || h === 'lo-trinh') return h;
+    if (h === 'kanji') { try { rmOpen.kanji = true; } catch (e) { } return 'lo-trinh'; }   // Kanji N5 nằm trong Lộ trình N5
     if (h === 'kana') return 'ngu-phap';   // link cũ của mục Bảng Kana
     const tp = h.match(/^chu-de-(\d+)$/); if (tp && +tp[1] >= 1 && +tp[1] <= TOPICS.length) return h;
     const m = h.match(/^bai-(\d+)$/); if (m && +m[1] >= 1 && +m[1] <= LESSONS.length) return h;
@@ -202,7 +252,7 @@ document.addEventListener('click', e => {
 // Tốc độ đọc
 document.addEventListener('click', e => {
     const b = e.target.closest('[data-rate]'); if (!b) return;
-    pref.rate = +b.dataset.rate; savePref();
+    pref.rate = +b.dataset.rate; savePref(); AUD.playbackRate = pref.rate;
     document.querySelectorAll('[data-rate]').forEach(x => x.setAttribute('aria-pressed', String(+x.dataset.rate === pref.rate)));
 });
 
@@ -212,16 +262,19 @@ $('homeBtn').onclick = () => { stopAudio(); helloOn = true; render(); window.scr
 $('goResume').onclick = () => { helloOn = false; render(); window.scrollTo(0, 0); };
 function renderHeader() {
     document.documentElement.lang = JA() ? 'ja' : 'vi';
-    $('kicker').textContent = t('kicker'); $('h1').textContent = t('h1');
-    $('themeBtn').textContent = t('theme'); $('langBtn').textContent = t('langBtn');
-    $('langBtn').hidden = !pref.ui; $('homeTxt').textContent = t('home');
+    // Trang Lộ trình N5 có tiêu đề riêng (roadmap.js)
+    const own = !JA() && pref.ui && !helloOn, rmPage = own && route === 'lo-trinh', kjPage = own && route === 'kanji';   // trang Kanji N5: kanji.js
+    $('kicker').textContent = rmPage || kjPage ? 'Luyện thi JLPT' : t('kicker'); $('h1').textContent = rmPage ? 'Lộ trình chinh phục N5' : kjPage ? 'Kanji N5 · 103 chữ' : t('h1');
+    $('homeTxt').textContent = t('home');
 }
 function renderNav() {
     if (!pref.ui) { $('sub').innerHTML = ''; return; }
     const done = LESSONS.reduce((n, L) => n + okCount(keyOf(L[0])), 0);
     const tab = (href, label, on) => '<a class="tab" href="#' + href + '"' + (on ? ' aria-current="page"' : '') + '>' + label + '</a>';
     // Chỉ còn một tab Khóa học; chủ đề, bài và ngữ pháp nằm bên trong (có đường dẫn ở đầu trang).
-    $('sub').innerHTML = tab('luyen-cau', t('course') + ' · ' + t('reached', done, LESSONS.length * 30), true);
+    $('sub').innerHTML = route === 'lo-trinh' && !JA() ? tab('lo-trinh', 'Lộ trình N5 · đã qua ' + rmDoneCount() + '/25 trạm', true)
+        : route === 'kanji' && !JA() ? tab('kanji', 'Kanji N5 · đã thuộc ' + kjOkCount() + '/' + KJ_ALL.length, true)
+        : tab('luyen-cau', t('course') + ' · ' + t('reached', done, LESSONS.length * 30), true);
     // trên điện thoại thanh tab cuộn ngang: đưa tab đang chọn vào tầm nhìn (chỉ cuộn thanh tab, không cuộn trang)
     const cur = $('sub').querySelector('[aria-current="page"]:last-child') || $('sub').querySelector('[aria-current="page"]');
     if (cur) $('sub').scrollLeft = Math.max(0, cur.offsetLeft + cur.offsetWidth - $('sub').clientWidth + 16);
@@ -234,7 +287,7 @@ function crumbs(items) {
         ? '<span aria-current="page">' + esc(label) + '</span>'
         : '<a href="#' + href + '">' + esc(label) + '</a><span class="sep" aria-hidden="true">›</span>').join('') + '</nav>';
 }
-const lessonCrumbs = no => { const k = topicOf(no); return crumbs([['chu-de-' + k, topicName(TOPICS[k - 1])], ['bai-' + no, t('lesson', no)]]); };
+const lessonCrumbs = no => { const k = topicOf(no); return crumbs([['chu-de-' + k, topicName(TOPICS[k - 1])], ['bai-' + no, t('lesson', dispNo(no))]]); };
 function render() {
     renderHeader(); renderNav();
     document.body.classList.toggle('nofuri', !pref.furi);
@@ -243,6 +296,8 @@ function render() {
     if (hello) return;
     if (route === 'luyen-cau') return renderLessons();
     if (route === 'ngu-phap') return JA() ? renderLessons() : renderGrammar();
+    if (route === 'lo-trinh') return JA() ? renderLessons() : renderRoadmap();   // roadmap.js
+    if (route === 'kanji') return JA() ? renderLessons() : renderKanji();          // kanji.js
     const tp = route.match(/^chu-de-(\d+)$/); if (tp) return renderTopic(+tp[1]);
     const m = route.match(/^bai-(\d+)$/); if (m) return renderWrite(lessonSet(+m[1]));
 }
@@ -253,7 +308,6 @@ const seg = (label, attr, opts, cur) => '<div class="set"><span class="lbl">' + 
 const sw = (attr, on, label, id) => '<button type="button" class="sw" ' + attr + (id ? ' id="' + id + '"' : '') + ' role="switch" aria-checked="' + on + '"><span class="track" aria-hidden="true"><span class="knob"></span></span><span>' + label + '</span></button>';
 function ctrlRow() {
     return '<div class="settings">' +
-        seg(t('dirLbl'), 'data-dir', [['vj', t('vj')], ['jv', t('jv')]], pref.dir) +
         seg(t('modeLbl'), 'data-mode', [['write', t('write')], ['mc', t('mc')]], pref.mode) +
         (pref.dir === 'jv' && pref.mode === 'write' ? sw('data-nodau=""', pref.nodau, t('nodau')) : '') + '</div>';
 }
@@ -262,8 +316,8 @@ function ctrlRow() {
 const okCount = key => Object.values(wgr[key] || {}).filter(g => g === 'ok').length;
 function lessonSet(no) {
     const L = LESSONS[no - 1];
-    return JA() ? { key: keyOf(no), items: L[4], title: t('lesson', no) + ' · ' + plainJa(L[1]), sub: L[2], audio: L[3], no }
-                : { key: keyOf(no), items: L[4], title: t('lesson', no) + ' · ' + L[2], jt: L[1], audio: L[3], no };
+    return JA() ? { key: keyOf(no), items: L[4], title: t('lesson', dispNo(no)) + ' · ' + plainJa(L[1]), sub: L[2], audio: L[3], no }
+                : { key: keyOf(no), items: L[4], title: t('lesson', dispNo(no)) + ' · ' + L[2], jt: L[1], audio: L[3], no };
 }
 let ws = null;   // { key, order, pos, input, checked, hint, kind, mc }
 function wsFor(set) {
@@ -289,7 +343,7 @@ function mcFor(s, set, i) {
     s.mc = { i, opts: shuffle([i].concat(others)), picked: null };
     return s.mc;
 }
-function setGrade(key, i, g) { wgr[key] = wgr[key] || {}; wgr[key][i] = g; save('hvn.write', wgr); track('answer', { lesson: +key.slice(1), result: g, ui: pref.ui || 'vi' }); }
+function setGrade(key, i, g) { wgr[key] = wgr[key] || {}; wgr[key][i] = g; save('hvn.write', wgr); rmMarkDay('n'); track('answer', { lesson: +key.slice(1), result: g, ui: pref.ui || 'vi' }); }
 const jaHtml = s => '<span class="jp" lang="ja">' + rubyHtml(s) + '</span>';
 // Giải thích ngữ pháp riêng của từng câu (data/notes-*.js: NOTES[số bài][số câu] = [[mẫu, giải thích], …]); hiện sau khi xem đáp án.
 function gramBlock(no, i) {
@@ -306,7 +360,7 @@ function renderWrite(set) {
     const okN = okCount(set.key);
     let h = lessonCrumbs(set.no) + '<section class="card"><div class="wtop"><div style="flex:1;min-width:0"><h2>' + esc(set.title) + '</h2>' +
         (set.jt ? '<div class="jt jp" lang="ja">' + rubyHtml(set.jt) + '</div>' : '') + (set.sub ? '<div class="sub" lang="vi">' + esc(set.sub) + '</div>' : '') + '</div>' +
-        (set.audio ? '<a class="btn sm" href="https://drive.google.com/file/d/' + esc(set.audio) + '/view" target="_blank" rel="noopener">' + t('driveLink', set.no) + '</a>' : '') + '</div>' +
+        (set.audio ? '<a class="btn sm" href="https://drive.google.com/file/d/' + esc(set.audio) + '/view" target="_blank" rel="noopener">' + t('driveLink', dispNo(set.no)) + '</a>' : '') + '</div>' +
         ctrlRow() +
         '<div class="settings">' + seg(t('order'), 'data-wm', ['seq', 'rand', 'todo'].map(m => [m, t(m)]), pref.wmode) +
         '<span class="r">' + sw('', pref.furi, 'Furigana', 'furi') + '</span></div>' +
@@ -315,7 +369,7 @@ function renderWrite(set) {
     h += '<section class="card"><div class="row"><span class="lbl">' + t('qLbl', i + 1, s.pos + 1, n) + '</span>' + (g[i] ? '<span class="hint">' + t('last') + t('G')[g[i]] + '</span>' : '') +
         '<span class="chips r"><button type="button" class="btn sm" data-nav="-1"' + (i === 0 ? ' disabled' : '') + '>' + t('prev') + '</button><button type="button" class="btn sm" data-nav="1"' + (i === set.items.length - 1 ? ' disabled' : '') + '>' + t('next') + '</button></span></div>';
     // Đề bài
-    h += vj ? '<p class="vi" lang="vi">' + esc(it[0]) + '</p>' + sayRow('vi') : '<p class="vi prompt jp" lang="ja">' + rubyHtml(it[2]) + '</p>' + sayRow('ja');
+    h += vj ? '<p class="vi" lang="vi">' + esc(it[0]) + '</p>' : '<p class="vi prompt jp" lang="ja">' + rubyHtml(it[2]) + '</p>';
     if (fixed && !vj) h += '<span class="note">' + t('fixed') + '</span>';
     if (it[1]) h += s.hint ? '<div class="hints">' + it[1].split(/\s*•\s*/).filter(Boolean).map(x => '<span class="hw"><span class="jp" lang="ja">' + rubyHtml(x) + '</span></span>').join('') + '</div>' : '<div><button type="button" class="btn sm" id="hintBtn">' + t('hintBtn') + '</button></div>';
     const ansBlock = () => vj ? '<div class="ans jp" lang="ja">' + rubyHtml(ans || '—') + '</div>' + (fixed ? '<span class="note">' + t('fixed') + '</span>' : '') + sayRow('ja')
@@ -380,7 +434,10 @@ function renderWrite(set) {
     $('view').querySelectorAll('[data-nav]').forEach(b => b.onclick = () => { const k = i + +b.dataset.nav; if (k < 0 || k >= set.items.length) return; stopAudio(); let p = s.order.indexOf(k); if (p < 0) { s.order = set.items.map((_, j) => j); p = k; } s.pos = p; resetQ(s); renderWrite(set); });
     $('view').querySelectorAll('[data-play]').forEach(b => b.onclick = () => {
         if (playing === b.dataset.play) { stopAudio(); return; }
-        if (b.dataset.play === 'vi') speak(it[0], 'vi', 'vi'); else speak(plainJa(it[2]), 'ja', 'ja');
+        if (b.dataset.play === 'vi') { const tts = () => speak(it[0], 'vi', 'vi'); if (set.no) playClip('vi', set.no, i, tts); else tts(); return; }
+        const tts = () => speak(plainJa(it[2]), 'ja', 'ja');
+        // Câu do Claude soạn lại (it[3] === 1): bản ghi đọc câu gốc khác → dùng giọng của máy
+        if (set.no && it[3] !== 1) playClip('ja', set.no, i, tts); else tts();
     });
     if (inp && !s.checked && document.activeElement === document.body) inp.focus({ preventScroll: true });
 }
@@ -394,27 +451,22 @@ function renderLessons() {
     const total = LESSONS.length * 30, K = L => keyOf(L[0]);
     const ok = LESSONS.reduce((s, L) => s + okCount(K(L)), 0);
     const tried = LESSONS.reduce((s, L) => s + Object.keys(wgr[K(L)] || {}).length, 0);
-    const nextL = LESSONS.find(L => okCount(K(L)) < 30) || LESSONS[0];
+    const nextL = LESSONS[(LESSON_ORDER.find(no => okCount(keyOf(no)) < 30) || LESSON_ORDER[0]) - 1];
     let h = '<section class="card course-sum"><div class="sum-main"><span class="lbl">' + t('continueLbl') + '</span>' +
-        '<a class="btn pri big" href="#bai-' + nextL[0] + '">' + esc(t('cont', nextL[0], lessonName(nextL))) + ' →</a>' +
+        '<a class="btn pri big" href="#bai-' + nextL[0] + '">' + esc(t('cont', dispNo(nextL[0]), lessonName(nextL))) + ' →</a>' +
         '<span class="hint">' + t('how')[pref.dir][pref.mode] + '</span></div>' +
         '<div class="tiles"><div class="tile"><b>' + ok + '</b><span>' + t('tOk') + total + '</span></div><div class="tile"><b>' + tried + '</b><span>' + t('tTried') + '</span></div><div class="tile"><b>' + LESSONS.filter(L => okCount(K(L)) >= 30).length + '</b><span>' + t('tFull') + '</span></div></div></section>';
-    h += '<section class="card"><h2 class="card-h">' + t('settings') + '</h2>' + ctrlRow() + '</section>';
-    const gN = GRAMMAR.reduce((n, G) => n + G.items.length, 0);
-    if (!JA()) h += '<div class="sec-h"><h2>' + t('gramTab') + '</h2><span class="hint">' + t('gramCard') + '</span></div>' +
-        '<a class="topic gram-card" href="#ngu-phap"><span class="tp-mark jp" lang="ja" aria-hidden="true">文</span>' +
-        '<span class="tp-n">' + t('gramCardN', GRAMMAR.length, gN) + '</span><b>' + t('gramH') + '</b>' +
-        '<span class="tp-d">' + t('gramCardD') + '</span><span class="tp-foot"><span></span><span class="tp-go">→</span></span></a>';
-    h += '<div class="sec-h"><h2>' + t('topicsH') + '</h2><span class="hint">' + t('topicsSub') + '</span></div><div class="topics">' +
+    // Đã bỏ thẻ "Cách luyện" (chọn cách làm nằm trong trang bài) và ẩn thẻ Ngữ pháp N5 (vẫn mở được từ các trạm của Lộ trình N5).
+    // Thẻ chủ đề dạng gọn: chữ biểu tượng + tên + số bài / tiến độ (mô tả hiện khi rê chuột)
+    h += '<div class="sec-h"><h2>' + t('topicsH') + '</h2><span class="hint">' + t('topicsSub') + '</span></div><div class="topics-mini">' +
         TOPICS.map((T, i) => {
-            const o = topicOk(T), tot = T.ls.length * 30;
-            return '<a class="topic" href="#chu-de-' + (i + 1) + '"><span class="tp-mark jp" lang="ja" aria-hidden="true">' + T.mark + '</span>' +
-                '<span class="tp-n">' + t('topicN', i + 1) + ' · ' + t('lessonsN', T.ls.length) + '</span>' +
-                '<b>' + esc(topicName(T)) + '</b>' + (JA() ? '<span class="tp-ja" lang="vi">' + esc(T.vi) + '</span>' : '<span class="tp-ja jp" lang="ja">' + esc(T.ja) + '</span>') +
-                '<span class="tp-d">' + esc(JA() ? T.dja : T.dvi) + '</span>' +
-                '<span class="tp-foot"><span class="num">' + t('reachedN', o, tot) + '</span><span class="tp-go">' + (o >= tot ? t('topicDone') + ' ✓' : '→') + '</span></span>' +
-                '<span class="bar"><i style="width:' + (o / tot * 100) + '%"></i></span></a>';
+            const o = topicOk(T), tot = T.ls.length * 30, full = o >= tot;
+            return '<a class="tmini' + (full ? ' full' : '') + '" href="#chu-de-' + (i + 1) + '" title="' + esc(JA() ? T.dja : T.dvi) + '">' +
+                '<span class="tm-mark jp" lang="ja" aria-hidden="true">' + T.mark + '</span>' +
+                '<span class="tm-t"><b>' + esc(topicName(T)) + '</b><span class="tm-s num">' + t('lessonsN', T.ls.length) + ' · ' + (full ? t('topicDone') + ' ✓' : o + '/' + tot) + '</span>' +
+                '<span class="bar"><i style="width:' + (o / tot * 100) + '%"></i></span></span></a>';
         }).join('') + '</div>';
+    if (!JA()) h += rmCourseCard();   // roadmap.js — sau mục Chủ đề (Kanji N5 nằm trong Lộ trình)
     h += '<p class="hint">' + t('foot') + '</p>';
     $('view').innerHTML = h;
 }
@@ -430,8 +482,8 @@ function renderTopic(k) {
         '<div class="prog"><span class="num">' + t('reachedN', o, tot) + '</span><div class="bar"><i style="width:' + (o / tot * 100) + '%;background:var(--ok)"></i></div></div></div></section>';
     h += '<ol class="lesson-list">' + T.ls.map(no => {
         const L = LESSONS[no - 1], c = okCount(keyOf(no));
-        return '<li><a class="lrow" href="#bai-' + no + '"><span class="lr-no num">' + no + '</span>' +
-            '<span class="lr-t"><span class="lbl">' + t('lesson', no) + '</span><b' + (JA() ? ' class="jp" lang="ja"' : '') + '>' + esc(lessonName(L)) + '</b>' + lessonSub(L) + '</span>' +
+        return '<li><a class="lrow" href="#bai-' + no + '"><span class="lr-no num">' + dispNo(no) + '</span>' +
+            '<span class="lr-t"><span class="lbl">' + t('lesson', dispNo(no)) + '</span><b' + (JA() ? ' class="jp" lang="ja"' : '') + '>' + esc(lessonName(L)) + '</b>' + lessonSub(L) + '</span>' +
             '<span class="lr-p"><span class="num">' + t('perL', c) + '</span><span class="bar"><i style="width:' + (c / 30 * 100) + '%"></i></span></span>' +
             '<span class="lr-go" aria-hidden="true">' + (c >= 30 ? '✓' : '→') + '</span></a></li>';
     }).join('') + '</ol>';
@@ -465,6 +517,8 @@ function renderGrammar() {
     $('view').querySelectorAll('[data-gjump]').forEach(b => b.onclick = () => { const el = $('g-' + b.dataset.gjump); if (el) el.scrollIntoView({ behavior: REDUCED_MOTION.matches ? 'auto' : 'smooth', block: 'start' }); });
     const ds = [...$('view').querySelectorAll('details.gp')];
     ds.forEach(d => d.addEventListener('toggle', () => { if (d.open) gOpen[d.dataset.gid] = true; else delete gOpen[d.dataset.gid]; save('hvn.gopen', gOpen); }));
+    // Mở từ trạm của Lộ trình: nhảy tới nhóm ngữ pháp của bài đó
+    if (window.hvnGramJump) { const el = $('g-' + window.hvnGramJump); window.hvnGramJump = 0; if (el) requestAnimationFrame(() => el.scrollIntoView({ block: 'start' })); }
 }
 
 /* ===================== Cánh hoa rơi ===================== */
@@ -708,10 +762,53 @@ $('goAsk').onclick = () => { $('step1').hidden = true; $('step2').hidden = false
 $('goBack').onclick = () => { $('step2').hidden = true; $('step1').hidden = false; $('goAsk').focus({ preventScroll: true }); };
 
 /* ===================== Khởi động ===================== */
-$('themeBtn').onclick = () => {
-    const r = document.documentElement, dark = r.dataset.theme ? r.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
-    r.dataset.theme = dark ? 'light' : 'dark'; save('hvn.theme', r.dataset.theme);
-};
-{ const th = load('hvn.theme', null); if (th) document.documentElement.dataset.theme = th; }
+// Nút Sáng/Tối đã bỏ: giao diện sáng/tối theo cài đặt của máy.
 route = parseHash();
 render();
+
+// Lối vào riêng: kéo hình cô gái Việt (màn hình chọn xuất thân) sang trái để mở QA Mastery Roadmap ngay trong trang.
+// Không có gợi ý trên màn hình. Chỉ chủ trang (isOwner trên claude.ai) mở được; nơi khác (Firebase, người xem khác) kéo không có tác dụng.
+(() => {
+    const img = document.querySelector('.origin[data-ui="vi"] .o-mark'); if (!img) return;
+    const card = img.closest('.origin');
+    let owner = false;
+    (async () => {
+        try { const u = window.claude && window.claude.use ? await window.claude.use('user') : null; owner = !!(u && await u.isOwner()); } catch (e) { }
+    })();
+    let layer = null;
+    const closeQA = () => { if (layer) { layer.hidden = true; document.documentElement.style.overflow = ''; } };
+    window.hvnCloseQA = closeQA; // mục "Luyện câu tiếng Nhật" trong QA gọi hàm này để quay về
+    const openQA = () => {
+        if (!layer) {
+            layer = document.createElement('div'); layer.className = 'qa-layer';
+            const fr = document.createElement('iframe'); fr.src = 'qa/hub.html'; fr.title = 'QA Mastery Roadmap';
+            const x = document.createElement('button'); x.type = 'button'; x.className = 'qa-close'; x.setAttribute('aria-label', 'Đóng'); x.textContent = '×';
+            x.onclick = closeQA;
+            layer.append(fr, x); document.body.appendChild(layer);
+            document.addEventListener('keydown', e => { if (e.key === 'Escape' && layer && !layer.hidden) closeQA(); });
+        }
+        layer.hidden = false; document.documentElement.style.overflow = 'hidden';
+    };
+    img.draggable = false; img.classList.add('o-drag');
+    let sx = 0, dx = 0, on = false, moved = false;
+    img.addEventListener('dragstart', e => e.preventDefault());
+    img.addEventListener('pointerdown', e => {
+        if (e.button) return;
+        on = true; moved = false; sx = e.clientX; dx = 0; img.style.transition = 'none';
+        try { img.setPointerCapture(e.pointerId); } catch (x) { }
+    });
+    img.addEventListener('pointermove', e => {
+        if (!on) return;
+        const d = e.clientX - sx; if (Math.abs(d) > 6) moved = true;
+        dx = Math.min(0, d); img.style.transform = 'translateX(' + dx + 'px)';
+    });
+    const end = () => {
+        if (!on) return; on = false;
+        img.style.transition = ''; img.style.transform = '';
+        if (dx < -140 && owner) openQA();
+        setTimeout(() => { moved = false; }, 0);
+    };
+    img.addEventListener('pointerup', end); img.addEventListener('pointercancel', end);
+    // Kéo xong thì không tính là bấm chọn "Tôi là người Việt".
+    card.addEventListener('click', e => { if (moved) { e.preventDefault(); e.stopPropagation(); moved = false; } }, true);
+})();

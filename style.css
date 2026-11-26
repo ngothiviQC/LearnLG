@@ -255,8 +255,9 @@ rt { font-size: .55em; color: var(--muted); font-weight: 400; }
 .vi { font-family: var(--f-display); font-size: 21px; font-weight: 700; line-height: 1.4; margin: 0; }
 .vi.prompt { font-family: var(--f-jp); font-weight: 500; font-size: 22px; line-height: 2; }
 .hints { display: flex; flex-wrap: wrap; gap: 6px; }
-.hw { font-size: 14px; background: var(--sunken); border-radius: 7px; padding: 4px 9px; }
-.hw .jp { font-size: 15px; }
+.hw { font-size: 15px; background: var(--sunken); border-radius: 7px; padding: 6px 10px 5px; line-height: 2.1; }
+.hw .jp { font-size: 17px; }
+.hw rt { font-size: .68em; color: var(--ink); opacity: .75; } /* furigana trong gợi ý từ vựng: to hơn mặc định .55em cho dễ đọc */
 textarea.inp { font-family: var(--f-jp); font-size: 18px; line-height: 1.6; width: 100%; min-height: 76px; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); resize: vertical; }
 textarea.inp:focus { border-color: var(--ai); outline: none; box-shadow: 0 0 0 3px var(--ai-soft); }
 .ans { font-size: 20px; line-height: 2; overflow-wrap: anywhere; }
@@ -317,6 +318,25 @@ textarea.inp:focus { border-color: var(--ai); outline: none; box-shadow: 0 0 0 3
 .tp-d { font-size: 13px; color: var(--muted); margin-top: 6px; line-height: 1.5; }
 .tp-foot { display: flex; justify-content: space-between; align-items: baseline; font-size: 12.5px; color: var(--muted); margin-top: 12px; }
 .tp-go { color: var(--ai); font-weight: 700; }
+/* Chủ đề dạng gọn trên trang Khóa học */
+.topics-mini { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.tmini { display: flex; gap: 10px; align-items: center; padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); text-decoration: none; color: var(--ink); min-width: 0; transition: border-color .2s, background .2s; }
+.tmini:hover, .tmini:focus-visible { border-color: var(--ai); background: var(--ai-soft); }
+.tm-mark { flex: none; width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center; background: linear-gradient(150deg, var(--amber), var(--ai)); color: #fff5e6; font-family: var(--f-jp-serif); font-weight: 700; font-size: 22px; line-height: 1; }
+.tmini.full .tm-mark { background: var(--ok); }
+.tm-t { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.tm-t b { font-size: 13.5px; line-height: 1.3; overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; min-height: 2.6em; }
+.tm-s { font-size: 11.5px; color: var(--muted); }
+.tmini.full .tm-s { color: var(--ok); font-weight: 600; }
+.tm-t .bar { flex: none; display: block; height: 4px; margin-top: 4px; }
+.tm-t .bar i { background: var(--ok); }
+@media (max-width: 860px) { .topics-mini { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 560px) {
+    .tmini { flex-direction: column; align-items: flex-start; gap: 8px; padding: 10px; }
+    .tm-t { width: 100%; }
+    .tm-mark { width: 34px; height: 34px; font-size: 19px; }
+}
+@media (max-width: 300px) { .topics-mini { grid-template-columns: 1fr; } }
 .topic .bar, .lr-p .bar { flex: none; display: block; height: 5px; margin-top: 6px; }
 .topic .bar i, .lr-p .bar i { background: var(--ok); }
 
@@ -421,3 +441,7 @@ textarea.inp:focus { border-color: var(--ai); outline: none; box-shadow: 0 0 0 3
 .crumbs [aria-current="page"] { color: var(--ink); font-weight: 600; }
 .crumbs .sep { color: var(--muted); }
 .gram-card { min-height: 0; }
+.origin .o-mark.o-drag { pointer-events: auto; touch-action: pan-y; user-select: none; -webkit-user-select: none; -webkit-user-drag: none; }
+.qa-layer { position: fixed; inset: 0; z-index: 1000; background: #f8f4f6; }
+.qa-layer iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: block; }
+.qa-close { position: absolute; right: calc(14px + env(safe-area-inset-right, 0px)); bottom: calc(14px + env(safe-area-inset-bottom, 0px)); width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(0, 0, 0, .15); background: rgba(255, 255, 255, .92); color: #22161c; font-size: 22px; line-height: 1; cursor: pointer; box-shadow: 0 4px 14px rgba(0, 0, 0, .18); }
