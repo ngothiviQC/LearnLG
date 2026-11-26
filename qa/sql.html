@@ -1,4 +1,37 @@
 <!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><script>(function(){var e=false;try{e=window.top!==window}catch(x){e=true}if(e)document.documentElement.classList.add("embedded")})()</script><style>html.embedded nav.switch{display:none!important}</style>
+<style>
+code.cblock{display:block;width:fit-content;max-width:100%;box-sizing:border-box;margin:6px 0;padding:8px 10px;
+  background:var(--code-bg,#f4f4f5);border:1px solid var(--line,#ddd);border-radius:6px;font-size:12.5px;line-height:1.55;
+  white-space:pre-wrap;overflow-wrap:anywhere;overflow-x:auto;text-align:left}
+</style>
+<script>(function(){
+  var SKIP='pre,button,a,label,summary,h1,h2,h3,h4,h5,h6,th,td,option,select,textarea,nav,.opt,.cblock-off';
+  var KW=/^\s*(SELECT|INSERT|UPDATE|DELETE|WITH|CREATE|ALTER|DROP|FROM|WHERE|JOIN|LEFT JOIN|GROUP BY|ORDER BY|HAVING|CASE |UNION|\/\/|\/html|@|#|const |let |var |await |return |new |class |interface |package |driver\.|By\.|import |public |private |static |mvn |npx |npm |git |adb |k6 |curl |docker |mv |cp |cd |mkdir |assert|expect\(|test\(|Authorization:|Content-Type:|following-sibling|preceding-sibling|ancestor::)/i;
+  var JSONISH=/^\s*[\[{]\s*["{\[]/;   // {"items": …} hoặc [{…}]
+  var SYM=/[;{}()=]/;
+  function isBlock(el){
+    var t=(el.textContent||'').trim();
+    if(t.length<28) return false;
+    if(el.closest(SKIP)) return false;
+    return KW.test(t) || JSONISH.test(t) || (SYM.test(t) && /[A-Za-z_]\w*\s*[(.=]/.test(t));
+  }
+  // Thành khối thì dấu câu ngay sau nó (". , ; :") sẽ rơi xuống một dòng riêng: bỏ dấu câu lẻ đó đi
+  function mark(el){
+    el.classList.add('cblock');
+    var n=el.nextSibling;
+    if(n&&n.nodeType===3&&/^[.,;:]/.test(n.nodeValue)) n.nodeValue=n.nodeValue.replace(/^[.,;:]\s*/,'');
+  }
+  function scan(root){
+    var list=(root.querySelectorAll?root.querySelectorAll('code:not(.cblock)'):[]);
+    for(var i=0;i<list.length;i++) if(isBlock(list[i])) mark(list[i]);
+  }
+  function start(){
+    scan(document.body);
+    new MutationObserver(function(ms){ for(var i=0;i<ms.length;i++){ var n=ms[i].addedNodes; for(var j=0;j<n.length;j++){ var x=n[j]; if(x.nodeType===1){ if(x.matches&&x.matches('code:not(.cblock)')&&isBlock(x)) mark(x); scan(x); } } } })
+      .observe(document.body,{childList:true,subtree:true});
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',start); else start();
+})();</script>
 <title>Luyện SQL qua ticket QC</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
