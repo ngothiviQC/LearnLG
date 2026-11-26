@@ -10,6 +10,35 @@ const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { c
 const load = (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } };
 const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { } };
 
+/* ===================== Tải dữ liệu bài học khi cần ===================== */
+// Dữ liệu lớn (1500 câu, ghi chú ngữ pháp, file nghe, Lộ trình, Kanji) không nạp sẵn trong index.html:
+// chỉ tải khi rời màn chào (Tiếp tục học, chọn xuất thân) hoặc khi mở link có #. Tải song song, chạy theo đúng thứ tự.
+const DATA_FILES = ['data/lessons.js', 'data/grammar.js'].concat([1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(n => 'data/notes-' + n + '.js'),
+    ['data/clips.js', 'data/clips-vi.js', 'data/roadmap-lessons.js', 'data/roadmap-audio.js', 'data/roadmap-listen-audio.js', 'data/kanji-story.js']);
+const DATA_VER = (() => { try { const s = document.currentScript && document.currentScript.src; return s && s.includes('?') ? s.slice(s.indexOf('?')) : ''; } catch (e) { return ''; } })();
+const dataReady = () => typeof LESSONS !== 'undefined';
+let dataP = null;
+function loadData() {
+    if (dataReady()) return Promise.resolve();
+    if (!dataP) dataP = new Promise((res, rej) => {
+        let left = DATA_FILES.length;
+        DATA_FILES.forEach(f => {
+            const el = document.createElement('script'); el.src = f + DATA_VER; el.async = false;   // async=false: giữ thứ tự chạy
+            el.onload = () => { if (--left === 0) res(); };
+            el.onerror = () => { dataP = null; rej(new Error(f)); };
+            document.head.appendChild(el);
+        });
+    });
+    return dataP;
+}
+// Chạy fn sau khi có dữ liệu; trong lúc tải đổi con trỏ chuột sang dạng chờ
+function withData(fn) {
+    if (dataReady()) return fn();
+    document.documentElement.style.cursor = 'progress';
+    loadData().then(() => { document.documentElement.style.cursor = ''; fn(); })
+        .catch(() => { document.documentElement.style.cursor = ''; alert('Chưa tải được dữ liệu bài học. Kiểm tra mạng rồi thử lại.'); });
+}
+
 let pref = Object.assign({ furi: true, wmode: 'seq', rate: 1, script: 'hira' }, load('hvn.pref', {}));
 // Không còn mục chọn chiều dịch: chiều dịch theo xuất thân (người Việt: Việt → Nhật, người Nhật: Nhật → Việt).
 pref.dir = pref.ui === 'ja' ? 'jv' : 'vj';
@@ -238,7 +267,7 @@ function parseHash() {
 }
 function go(r) { if (location.hash.slice(1) !== r) { try { location.hash = r; } catch (e) { } } route = r; render(); window.scrollTo(0, 0); }
 document.addEventListener('click', e => { const a = e.target.closest('a[href^="#"]'); if (!a) return; e.preventDefault(); stopAudio(); go(a.getAttribute('href').slice(1)); });
-window.addEventListener('hashchange', () => { const r = parseHash(); if (r !== route) { route = r; render(); } });
+window.addEventListener('hashchange', () => withData(() => { const r = parseHash(); if (r !== route) { route = r; render(); } }));
 // Các nút đổi giao diện, chiều dịch, cách làm (dùng chung cho mọi màn hình)
 document.addEventListener('click', e => {
     const b = e.target.closest('[data-ui],[data-dir],[data-mode],[data-nodau],#langBtn'); if (!b) return;
@@ -247,7 +276,7 @@ document.addEventListener('click', e => {
     else if (b.dataset.dir) { pref.dir = b.dataset.dir; ws = null; }
     else if (b.dataset.mode) { pref.mode = b.dataset.mode; ws = null; }
     else if (b.dataset.nodau != null) { pref.nodau = !pref.nodau; }
-    stopAudio(); savePref(); render();
+    stopAudio(); savePref(); withData(render);
 });
 // Tốc độ đọc
 document.addEventListener('click', e => {
@@ -259,7 +288,7 @@ document.addEventListener('click', e => {
 const keyOf = no => (pref.dir === 'jv' ? 'r' : 'l') + no;
 let helloOn = false;   // đang mở lại màn chào từ nút Trang chủ
 $('homeBtn').onclick = () => { stopAudio(); helloOn = true; render(); window.scrollTo(0, 0); };
-$('goResume').onclick = () => { helloOn = false; render(); window.scrollTo(0, 0); };
+$('goResume').onclick = () => withData(() => { helloOn = false; render(); window.scrollTo(0, 0); });
 function renderHeader() {
     document.documentElement.lang = JA() ? 'ja' : 'vi';
     // Trang Lộ trình N5 có tiêu đề riêng (roadmap.js)
@@ -268,7 +297,7 @@ function renderHeader() {
     $('homeTxt').textContent = t('home');
 }
 function renderNav() {
-    if (!pref.ui) { $('sub').innerHTML = ''; return; }
+    if (!pref.ui || !dataReady()) { $('sub').innerHTML = ''; return; }
     const done = LESSONS.reduce((n, L) => n + okCount(keyOf(L[0])), 0);
     const tab = (href, label, on) => '<a class="tab" href="#' + href + '"' + (on ? ' aria-current="page"' : '') + '>' + label + '</a>';
     // Chỉ còn một tab Khóa học; chủ đề, bài và ngữ pháp nằm bên trong (có đường dẫn ở đầu trang).
@@ -763,11 +792,11 @@ $('goBack').onclick = () => { $('step2').hidden = true; $('step1').hidden = fals
 
 /* ===================== Khởi động ===================== */
 // Nút Sáng/Tối đã bỏ: giao diện sáng/tối theo cài đặt của máy.
-route = parseHash();
 // Mở đường link gốc (không có #…) thì luôn hiện màn chào trước, kể cả khi đã chọn xuất thân từ lần trước;
 // màn chào có nút "Tiếp tục học" để vào thẳng khóa học. Link có # (vd #lo-trinh, #bai-3) vẫn mở đúng trang đó.
-if (!location.hash || location.hash === '#') helloOn = true;
-render();
+// Màn chào không cần dữ liệu bài học nên hiện ngay; dữ liệu chỉ tải khi rời màn chào (withData).
+if (!location.hash || location.hash === '#' || !pref.ui) { helloOn = !!pref.ui; route = 'luyen-cau'; render(); }
+else withData(() => { route = parseHash(); render(); });
 
 // Lối vào riêng: kéo hình cô gái Việt (màn hình chọn xuất thân) sang trái hoặc sang phải hơn 140px để mở QA Mastery Roadmap ngay trong trang.
 // Không có gợi ý trên màn hình. Trên claude.ai chỉ chủ trang (isOwner) mở được; trên GitHub Pages (không có claude.ai) ai kéo cũng mở được,
@@ -780,19 +809,38 @@ render();
         if (!(window.claude && window.claude.use)) { owner = true; return; }   // không chạy trên claude.ai (GitHub Pages)
         try { const u = await window.claude.use('user'); owner = !!(u && await u.isOwner()); } catch (e) { }
     })();
-    let layer = null;
-    const closeQA = () => { if (layer) { layer.hidden = true; document.documentElement.style.overflow = ''; } };
+    let layer = null, loaded = false, want = false, wait = null;
+    // Hiệu ứng màn chào (cánh hoa, tà áo) bị lớp QA che mất nhưng vẫn vẽ liên tục làm QA ì: dừng khi mở QA, chạy lại khi đóng.
+    const pauseFx = () => { helloPetals.show(false); pagePetals.show(false); Dress.show(false); };
+    const resumeFx = () => { const h = !$('hello').hidden; helloPetals.show(h); pagePetals.show(!h); Dress.show(h); };
+    const reveal = () => { if (wait) { wait.remove(); wait = null; } layer.style.visibility = ''; document.documentElement.style.overflow = 'hidden'; };
+    const closeQA = () => {
+        want = false; if (wait) { wait.remove(); wait = null; }
+        if (layer) { layer.hidden = true; layer.style.visibility = ''; document.documentElement.style.overflow = ''; }
+        resumeFx();
+    };
     window.hvnCloseQA = closeQA; // mục "Luyện câu tiếng Nhật" trong QA gọi hàm này để quay về
     const openQA = () => {
+        want = true; pauseFx();
         if (!layer) {
             layer = document.createElement('div'); layer.className = 'qa-layer';
-            const fr = document.createElement('iframe'); fr.src = 'qa/hub.html'; fr.title = 'QA Mastery Roadmap';
+            const fr = document.createElement('iframe'); fr.title = 'QA Mastery Roadmap';
+            // Chỉ hiện lớp QA khi trang đã tải xong; trong lúc chờ có dòng "Đang mở…" nhỏ ở giữa màn hình
+            fr.addEventListener('load', () => { loaded = true; if (want) reveal(); }, { once: true });
+            fr.src = 'qa/hub.html';
             const x = document.createElement('button'); x.type = 'button'; x.className = 'qa-close'; x.setAttribute('aria-label', 'Đóng'); x.textContent = '×';
             x.onclick = closeQA;
             layer.append(fr, x); document.body.appendChild(layer);
-            document.addEventListener('keydown', e => { if (e.key === 'Escape' && layer && !layer.hidden) closeQA(); });
+            document.addEventListener('keydown', e => { if (e.key === 'Escape' && (want || (layer && !layer.hidden))) closeQA(); });
         }
-        layer.hidden = false; document.documentElement.style.overflow = 'hidden';
+        layer.hidden = false;
+        if (loaded) { reveal(); return; }
+        layer.style.visibility = 'hidden';   // vẫn tải iframe nhưng chưa hiện
+        if (!wait) {
+            wait = document.createElement('div'); wait.setAttribute('role', 'status'); wait.textContent = 'Đang mở QA Mastery…';
+            wait.style.cssText = 'position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:1000;padding:12px 18px;border-radius:999px;background:rgba(20,12,8,.82);color:#fff1d5;font:600 14px/1.2 var(--f-body,system-ui);box-shadow:0 6px 24px rgba(0,0,0,.3)';
+            document.body.appendChild(wait);
+        }
     };
     img.draggable = false; img.classList.add('o-drag');
     let sx = 0, dx = 0, on = false, moved = false;
