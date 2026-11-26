@@ -766,7 +766,7 @@ $('goBack').onclick = () => { $('step2').hidden = true; $('step1').hidden = fals
 route = parseHash();
 render();
 
-// Lối vào riêng: kéo hình cô gái Việt (màn hình chọn xuất thân) sang trái để mở QA Mastery Roadmap ngay trong trang.
+// Lối vào riêng: kéo hình cô gái Việt (màn hình chọn xuất thân) sang trái hoặc sang phải hơn 140px để mở QA Mastery Roadmap ngay trong trang.
 // Không có gợi ý trên màn hình. Chỉ chủ trang (isOwner trên claude.ai) mở được; nơi khác (Firebase, người xem khác) kéo không có tác dụng.
 (() => {
     const img = document.querySelector('.origin[data-ui="vi"] .o-mark'); if (!img) return;
@@ -800,12 +800,12 @@ render();
     img.addEventListener('pointermove', e => {
         if (!on) return;
         const d = e.clientX - sx; if (Math.abs(d) > 6) moved = true;
-        dx = Math.min(0, d); img.style.transform = 'translateX(' + dx + 'px)';
+        dx = d; img.style.transform = 'translateX(' + dx + 'px)';   // kéo được cả hai phía
     });
     const end = () => {
         if (!on) return; on = false;
         img.style.transition = ''; img.style.transform = '';
-        if (dx < -140 && owner) openQA();
+        if (Math.abs(dx) > 140 && owner) openQA();
         setTimeout(() => { moved = false; }, 0);
     };
     img.addEventListener('pointerup', end); img.addEventListener('pointercancel', end);
