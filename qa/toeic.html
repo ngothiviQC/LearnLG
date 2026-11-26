@@ -84,6 +84,11 @@ section>h2{font-size:20px;margin-bottom:12px}
 .th .ex li.x i{color:var(--bad)}
 .th .ex li.x span{color:var(--muted)}
 .ex-vi{display:block;margin-top:2px;font-size:.88em;color:var(--muted);font-style:italic}
+.q-vi{display:block;margin-top:6px;color:var(--muted);font-style:italic}
+.q-vi b{font-style:normal}
+.p-vi{margin-top:10px;border-top:1px dashed var(--line,#ddd);padding-top:8px}
+.p-vi summary{cursor:pointer;font-weight:600;color:var(--accent,#c2185b)}
+.p-vi p{color:var(--muted);font-style:italic}
 .th .ex b{color:var(--print);font-weight:600}
 .th .tip{font-size:13.5px;color:var(--muted)}
 .th .tip b{color:var(--ink)}
@@ -473,10 +478,45 @@ let store={best:{},wrong:{}};
 try{const s=JSON.parse(localStorage.getItem(KEY)||"null");if(s&&s.best)store=s}catch(e){}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(store))}catch(e){}}
 
+// ---------- bản dịch phần luyện tập (hiện sau khi chọn đáp án để không lộ đáp án) ----------
+// Q_VI[chương][câu] = nghĩa của cả câu đã điền đáp án đúng (Ch.01–13).
+const Q_VI={
+1:["Nhóm marketing họp vào mỗi sáng thứ Hai.","Cô Tanaka có vẻ rất hào hứng với dự án mới.","Tất cả nhân viên được yêu cầu tham dự buổi hội thảo an toàn vào thứ Sáu.","Hội đồng quản trị thấy đề xuất có thể chấp nhận được.","Người quản lý đã gửi cho chúng tôi một lịch trình chi tiết.","Chính sách mới sẽ làm cho quy trình trở nên đơn giản.","Hôm qua ông Lee đã thảo luận vấn đề ngân sách với giám đốc.","Phòng hội nghị có thể sử dụng sau 3 giờ chiều."],
+2:["Việc khai trương chi nhánh mới đã được công bố vào tuần trước.","Chúng tôi đã nhận được nhiều lời phàn nàn từ khách hàng về sự chậm trễ.","Vui lòng nộp đơn của bạn trước thứ Sáu.","Công ty cung cấp thông tin hữu ích cho nhân viên mới.","Không còn chỗ ngồi nào cho buổi hội thảo.","Cô Kim đã tự mình chuẩn bị toàn bộ báo cáo.","Văn phòng của ông Park ở cạnh văn phòng của tôi.","Công ty đã thuê hai chuyên gia tư vấn để rà soát sổ sách kế toán."],
+3:["Nhân viên đã làm việc chăm chỉ để hoàn thành dự án đúng hạn.","Đây là một quyết định quan trọng đối với công ty.","Doanh số đã tăng mạnh trong quý ba.","Mẫu mới nhẹ hơn mẫu cũ.","Khách sạn Greenfield có giá phòng thấp nhất trong khu vực.","Cuộc phỏng vấn thứ hai khó ngang với cuộc phỏng vấn thứ nhất.","Hướng dẫn rõ ràng đến mức đáng chú ý.","Doanh số bán online đang tăng nhanh hơn nhiều so với doanh số tại cửa hàng."],
+4:["Ông Brown đã làm việc cho công ty này từ năm 2018.","Lô hàng sẽ đến vào thứ Ba tuần sau.","Khi khách hàng gọi đến, cô Ito đang chủ trì một cuộc họp.","Khi chúng tôi đến nơi, bài thuyết trình đã bắt đầu rồi.","Nhà máy sản xuất 500 sản phẩm mỗi ngày.","Năm ngoái, công ty đã mở ba cửa hàng mới.","Đến tháng Ba năm sau, chúng tôi sẽ hoàn tất việc cải tạo.","Vui lòng đợi ở đây cho đến khi người quản lý quay lại."],
+5:["Báo cáo đã được nhóm kế toán xem xét vào hôm qua.","Tất cả các kiện hàng phải được giao trước 5 giờ chiều.","Những người thắng cuộc sẽ được công bố vào thứ Sáu tuần sau.","Sảnh đang được dọn dẹp, vì vậy vui lòng dùng lối vào bên hông.","Hợp đồng đã được cả hai bên ký kết.","Tháng trước, cô Rossi đã được bổ nhiệm làm quản lý dự án.","CEO đã phê duyệt kế hoạch tại cuộc họp.","Khách đến thăm được yêu cầu ký tên tại quầy lễ tân."],
+6:["Chúng tôi dự định mở một chi nhánh mới ở Hà Nội.","Mục tiêu của chúng tôi là giảm 10% chi phí.","Cô Chen đã gọi cho nhà cung cấp để xác nhận đơn hàng.","Cô ấy quyết định không nhận lời mời làm việc vì đường đi làm quá xa.","Chiếc hộp quá nặng, một mình không mang nổi.","Hội trường đủ rộng để chứa 300 khách.","Chúng tôi vẫn còn rất nhiều việc phải làm trước thứ Sáu.","Công ty muốn nhân viên học hệ thống mới."],
+7:["Điều hành một doanh nghiệp đòi hỏi phải lên kế hoạch cẩn thận.","Ông Diaz thích làm việc với khách hàng quốc tế.","Cảm ơn bạn đã hoàn thành khảo sát khách hàng của chúng tôi.","Vui lòng tránh dùng điện thoại trong cuộc họp.","Cả nhóm rất mong được gặp bạn.","Cô ấy đã quen với việc làm việc nhiều giờ.","Chúng tôi đang cân nhắc hoãn sự kiện đến mùa xuân.","Gói bảo hiểm bổ sung rất đáng mua."],
+8:["Kết quả bán hàng rất đáng thất vọng.","Khách hàng hài lòng với dịch vụ nhanh chóng.","Vui lòng đọc kỹ tài liệu đính kèm.","Người đàn ông đang đứng cạnh cô Lee là giám đốc mới của chúng tôi.","Sản phẩm sản xuất tại nhà máy này được xuất khẩu sang Nhật Bản.","Khi điền đơn đăng ký, vui lòng viết rõ ràng.","Chúng tôi đang tìm một kỹ sư có kinh nghiệm.","Nằm ở trung tâm thành phố, khách sạn rất được khách du lịch ưa chuộng."],
+9:["Bạn có thể thanh toán bằng thẻ tín dụng hoặc chuyển khoản ngân hàng.","Cả quản lý lẫn trợ lý đều không rảnh.","Buổi hội thảo vừa hữu ích vừa nhiều thông tin.","Mặc dù mưa to, buổi hòa nhạc ngoài trời vẫn tiếp tục.","Chúng tôi sẽ hủy đơn hàng trừ khi nhà cung cấp giảm giá.","Tôi không chắc liệu khách hàng có chấp nhận lời đề nghị hay không.","Vui lòng đến sớm để chúng ta có thể bắt đầu đúng giờ.","Ngay khi lô hàng đến, chúng tôi sẽ liên hệ với bạn."],
+10:["Cuộc họp sẽ bắt đầu lúc 9 giờ sáng.","Văn phòng đóng cửa vào các ngày Chủ nhật.","Cửa hàng mở cửa đến 10 giờ tối mỗi ngày.","Doanh số đã tăng đều đặn kể từ tháng Một.","Máy in ở cạnh quầy lễ tân.","Bất chấp thời tiết xấu, chuyến bay vẫn cất cánh đúng giờ.","Sự kiện bị hoãn do thiếu kinh phí.","Trong suốt cuộc họp, tất cả điện thoại phải được tắt."],
+11:["Ứng viên mà chúng tôi đã phỏng vấn có kỹ năng tốt.","Chúng tôi cần một trợ lý nói được tiếng Pháp.","Lexa là một công ty có sản phẩm được bán trên khắp thế giới.","Điều khách hàng muốn nhất là giao hàng nhanh hơn.","Đây là khách sạn nơi hội nghị đã được tổ chức.","Bạn có nhớ ngày cửa hàng lần đầu khai trương không?","Chiếc laptop tôi mua tuần trước đã bị hỏng rồi.","Những tài liệu do luật sư chuẩn bị đã được gửi cho khách hàng."],
+12:["Nếu có nhiều thời gian hơn, tôi sẽ tham gia khóa học buổi tối.","Nếu chúng tôi đi sớm hơn thì đã kịp chuyến tàu.","Ước gì tôi nói tiếng Pháp giỏi.","Nếu bạn cần giúp đỡ, vui lòng liên hệ quầy lễ tân.","Nếu biết trước bị trễ, tôi đã đi taxi.","Nếu cô ấy đã nhận công việc đó thì giờ cô ấy đang sống ở London.","Ước gì hôm qua tôi đã dự cuộc họp.","Nếu tôi là bạn, tôi sẽ nhận lời đề nghị."],
+13:["Mỗi nhân viên đều có một chiếc laptop.","Số lượng ứng viên năm nay đã tăng.","Nhiều khách hàng đã phàn nàn về tiếng ồn.","Cả quản lý lẫn các nhân viên đều chưa sẵn sàng.","Mọi người trong văn phòng đều biết về vụ sáp nhập.","Thông tin trong các tệp này là bí mật.","Ông Sato nói rằng ông ấy sẽ hoàn thành báo cáo vào ngày hôm sau.","Người quản lý, cùng với hai trợ lý, đang tham dự hội chợ thương mại."]
+};
+// READ_VI[chương][bài đọc] = { h: các đoạn dịch, qs: câu hỏi + đáp án đúng bằng tiếng Việt } (Ch.14–15).
+const READ_VI={
+14:[
+ {h:["Gửi: Toàn thể nhân viên · Từ: Linda Park, Quản lý cơ sở vật chất · Chủ đề: Chuyển văn phòng","Các đồng nghiệp thân mến,","Như đã thông báo vào tháng trước, văn phòng của chúng ta sẽ chuyển đến tòa nhà Harbor Tower vào ngày 14/3. Để chuẩn bị, vui lòng đóng gói đồ dùng cá nhân vào các thùng đã được phát trước ngày 11/3. Nhóm IT sẽ ngắt kết nối tất cả máy tính vào tối 12/3 và lắp đặt lại ở văn phòng mới trong dịp cuối tuần.","Chỗ đậu xe ở Harbor Tower có hạn, vì vậy nhân viên lái xe đi làm được khuyến khích đăng ký thẻ đậu xe theo tháng tại quầy lễ tân. Văn phòng mới cách ga Trung tâm năm phút đi bộ, điều này sẽ giúp phần lớn mọi người đi lại dễ dàng hơn.","Nếu có câu hỏi gì, vui lòng gọi cho tôi theo số máy lẻ 214. Linda"],
+  qs:["Mục đích của email là gì? → Hướng dẫn về việc chuyển văn phòng.","Nhân viên phải đóng gói xong trước ngày nào? → Ngày 11/3.","Điều gì KHÔNG được nhắc đến về văn phòng mới? → Kích thước các phòng họp.","Có thể suy ra điều gì về phần lớn nhân viên? → Họ đi làm bằng tàu.","Từ “encouraged” ở đoạn 2 gần nghĩa nhất với → advised (được khuyên)."]},
+ {h:["Tiệm bánh Sunrise sắp mở cửa hàng thứ năm","Tiệm bánh Sunrise, một doanh nghiệp gia đình thành lập năm 2009, sẽ mở chi nhánh thứ năm tại Riverside vào tháng tới. Công ty khởi đầu với một cửa hàng duy nhất trên phố Elm và nổi tiếng nhờ dùng bột mì từ các trang trại địa phương.","Theo chủ tiệm Marco Silva, nhu cầu đối với bánh mì nguyên cám của tiệm đã tăng gấp đôi trong hai năm qua. Cửa hàng mới sẽ có một quán cà phê nhỏ 30 chỗ ngồi và mở cửa đến 9 giờ tối, muộn hơn mọi chi nhánh khác. Sunrise hiện đang tuyển 12 nhân viên cho chi nhánh Riverside."],
+  qs:["Bài báo chủ yếu nói về điều gì? → Việc mở rộng của một tiệm bánh.","Sau tháng tới, Sunrise sẽ có bao nhiêu cửa hàng? → Năm.","Điều gì KHÔNG được nêu về cửa hàng Riverside? → Tên người quản lý.","Có thể suy ra điều gì về các chi nhánh khác của Sunrise? → Chúng đóng cửa trước 9 giờ tối.","Từ “demand” ở đoạn 2 gần nghĩa nhất với → nhu cầu mua hàng của khách."]}],
+15:[
+ {h:["BẢN GHI NHỚ · Gửi: Nhóm bán hàng · Từ: Kenji Mori · Ngày: 3/5 · V/v: Cuộc họp hằng quý","Cuộc họp bán hàng hằng quý sẽ diễn ra vào thứ Năm, ngày 9/5, lúc 2 giờ chiều tại phòng 5B thay vì phòng 3A như thường lệ, do phòng 3A đang được sơn lại. Vui lòng mang theo số liệu bán hàng tháng Tư. Không có bữa trưa, nhưng sẽ có cà phê và đồ ăn nhẹ. Nếu không thể tham dự, hãy gửi báo cáo cho cô Alvarez trước ngày 8/5."],
+  qs:["Vì sao phòng họp bị thay đổi? → Phòng 3A đang được sơn lại.","Người tham dự nên mang theo gì? → Số liệu bán hàng tháng Tư.","Nhân viên không thể tham dự nên làm gì? → Gửi báo cáo cho cô Alvarez."]},
+ {h:["Dịch vụ văn phòng BrightClean","Dọn dẹp chuyên nghiệp cho văn phòng ở mọi quy mô. Chọn gói hằng ngày, hằng tuần hoặc hằng tháng. Chúng tôi chỉ dùng sản phẩm thân thiện với môi trường, an toàn cho nhân viên của bạn.","Khách hàng mới được giảm 20% tháng đầu tiên khi đăng ký trước ngày 30/6. Gọi 555-0182 để đặt lịch khảo sát và báo giá miễn phí tại chỗ."],
+  qs:["Quảng cáo này nói về gì? → Một dịch vụ dọn dẹp.","Khách hàng được giảm giá bằng cách nào? → Đăng ký làm khách hàng mới trước ngày 30/6.","Điều gì được nhắc đến về sản phẩm BrightClean sử dụng? → Chúng thân thiện với môi trường."]},
+ {h:["Diễn đàn Doanh nghiệp Westbridge · Thứ Bảy, 18/10","9:00 Đăng ký (Sảnh) · 9:30 Phát biểu chính: Doanh nghiệp nhỏ trong thị trường số · TS. Helen Ward (Hội trường A) · 11:00 Hội thảo: Marketing trên mạng xã hội · Tom Becker (Phòng 2) · 13:00 Ăn trưa (Garden Café) · 14:00 Tọa đàm: Tài chính cho startup (Hội trường A)","Từ: Priya Nair · Gửi: Tom Becker","Chào Tom, tôi rất tiếc nhưng chuyến tàu từ Leeds của tôi bị trễ và khoảng 11:30 tôi mới tới được. Tôi rất muốn dự buổi của anh. Sau đó anh gửi cho tôi slide được không? Tôi chắc chắn sẽ có mặt lúc ăn trưa và buổi tọa đàm buổi chiều. Thân, Priya"],
+  qs:["Vì sao cô Nair đến muộn? → Tàu của cô ấy bị trễ.","Tom Becker nhiều khả năng là ai? → Người trình bày một buổi hội thảo.","Cô Nair nhiều khả năng sẽ lỡ hoàn toàn buổi nào? → Bài phát biểu chính (keynote).","Lúc 2 giờ chiều cô Nair nhiều khả năng ở đâu? → Hội trường A."]}]
+};
+CH.forEach(c=>c.qs.forEach((q,i)=>{q.vi=(Q_VI[c.no]||[])[i]||""}));
+READ.forEach(c=>c.passages.forEach((p,pi)=>{const v=(READ_VI[c.no]||[])[pi];p.vi=v?v.h:null;p.qs.forEach((q,i)=>{q.vi=v&&v.qs[i]||""})}));
+
 // ---------- question bank ----------
 const BANK={};
-CH.forEach(c=>c.qs.forEach((q,i)=>{BANK[`${c.no}-${i}`]={id:`${c.no}-${i}`,ch:c.no,q:q[0],o:q[1],a:q[2],e:q[3]}}));
-READ.forEach(c=>c.passages.forEach((p,pi)=>p.qs.forEach((q,i)=>{BANK[`${c.no}-${pi}-${i}`]={id:`${c.no}-${pi}-${i}`,ch:c.no,p:pi,tag:q[0],q:q[1],o:q[2],a:q[3],e:q[4]}})));
+CH.forEach(c=>c.qs.forEach((q,i)=>{BANK[`${c.no}-${i}`]={id:`${c.no}-${i}`,ch:c.no,q:q[0],o:q[1],a:q[2],e:q[3],vi:q.vi}}));
+READ.forEach(c=>c.passages.forEach((p,pi)=>p.qs.forEach((q,i)=>{BANK[`${c.no}-${pi}-${i}`]={id:`${c.no}-${pi}-${i}`,ch:c.no,p:pi,tag:q[0],q:q[1],o:q[2],a:q[3],e:q[4],vi:q.vi}})));
 const ALLCH=[...CH,...READ];
 ALLCH.forEach(c=>c.theory=THEORY[c.no]);
 const chById=n=>ALLCH.find(c=>c.no===n);
@@ -511,7 +551,7 @@ function quiz({eyebrow,title,sub,theory,blocks,chNo,onEmpty}){
   app.innerHTML=`<div class="qhead"><span class="eyebrow">${eyebrow}</span><h1>${title}</h1>${sub?`<p style="margin:0;color:var(--muted)">${sub}</p>`:""}</div>
   ${theory?theoryHTML(theory):""}
   <div class="bar"><span class="score" id="score">0/${qs.length}</span><span class="meter"><i id="meter"></i></span><button class="btn" id="redo">Làm lại</button></div>
-  <div id="qs">${blocks.map(b=>(b.passage?`<div class="passage"><div class="ptitle">${b.passage.t}</div>${b.passage.h}</div>`:"")+b.qs.map(q=>qHTML(q,++n)).join("")).join("")}</div>
+  <div id="qs">${blocks.map(b=>(b.passage?`<div class="passage"><div class="ptitle">${b.passage.t}</div>${b.passage.h}${b.passage.vi?`<details class="p-vi"><summary>Xem bản dịch</summary>${b.passage.vi.map(x=>`<p>${x}</p>`).join("")}</details>`:""}</div>`:"")+b.qs.map(q=>qHTML(q,++n)).join("")).join("")}</div>
   ${chNo?navNext(chNo):""}`;
   let answered=0,right=0;
   const upd=()=>{document.getElementById("score").textContent=`${right}/${qs.length}`;document.getElementById("meter").style.width=(answered/qs.length*100)+"%"};
@@ -520,7 +560,7 @@ function quiz({eyebrow,title,sub,theory,blocks,chNo,onEmpty}){
     const box=btn.closest(".q"),q=BANK[box.dataset.id],i=+btn.dataset.i,ok=i===q.a;
     box.querySelectorAll(".opt").forEach((b,j)=>{b.disabled=true;if(j===q.a)b.classList.add("right");if(j===i&&!ok)b.classList.add("wrong")});
     const ex=box.querySelector(".exp");ex.hidden=false;
-    ex.innerHTML=`<b class="${ok?"ok":"no"}">${ok?"Đúng.":`Chưa đúng. Đáp án ${"ABCD"[q.a]}.`}</b> ${q.e}`;
+    ex.innerHTML=`<b class="${ok?"ok":"no"}">${ok?"Đúng.":`Chưa đúng. Đáp án ${"ABCD"[q.a]}.`}</b> ${q.e}${q.vi?`<span class="q-vi"><b>Dịch:</b> ${q.vi}</span>`:""}`;
     answered++;if(ok){right++;delete store.wrong[q.id]}else store.wrong[q.id]=1;
     if(answered===qs.length&&chNo){store.best[chNo]=Math.max(store.best[chNo]||0,right)}
     save();upd();
