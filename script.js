@@ -556,6 +556,9 @@ function renderGrammar() {
 // Màn chào: lớp sau chữ nhiều cánh nhỏ (cánh xa nhạt và nhòe) + lớp trước chữ vài cánh lớn nhòe mạnh như sát ống kính.
 // Trang học: một lớp thưa, nhạt hơn, nằm sau các thẻ nội dung nên không che chữ.
 const REDUCED_MOTION = matchMedia('(prefers-reduced-motion: reduce)');
+// Mức blur dựng sẵn cho sprite cánh hoa (đơn vị: pixel của sprite 64×80, trước khi thu nhỏ khi vẽ)
+const PETAL_BLURS = [8, 14];
+const CAN_BLUR = (() => { try { const c = document.createElement('canvas').getContext('2d'); c.filter = 'blur(2px)'; return c.filter === 'blur(2px)'; } catch (e) { return false; } })();
 const PETAL_SPRITES = (() => {
     // [đầu tròn (sáng), thân, đầu nhọn (đậm)] — cam đào như những cánh hoa trong ảnh
     const COLORS = [['#fcd9c2', '#f2a47e', '#d9663f'], ['#fde2cf', '#f5b28f', '#e07a52'], ['#f9cdb2', '#ec966d', '#c95a36']];
@@ -589,7 +592,16 @@ const PETAL_SPRITES = (() => {
         c.restore();
         // mép cánh sáng mảnh
         shape(); c.strokeStyle = 'rgba(255,230,210,.5)'; c.lineWidth = 1; c.stroke();
-        return s;
+        // Blur sẵn một lần ở vài mức cố định (theo pixel của sprite) để vòng lặp vẽ không phải đặt c.filter cho từng cánh.
+        // Viền đệm pad = 2×blur để phần nhòe không bị cắt mép. Trình duyệt không hỗ trợ filter thì dùng lại bản gốc.
+        const levels = [{ c: s, pad: 0 }].concat(PETAL_BLURS.map(b => {
+            if (!CAN_BLUR) return { c: s, pad: 0 };
+            const pad = Math.ceil(b * 2), o = document.createElement('canvas');
+            o.width = 64 + pad * 2; o.height = 80 + pad * 2;
+            const oc = o.getContext('2d'); oc.filter = 'blur(' + b + 'px)'; oc.drawImage(s, pad, pad);
+            return { c: o, pad };
+        }));
+        return { levels };
     });
 })();
 
@@ -600,11 +612,19 @@ function makePetals(opts) {
     const canvases = [back, front].filter(Boolean);
     let W = 0, H = 0, D = 1, list = [], raf = 0, last = 0, running = false, gust = 0, gustT = 4;
     const mouse = { x: -1e4, y: -1e4 };
+    // Kích thước vùng chỉ đo lại khi bắt đầu chạy, khi đổi cỡ cửa sổ, khi cuộn hoặc khi phần tử đổi cỡ (ResizeObserver);
+    // không đo trong từng khung hay từng lần di chuột.
+    let rect = null;
+    const measure = () => { rect = opts.area(); };
 
     // z: 0 = xa (nhỏ, nhạt, rơi chậm) → 1 = gần (to, rõ, rơi nhanh)
     function make(anywhere, isFront) {
         const z = isFront ? 1 : Math.random();
         const size = isFront ? 36 + Math.random() * 22 : 10 + z * 16;
+        // độ nhòe mong muốn trên màn hình (px) → quy về pixel sprite (chia cho tỉ lệ thu nhỏ) → chọn mức dựng sẵn gần nhất
+        const blur = isFront ? 6 + Math.random() * 5 : (z < .3 ? 1.5 : 0);
+        const want = blur / (size / 70);
+        const lv = blur ? 1 + PETAL_BLURS.reduce((bi, b, i) => Math.abs(b - want) < Math.abs(PETAL_BLURS[bi] - want) ? i : bi, 0) : 0;
         return {
             front: isFront, z, size,
             x: Math.random() * (W + 200) - 50,
@@ -614,7 +634,7 @@ function makePetals(opts) {
             sway: 12 + Math.random() * 30, ph: Math.random() * 6.28, sf: .6 + Math.random() * .9,
             rot: Math.random() * 6.28, vr: (Math.random() - .5) * 2.2,
             flip: Math.random() * 6.28, vf: 1.2 + Math.random() * 2.6,
-            alpha: (isFront ? .55 : .45 + z * .5) * (opts.alpha || 1), blur: isFront ? 6 + Math.random() * 5 : (z < .3 ? 1.5 : 0),
+            alpha: (isFront ? .55 : .45 + z * .5) * (opts.alpha || 1), lv,
             sp: sprites[Math.random() * sprites.length | 0], push: 0, pushY: 0,
         };
     }
@@ -624,7 +644,8 @@ function makePetals(opts) {
         if (front) for (let i = 0; i < (W < 720 ? Math.ceil(opts.frontCount / 2) : opts.frontCount); i++) list.push(make(true, true));
     }
     function fit() {
-        const r = opts.area(), d = Math.min(2, window.devicePixelRatio || 1);
+        if (!rect) measure();
+        const r = rect, d = Math.min(2, window.devicePixelRatio || 1);
         if (!r.width || !r.height) return false;
         const changed = Math.round(r.width) !== W || Math.round(r.height) !== H || d !== D;
         if (changed) {
@@ -634,7 +655,6 @@ function makePetals(opts) {
         }
         return changed;
     }
-    const canBlur = (() => { try { const c = document.createElement('canvas').getContext('2d'); c.filter = 'blur(2px)'; return c.filter === 'blur(2px)'; } catch (e) { return false; } })();
     function step(p, dt, t) {
         p.y += p.vy * dt;
         p.x += (p.vx - gust * (30 + p.z * 70)) * dt;
@@ -651,9 +671,9 @@ function makePetals(opts) {
         const sc = p.size / 70, sy = .25 + .75 * Math.abs(Math.cos(p.flip));   // lật mặt: cánh mỏng lại khi nghiêng
         c.save();
         c.globalAlpha = p.alpha;
-        if (canBlur) c.filter = p.blur ? 'blur(' + p.blur + 'px)' : 'none';
         c.translate(x, y); c.rotate(p.rot); c.scale(sc, sc * sy);
-        c.drawImage(p.sp, -32, -76);
+        const L = p.sp.levels[p.lv];   // sprite đã blur sẵn, không dùng c.filter trong vòng lặp
+        c.drawImage(L.c, -32 - L.pad, -76 - L.pad);
         c.restore();
     }
     function paint(t) {
@@ -675,7 +695,7 @@ function makePetals(opts) {
     }
     function start() {
         if (running) return;
-        fit();
+        measure(); fit();
         if (REDUCED.matches) { paint(0); return; }   // tắt chuyển động: chỉ vẽ cánh hoa đứng yên
         running = true; last = 0; raf = requestAnimationFrame(frame);
     }
@@ -683,17 +703,19 @@ function makePetals(opts) {
     function stop() { running = false; cancelAnimationFrame(raf); }
     function show(on) { wanted = on; if (on) start(); else stop(); }
 
-    window.addEventListener('pointermove', e => { const r = opts.area(); mouse.x = e.clientX - r.left; mouse.y = e.clientY - r.top; }, { passive: true });
+    window.addEventListener('pointermove', e => { if (!running || !rect) return; mouse.x = e.clientX - rect.left; mouse.y = e.clientY - rect.top; }, { passive: true });
     document.addEventListener('pointerleave', () => { mouse.x = mouse.y = -1e4; });
     document.addEventListener('visibilitychange', () => { if (document.hidden) stop(); else if (wanted) start(); });
-    window.addEventListener('resize', () => { if (wanted && !running) { fit(); paint(0); } });
+    window.addEventListener('resize', () => { measure(); if (wanted && !running) { fit(); paint(0); } });
+    window.addEventListener('scroll', () => { if (running) measure(); }, { passive: true });
+    if (opts.el && window.ResizeObserver) new ResizeObserver(() => { if (wanted) measure(); }).observe(opts.el);
     REDUCED.addEventListener('change', () => { stop(); if (wanted) start(); });
     return { show };
 }
 
 const helloPetals = makePetals({
     back: $('petalsBack'), front: $('petalsFront'),
-    area: () => $('hello').getBoundingClientRect(),
+    area: () => $('hello').getBoundingClientRect(), el: $('hello'),
     density: 1 / 26000, max: 46, frontCount: 4,
 });
 // Trang học: canvas cố định theo khung nhìn, thưa và nhạt, không có lớp trước chữ.
@@ -719,10 +741,16 @@ const Dress = (() => {
     const DEBUG = /debug-ta-ao/.test(location.hash);
     let W = 0, H = 0, D = 1, S = 1, OX = 0, OY = 0, mask = null, raf = 0, running = false, wanted = false;
 
+    // Số đo khung (kích thước canvas, mật độ điểm ảnh, object-position của ảnh): chỉ đo lại khi bắt đầu, đổi cỡ, ảnh tải xong
+    let meas = null;
+    function measure() {
+        meas = { r: cv.getBoundingClientRect(), d: Math.min(2, window.devicePixelRatio || 1),
+            pos: (getComputedStyle(img).objectPosition || '50% 50%').split(' ').map(v => parseFloat(v) / 100) };
+    }
     function layout() {
-        const r = cv.getBoundingClientRect(), d = Math.min(2, window.devicePixelRatio || 1);
+        if (!meas) measure();
+        const { r, d, pos } = meas;
         if (!r.width || !r.height || !img.naturalWidth) return false;
-        const pos = (getComputedStyle(img).objectPosition || '50% 50%').split(' ').map(v => parseFloat(v) / 100);
         const iw = img.naturalWidth, ih = img.naturalHeight, w = Math.round(r.width), h = Math.round(r.height);
         if (w === W && h === H && d === D && mask && mask.px === pos[0]) return true;
         W = w; H = h; D = d;
@@ -749,7 +777,8 @@ const Dress = (() => {
         const xs = REGION.map(p => p[0]), ys = REGION.map(p => p[1]);
         const x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys) - 30, y1 = Math.min(img.naturalHeight, Math.max(...ys));
         const breath = .8 + .2 * Math.sin(t * .31) + .06 * Math.sin(t * 1.1);   // gió lúc mạnh lúc nhẹ
-        const step = 3 / S;                                                       // mỗi dải rộng ~3px trên màn hình
+        const step = 6 / S;   // mỗi dải ~6px trên màn hình (trước là 3px): giảm một nửa số lần drawImage mỗi khung
+
         for (let sx = x0; sx < x1; sx += step) {
             const f = flex(sx + step / 2);
             const tipF = f * f * f;   // gợn rung chỉ đáng kể ở sát mũi tà
@@ -770,6 +799,7 @@ const Dress = (() => {
     function start() {
         if (running) return;
         if (!img.complete) { img.addEventListener('load', () => { if (wanted) start(); }, { once: true }); return; }
+        measure();
         if (REDUCED_MOTION.matches) { cv.getContext('2d').clearRect(0, 0, cv.width, cv.height); return; }   // tắt chuyển động: để ảnh gốc
         running = true; raf = requestAnimationFrame(frame);
     }
@@ -777,6 +807,9 @@ const Dress = (() => {
     function show(on) { wanted = on; if (on) start(); else stop(); }
     document.addEventListener('visibilitychange', () => { if (document.hidden) stop(); else if (wanted) start(); });
     REDUCED_MOTION.addEventListener('change', () => { stop(); if (wanted) start(); });
+    window.addEventListener('resize', () => { if (wanted) measure(); });
+    img.addEventListener('load', () => { if (wanted) measure(); });
+    if (window.ResizeObserver) new ResizeObserver(() => { if (wanted) measure(); }).observe(cv);
     return { show };
 })();
 
