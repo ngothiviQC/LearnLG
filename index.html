@@ -80,22 +80,6 @@
     <nav class="tabs" aria-label="Chọn mục" id="sub"></nav>
     <main id="view"></main>
 </div>
-
-<!-- Đếm học viên bằng Firebase Analytics (chỉ chạy trên learnlg.web.app / learnlg.firebaseapp.com) -->
-<script type="module">
-    if (/^learnlg\.(web\.app|firebaseapp\.com)$/.test(location.hostname)) {
-        try {
-            const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js');
-            const { getAnalytics, logEvent } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js');
-            // Cấu hình nằm ở firebase-config.js (không có trong repo; GitHub Actions tạo từ secret FIREBASE_CONFIG)
-            const { default: config } = await import('./firebase-config.js');
-            const app = initializeApp(config);
-            const an = getAnalytics(app);
-            window.hvnTrack = (name, params) => logEvent(an, name, params);
-            (window.hvnQ || []).splice(0).forEach(e => window.hvnTrack(e[0], e[1]));
-        } catch (e) { /* bị chặn (adblock, mất mạng) thì bỏ qua, site vẫn chạy bình thường */ }
-    }
-</script>
 <script src="data/lessons.js"></script>
 <script src="data/grammar.js"></script>
 <script src="data/notes-1.js"></script>

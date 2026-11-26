@@ -16,8 +16,8 @@ pref.dir = pref.ui === 'ja' ? 'jv' : 'vj';
 if (!pref.mode) pref.mode = 'write';
 if (pref.nodau == null) pref.nodau = pref.ui === 'ja';
 const savePref = () => save('hvn.pref', pref);
-// Gửi sự kiện thống kê (Firebase Analytics nạp ở index.html); trước khi nạp xong thì xếp hàng chờ
-const track = (name, params) => { try { if (window.hvnTrack) window.hvnTrack(name, params); else (window.hvnQ = window.hvnQ || []).push([name, params]); } catch (e) { } };
+// Thống kê sự kiện: đã gỡ Firebase Analytics, giữ hàm rỗng để các chỗ gọi track() không phải sửa
+const track = () => { };
 let wgr = load('hvn.write', {});   // { khóa bộ câu: { số thứ tự câu: 'ok' | 'mid' | 'ng' } }
 
 /* ===================== Furigana ===================== */
