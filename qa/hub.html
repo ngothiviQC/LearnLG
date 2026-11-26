@@ -1,0 +1,616 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>QA Mastery Roadmap</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: Learning Planner — menu bên trái (Tổng quan, Khóa học, Lịch, Thời gian, Thống kê, Lộ trình Automation, Cài đặt), nội dung bên phải; điện thoại: menu thành dải tab ngang. */
+:root{
+  --bg:#f8f4f6; --surface:#ffffff; --sunken:#f1e9ed; --ink:#22161c; --muted:#6b5a63; --line:#e6d9df;
+  --accent:#c2185b; --accent-ink:#ffffff; --accent-soft:#fce4ec;
+  --done:#1d7a46; --done-soft:#e1f3e7; --late:#b3261e; --late-soft:#fbe7e5; --warn:#8a5a00; --warn-soft:#fbf0d6;
+  --c1:#c2185b; --c1s:#fce4ec; --c2:#6a3fb0; --c2s:#eee7fb; --c3:#0f7a6a; --c3s:#dcf1ec; --c4:#b5541b; --c4s:#fbe9dc; --cb:#6b5a63; --cbs:#efe8eb;
+  --f-display:"Be Vietnam Pro", "Segoe UI", system-ui, sans-serif;
+  --f-body:"Inter", "Segoe UI", system-ui, sans-serif;
+  --f-mono:"JetBrains Mono", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#151013; --surface:#1d161a; --sunken:#100c0e; --ink:#efe6ea; --muted:#ab99a2; --line:#352a30;
+  --accent:#f48fb1; --accent-ink:#2a0a17; --accent-soft:#3d1a29;
+  --done:#5fd08e; --done-soft:#163322; --late:#ff8a80; --late-soft:#3a1a18; --warn:#f0c35a; --warn-soft:#352a12;
+  --c1:#f48fb1; --c1s:#3d1a29; --c2:#c3a6f5; --c2s:#2a2140; --c3:#5fd0bd; --c3s:#12302b; --c4:#f2a271; --c4s:#3a2416; --cb:#ab99a2; --cbs:#2a2226; color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#151013; --surface:#1d161a; --sunken:#100c0e; --ink:#efe6ea; --muted:#ab99a2; --line:#352a30;
+  --accent:#f48fb1; --accent-ink:#2a0a17; --accent-soft:#3d1a29;
+  --done:#5fd08e; --done-soft:#163322; --late:#ff8a80; --late-soft:#3a1a18; --warn:#f0c35a; --warn-soft:#352a12;
+  --c1:#f48fb1; --c1s:#3d1a29; --c2:#c3a6f5; --c2s:#2a2140; --c3:#5fd0bd; --c3s:#12302b; --c4:#f2a271; --c4s:#3a2416; --cb:#ab99a2; --cbs:#2a2226; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:14.5px;line-height:1.55;display:flex;flex-direction:column}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+a{color:var(--accent)}
+.num{font-variant-numeric:tabular-nums}
+
+.app{flex:1;min-height:0;display:grid;grid-template-columns:260px minmax(0,1fr)}
+.side{background:var(--surface);border-right:1px solid var(--line);padding:18px 12px;overflow:auto;display:flex;flex-direction:column;gap:4px}
+.brand{display:flex;gap:10px;align-items:center;padding:4px 10px 14px;border-bottom:1px solid var(--line);margin-bottom:8px}
+.brand svg{color:var(--accent)}
+.brand b{font-family:var(--f-display);font-size:16px}
+.nav{display:grid;grid-template-columns:22px minmax(0,1fr) 14px;gap:10px;align-items:center;width:100%;text-align:left;border:0;background:transparent;border-radius:8px;padding:9px 10px;text-decoration:none;color:var(--ink)}
+.nav:hover{background:var(--sunken)}
+.nav[aria-current="page"]{background:var(--accent-soft)}
+.nav[aria-current="page"] svg{color:var(--accent)}
+.nav svg{color:var(--muted)}
+.nav b{display:block;font-weight:600;font-size:14px}
+.nav small{display:block;color:var(--muted);font-size:12px}
+.nav .chev{color:var(--muted);font-size:13px}
+.side .foot{margin-top:auto;padding:12px 10px 0;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:6px;font-size:12.5px}
+.side .foot a{color:var(--muted);text-decoration:none}
+.side .foot a:hover{color:var(--accent)}
+.themebtn{border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:6px;padding:4px 8px;font-size:12px;align-self:flex-start}
+
+.navsep{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:12px 10px 4px}
+.main.framed{padding:0;overflow:hidden;display:flex}
+.main.framed .wrap{display:none}
+.pframe{flex:1;border:0;width:100%;height:100%;display:block;background:var(--bg)}
+.pframe[hidden]{display:none}
+.main{overflow:auto;padding-block:24px 56px;padding-left:max(24px,env(safe-area-inset-left,0px));padding-right:max(24px,env(safe-area-inset-right,0px))}
+.wrap{max-width:900px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+.banner{border-radius:10px;padding:10px 14px;font-size:13.5px;background:var(--warn-soft);color:var(--ink)}
+.banner.err{background:var(--late-soft)}
+.head{display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap}
+.head h1{font-size:26px;font-weight:700;letter-spacing:-.01em}
+.head .sub{font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:2px}
+.pill{font-size:12px;font-weight:600;padding:3px 10px;border-radius:999px;background:var(--done-soft);color:var(--done);white-space:nowrap}
+.pill.acc{background:var(--accent-soft);color:var(--accent)}
+.head .pill{margin-left:auto;margin-top:6px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px 20px;display:flex;flex-direction:column;gap:14px}
+.panel h2{font-size:16px;font-weight:600}
+.row{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.row .r{margin-left:auto}
+.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.tile{background:var(--sunken);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.tile .l{font-size:12px;color:var(--muted)}
+.tile .v{font-family:var(--f-display);font-size:30px;font-weight:700;line-height:1.15;font-variant-numeric:tabular-nums}
+.tile .s{font-size:12px;color:var(--muted)}
+.bar{height:8px;border-radius:4px;background:var(--sunken);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);border-radius:4px;transition:width .3s}
+.bar.thin{height:6px}
+.meta{display:flex;justify-content:space-between;gap:10px;font-size:12px;color:var(--muted);flex-wrap:wrap}
+.big{font-family:var(--f-display);font-size:30px;font-weight:700;font-variant-numeric:tabular-nums}
+.today{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:14px;align-items:center;border-radius:10px;padding:12px 14px;background:var(--cs);border-left:4px solid var(--cc)}
+.today .d{font-family:var(--f-display);font-weight:700;font-size:22px;color:var(--cc)}
+.today b{display:block}
+.today span{font-size:13px;color:var(--muted)}
+
+.course{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:12px;align-items:center}
+.no{width:40px;height:40px;border-radius:9px;background:var(--cs);color:var(--cc);display:grid;place-items:center;font-family:var(--f-display);font-weight:700;font-size:16px}
+.course b{display:block;font-weight:600}
+.course .s{font-size:12px;color:var(--muted)}
+.course .bar{margin-top:5px}
+.course .bar i{background:var(--cc)}
+.pct{font-size:12px;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--sunken);font-variant-numeric:tabular-nums}
+.cc1{--cc:var(--c1);--cs:var(--c1s)} .cc2{--cc:var(--c2);--cs:var(--c2s)} .cc3{--cc:var(--c3);--cs:var(--c3s)} .cc4{--cc:var(--c4);--cs:var(--c4s)} .ccb{--cc:var(--cb);--cs:var(--cbs)}
+.buffer{background:var(--sunken);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:2px}
+.buffer .row b{font-weight:600}
+.buffer span{font-size:12.5px;color:var(--muted)}
+
+.ccard{border:1px solid var(--line);border-radius:12px;background:var(--surface);overflow:hidden}
+.ccard-h{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:12px;align-items:center;padding:14px 16px;border-left:4px solid var(--cc)}
+.ccard-h h3{font-size:16px}
+.ccard-h p{margin:2px 0 0;font-size:13px;color:var(--muted)}
+.ccard-b{padding:0 16px 14px 20px;display:flex;flex-direction:column;gap:10px}
+.facts{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--muted)}
+.facts b{color:var(--ink);font-variant-numeric:tabular-nums}
+.tasks{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+.task{display:grid;grid-template-columns:24px minmax(0,1fr) auto;gap:8px;align-items:center;padding:5px 6px;border-radius:7px}
+.task:hover{background:var(--sunken)}
+.task.done .tt{text-decoration:line-through;color:var(--muted)}
+.tt{font-size:14px;overflow-wrap:anywhere}
+.ck{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--line);background:var(--surface);display:grid;place-items:center;padding:0;font-size:11px;font-weight:700;color:var(--surface)}
+.ck.on{background:var(--done);border-color:var(--done)}
+.x{border:0;background:transparent;color:var(--muted);font-size:13px;padding:2px 6px;border-radius:5px;opacity:.6}
+.x:hover{opacity:1;background:var(--late-soft);color:var(--late)}
+.addrow{display:flex;gap:6px}
+.inp,select.inp{font:inherit;font-size:14px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:7px;padding:7px 9px;min-width:0;width:100%}
+.btn{font:inherit;font-weight:600;font-size:13.5px;padding:7px 14px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);white-space:nowrap;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{background:var(--sunken)}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.pri:hover{filter:brightness(1.07)}
+.btn.danger{border-color:var(--late);color:var(--late)}
+.btn:disabled{opacity:.5;cursor:default}
+.btn.sm{padding:4px 10px;font-size:12.5px}
+
+.days{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.day{border:1px solid var(--line);border-radius:10px;background:var(--surface);padding:8px 6px 10px;display:flex;flex-direction:column;align-items:center;gap:2px;position:relative;border-top:3px solid var(--cc)}
+.day .dl{font-size:10px;letter-spacing:.08em;color:var(--muted)}
+.day .dn{font-family:var(--f-display);font-weight:700;font-size:19px;font-variant-numeric:tabular-nums}
+.day .dd{font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+.day .dh{font-size:11px;color:var(--cc);font-weight:600;min-height:16px;font-variant-numeric:tabular-nums}
+.day.is-today{outline:2px solid var(--accent);outline-offset:-1px}
+.day.done{background:var(--done-soft)}
+.day .ck{width:22px;height:22px}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12.5px;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;background:var(--cc);margin-right:5px;vertical-align:-1px}
+
+.form{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;align-items:end}
+.form label{display:flex;flex-direction:column;gap:3px;font-size:12px;font-weight:600;color:var(--muted);min-width:0}
+.form .w2{grid-column:span 2}
+
+.chart{width:100%;height:auto;display:block}
+.chart .grid{stroke:var(--line);stroke-width:1}
+.chart .tgt{stroke:var(--accent);stroke-width:1.5;stroke-dasharray:4 3}
+.chart text{fill:var(--muted);font-size:10px;font-family:var(--f-body)}
+.hbar{display:grid;grid-template-columns:150px minmax(0,1fr) 90px;gap:10px;align-items:center;font-size:13px}
+.hbar .track{position:relative;height:14px;background:var(--sunken);border-radius:4px;overflow:hidden}
+.hbar .track i{position:absolute;left:0;top:0;bottom:0;background:var(--cc);border-radius:4px}
+.hbar .v{text-align:right;font-variant-numeric:tabular-nums;color:var(--muted)}
+
+.sform{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.sform label{display:flex;flex-direction:column;gap:4px;font-size:12.5px;font-weight:600;color:var(--muted)}
+.sform .full{grid-column:1/-1}
+.hint{font-size:12.5px;color:var(--muted);margin:0}
+.msg{font-size:13px;color:var(--muted);margin:0;min-height:18px}
+.msg.err{color:var(--late)}
+.empty{border:1px dashed var(--line);border-radius:10px;padding:16px;color:var(--muted);font-size:13.5px}
+
+.phases{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}
+.phase{display:flex;flex-direction:column;gap:2px;padding:10px;border-radius:10px;background:var(--cs);text-decoration:none;color:var(--ink);min-width:0}
+.phase b{font-family:var(--f-display);font-size:18px;color:var(--cc)}
+.phase span{font-size:12px;line-height:1.3;color:var(--muted)}
+.phase .bar{margin-top:4px;background:var(--surface)}
+.phase .bar i{background:var(--cc)}
+.cps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.cp{border:1px solid var(--line);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.cp.done{background:var(--done-soft);border-color:transparent}
+.cp p{margin:0;font-size:13px}
+.lbl{display:block;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:1px}
+.phh{display:flex;flex-direction:column;min-width:0;flex:1}
+.sess{display:flex;flex-direction:column;gap:6px}
+.ses{border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.ses[open]{border-color:var(--cc)}
+.ses.done{background:var(--done-soft);border-color:transparent}
+.ses summary{display:grid;grid-template-columns:22px 26px minmax(0,1fr) auto;gap:10px;align-items:center;padding:9px 12px;cursor:pointer;list-style:none}
+.ses summary::-webkit-details-marker{display:none}
+.ses .sn{font-family:var(--f-display);font-weight:700;color:var(--cc)}
+.ses .st{font-weight:600;overflow-wrap:anywhere}
+.ses.done .st{color:var(--muted)}
+.tags{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.tag{font-size:11.5px;padding:1px 8px;border-radius:999px;background:var(--sunken);color:var(--muted);white-space:nowrap}
+.tag.cpt{background:var(--warn-soft);color:var(--warn);font-weight:600}
+.sbody{padding:2px 14px 14px 70px;display:flex;flex-direction:column;gap:10px;font-size:13.5px}
+.sbody p{margin:0}
+.sbody ul{margin:0;padding-left:18px}
+
+.links{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.vtabs{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.vtab{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 12px;font-size:12.5px}
+.vtab[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:600}
+.vocab{width:100%;border-collapse:collapse;font-size:14px}
+.vocab th{text-align:left;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:6px 8px;border-bottom:1px solid var(--line)}
+.vocab td{padding:8px;border-bottom:1px solid var(--line);vertical-align:top}
+.vocab .jw{display:block;font-size:16px;font-weight:600}
+.vocab .kn{display:block;color:var(--muted);font-size:12.5px}
+.vocab td.mean{width:55%}
+.vocab.hide td.mean:not(.show){color:transparent;background:var(--sunken);border-radius:6px;cursor:pointer;user-select:none}
+.tpl{margin:0;padding:12px 14px;border-radius:8px;background:var(--sunken);white-space:pre-wrap;font-size:14px;line-height:1.7;overflow-wrap:anywhere}
+@media (max-width:860px){
+  .navsep{display:none}
+  .main.framed{height:calc(100dvh - 54px)}
+  .ccard-h .links{grid-column:1/-1;justify-content:flex-start}
+  .phases{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .cps{grid-template-columns:1fr}
+  .ses summary{grid-template-columns:22px 24px minmax(0,1fr)}
+  .ses .tags{grid-column:3;justify-content:flex-start}
+  .sbody{padding:2px 14px 14px 14px}
+  html,body{height:auto}
+  .app{display:block}
+  .side{flex-direction:row;overflow-x:auto;padding:8px 10px;border-right:0;border-bottom:1px solid var(--line);position:sticky;top:env(safe-area-inset-top,0px);z-index:5;gap:4px}
+  .brand,.side .foot,.nav small,.nav .chev{display:none}
+  .nav{grid-template-columns:18px auto;width:auto;flex:0 0 auto;padding:7px 10px}
+  .main{overflow:visible;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+  .tiles{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .days{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .form{grid-template-columns:1fr 1fr}
+  .form .w2{grid-column:1/-1}
+  .sform{grid-template-columns:1fr}
+  .hbar{grid-template-columns:100px minmax(0,1fr) 70px}
+  .panel{padding:16px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="app">
+  <nav class="side" id="side" aria-label="Menu"></nav>
+  <main class="main" id="main"><div class="wrap" id="view"></div></main>
+</div>
+
+<script>
+/* ===================== Hằng số & tiện ích ===================== */
+// Khi nhúng trong Học Việt - Nhật, trang cha cung cấp hvnCloseQA() để đóng lớp QA.
+const PARENT_CLOSE = (() => { try { return window.parent !== window && typeof window.parent.hvnCloseQA === 'function' ? window.parent.hvnCloseQA : null; } catch(e){ return null; } })();
+const VIEWS = [
+  { id:'istqb', grp:'Kiểm thử phần mềm', t:'Lộ trình ISTQB', s:'6 chương · thực hành · thi thử', i:'<path d="M12 3l8 4-8 4-8-4z"/><path d="M6 9v5c0 1.7 2.7 3 6 3s6-1.3 6-3V9"/><path d="M20 7v6"/>' },
+  { id:'automation', grp:'Kiểm thử phần mềm', t:'Lộ trình Automation', s:'22 buổi · 7 giai đoạn', i:'<path d="M5 19V9l7-5 7 5v10"/><path d="M9 19v-5h6v5"/><path d="M3 19h18"/>' },
+  { id:'luyen-sql', grp:'Bài luyện', hide:true, p:'sql.html', t:'Luyện SQL', s:'Buổi 2 · ticket QC', i:'<ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/>' },
+  { id:'luyen-java', grp:'Bài luyện', hide:true, p:'java.html', t:'Luyện Java', s:'Buổi 3–5 · Maven, Git, cú pháp, collection, OOP', i:'<path d="M8 9l-4 3 4 3M16 9l4 3-4 3M14 5l-4 14"/>' },
+  { id:'luyen-selenium', grp:'Bài luyện', hide:true, p:'selenium.html', t:'Luyện Selenium + TestNG', s:'Buổi 6–10 · locator, wait, POM, CI', i:'<rect x="3" y="4" width="18" height="14" rx="2"/><path d="M3 8h18"/><path d="M9 13l2 2 4-4"/>' },
+  { id:'luyen-nang-cao', grp:'Bài luyện', hide:true, p:'advanced.html', t:'Luyện Appium, Playwright, K6, Final', s:'Buổi 13–22 · mobile, TypeScript, performance, AI, dự án cuối', i:'<rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/>' },
+  { id:'luyen-api', grp:'Bài luyện', hide:true, p:'api.html', t:'Luyện test API', s:'Buổi 11–12', i:'<path d="M4 7h16M4 12h10M4 17h7"/><circle cx="18" cy="16" r="3"/>' },
+  { id:'luyen-istqb', grp:'Bài luyện', hide:true, p:'istqb.html', t:'Luyện ISTQB', s:'Câu hỏi theo chương · thi thử', i:'<path d="M9 11l2 2 4-4"/><rect x="4" y="3" width="16" height="18" rx="2"/>' },
+  { id:'luyen-toeic', grp:'Học ngoại ngữ', p:'toeic.html', t:'Luyện TOEIC Reading', s:'Giáo trình ABC · 15 chapter', i:'<path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19V5"/><path d="M8 7h7M8 11h5"/>' },
+  { id:'luyen-jp', grp:'Học ngoại ngữ', back:true, t:'Luyện câu tiếng Nhật', s:'Về trang Học Việt - Nhật', i:'<path d="M15 18l-6-6 6-6"/><path d="M4 4h16v16H4z"/>' },
+].filter(v => !v.back || PARENT_CLOSE);
+const LINKS = [
+  ['Luyện SQL', 'https://claude.ai/artifact/2kvvuqBZQFg8RipuUKwpPe'],
+  ['Luyện Java', 'https://claude.ai/artifact/UEyyLXfD54P1DxKUjVyGEN'],
+  ['Luyện ISTQB', 'https://claude.ai/artifact/BnjTWDD4PMrHT31KFUc7vQ'],
+  ['Luyện test API', 'https://claude.ai/artifact/SjkaU5hz7dHfEJrDGLyfAw'],
+];
+const icon = p => '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + p + '</svg>';
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const pad = n => String(n).padStart(2, '0');
+const iso = d => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+const todayIso = () => iso(new Date());
+const parse = s => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
+const addDays = (s, n) => { const d = parse(s); d.setDate(d.getDate() + n); return iso(d); };
+const diffDays = (a, b) => Math.round((parse(b) - parse(a)) / 86400000);
+const dm = s => { const [, m, d] = s.split('-'); return d + '/' + m; };
+const dmy = s => { const [y, m, d] = s.split('-'); return d + '/' + m + '/' + y; };
+
+/* ===================== Trạng thái ===================== */
+const DEF = { title:'Kế hoạch luyện kỹ năng kiểm thử', start_date: todayIso(), days:30, buffer_days:2 };
+const D = { settings:null, courses:[], autos:{}, istq:{} };
+let db = null, ready = { settings:false, courses:false, autos:false, istq:false }, readOnly = false, writing = false, note = '';
+const cfg = () => Object.assign({}, DEF, D.settings || {});
+const courseList = () => D.courses.slice().sort((a, b) => (a.no || 0) - (b.no || 0));
+function layout(){
+  const c = cfg(), n = Math.max(1, courseList().length || 4);
+  const per = Math.max(1, Math.floor((c.days - c.buffer_days) / n));
+  const bufStart = per * n + 1;
+  return { c, n, per, bufStart, bufDays: c.days - per * n };
+}
+const rangeOf = no => { const L = layout(); return [(no - 1) * L.per + 1, no * L.per]; };
+function courseOfDay(i){ const L = layout(); if (i >= L.bufStart) return null; return courseList()[Math.ceil(i / L.per) - 1] || null; }
+const dayIndex = date => diffDays(cfg().start_date, date) + 1;
+const dateOfDay = i => addDays(cfg().start_date, i - 1);
+const ccls = c => c ? 'cc' + (((c.no || 1) - 1) % 4 + 1) : 'ccb';
+
+/* ===================== Ghi dữ liệu ===================== */
+async function write(fn, ok){
+  if (!db || readOnly){ flash('Chỉ lưu được khi mở trang trên claude.ai và đã đăng nhập.', true); return false; }
+  if (writing) return false;
+  writing = true;
+  try { await fn(); if (ok) flash(ok); return true; }
+  catch(e){
+    if (e && e.code === 'invalid_argument'){ readOnly = true; flash('Bạn chỉ có quyền xem trang này.', true); }
+    else flash(e && e.code === 'quota_exceeded' ? 'Đã đầy dung lượng lưu, hãy xóa bớt nhật ký cũ.' : 'Chưa lưu được (' + ((e && e.code) || 'lỗi') + '). Thử lại sau giây lát.', true);
+    return false;
+  } finally { writing = false; }
+}
+let flashT = null;
+function flash(t, err){ note = t; const m = $('msg'); if (m){ m.textContent = t; m.className = 'msg' + (err ? ' err' : ''); } clearTimeout(flashT); flashT = setTimeout(() => { note = ''; const m2 = $('msg'); if (m2) m2.textContent = ''; }, 3500); }
+
+/* ===================== Menu ===================== */
+const baseId = h => String(h || '').split('/')[0];
+const fromHash = () => { const h = decodeURIComponent(location.hash.slice(1)); return VIEWS.some(v => v.id === baseId(h) && !v.back) ? h : null; };
+let viewId = fromHash() || 'istqb';
+const cur = () => baseId(viewId);
+function go(id){ const BV = VIEWS.find(v => v.id === baseId(id)); if (BV && BV.back){ if (PARENT_CLOSE) PARENT_CLOSE(); return; } viewId = id; try { if (location.hash.slice(1) !== id) location.hash = id; } catch(e) {} render(); $('main').scrollTop = 0; window.scrollTo(0, 0); }
+document.addEventListener('click', e => { const a = e.target.closest('a[href^="#"]'); if (!a) return; const id = a.getAttribute('href').slice(1); if (VIEWS.some(v => v.id === baseId(id))){ e.preventDefault(); go(id); } });
+// Bài luyện vẫn mở được qua link trong lộ trình, nhưng không hiện trên menu.
+const MENU = VIEWS.filter(x => !x.hide);
+function renderSide(){
+  const v = cur();
+  $('side').innerHTML = '<div class="brand">' + icon('<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M14 17.5h7M17.5 14v7"/>') + '<b>Learning Planner</b></div>' +
+    MENU.map((x, k) => (x.grp && (MENU[k - 1] || {}).grp !== x.grp ? '<div class="navsep">' + x.grp + '</div>' : '') + '<a class="nav" href="#' + x.id + '"' + (x.id === v ? ' aria-current="page"' : '') + '>' + icon(x.i) + '<span><b>' + x.t + '</b><small>' + x.s + '</small></span><span class="chev">›</span></a>').join('') +
+    '<div class="foot"><button class="themebtn" id="themeBtn" type="button">Sáng/Tối</button></div>';
+  $('themeBtn').onclick = () => {
+    const r = document.documentElement, dark = r.dataset.theme ? r.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+    r.dataset.theme = dark ? 'light' : 'dark'; try { localStorage.setItem('planner.theme', r.dataset.theme); } catch(e) {}
+  };
+}
+
+/* ===================== Khung trang ===================== */
+function head(sub){
+  const c = cfg();
+  return '<div class="head"><div><h1>' + esc(c.title) + '</h1><div class="sub">' + sub + '</div></div><span class="pill">Thử thách ' + c.days + ' ngày</span></div>' +
+    (!db ? '<div class="banner">Đang xem bản chỉ đọc: tiến độ chỉ lưu được khi mở trang trên claude.ai và đã đăng nhập.</div>' : '') +
+    '<p class="msg" id="msg" role="status">' + esc(note) + '</p>';
+}
+const allReady = () => !db || (ready.settings && ready.courses && ready.autos && ready.istq);
+// Trang luyện chạy trong iframe cùng origin: giữ nguyên iframe khi chuyển mục để không mất bài đang làm.
+const frames = {};
+function showFrame(V){
+  const sub = viewId.indexOf('/') > 0 ? viewId.slice(viewId.indexOf('/') + 1) : '';
+  $('main').classList.add('framed');
+  let fr = frames[V.id];
+  if (!fr){ fr = document.createElement('iframe'); fr.className = 'pframe'; fr.title = V.t; fr.src = V.p + (sub ? '#' + sub : ''); $('main').appendChild(fr); frames[V.id] = fr; }
+  else if (sub){ try { fr.contentWindow.location.hash = sub; } catch(e) {} }
+  Object.values(frames).forEach(f => { f.hidden = f !== fr; });
+}
+// Link tới artifact cũ của bài luyện -> mở mục tương ứng ngay trong trang này.
+const PAGE_OF = { '2kvvuqBZQFg8RipuUKwpPe':'luyen-sql', 'SjkaU5hz7dHfEJrDGLyfAw':'luyen-api', 'UEyyLXfD54P1DxKUjVyGEN':'luyen-java', 'BnjTWDD4PMrHT31KFUc7vQ':'luyen-istqb', '9pY1yZGBaw9WWrctYjzksk':'luyen-toeic' };
+function localLinks(){
+  $('view').querySelectorAll('a[href*="claude.ai/artifact/"]').forEach(a => {
+    const m = a.getAttribute('href').match(/claude\.ai\/artifact\/([A-Za-z0-9]+)(?:#(.*))?/); if (!m || !PAGE_OF[m[1]]) return;
+    a.setAttribute('href', '#' + PAGE_OF[m[1]] + (m[2] ? '/' + m[2] : '')); a.removeAttribute('target'); a.removeAttribute('rel');
+    a.textContent = a.textContent.replace(/\s*↗$/, ' →');
+  });
+}
+function render(){
+  renderSide();
+  const v = cur(), V = VIEWS.find(x => x.id === v);
+  if (V && V.p){ showFrame(V); return; }
+  $('main').classList.remove('framed'); Object.values(frames).forEach(f => { f.hidden = true; });
+  if (!allReady()){ $('view').innerHTML = head('Đang tải') + '<div class="empty">Đang tải kế hoạch…</div>'; return; }
+  ({ 'automation': vAuto, 'istqb': vIstqb })[v]();
+  localLinks();
+  autoSync();
+}
+
+/* ===================== Tự chấm từ bài luyện ===================== */
+// Các bài luyện lưu tiến độ trong localStorage cùng origin (khóa cũ của từng trang). Đạt tiêu chí thì tự đánh dấu xong;
+// không tự bỏ đánh dấu. Mục người dùng tự bỏ đánh dấu (manual) thì không tự chấm lại.
+const LSJ = k => { try { return JSON.parse(localStorage.getItem(k) || 'null') || {}; } catch(e){ return {}; } };
+const ids = (p, n) => Array.from({ length:n }, (_, i) => p + (i + 1));
+const ISTQ_NEED = { 1:[19, 24], 2:[14, 18], 3:[9, 12], 4:[26, 33], 5:[21, 27], 6:[6, 8] };
+function practice(){
+  const sel = LSJ('selqc.v1').done || {}, adv = LSJ('advqc.v1').done || {}, sql = LSJ('sqlqc.v1').done || {}, api = LSJ('apiqa.v1').done || {}, jv = LSJ('javaqc.v1').done || {}, ist = LSJ('istqb.v1');
+  const all = (m, list) => list.every(i => m[i]), cnt = m => Object.keys(m).filter(k => m[k]).length;
+  const ch = {}; Object.keys(ist.done || {}).forEach(k => { if (ist.done[k]){ const c = k.split('-')[0]; ch[c] = (ch[c] || 0) + 1; } });
+  const ms = (ist.mockHist || []).map(x => x.score); let mock2 = false; for (let i = 1; i < ms.length; i++) if (ms[i] >= 30 && ms[i - 1] >= 30) mock2 = true;
+  const auto = {
+    2: all(sql, ids('N', 7)) && cnt(sql) >= 10,
+    3: all(jv, ids('M', 4).concat(ids('G', 5))) && ids('J', 9).filter(i => jv[i]).length >= 3,
+    4: all(jv, ['L1','L2','L3','L5','S1','S2','X1','X2']) && ['L4','X2','X3'].filter(i => jv[i]).length >= 2 && ids('C', 6).filter(i => jv[i]).length >= 4,
+    5: all(jv, ['O9','P1']) && ids('O', 8).filter(i => jv[i]).length >= 6,
+    6: all(sel, ids('W', 8)),
+    7: all(sel, ids('T', 8)),
+    8: all(sel, ids('N', 6)),
+    9: all(sel, ids('P', 6)),
+    10: all(sel, ids('C', 5)),
+    11: all(api, ids('A', 4).concat(ids('B', 5), ids('C', 4), ['D1', 'D2'])),
+    12: all(api, ids('E', 3)),
+    13: all(adv, ids('I', 8)),
+    14: all(adv, ids('M', 6)),
+    15: all(adv, ids('J', 5)),
+    16: all(adv, ids('L', 6)),
+    17: all(adv, ids('Q', 7)),
+    18: all(adv, ids('K', 5)),
+    19: all(adv, ids('AI', 4)),
+    20: all(adv, ids('F', 3)),
+    21: all(adv, ids('R', 3)),
+    22: all(adv, ids('D', 2)),
+  };
+  const istq = { 8: mock2 }; Object.keys(ISTQ_NEED).forEach(c => { istq[c] = (ch[c] || 0) >= ISTQ_NEED[c][0]; });
+  return { auto, istq, ch, ms };
+}
+const AUTO_RULE = { 2:'Tự chấm khi xong N1–N7 và đạt ít nhất 10 ticket trong Luyện SQL.', 3:'Tự chấm khi xong M1–M4, G1–G5 và ít nhất 3 bài J trong Luyện Java.', 4:'Tự chấm khi đạt đủ tiêu chí buổi 4 trong Luyện Java: xong L1–L3, L5, S1, S2, X1, X2; ít nhất 2 trong L4, X2, X3; ít nhất 4 trong C1–C6.', 5:'Tự chấm khi xong bài nộp O9 (mô hình hóa 3 trang) và Checkpoint 1 (P1), cùng ít nhất 6 bài O1–O8 trong Luyện Java.', 6:'Tự chấm khi xong W1–W8 trong Luyện Selenium + TestNG.', 7:'Tự chấm khi xong T1–T8 trong Luyện Selenium + TestNG.', 8:'Tự chấm khi xong N1–N6 trong Luyện Selenium + TestNG.', 9:'Tự chấm khi xong P1–P6 trong Luyện Selenium + TestNG.', 10:'Tự chấm khi xong C1–C5 (gồm review Checkpoint 2) trong Luyện Selenium + TestNG.', 11:'Tự chấm khi xong các bài A–D trong Luyện test API.', 12:'Tự chấm khi xong E1–E3 trong Luyện test API.', 13:'Tự chấm khi xong I1–I8 trong Luyện Appium · Playwright · K6 · Final.', 14:'Tự chấm khi xong M1–M6 trong Luyện Appium · Playwright · K6 · Final.', 15:'Tự chấm khi xong J1–J5 trong Luyện Appium · Playwright · K6 · Final.', 16:'Tự chấm khi xong L1–L6 trong Luyện Appium · Playwright · K6 · Final.', 17:'Tự chấm khi xong Q1–Q7 trong Luyện Appium · Playwright · K6 · Final.', 18:'Tự chấm khi xong K1–K5 trong Luyện Appium · Playwright · K6 · Final.', 19:'Tự chấm khi xong AI1–AI4 trong Luyện Appium · Playwright · K6 · Final.', 20:'Tự chấm khi xong F1–F3 trong Luyện Appium · Playwright · K6 · Final.', 21:'Tự chấm khi xong R1–R3 trong Luyện Appium · Playwright · K6 · Final.', 22:'Tự chấm khi xong D1–D2 trong Luyện Appium · Playwright · K6 · Final.' };
+let syncing = false;
+async function autoSync(){
+  if (!db || readOnly || syncing || !allReady()) return;
+  const P = practice(), w = [];
+  Object.keys(P.auto).forEach(n => { const k = akey(+n), d = D.autos[k]; if (P.auto[n] && !(d && (d.done || d.manual))) w.push(['auto_sessions', k]); });
+  Object.keys(P.istq).forEach(n => { const k = ikey(+n), d = D.istq[k]; if (P.istq[n] && !(d && (d.done || d.manual))) w.push(['istqb_items', k]); });
+  if (!w.length) return;
+  syncing = true;
+  try { for (const [c, k] of w) await db.collection(c).doc(k).set({ done:true, auto:true, updated_at: new Date().toISOString() }); flash('Đã tự chấm ' + w.length + ' mục từ kết quả bài luyện.'); }
+  catch(e) {} finally { syncing = false; }
+}
+// Bài luyện trong khung ghi localStorage -> trang tổng nhận sự kiện storage và chấm lại.
+window.addEventListener('storage', e => { if (/^(sqlqc|apiqa|javaqc|selqc|advqc|istqb)\.v1$/.test(e.key || '')) autoSync(); });
+
+/* ===================== Tiến độ khóa học ===================== */
+// Tiến độ tính từ trạng thái "hoàn thành" của khóa, số buổi Automation và số mục ISTQB đã xong (không dùng giờ học, lịch hay checklist).
+const isAutoCourse = co => /automation/i.test(co.name || '');
+const isIstqCourse = co => /istqb/i.test(co.name || '');
+const hasPlan = co => isAutoCourse(co) || isIstqCourse(co);
+const elapsed = () => { const c = cfg(); return Math.min(c.days, Math.max(0, dayIndex(todayIso()))); };
+// Trạng thái: hoàn thành > quá hạn > đang học (đã bấm "Bắt đầu học" hoặc đã tới lịch) > chưa bắt đầu.
+function cstat(co){
+  const [a, b] = rangeOf(co.no), di = dayIndex(todayIso());
+  if (co.done) return { k:'done', t:'Hoàn thành' };
+  if (di > b) return { k:'late', t:'Quá hạn' };
+  if (co.started || di >= a) return { k:'doing', t:'Đang học' };
+  return { k:'todo', t:'Chưa bắt đầu' };
+}
+const cpct = co => co.done ? 100 : isAutoCourse(co) ? Math.round(autoDoneN() / AUTO.length * 100) : isIstqCourse(co) ? Math.round(istqDoneN() / ISTQB.length * 100) : 0;
+const planNote = co => isAutoCourse(co) ? autoDoneN() + '/' + AUTO.length + ' buổi Automation' : isIstqCourse(co) ? istqDoneN() + '/' + ISTQB.length + ' mục ISTQB' : '';
+function cbadge(co){
+  const st = cstat(co);
+  if (hasPlan(co) && !co.done) return '<span class="pct">' + cpct(co) + '%</span>';
+  return '<span class="pill' + (st.k === 'doing' ? ' acc' : '') + '"' + (st.k === 'late' ? ' style="background:var(--late-soft);color:var(--late)"' : '') + '>' + st.t + '</span>';
+}
+const cbar = co => (hasPlan(co) || co.done) ? '<div class="bar thin"><i style="width:' + cpct(co) + '%"></i></div>' : '';
+const tile = (l, v, s) => '<div class="tile"><span class="l">' + l + '</span><span class="v">' + v + '</span><span class="s">' + s + '</span></div>';
+
+/* ===================== 4. Lộ trình Automation (kế hoạch v2) ===================== */
+const L_SQL = ['Luyện SQL', 'https://claude.ai/artifact/2kvvuqBZQFg8RipuUKwpPe'], L_API = ['Luyện test API', 'https://claude.ai/artifact/SjkaU5hz7dHfEJrDGLyfAw'], L_IST = ['Luyện ISTQB (kỹ thuật thiết kế test)', 'https://claude.ai/artifact/BnjTWDD4PMrHT31KFUc7vQ'], L_JAVA = ['Luyện Java (Maven, Git, cú pháp)', 'https://claude.ai/artifact/UEyyLXfD54P1DxKUjVyGEN'];
+const L_SEL = ph => ['Luyện Selenium + TestNG (' + ph + ')', '#luyen-selenium/' + ph + '1'];
+const L_ADV = ph => ['Luyện Appium · Playwright · K6 · Final (' + ph + ')', '#luyen-nang-cao/' + ph + '1'];
+const PHASE = {
+  A:{ name:'Nền tảng', sub:'Tư duy kiểm thử, SQL, Java', cc:'cc1' },
+  B:{ name:'Web automation', sub:'Selenium + Java', cc:'cc2' },
+  C:{ name:'API & dữ liệu', sub:'Postman, REST Assured, JDBC', cc:'cc3' },
+  D:{ name:'Mobile', sub:'Appium (Android)', cc:'cc4' },
+  E:{ name:'Playwright', sub:'TypeScript + Playwright', cc:'cc1' },
+  F:{ name:'Mở rộng', sub:'Performance và AI', cc:'cc2' },
+  G:{ name:'Final Project', sub:'Dự án tổng hợp', cc:'cc3' },
+};
+const KN = 'Khái niệm', FW = 'Framework / công cụ', PJ = 'Checkpoint / dự án';
+const AUTO = [
+  { n:1, ph:'A', type:KN, t:'Tư duy kiểm thử và thiết kế test case', links:[L_IST], main:['Test pyramid; khi nào nên và không nên automation.', 'Phân vùng tương đương, giá trị biên, bảng quyết định; giới thiệu chuyển trạng thái.', 'Viết test case: tiền điều kiện, bước, dữ liệu, kết quả mong đợi cụ thể.'], out:'15–20 test case cho một chức năng của ứng dụng dự án, có cột “Automation: có/không”.', crit:'Mỗi case có kết quả mong đợi đo được; ít nhất 3 case biên; không có case trùng.', fp:'Bắt đầu deliverable 02 – Test Scenarios & Test Cases.' },
+  { n:2, ph:'A', type:KN, t:'SQL cho tester', links:[L_SQL], main:['SELECT, WHERE, ORDER BY; INSERT, UPDATE, DELETE.', 'JOIN (INNER, LEFT), GROUP BY, HAVING, COUNT/SUM, subquery, xử lý NULL.', 'Đọc ERD: khóa chính, khóa ngoại, quan hệ 1-n, n-n.'], out:'File .sql gồm 10 truy vấn có comment câu hỏi nghiệp vụ; ERD vẽ lại.', crit:'Ít nhất 3 truy vấn JOIN, 2 GROUP BY, 1 subquery; chạy lại cho đúng kết quả.' },
+  { n:3, ph:'A', type:FW, t:'Java 1 – môi trường, Maven, Git và cú pháp cơ bản', links:[L_JAVA], main:['JDK, IntelliJ; tạo project Maven, cấu trúc pom.xml.', 'Git: clone, commit, push, branch, .gitignore; nộp bài qua GitHub từ buổi này.', 'Biến, kiểu dữ liệu, toán tử, ép kiểu, if/else, switch; chạy và debug.'], out:'Repository GitHub có README và ít nhất 3 bài tập chạy được.', crit:'mvn package chạy được trên máy khác; commit message có nghĩa; không commit target/ và .idea/.' },
+  { n:4, ph:'A', type:KN, t:'Java 2 – vòng lặp, collection, String và exception', links:[L_JAVA], main:['for, while, do-while, for-each; method có tham số và giá trị trả về.', 'Array, List, Map; xử lý String (split, contains, format; equals và ==).', 'Exception: try/catch/finally, throws.'], out:'Bộ bài tập xử lý List/Map và đọc file CSV, push lên repository.', crit:'Mỗi xử lý tách thành method; file không tồn tại không làm chương trình dừng đột ngột.' },
+  { n:5, ph:'A', type:KN + ' + checkpoint', cp:'Checkpoint 1', t:'Java 3 – OOP cho automation và Checkpoint 1', links:[L_JAVA], main:['Class, object, constructor, static.', 'Đóng gói, kế thừa, đa hình, trừu tượng; interface và abstract class.', 'Package và access modifier; mô hình hóa trang web bằng class (tiền đề POM).'], out:'Project mô hình hóa 3 trang web bằng class, có ít nhất một interface hoặc abstract class.', crit:'Field để private; lớp con dùng lại code lớp cha; đạt Checkpoint 1.' },
+  { n:6, ph:'B', links:[L_SEL('W')], type:FW, t:'Selenium WebDriver và TestNG cơ bản', main:['Kiến trúc WebDriver; Selenium Manager tự tải driver.', 'Locator: ID, Name, CSS, XPath; nguyên tắc chọn locator ổn định.', 'TestNG cơ bản: @Test, @BeforeMethod, @AfterMethod, Assert.'], out:'3 test trên saucedemo: đăng nhập đúng, sai mật khẩu, user bị khóa.', crit:'Không dùng XPath tuyệt đối; mỗi test có assertion; driver được đóng sau mỗi test.' },
+  { n:7, ph:'B', links:[L_SEL('T')], type:FW, t:'Wait, assertion và thao tác nâng cao', main:['Implicit, Explicit, Fluent Wait; không dùng Thread.sleep.', 'Dropdown, alert, iframe, nhiều window/tab, Actions, upload file, JavaScriptExecutor.', 'Chụp màn hình khi fail; chạy headless.'], out:'Ít nhất 8 test trên the-internet, mỗi test một loại thao tác.', crit:'Không có Thread.sleep; chạy 3 lần liên tiếp đều pass; test fail có ảnh chụp.' },
+  { n:8, ph:'B', links:[L_SEL('N')], type:FW, t:'TestNG nâng cao – suite, group, parallel, listener, report', main:['testng.xml, group smoke/regression, priority; hạn chế dependsOn.', 'Chạy song song và thread-safety.', 'ITestListener ghi log, chụp ảnh; report Allure hoặc ExtentReports.'], out:'Suite có ít nhất 2 group, chạy bằng mvn test, có report HTML.', crit:'Chạy riêng group smoke bằng một lệnh; report hiển thị ảnh của test fail.' },
+  { n:9, ph:'B', links:[L_SEL('P')], type:FW, t:'Page Object Model và data-driven', main:['POM, BasePage; tách page, test, data, config.', 'Data Provider đọc dữ liệu từ CSV, JSON hoặc Excel.', 'Config theo môi trường bằng file properties.'], out:'Framework có thư mục page/test/data/config; ít nhất 1 test chạy nhiều bộ dữ liệu từ file.', crit:'Test không chứa locator; không hard-code URL hay dữ liệu; đổi môi trường chỉ sửa config.', fp:'Bắt đầu deliverable 04 – automation cho ứng dụng dự án.' },
+  { n:10, ph:'B', links:[L_SEL('C')], type:FW + ' + checkpoint', cp:'Checkpoint 2', t:'Driver Factory, CI với GitHub Actions và Checkpoint 2', main:['Driver Factory chọn browser qua config, ThreadLocal khi chạy song song.', 'Logging; pull request và code review trên GitHub.', 'Workflow GitHub Actions chạy mvn test headless, lưu report làm artifact.'], out:'Repository có workflow chạy xanh và README hướng dẫn chạy.', crit:'Pipeline chạy khi push và pull request; report tải về được; đạt Checkpoint 2.' },
+  { n:11, ph:'C', type:KN, t:'Test API với Postman và Newman', links:[L_API], main:['HTTP: method, status code, header, body JSON.', 'Postman: collection, environment, test script, chain request (lưu token).', 'Newman chạy collection từ dòng lệnh và trong GitHub Actions.'], out:'Collection + environment + kết quả Newman (restful-booker, jsonplaceholder).', crit:'Mỗi request có ít nhất 2 assertion; token không hard-code; có case âm (401, 404, body sai).' },
+  { n:12, ph:'C', type:FW, t:'API automation bằng REST Assured và xác minh DB', links:[L_API, L_SQL], main:['REST Assured: given/when/then, kiểm tra status, field, JSON schema.', 'POJO; dùng API để chuẩn bị dữ liệu cho UI test.', 'JDBC: truy vấn DB để đối chiếu UI – API – DB.'], out:'Package api trong framework, ít nhất 5 test API và 1 test đối chiếu DB.', crit:'Test chạy trong CI; thông tin kết nối DB lấy từ config hoặc biến môi trường.', fp:'Deliverable 05 – API & Database Evidence.' },
+  { n:13, ph:'D', links:[L_ADV('I')], type:FW, t:'Appium – kiến trúc và Inspector', main:['Appium 2, driver UiAutomator2, capabilities; so sánh với Selenium.', 'Emulator và thiết bị thật; adb devices, install, logcat.', 'Appium Inspector: accessibility id, resource-id, UiAutomator. Chỉ Android.'], out:'Ảnh Inspector kết nối được và bảng locator cho 2 màn hình của app mẫu.', crit:'Ưu tiên accessibility id / resource-id; không dùng XPath theo vị trí.' },
+  { n:14, ph:'D', links:[L_ADV('M')], type:FW, t:'Appium – script mobile', main:['AndroidDriver trong framework Java có sẵn (TestNG, POM).', 'Tap, nhập, scroll/swipe, đợi element; popup quyền và bàn phím.', 'Khác biệt test mobile so với web.'], out:'Ít nhất 3 test mobile theo POM, kèm kết quả pass/fail.', crit:'Không tap theo tọa độ cứng; test chạy lại được sau khi reset app.' },
+  { n:15, ph:'E', links:[L_ADV('J')], type:KN, t:'JavaScript/TypeScript cho tester', main:['Node.js, npm, package.json; hàm, object, array, import/export.', 'Promise, async/await (quan trọng nhất với Playwright).', 'TypeScript cơ bản: kiểu, interface.'], out:'Repository nhỏ bằng TypeScript với ít nhất 3 bài chạy được.', crit:'Dùng await đúng chỗ; hạn chế kiểu any.' },
+  { n:16, ph:'E', links:[L_ADV('L')], type:FW, t:'Playwright – locator, auto-wait và assertion', main:['Cài @playwright/test, playwright.config.', 'getByRole, getByLabel, getByTestId; auto-wait; web-first assertion.', 'Chạy chromium, firefox, webkit; UI mode; codegen.'], out:'Ít nhất 5 test E2E luồng mua hàng saucedemo, pass trên 3 trình duyệt.', crit:'Không dùng waitForTimeout; dùng web-first assertion.' },
+  { n:17, ph:'E', links:[L_ADV('Q')], type:FW, t:'Playwright nâng cao – POM, fixtures, API, visual và CI', main:['POM, fixture tự định nghĩa, storageState.', 'request fixture gọi API; trace viewer; parallel workers.', 'Visual test bằng toHaveScreenshot; thêm job vào GitHub Actions có sẵn.'], out:'Project có POM, fixture, ít nhất 1 test visual; job CI xuất HTML report và trace.', crit:'Test độc lập, chạy song song không lỗi; ảnh baseline được commit.' },
+  { n:18, ph:'F', links:[L_ADV('K')], type:KN, t:'Performance testing với K6 và Lighthouse', main:['Load, stress, spike, soak; p90/p95, throughput, error rate.', 'K6: VU, stages, check, threshold; kết luận đạt/không đạt.', 'Lighthouse cho hiệu năng giao diện. Không chạy tải lên site bên thứ ba.'], out:'Script K6 có stages và threshold; báo cáo 1 trang; Lighthouse report của 1 trang.', crit:'Kết luận đạt/không đạt dựa trên threshold đặt trước khi chạy.' },
+  { n:19, ph:'F', links:[L_ADV('AI')], type:KN, t:'AI hỗ trợ kiểm thử và Playwright Test Agents', main:['Dùng AI phân tích yêu cầu, sinh test case, test data, hỗ trợ debug.', 'Giới hạn của AI; không đưa dữ liệu dự án thật vào công cụ AI chưa được phép.', 'Playwright Test Agents: Planner, Generator, Healer.'], out:'Bảng so sánh case AI (hợp lệ / sai / bỏ sót / trùng) và 1 test do Agent tạo kèm review.', crit:'Mọi output AI có ghi chú đã review; chỉ ra được ít nhất 2 lỗi của AI.' },
+  { n:20, ph:'G', links:[L_ADV('F')], type:PJ, cp:'Checkpoint 3', t:'Final Project 1 – kế hoạch và Checkpoint 3', main:['60 phút đầu: Checkpoint 3, rà deliverable 02, 04, 05.', 'Test Plan rút gọn: mục tiêu, phạm vi, cách tiếp cận, môi trường, rủi ro.', 'Chiến lược manual/automation; chọn regression suite.'], out:'Deliverable 01 – Test Plan rút gọn và danh sách việc còn lại.', crit:'Đạt Checkpoint 3 hoặc có kế hoạch bù được duyệt.' },
+  { n:21, ph:'G', links:[L_ADV('R')], type:PJ, t:'Final Project 2 – workshop hoàn thiện', main:['Chạy manual test, ghi bug.', 'Hoàn thiện automation; chạy regression trên CI.', 'Review code theo checklist 9 mục.'], out:'Bản nháp đủ 6 deliverable (01–06).', crit:'Suite regression xanh 3 lần liên tiếp trên CI; bug report đủ bước tái hiện và bằng chứng.' },
+  { n:22, ph:'G', links:[L_ADV('D')], type:PJ, t:'Demo và đánh giá cuối khóa', main:['Trình bày khoảng 15 phút: phạm vi, chiến lược, kết quả, hạn chế.', 'Demo chạy suite trên CI; hỏi đáp.', 'Chấm theo rubric; góp ý cho portfolio.'], out:'Bộ 6 deliverable bản cuối và link repository.', crit:'Trình bày được lựa chọn kiểm thử và hạn chế của dự án.' },
+];
+const CPS = [
+  { name:'Checkpoint 1', n:5, when:'Cuối buổi 5', how:'Bài code Java 30 phút (List/Map và mô hình hóa class), review 15 phút.', pass:'Chạy đúng yêu cầu; tách method; đặt tên rõ; dùng đúng đóng gói và kế thừa.' },
+  { name:'Checkpoint 2', n:10, when:'Buổi 10', how:'Review framework Selenium theo code review checklist 9 mục.', pass:'Đạt ít nhất 7/9 mục và pipeline GitHub Actions chạy xanh.' },
+  { name:'Checkpoint 3', n:20, when:'Đầu buổi 20', how:'Rà deliverable 02, 04, 05 của Final Project.', pass:'Có test case, framework chạy trên CI, ít nhất 5 test API; nếu chưa đạt phải có kế hoạch bù trước buổi 21.' },
+];
+const akey = n => 's' + pad(n);
+const isAutoDone = n => !!(D.autos[akey(n)] && D.autos[akey(n)].done);
+const autoDoneN = () => AUTO.filter(s => isAutoDone(s.n)).length;
+const autoNext = () => AUTO.find(s => !isAutoDone(s.n)) || null;
+const phCls = ph => PHASE[ph].cc;
+let autoOpen = null;
+function vAuto(){
+  const dn = autoDoneN(), nx = autoNext(), pct = Math.round(dn / AUTO.length * 100);
+  const cpDone = CPS.filter(c => isAutoDone(c.n)).length;
+  let h = head('Lộ trình Automation · kế hoạch v2') + '<section class="panel">' +
+    '<div class="tiles"><div class="tile"><span class="l">Buổi đã xong</span><span class="v">' + dn + '/' + AUTO.length + '</span><span class="s">mỗi buổi 180 phút</span></div>' +
+    '<div class="tile"><span class="l">Checkpoint đã qua</span><span class="v">' + cpDone + '/3</span><span class="s">buổi 5, 10, 20</span></div>' +
+    '<div class="tile"><span class="l">Giai đoạn hiện tại</span><span class="v">' + (nx ? nx.ph : '✓') + '</span><span class="s">' + (nx ? esc(PHASE[nx.ph].name) : 'Đã xong lộ trình') + '</span></div>' +
+    '<div class="tile"><span class="l">Buổi tiếp theo</span><span class="v">' + (nx ? pad(nx.n) : '—') + '</span><span class="s">' + (nx ? esc(nx.type) : 'Không còn buổi nào') + '</span></div></div>' +
+    '<div class="row"><h2>Tiến độ lộ trình</h2><span class="r big">' + pct + '%</span></div><div class="bar"><i style="width:' + pct + '%"></i></div>' +
+    '<div class="phases">' + Object.keys(PHASE).map(k => { const ss = AUTO.filter(s => s.ph === k), d = ss.filter(s => isAutoDone(s.n)).length;
+      return '<a class="phase ' + phCls(k) + '" href="#ph-' + k + '" data-act="jump" data-ph="' + k + '"><b>' + k + '</b><span>' + esc(PHASE[k].name) + '</span><span class="num">' + d + '/' + ss.length + '</span><div class="bar thin"><i style="width:' + (d / ss.length * 100) + '%"></i></div></a>'; }).join('') + '</div></section>';
+  h += '<section class="panel"><h2>Ba checkpoint giữa khóa</h2><div class="cps">' + CPS.map(c => '<div class="cp' + (isAutoDone(c.n) ? ' done' : '') + '"><div class="row"><b>' + c.name + '</b><span class="r pill' + (isAutoDone(c.n) ? '' : ' acc') + '">' + (isAutoDone(c.n) ? 'Đã qua' : c.when) + '</span></div><p><span class="lbl">Hình thức</span>' + esc(c.how) + '</p><p><span class="lbl">Đạt khi</span>' + esc(c.pass) + '</p></div>').join('') + '</div></section>';
+  Object.keys(PHASE).forEach(k => {
+    const ss = AUTO.filter(s => s.ph === k), d = ss.filter(s => isAutoDone(s.n)).length;
+    h += '<section class="panel ' + phCls(k) + '" id="ph-' + k + '"><div class="row"><span class="no">' + k + '</span><div class="phh"><h2>Giai đoạn ' + k + ' – ' + esc(PHASE[k].name) + '</h2><span class="hint">' + esc(PHASE[k].sub) + ' · buổi ' + ss[0].n + (ss.length > 1 ? '–' + ss[ss.length - 1].n : '') + '</span></div><span class="r pct">' + d + '/' + ss.length + '</span></div><div class="sess">';
+    ss.forEach(s => { const on = isAutoDone(s.n), open = autoOpen === s.n || (autoOpen === null && nx && nx.n === s.n);
+      h += '<details class="ses' + (on ? ' done' : '') + '"' + (open ? ' open' : '') + ' data-n="' + s.n + '"><summary><button type="button" class="ck' + (on ? ' on' : '') + '" data-act="auto" data-n="' + s.n + '" aria-label="Buổi ' + s.n + ': ' + (on ? 'bỏ đánh dấu' : 'đánh dấu đã học xong') + '">' + (on ? '✓' : '') + '</button><span class="sn num">' + pad(s.n) + '</span><span class="st">' + esc(s.t) + '</span><span class="tags"><span class="tag">' + esc(s.type) + '</span>' + (s.cp ? '<span class="tag cpt">' + esc(s.cp) + '</span>' : '') + '</span></summary>' +
+        '<div class="sbody"><div><span class="lbl">Nội dung chính</span><ul>' + s.main.map(m => '<li>' + esc(m) + '</li>').join('') + '</ul></div>' +
+        '<div><span class="lbl">Bài nộp</span><p>' + esc(s.out) + '</p></div><div><span class="lbl">Tiêu chí đạt</span><p>' + esc(s.crit) + '</p></div>' + (AUTO_RULE[s.n] ? '<p class="hint">' + AUTO_RULE[s.n] + '</p>' : '') +
+        (s.fp ? '<div><span class="lbl">Final Project</span><p>' + esc(s.fp) + '</p></div>' : '') +
+        (s.links ? '<div class="row">' + s.links.map(l => l[1][0] === '#' ? '<a class="btn sm" href="' + l[1] + '">' + esc(l[0]) + ' →</a>' : '<a class="btn sm" href="' + l[1] + '" target="_blank" rel="noopener">' + esc(l[0]) + ' ↗</a>').join('') + '</div>' : '') + '</div></details>'; });
+    h += '</div></section>';
+  });
+  h += '<p class="hint">Nội dung theo “Kế hoạch học Automation Testing 22 buổi” bản v2. Đánh dấu buổi đã học xong bằng nút tròn; tiến độ được lưu cùng kế hoạch.</p>';
+  $('view').innerHTML = h;
+  $('view').querySelectorAll('details.ses').forEach(el => el.addEventListener('toggle', () => { if (el.open) autoOpen = +el.dataset.n; }));
+}
+
+/* ===================== 4b. Lộ trình ISTQB CTFL 4.0 ===================== */
+// Mỗi mục lưu một document trong collection istqb_items (i01…), dạng { done, updated_at } — giống auto_sessions.
+const L_ISTQB = ['Luyện ISTQB', 'https://claude.ai/artifact/BnjTWDD4PMrHT31KFUc7vQ'];
+const IGR = { L:{ name:'Lý thuyết theo chương', cc:'cc1' }, P:{ name:'Thực hành', cc:'cc3' }, E:{ name:'Thi thử', cc:'cc2' } };
+const ISTQB = [
+  { n:1, g:'L', t:'Chương 1 – Nền tảng kiểm thử', exam:'8 câu trong đề', main:['Kiểm thử là gì, vì sao cần kiểm thử; 7 nguyên tắc kiểm thử.', 'Hoạt động kiểm thử, testware, truy vết và vai trò trong kiểm thử.', 'Kỹ năng cần có; cách tiếp cận whole team; tính độc lập của kiểm thử.'], out:'24 câu hỏi chương 1 trên trang Luyện ISTQB.', crit:'Đúng ít nhất 19/24 câu; giải thích lại được 7 nguyên tắc bằng ví dụ của mình.' },
+  { n:2, g:'L', t:'Chương 2 – Kiểm thử trong vòng đời phát triển', exam:'6 câu trong đề', main:['Kiểm thử trong các mô hình SDLC; test-first, DevOps, shift-left, retrospective.', 'Mức kiểm thử (component, integration, system, acceptance) và loại kiểm thử.', 'Confirmation test, regression test và kiểm thử bảo trì.'], out:'18 câu hỏi chương 2.', crit:'Đúng ít nhất 14/18 câu; phân biệt được confirmation test và regression test.' },
+  { n:3, g:'L', t:'Chương 3 – Kiểm thử tĩnh', exam:'4 câu trong đề', main:['Kiểm thử tĩnh và kiểm thử động khác nhau thế nào; sản phẩm nào review được.', 'Quy trình review; vai trò trong review.', 'Các loại review: informal, walkthrough, technical review, inspection.'], out:'12 câu hỏi chương 3.', crit:'Đúng ít nhất 9/12 câu; xếp được 4 loại review theo mức độ hình thức.' },
+  { n:4, g:'L', t:'Chương 4 – Phân tích và thiết kế test', exam:'11 câu trong đề, nhiều câu K3', main:['Hộp đen: phân vùng tương đương, giá trị biên (2 và 3 giá trị), bảng quyết định, chuyển trạng thái.', 'Hộp trắng: độ phủ câu lệnh và độ phủ nhánh.', 'Dựa trên kinh nghiệm (error guessing, exploratory, checklist) và dựa trên cộng tác (user story, acceptance criteria, ATDD).'], out:'33 câu hỏi chương 4, gồm các câu tính số test case.', crit:'Đúng ít nhất 26/33 câu; tự tính đúng số case cho bài EP, BVA và bảng quyết định.' },
+  { n:5, g:'L', t:'Chương 5 – Quản lý hoạt động kiểm thử', exam:'9 câu trong đề', main:['Test plan, entry/exit criteria, ước lượng, ưu tiên test case, test pyramid, testing quadrants.', 'Quản lý rủi ro: rủi ro dự án và rủi ro sản phẩm.', 'Theo dõi, kiểm soát, báo cáo kiểm thử; quản lý cấu hình; báo cáo lỗi.'], out:'27 câu hỏi chương 5.', crit:'Đúng ít nhất 21/27 câu; viết được một defect report đủ các trường.' },
+  { n:6, g:'L', t:'Chương 6 – Công cụ hỗ trợ kiểm thử', exam:'2 câu trong đề', main:['Các nhóm công cụ hỗ trợ kiểm thử.', 'Lợi ích và rủi ro của tự động hóa kiểm thử.'], out:'8 câu hỏi chương 6.', crit:'Đúng ít nhất 6/8 câu.' },
+  { n:7, g:'P', t:'Thực hành kỹ thuật thiết kế test', main:['Phân vùng tương đương và giá trị biên cho một form đăng ký mẫu.', 'Bảng quyết định cho quy tắc ưu đãi, voucher.', 'Chuyển trạng thái cho vòng đời đơn hàng.'], out:'Bộ testcase lưu trong testcases/, nhờ Claude chấm và sửa theo góp ý.', crit:'Mỗi case có kết quả mong đợi đo được; không có case trùng; ghi rõ kỹ thuật dùng cho từng case.' },
+  { n:8, g:'E', t:'Thi thử 40 câu', exam:'Đạt từ 26/40 (65%)', main:['Làm Đề 1, 2, 3 (cố định, không trùng câu) và đề ngẫu nhiên, mỗi đề 40 câu trong 60 phút trên trang Luyện ISTQB.', 'Xem lại giải thích của mọi câu sai.'], out:'Kết quả hai lần thi thử liên tiếp.', crit:'Đạt ít nhất 30/40 hai lần liên tiếp.' },
+  { n:9, g:'E', t:'Đề chính thức mẫu', exam:'Đạt từ 26/40 (65%)', main:['Làm đề mẫu chính thức trong điều kiện như thi thật.', 'Ghi câu sai và lý do sai vào notes/.'], out:'Điểm đề mẫu và ghi chú câu sai trong notes/.', crit:'Đạt ít nhất 30/40 và đã ôn lại toàn bộ câu sai.' },
+];
+const ikey = n => 'i' + pad(n);
+const isIstqDone = n => !!(D.istq[ikey(n)] && D.istq[ikey(n)].done);
+const istqDoneN = () => ISTQB.filter(s => isIstqDone(s.n)).length;
+const istqNext = () => ISTQB.find(s => !isIstqDone(s.n)) || null;
+let istqOpen = null;
+function vIstqb(){
+  const dn = istqDoneN(), nx = istqNext(), pct = Math.round(dn / ISTQB.length * 100), PR = practice();
+  const chDone = ISTQB.filter(s => s.g === 'L' && isIstqDone(s.n)).length;
+  let h = head('Lộ trình ISTQB CTFL 4.0') + '<section class="panel">' +
+    '<div class="tiles">' + tile('Mục đã xong', dn + '/' + ISTQB.length, 'lý thuyết, thực hành, thi thử') +
+    tile('Chương đã học', chDone + '/6', 'syllabus CTFL 4.0') +
+    tile('Thi thử', ISTQB.filter(s => s.g === 'E' && isIstqDone(s.n)).length + '/2', 'đề 40 câu, đạt từ 26') +
+    tile('Mục tiếp theo', nx ? pad(nx.n) : '—', nx ? esc(IGR[nx.g].name) : 'Đã xong lộ trình') + '</div>' +
+    '<div class="row"><h2>Tiến độ lộ trình</h2><span class="r big">' + pct + '%</span></div><div class="bar"><i style="width:' + pct + '%"></i></div>' +
+    '<div class="row"><a class="btn sm" href="' + L_ISTQB[1] + '" target="_blank" rel="noopener">Mở trang ' + L_ISTQB[0] + ' ↗</a></div></section>';
+  Object.keys(IGR).forEach(k => {
+    const ss = ISTQB.filter(s => s.g === k), d = ss.filter(s => isIstqDone(s.n)).length;
+    h += '<section class="panel ' + IGR[k].cc + '"><div class="row"><h2>' + esc(IGR[k].name) + '</h2><span class="r pct">' + d + '/' + ss.length + '</span></div><div class="sess">';
+    ss.forEach(s => { const on = isIstqDone(s.n), open = istqOpen === s.n || (istqOpen === null && nx && nx.n === s.n);
+      h += '<details class="ses' + (on ? ' done' : '') + '"' + (open ? ' open' : '') + ' data-n="' + s.n + '"><summary><button type="button" class="ck' + (on ? ' on' : '') + '" data-act="istq" data-n="' + s.n + '" aria-label="' + esc(s.t) + ': ' + (on ? 'bỏ đánh dấu' : 'đánh dấu đã xong') + '">' + (on ? '✓' : '') + '</button><span class="sn num">' + pad(s.n) + '</span><span class="st">' + esc(s.t) + '</span><span class="tags">' + (s.g === 'L' ? '<span class="tag">Đúng ' + (PR.ch[s.n] || 0) + '/' + ISTQ_NEED[s.n][1] + ' · cần ' + ISTQ_NEED[s.n][0] + '</span>' : '') + (s.n === 8 && PR.ms.length ? '<span class="tag">Gần nhất ' + PR.ms.slice(-2).join(', ') + '/40</span>' : '') + (s.exam ? '<span class="tag">' + esc(s.exam) + '</span>' : '') + '</span></summary>' +
+        '<div class="sbody"><div><span class="lbl">Nội dung chính</span><ul>' + s.main.map(m => '<li>' + esc(m) + '</li>').join('') + '</ul></div>' +
+        '<div><span class="lbl">Bài làm</span><p>' + esc(s.out) + '</p></div><div><span class="lbl">Tiêu chí đạt</span><p>' + esc(s.crit) + '</p></div></div></details>'; });
+    h += '</div></section>';
+  });
+  h += '<p class="hint">Chương 1–6 và thi thử tự được đánh dấu khi kết quả trong mục Luyện ISTQB đạt tiêu chí; mục khác đánh dấu bằng nút tròn.</p>';
+  $('view').innerHTML = h;
+  $('view').querySelectorAll('details.ses').forEach(el => el.addEventListener('toggle', () => { if (el.open) istqOpen = +el.dataset.n; }));
+}
+
+/* ===================== Sự kiện chung ===================== */
+$('view').addEventListener('click', e => {
+  const b = e.target.closest('[data-act]'); if (!b || b.tagName === 'FORM') return;
+  const act = b.dataset.act;
+  if (act === 'istq'){
+    e.preventDefault();
+    const n = +b.dataset.n, k = ikey(n), was = isIstqDone(n);
+    istqOpen = n;
+    write(() => db.collection('istqb_items').doc(k).set({ done: !was, manual: was, updated_at: new Date().toISOString() }), was ? '' : 'Đã đánh dấu xong mục ' + pad(n) + '.');
+  } else if (act === 'auto'){
+    e.preventDefault();
+    const n = +b.dataset.n, k = akey(n), was = isAutoDone(n);
+    autoOpen = n;
+    write(() => db.collection('auto_sessions').doc(k).set({ done: !was, manual: was, updated_at: new Date().toISOString() }), was ? '' : 'Đã đánh dấu xong buổi ' + pad(n) + '.');
+  } else if (act === 'jump'){
+    e.preventDefault();
+    const el = $('ph-' + b.dataset.ph); if (el) el.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block:'start' });
+  }
+});
+window.addEventListener('hashchange', () => { const h = fromHash(); if (h && h !== viewId) go(h); });
+try { const th = localStorage.getItem('planner.theme'); if (th) document.documentElement.dataset.theme = th; } catch(e) {}
+
+/* ===================== Khởi động: đọc dữ liệu đã lưu ===================== */
+render();
+(async () => {
+  const CL = window.claude || (function(){ try { return window.parent !== window ? window.parent.claude : null; } catch(e){ return null; } })();
+
+  // Kho dữ liệu thay thế khi không có claude.ai: cùng kiểu gọi db.doc()/db.collection() nhưng lưu vào localStorage ('qa.db').
+  const qaLocalDb = () => {
+    const KEY = 'qa.db', subs = [];
+    const load = () => { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch(e) { return {}; } };
+    const save = all => { try { localStorage.setItem(KEY, JSON.stringify(all)); } catch(e) { const er = new Error('quota'); er.code = 'quota_exceeded'; throw er; } };
+    const meta = { fromCache: false };
+    const docSnap = (c, id) => { const v = (load()[c] || {})[id]; return { id, exists: !!v, data: () => v ? JSON.parse(JSON.stringify(v)) : undefined, metadata: meta }; };
+    const colSnap = c => { const m = load()[c] || {}; return { docs: Object.keys(m).map(id => ({ id, data: () => JSON.parse(JSON.stringify(m[id])) })), metadata: meta }; };
+    const notify = () => subs.forEach(f => { try { f(); } catch(e) {} });
+    const listen = f => { subs.push(f); setTimeout(f, 0); return () => { const i = subs.indexOf(f); if (i >= 0) subs.splice(i, 1); }; };
+    const docRef = (c, id) => ({
+      set: async (data, opt) => { const all = load(); all[c] = all[c] || {}; all[c][id] = opt && opt.merge ? Object.assign({}, all[c][id], data) : data; save(all); notify(); },
+      delete: async () => { const all = load(); if (all[c]) delete all[c][id]; save(all); notify(); },
+      onSnapshot: cb => listen(() => cb(docSnap(c, id)))
+    });
+    window.addEventListener('storage', e => { if (e.key === KEY) notify(); });   // đồng bộ khi mở nhiều tab
+    return {
+      doc: path => { const [c, id] = path.split('/'); return docRef(c, id); },
+      collection: c => ({ doc: id => docRef(c, id), onSnapshot: cb => listen(() => cb(colSnap(c))) })
+    };
+  };
+  db = CL && CL.use ? await CL.use('db') : qaLocalDb();
+  if (!db){ render(); return; }
+  render();
+  const timer = setTimeout(() => flash('Chưa kết nối được tới nơi lưu tiến độ. Dữ liệu sẽ hiện khi kết nối lại.', true), 10000);
+  const done = (k, snap) => { if (!snap.metadata.fromCache) clearTimeout(timer); ready[k] = true; render(); };
+  const fail = k => err => { clearTimeout(timer); ready[k] = true; flash('Không đọc được dữ liệu (' + err.code + ').', true); render(); };
+  db.doc('planner/settings').onSnapshot(s => { D.settings = s.exists ? s.data() : null; done('settings', s); }, fail('settings'));
+  db.collection('courses').onSnapshot(s => { D.courses = s.docs.map(d => Object.assign({ id: d.id }, d.data())); done('courses', s); }, fail('courses'));
+  db.collection('auto_sessions').onSnapshot(s => { D.autos = {}; s.docs.forEach(d => D.autos[d.id] = d.data()); done('autos', s); }, fail('autos'));
+  db.collection('istqb_items').onSnapshot(s => { D.istq = {}; s.docs.forEach(d => D.istq[d.id] = d.data()); done('istq', s); }, fail('istq'));
+})();
+</script>
+
+</html>

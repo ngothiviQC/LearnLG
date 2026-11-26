@@ -1,0 +1,542 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><script>(function(){var e=false;try{e=window.top!==window}catch(x){e=true}if(e)document.documentElement.classList.add("embedded")})()</script><style>html.embedded nav.switch{display:none!important}</style>
+<title>Luyện ABC TOEIC Reading</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&family=Space+Grotesk:wght@500;600;700&display=swap">
+<style>
+/* Layout: an answer-sheet notebook. Narrow reading column, OMR-style bubbles for every choice, printed "drop-out" red lines for structure. */
+:root{
+  --paper:#f6f7fa; --sheet:#ffffff; --ink:#18212f; --muted:#5b6475; --line:#dfe2ea;
+  --print:#c33f55; --print-soft:#f8e3e7; --graphite:#2b3340;
+  --ok:#17804f; --ok-soft:#e1f3ea; --bad:#b4531a; --bad-soft:#fbeadf;
+  --f-display:"Space Grotesk",system-ui,sans-serif;
+  --f-body:"Be Vietnam Pro",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#12161d; --sheet:#1a1f28; --ink:#e7eaf0; --muted:#9aa3b3; --line:#2c3340;
+  --print:#ec7a8c; --print-soft:#3a2229; --graphite:#d9dee7;
+  --ok:#4cc58a; --ok-soft:#163327; --bad:#ec9a62; --bad-soft:#3a2517; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#12161d; --sheet:#1a1f28; --ink:#e7eaf0; --muted:#9aa3b3; --line:#2c3340;
+  --print:#ec7a8c; --print-soft:#3a2229; --graphite:#d9dee7;
+  --ok:#4cc58a; --ok-soft:#163327; --bad:#ec9a62; --bad-soft:#3a2517; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font:15px/1.6 var(--f-body)}
+.wrap{max-width:860px;margin:0 auto;padding-block:28px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.2}
+a{color:inherit}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--print);outline-offset:2px}
+.eyebrow{font:600 11px/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--print)}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding-bottom:14px;border-bottom:2px solid var(--print);margin-bottom:28px}
+.top a.brand{text-decoration:none;font:700 17px var(--f-display)}
+.nav{display:flex;gap:6px;flex-wrap:wrap}
+.nav a{text-decoration:none;font-size:13px;padding:6px 12px;border:1px solid var(--line);border-radius:999px;background:var(--sheet)}
+.nav a.on{border-color:var(--print);color:var(--print)}
+.hero{display:grid;gap:10px;margin-bottom:28px}
+.hero h1{font-size:clamp(26px,5vw,38px)}
+.hero p{margin:0;color:var(--muted);max-width:62ch}
+section{margin-bottom:36px}
+section>h2{font-size:20px;margin-bottom:12px}
+.weeks{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
+.week{background:var(--sheet);border:1px solid var(--line);border-radius:10px;padding:14px 16px;display:grid;gap:6px;align-content:start}
+.week .wk{font:600 12px var(--f-mono);color:var(--print)}
+.week b{font-family:var(--f-display);font-size:15px}
+.week p{margin:0;font-size:13.5px;color:var(--muted)}
+.week .chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{font:600 12px var(--f-mono);text-decoration:none;padding:3px 8px;border-radius:6px;border:1px solid var(--line)}
+.chip.done{background:var(--ok-soft);border-color:var(--ok);color:var(--ok)}
+.routine{display:grid;gap:8px;padding:0;margin:0;list-style:none;counter-reset:r}
+.routine li{counter-increment:r;display:grid;grid-template-columns:28px 1fr;gap:10px;align-items:baseline}
+.routine li::before{content:counter(r);font:600 13px var(--f-mono);color:var(--print);border:1.5px solid var(--print);border-radius:50%;width:24px;height:24px;display:grid;place-items:center}
+.sheet-head{display:grid;grid-template-columns:56px 1fr 120px;font:600 11px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--print);padding:0 14px 6px}
+.chs{display:grid;border:1.5px solid var(--print);border-radius:10px;overflow:hidden;background:var(--sheet)}
+.ch{display:grid;grid-template-columns:56px 1fr 120px;align-items:center;gap:0;padding:11px 14px;text-decoration:none;border-top:1px solid var(--print-soft)}
+.ch:first-child{border-top:0}
+.ch:hover{background:var(--print-soft)}
+.ch .no{font:600 15px var(--f-mono);color:var(--print)}
+.ch .nm{min-width:0}
+.ch .nm b{display:block;font-family:var(--f-display);font-weight:600}
+.ch .nm span{font-size:13px;color:var(--muted)}
+.ch .sc{font:500 13px var(--f-mono);text-align:right;color:var(--muted)}
+.ch .sc.done{color:var(--ok)}
+.split{font:600 11px var(--f-mono);letter-spacing:.1em;text-transform:uppercase;background:var(--print-soft);color:var(--print);padding:6px 14px}
+.extra{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
+.card{background:var(--sheet);border:1px solid var(--line);border-radius:10px;padding:16px;text-decoration:none;display:grid;gap:4px}
+.card:hover{border-color:var(--print)}
+.card b{font-family:var(--f-display);font-size:16px}
+.card span{font-size:13.5px;color:var(--muted)}
+/* quiz */
+.qhead{display:grid;gap:8px;margin-bottom:18px}
+.qhead h1{font-size:clamp(22px,4.4vw,30px)}
+.theory{background:var(--sheet);border:1px solid var(--line);border-left:3px solid var(--print);border-radius:8px;padding:12px 16px;margin-bottom:18px}
+.theory summary{cursor:pointer;font:600 15px var(--f-display)}
+.th-list{display:grid;gap:0;margin-top:6px}
+.th{padding:14px 0;border-top:1px dashed var(--line);display:grid;gap:6px}
+.th:first-child{border-top:0}
+.th h3{font-size:15.5px;display:flex;gap:10px;align-items:baseline}
+.th h3 span{flex:none;font:600 12px var(--f-mono);color:var(--print);border:1.5px solid var(--print);border-radius:50%;width:22px;height:22px;display:inline-grid;place-items:center}
+.th p{margin:0;max-width:68ch;font-size:14.5px}
+.th .ex{list-style:none;margin:2px 0 0;padding:8px 12px;background:var(--paper);border-radius:6px;display:grid;gap:4px;font-size:14px}
+.th .ex li{display:grid;grid-template-columns:18px 1fr;gap:6px}
+.th .ex i{font-style:normal;font-weight:700;color:var(--ok)}
+.th .ex li.x i{color:var(--bad)}
+.th .ex li.x span{color:var(--muted)}
+.th .ex b{color:var(--print);font-weight:600}
+.th .tip{font-size:13.5px;color:var(--muted)}
+.th .tip b{color:var(--ink)}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--paper);display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:10px 0;border-bottom:1px solid var(--line);margin-bottom:16px}
+.bar .meter{flex:1;min-width:120px;height:6px;background:var(--line);border-radius:3px;overflow:hidden}
+.bar .meter i{display:block;height:100%;background:var(--ok);width:0;transition:width .3s}
+.bar .score{font:600 14px var(--f-mono);font-variant-numeric:tabular-nums}
+.btn{border:1px solid var(--print);color:var(--print);background:var(--sheet);border-radius:999px;padding:6px 14px;font-size:13px;font-weight:600}
+.btn:hover{background:var(--print-soft)}
+.passage{background:var(--sheet);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin:8px 0 14px;font-size:14.5px}
+.passage .ptitle{font:600 12px var(--f-mono);text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:8px}
+.passage p{margin:0 0 8px}
+.passage p:last-child{margin:0}
+.passage table{border-collapse:collapse;width:100%;font-size:14px}
+.passage td{border-top:1px solid var(--line);padding:6px 8px;vertical-align:top}
+.passage td:first-child{font-family:var(--f-mono);white-space:nowrap;width:1%}
+.ptable{overflow-x:auto}
+.q{display:grid;grid-template-columns:40px 1fr;gap:4px 10px;padding:14px 0;border-top:1px dashed var(--line)}
+.q .n{font:600 14px var(--f-mono);color:var(--print);padding-top:1px}
+.q .body{min-width:0;display:grid;gap:10px}
+.q .stem{font-weight:500}
+.tag{display:inline-block;font:600 10.5px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:1px 6px;margin-right:6px;vertical-align:2px}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:6px}
+.opt{display:flex;align-items:center;gap:10px;text-align:left;background:var(--sheet);border:1px solid var(--line);border-radius:8px;padding:7px 10px;color:var(--ink)}
+.opt:hover:not(:disabled){border-color:var(--graphite)}
+.opt .b{flex:none;width:24px;height:24px;border-radius:50%;border:1.5px solid var(--print);color:var(--print);display:grid;place-items:center;font:600 12px var(--f-mono)}
+.opt:disabled{cursor:default}
+.opt.pick .b{background:var(--graphite);border-color:var(--graphite);color:var(--sheet)}
+.opt.right{border-color:var(--ok);background:var(--ok-soft)}
+.opt.right .b{background:var(--ok);border-color:var(--ok);color:var(--sheet)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opt.wrong .b{background:var(--bad);border-color:var(--bad);color:var(--sheet)}
+.exp{font-size:14px;border-radius:8px;padding:8px 12px;background:var(--paper);border:1px solid var(--line)}
+.exp b.ok{color:var(--ok)} .exp b.no{color:var(--bad)}
+.empty{background:var(--sheet);border:1px dashed var(--line);border-radius:10px;padding:24px;text-align:center;color:var(--muted)}
+.foot{margin-top:28px;font-size:12.5px;color:var(--muted)}
+.next{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:24px}
+.next a{text-decoration:none}
+@media (max-width:520px){
+  .sheet-head{display:none}
+  .ch{grid-template-columns:44px 1fr;row-gap:2px}
+  .ch .sc{grid-column:2;text-align:left}
+  .q{grid-template-columns:30px 1fr}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <a class="brand" href="#">ABC TOEIC Reading · Luyện tập</a>
+    <nav class="nav" id="nav">
+      <a href="#" data-r="">Lộ trình</a>
+      <a href="#tron" data-r="tron">Đề trộn</a>
+      <a href="#on-tap" data-r="on-tap">Ôn câu sai</a>
+    </nav>
+  </header>
+  <main id="app"></main>
+  <p class="foot">Câu hỏi và bài đọc trên trang này được soạn mới theo chủ điểm từng chapter, không chép từ sách. Tiến độ chỉ lưu trên trình duyệt của bạn.</p>
+</div>
+
+<script>
+const CH = [
+ {no:1,en:"Sentence Structures",vi:"Cấu trúc câu",
+  qs:[
+  ["The marketing team ___ every Monday morning.",["meets","meeting","to meet","meetings"],0,"Câu thiếu động từ chính; chủ ngữ số ít (team) nên dùng meets."],
+  ["Ms. Tanaka seems ___ about the new project.",["enthusiasm","enthusiastic","enthusiastically","enthuse"],1,"seem + tính từ (S+V+C) → enthusiastic."],
+  ["All employees are required to ___ the safety workshop on Friday.",["attend","attending at","attend at","attendance"],0,"attend + tân ngữ trực tiếp, không có giới từ at."],
+  ["The board found the proposal ___.",["accept","acceptable","acceptably","acceptance"],1,"find + O + tính từ (bổ ngữ tân ngữ) → acceptable."],
+  ["The manager sent ___ a detailed schedule.",["we","our","us","ours"],2,"S+V+IO+DO: tân ngữ gián tiếp là đại từ tân ngữ us."],
+  ["The new policy will make the process ___.",["simple","simply","simplicity","simplify"],0,"make + O + tính từ → simple."],
+  ["Mr. Lee ___ the budget issue with the director yesterday.",["discussed","discussed about","discussion","discussing"],0,"discuss không đi với about; cần động từ quá khứ (yesterday)."],
+  ["The conference room ___ available after 3 p.m.",["becoming","becomes","to become","become"],1,"Thiếu động từ chính; room số ít → becomes, theo sau là tính từ available."]]},
+ {no:2,en:"Nouns & Pronouns",vi:"Danh từ & Đại từ",
+  qs:[
+  ["The ___ of the new branch was announced last week.",["open","opened","opening","opens"],2,"Sau the cần danh từ → opening (sự khai trương)."],
+  ["We received many ___ from customers about the delay.",["complain","complaints","complained","complaining"],1,"many + danh từ đếm được số nhiều → complaints."],
+  ["Please submit your ___ by Friday.",["apply","applicant","application","applied"],2,"Sau your cần danh từ; thứ được nộp là đơn (application), applicant là người nộp."],
+  ["The company offers useful ___ to new staff.",["information","informations","an information","informs"],0,"information không đếm được: không thêm -s, không dùng an."],
+  ["There aren't ___ seats left for the seminar.",["some","any","much","no"],1,"Câu phủ định dùng any; much đi với danh từ không đếm được; aren't + no là phủ định kép."],
+  ["Ms. Kim prepared the whole report by ___.",["she","her","hers","herself"],3,"by + đại từ phản thân = tự mình làm → herself."],
+  ["Mr. Park's office is next to ___.",["my","me","mine","myself"],2,"mine = my office (đại từ sở hữu thay cho danh từ)."],
+  ["The firm hired two ___ to review its accounts.",["consultants","consults","consultation","consulting"],0,"two + danh từ chỉ người số nhiều → consultants."]]},
+ {no:3,en:"Adjectives & Adverbs",vi:"Tính từ & Trạng từ",
+  qs:[
+  ["The staff worked ___ to finish the project on time.",["hard","hardly","harder than","hardness"],0,"hard (trạng từ) = chăm chỉ; hardly nghĩa là hầu như không."],
+  ["This is a ___ decision for the company.",["significance","significant","significantly","signify"],1,"Trước danh từ decision cần tính từ → significant."],
+  ["Sales increased ___ in the third quarter.",["sharp","sharply","sharpness","sharpen"],1,"Bổ nghĩa cho động từ increased → trạng từ sharply."],
+  ["The new model is ___ than the old one.",["light","lighter","lightest","more light"],1,"than → so sánh hơn; tính từ ngắn thêm -er → lighter."],
+  ["Greenfield Hotel offers the ___ rates in the area.",["low","lower","lowest","most low"],2,"the … in the area → so sánh nhất → lowest."],
+  ["The second interview was as ___ as the first one.",["difficult","more difficult","difficultly","most difficult"],0,"as + tính từ nguyên mẫu + as (so sánh bằng)."],
+  ["The instructions were ___ clear.",["remarkable","remarkably","remark","remarked"],1,"Bổ nghĩa cho tính từ clear → trạng từ remarkably."],
+  ["Online sales are growing much ___ than store sales.",["fast","faster","fastest","more fastly"],1,"much + so sánh hơn; fast là trạng từ ngắn → faster."]]},
+ {no:4,en:"Tenses",vi:"Thì của động từ",
+  qs:[
+  ["Mr. Brown ___ for this company since 2018.",["works","worked","has worked","is working"],2,"since + mốc thời gian → hiện tại hoàn thành."],
+  ["The shipment ___ next Tuesday.",["arrived","will arrive","has arrived","arriving"],1,"next Tuesday → tương lai."],
+  ["When the client called, Ms. Ito ___ a meeting.",["leads","was leading","has led","will lead"],1,"Hành động đang diễn ra thì hành động khác xen vào → quá khứ tiếp diễn."],
+  ["By the time we arrived, the presentation ___.",["already began","has already begun","had already begun","begins"],2,"Xảy ra trước một hành động quá khứ khác → quá khứ hoàn thành."],
+  ["The factory ___ 500 units every day.",["produce","produces","producing","is produced"],1,"every day → hiện tại đơn; factory số ít → produces."],
+  ["Last year, the company ___ three new stores.",["opens","has opened","opened","will open"],2,"Last year → quá khứ đơn."],
+  ["By next March, we ___ the renovation.",["complete","will have completed","completed","had completed"],1,"By + mốc tương lai → tương lai hoàn thành."],
+  ["Please wait here until the manager ___.",["returns","will return","returned","has been returning"],0,"Mệnh đề thời gian (until) dùng hiện tại đơn thay cho tương lai."]]},
+ {no:5,en:"Active & Passive Voices",vi:"Chủ động & Bị động",
+  qs:[
+  ["The report ___ by the accounting team yesterday.",["reviewed","was reviewed","is reviewing","has reviewed"],1,"Có by + tác nhân, report chịu tác động → bị động quá khứ."],
+  ["All packages must ___ before 5 p.m.",["deliver","be delivered","delivering","been delivered"],1,"must + be + V3 (gói hàng được giao)."],
+  ["The winners ___ next Friday.",["announce","will announce","will be announced","are announcing"],2,"Người thắng được công bố → bị động tương lai."],
+  ["The lobby ___ right now, so please use the side entrance.",["is cleaning","is being cleaned","cleaned","has cleaned"],1,"right now + bị động → is being cleaned."],
+  ["The contract ___ by both parties already.",["has signed","has been signed","signing","was signing"],1,"already + bị động → hiện tại hoàn thành bị động."],
+  ["Ms. Rossi ___ project manager last month.",["appointed","was appointed","has appointed","appointing"],1,"Cô ấy được bổ nhiệm (không có tân ngữ sau động từ) → bị động."],
+  ["The CEO ___ the plan at the meeting.",["approved","was approved","approving","has been approved"],0,"Sau chỗ trống có tân ngữ the plan → chủ động."],
+  ["Visitors ___ to sign in at the front desk.",["ask","are asked","asking","have asked"],1,"Khách được yêu cầu (be asked to V) → bị động."]]},
+ {no:6,en:"To-infinitives",vi:"Động từ nguyên mẫu có to",
+  qs:[
+  ["We plan ___ a new branch in Hanoi.",["open","opening","to open","opened"],2,"plan + to V."],
+  ["Our goal is ___ costs by 10 percent.",["reduce","to reduce","reduced","reduction"],1,"be + to V làm bổ ngữ (mục tiêu là…)."],
+  ["Ms. Chen called the supplier ___ the order.",["confirm","to confirm","confirmed","confirmation"],1,"to V chỉ mục đích (gọi để xác nhận)."],
+  ["She decided ___ the job offer because of the long commute.",["not accept","not to accept","to accept not","not accepting"],1,"Phủ định của to V: not to V."],
+  ["The box is too heavy ___ alone.",["carry","to carry","for carry","carrying"],1,"too + tính từ + to V."],
+  ["The hall is ___ 300 guests.",["enough large to hold","large enough to hold","large to hold enough","too large hold"],1,"tính từ + enough + to V."],
+  ["We still have a lot of work ___ before Friday.",["do","to do","did","doing"],1,"to V đứng sau danh từ, bổ nghĩa như tính từ (việc cần làm)."],
+  ["The company wants its staff ___ the new system.",["learn","learning","to learn","learned"],2,"want + O + to V."]]},
+ {no:7,en:"Gerunds",vi:"Danh động từ V-ing",
+  qs:[
+  ["___ a business requires careful planning.",["Run","Running","Ran","Runs"],1,"Chủ ngữ là một hoạt động → V-ing."],
+  ["Mr. Diaz enjoys ___ with international clients.",["work","to work","working","worked"],2,"enjoy + V-ing."],
+  ["Thank you for ___ our customer survey.",["complete","completing","completed","to complete"],1,"Sau giới từ for → V-ing."],
+  ["Please avoid ___ your phone during the meeting.",["use","to use","using","used"],2,"avoid + V-ing."],
+  ["The team is looking forward to ___ you.",["meet","meeting","be met","met"],1,"look forward to + V-ing (to là giới từ)."],
+  ["She is used to ___ long hours.",["work","working","worked","be worked"],1,"be used to + V-ing = quen với."],
+  ["We are considering ___ the event until spring.",["postpone","to postpone","postponing","postponed"],2,"consider + V-ing."],
+  ["The extra insurance is worth ___.",["buy","to buy","buying","bought"],2,"be worth + V-ing."]]},
+ {no:8,en:"Participles",vi:"Phân từ",
+  qs:[
+  ["The sales results were very ___.",["disappoint","disappointing","disappointed","disappointment"],1,"Kết quả gây thất vọng → V-ing."],
+  ["The customers were ___ with the quick service.",["satisfy","satisfying","satisfied","satisfaction"],2,"Người cảm thấy hài lòng → V3 (be satisfied with)."],
+  ["Please read the ___ document carefully.",["attach","attaching","attached","attachment"],2,"Tài liệu được đính kèm → phân từ bị động attached."],
+  ["The man ___ next to Ms. Lee is our new director.",["stand","standing","stood","stands"],1,"Rút gọn mệnh đề chủ động (who is standing) → standing."],
+  ["Products ___ in this factory are exported to Japan.",["make","making","made","makes"],2,"Sản phẩm được làm (which are made) → made."],
+  ["When ___ the application form, please write clearly.",["complete","completing","completed","completion"],1,"When + V-ing (bạn đang điền đơn, chủ động)."],
+  ["We are looking for an ___ engineer.",["experience","experiencing","experienced","experiences"],2,"experienced = có kinh nghiệm (tính từ phân từ)."],
+  ["___ in the city center, the hotel is popular with tourists.",["Locate","Locating","Located","Location"],2,"Khách sạn được đặt ở (bị động) → Located."]]},
+ {no:9,en:"Conjunctions",vi:"Liên từ",
+  qs:[
+  ["You can pay by credit card ___ bank transfer.",["or","but","so","nor"],0,"Hai lựa chọn → or."],
+  ["___ the manager nor the assistant was available.",["Either","Both","Neither","Not"],2,"Đi cặp với nor → Neither."],
+  ["The seminar was both useful ___ informative.",["or","and","but","nor"],1,"both … and."],
+  ["___ it rained heavily, the outdoor concert continued.",["Because","Although","Unless","If"],1,"Hai vế trái ngược → Although (mặc dù)."],
+  ["We will cancel the order ___ the supplier lowers its price.",["unless","because","although","so that"],0,"unless = trừ khi (nếu không giảm giá thì hủy)."],
+  ["I'm not sure ___ the client will accept the offer.",["that","whether","what","which"],1,"not sure whether = không chắc liệu…"],
+  ["Please arrive early ___ we can start on time.",["so that","even though","unless","because of"],0,"so that + mệnh đề chỉ mục đích."],
+  ["___ the shipment arrives, we will contact you.",["As soon as","During","Despite","Until"],0,"Cần liên từ thời gian hợp nghĩa: ngay khi hàng đến. During/Despite là giới từ."]]},
+ {no:10,en:"Prepositions",vi:"Giới từ",
+  qs:[
+  ["The meeting will start ___ 9 a.m.",["in","on","at","by"],2,"at + giờ cụ thể."],
+  ["The office is closed ___ Sundays.",["in","on","at","for"],1,"on + ngày trong tuần."],
+  ["The store stays open ___ 10 p.m. every day.",["by","until","since","during"],1,"Trạng thái kéo dài đến một thời điểm → until."],
+  ["Sales have increased steadily ___ January.",["since","for","from","during"],0,"Hiện tại hoàn thành + mốc thời gian → since."],
+  ["The printer is ___ the reception desk.",["next to","between","among","during"],0,"next to = bên cạnh; between cần hai vật, among cần nhóm."],
+  ["___ the bad weather, the flight left on time.",["Although","Despite","Because","Even"],1,"Sau chỗ trống là cụm danh từ, nghĩa trái ngược → Despite."],
+  ["The event was postponed ___ a lack of funding.",["because","due to","although","so"],1,"Cụm danh từ chỉ lý do → due to."],
+  ["___ the meeting, all phones must be turned off.",["While","During","For","When"],1,"During + danh từ (the meeting)."]]},
+ {no:11,en:"Relative Pronouns & Adverbs",vi:"Đại từ & Trạng từ quan hệ",
+  qs:[
+  ["The candidate ___ we interviewed has strong skills.",["whom","whose","which","what"],0,"Người, làm tân ngữ của interviewed → whom."],
+  ["We need an assistant ___ speaks French.",["who","whom","whose","which"],0,"Người, làm chủ ngữ của speaks → who."],
+  ["Lexa is a company ___ products are sold worldwide.",["who","which","whose","that"],2,"Sở hữu (sản phẩm của công ty) → whose + danh từ."],
+  ["___ customers want most is faster delivery.",["That","What","Which","Who"],1,"Không có danh từ đứng trước; what = điều mà."],
+  ["This is the hotel ___ the conference was held.",["which","where","when","who"],1,"Nơi chốn, sau là mệnh đề đầy đủ → where."],
+  ["Do you remember the day ___ the store first opened?",["where","when","which","who"],1,"Thời gian → when."],
+  ["The laptop ___ I bought last week is already broken.",["who","what","which","whose"],2,"Vật, làm tân ngữ → which."],
+  ["The documents ___ by the lawyer were sent to the client.",["preparing","prepared","prepare","were prepared"],1,"Rút gọn bị động (which were prepared) → prepared."]]},
+ {no:12,en:"Subjunctive Mood",vi:"Câu giả định",
+  qs:[
+  ["If I ___ more time, I would join the evening course.",["have","had","will have","had had"],1,"Giả định hiện tại: If + quá khứ đơn."],
+  ["If we had left earlier, we ___ the train.",["would catch","will catch","would have caught","caught"],2,"Giả định quá khứ: would have + V3."],
+  ["I wish I ___ French well.",["speak","spoke","will speak","speaking"],1,"wish + quá khứ đơn (điều không có thật ở hiện tại)."],
+  ["If you ___ need any help, please contact the front desk.",["should","would","will have","had been"],0,"If + should + V: trường hợp ít khả năng xảy ra ở tương lai."],
+  ["___ I known about the delay, I would have taken a taxi.",["If","Had","Have","Should"],1,"Đảo ngữ loại 3: Had + S + V3."],
+  ["If she had accepted the job, she ___ in London now.",["would be living","will live","had lived","has lived"],0,"Hỗn hợp: điều kiện quá khứ, kết quả hiện tại (now)."],
+  ["I wish I ___ the meeting yesterday.",["attend","attended","had attended","would attend"],2,"wish về quá khứ (yesterday) → had V3."],
+  ["If I ___ you, I would accept the offer.",["am","were","be","been"],1,"Giả định với be dùng were cho mọi ngôi."]]},
+ {no:13,en:"Agreement",vi:"Sự hòa hợp",
+  qs:[
+  ["Each of the employees ___ a laptop.",["have","has","having","are having"],1,"Each of + N số nhiều → động từ số ít."],
+  ["The number of applicants ___ increased this year.",["has","have","are","were"],0,"The number of → số ít."],
+  ["A number of customers ___ complained about the noise.",["has","have","is","was"],1,"A number of = many → số nhiều."],
+  ["Neither the manager nor the staff members ___ ready.",["is","are","was","has"],1,"Chia theo chủ ngữ gần nhất (staff members, số nhiều)."],
+  ["Everyone in the office ___ about the merger.",["know","knows","are knowing","have known"],1,"Everyone → số ít."],
+  ["The information in these files ___ confidential.",["is","are","were","be"],0,"Chủ ngữ chính là information (không đếm được) → is."],
+  ["Mr. Sato said that he ___ the report the next day.",["will finish","would finish","finishes","has finished"],1,"Mệnh đề chính quá khứ (said) → lùi thì will → would."],
+  ["The manager, along with two assistants, ___ attending the trade fair.",["is","are","were","have"],0,"along with không tính vào chủ ngữ; manager số ít → is."]]}
+];
+
+// Reading chapters: passages with typed questions.
+const READ = [
+ {no:14,en:"Question Types",vi:"Các dạng câu hỏi Part 7",
+  passages:[
+  {t:"Email",h:`<p><b>To:</b> All staff<br><b>From:</b> Linda Park, Facilities Manager<br><b>Subject:</b> Office move</p>
+<p>Dear colleagues,</p><p>As announced last month, our office will move to the Harbor Tower building on 14 March. To prepare, please pack your personal items in the boxes provided by 11 March. The IT team will disconnect all computers on the evening of 12 March and set them up in the new office over the weekend.</p>
+<p>Parking at Harbor Tower is limited, so staff who drive are <u>encouraged</u> to apply for a monthly parking permit at the front desk. The new office is a five-minute walk from Central Station, which should make commuting easier for most of you.</p><p>If you have any questions, please call me at extension 214.<br>Linda</p>`,
+   qs:[
+   ["Gist","What is the purpose of the email?",["To introduce a new manager","To give instructions about an office move","To request new IT equipment","To advertise parking spaces"],1,"Cả bài nói về việc chuyển văn phòng và hướng dẫn chuẩn bị."],
+   ["Detail","By when should staff finish packing?",["11 March","12 March","14 March","Next month"],0,"'pack your personal items … by 11 March'."],
+   ["NOT","What is NOT mentioned about the new office?",["It is near a station","Parking there is limited","The date of the move","The size of its meeting rooms"],3,"Bài không nhắc tới phòng họp; ba ý còn lại đều có."],
+   ["Inference","What can be inferred about most employees?",["They drive to work","They travel to work by train","They work from home","They will receive new computers"],1,"Văn phòng gần ga 'should make commuting easier for most of you' → đa số đi tàu."],
+   ["Synonym","The word \"encouraged\" in paragraph 2 is closest in meaning to",["forced","advised","allowed","prevented"],1,"be encouraged to = được khuyên nên làm → advised."]]},
+  {t:"Article",h:`<p><b>Sunrise Bakery to Open Fifth Store</b></p><p>Sunrise Bakery, a family-run business founded in 2009, will open its fifth location in Riverside next month. The company started with a single shop on Elm Street and is known for using flour from local farms.</p>
+<p>According to owner Marco Silva, <u>demand</u> for the bakery's whole-grain bread has doubled over the past two years. The new store will include a small café with 30 seats and will stay open until 9 p.m., later than any of the other locations. Sunrise is currently hiring 12 staff members for the Riverside branch.</p>`,
+   qs:[
+   ["Gist","What is the article mainly about?",["A bakery's expansion","New farming methods","A café's new menu","Rising flour prices"],0,"Tiêu đề và câu đầu: mở cửa hàng thứ năm."],
+   ["Detail","How many locations will Sunrise have after next month?",["Two","Four","Five","Twelve"],2,"'will open its fifth location' → 5 cửa hàng. 12 là số nhân viên."],
+   ["NOT","What is NOT stated about the Riverside store?",["It will have seating","Its closing time","How many people it will hire","The name of its manager"],3,"Bài không nêu tên quản lý cửa hàng."],
+   ["Inference","What is suggested about the other Sunrise locations?",["They close before 9 p.m.","They have few customers","They sell only cakes","They will be closed soon"],0,"Cửa hàng mới mở 'later than any of the other locations' → các nơi khác đóng trước 9 giờ."],
+   ["Synonym","The word \"demand\" in paragraph 2 is closest in meaning to",["legal requirement","customer interest in buying","price","supply"],1,"demand ở đây = nhu cầu mua của khách."]]}
+  ]},
+ {no:15,en:"Text Types",vi:"Các loại văn bản Part 7",
+  passages:[
+  {t:"Memo",h:`<p><b>MEMO</b><br><b>To:</b> Sales team<br><b>From:</b> Kenji Mori<br><b>Date:</b> May 3<br><b>Re:</b> Quarterly meeting</p>
+<p>The quarterly sales meeting will be held on Thursday, May 9, at 2 p.m. in Room 5B instead of the usual Room 3A, which is being repainted. Please bring your sales figures for April. Lunch will not be provided, but coffee and snacks will be available. If you cannot attend, send your report to Ms. Alvarez by May 8.</p>`,
+   qs:[
+   ["Detail","Why has the meeting room changed?",["Room 3A is too small","Room 3A is being repainted","Room 5B has new equipment","The meeting time has changed"],1,"'instead of the usual Room 3A, which is being repainted'."],
+   ["Detail","What should attendees bring?",["Their lunch","Sales figures for April","A list of new clients","Coffee and snacks"],1,"'Please bring your sales figures for April'."],
+   ["Detail","What should staff who cannot attend do?",["Call Mr. Mori","Join by video","Send a report to Ms. Alvarez","Reschedule the meeting"],2,"'send your report to Ms. Alvarez by May 8'."]]},
+  {t:"Advertisement",h:`<p><b>BrightClean Office Services</b></p><p>Professional cleaning for offices of all sizes. Choose a daily, weekly, or monthly plan. We use only eco-friendly products that are safe for your staff.</p>
+<p>New customers get 20% off the first month when they sign up before June 30. Call 555-0182 to book a free on-site estimate.</p>`,
+   qs:[
+   ["Gist","What is being advertised?",["Office furniture","A cleaning service","Staff training","Office rental"],1,"Quảng cáo dịch vụ dọn dẹp văn phòng."],
+   ["Detail","How can a customer receive a discount?",["By booking a daily plan","By signing up as a new customer before June 30","By buying eco-friendly products","By calling after June 30"],1,"'New customers get 20% off … before June 30'."],
+   ["Detail","What is mentioned about the products BrightClean uses?",["They are imported","They are environmentally friendly","They are sold in stores","They are free"],1,"eco-friendly = environmentally friendly (paraphrase)."]]},
+  {t:"Double passage · Lịch trình + Email",h:`<p><b>Westbridge Business Forum</b> · Saturday, October 18</p>
+<div class="ptable"><table><tr><td>9:00</td><td>Registration (Lobby)</td></tr><tr><td>9:30</td><td>Keynote: Small Business in a Digital Market · Dr. Helen Ward (Hall A)</td></tr><tr><td>11:00</td><td>Workshop: Social Media Marketing · Tom Becker (Room 2)</td></tr><tr><td>13:00</td><td>Lunch (Garden Café)</td></tr><tr><td>14:00</td><td>Panel: Financing Your Startup (Hall A)</td></tr></table></div>
+<p style="margin-top:14px"><b>From:</b> Priya Nair &nbsp; <b>To:</b> Tom Becker</p><p>Hi Tom, I'm sorry, but my train from Leeds has been delayed and I won't arrive until around 11:30. I really wanted to attend your session. Could you send me the slides afterward? I'll definitely be there for lunch and the afternoon panel. Best, Priya</p>`,
+   qs:[
+   ["Detail","Why will Ms. Nair be late?",["Her train was delayed","She has another meeting","She forgot to register","Her flight was canceled"],0,"'my train from Leeds has been delayed'."],
+   ["Inference","Who most likely is Tom Becker?",["The forum organizer","A workshop presenter","A train company employee","Dr. Ward's assistant"],1,"Lịch trình: Workshop … Tom Becker; Priya nhắc 'your session'."],
+   ["Liên kết 2 bài","Which session will Ms. Nair most likely miss completely?",["The keynote speech","The social media workshop","Lunch","The financing panel"],0,"Đến khoảng 11:30 → lỡ hẳn keynote 9:30; workshop 11:00 chỉ lỡ một phần."],
+   ["Liên kết 2 bài","Where will Ms. Nair most likely be at 2 p.m.?",["Room 2","The lobby","Hall A","Garden Café"],2,"Cô ấy sẽ dự panel buổi chiều, lúc 14:00 ở Hall A."]]}
+  ]}
+];
+
+
+// ---------- theory: [title, explanation, examples (✗ = sai), tip] ----------
+const THEORY={
+1:[
+ ["Câu phải có chủ ngữ (subject) và động từ chính (main verb)","Mỗi mệnh đề tiếng Anh cần một chủ ngữ (S) và một động từ đã chia thì (V). V-ing, to V hay danh từ đứng một mình không làm được động từ chính. Nếu câu chưa có động từ chia thì, chỗ trống chắc chắn là động từ.",["The team <b>meets</b> every Monday.","✗ The team <b>meeting</b> every Monday."],"Chủ ngữ số ít ở hiện tại đơn thì động từ thêm -s/-es. Nhìn quanh chỗ trống: có động từ chia rồi thì chỗ trống không thể là động từ nữa."],
+ ["Cấu trúc 1: S + Nội động từ (intransitive verb)","Dùng với nội động từ, tức động từ không cần tân ngữ: work, arrive, rise, happen, occur, decline. Muốn nói thêm thông tin thì dùng trạng từ hoặc cụm giới từ.",["Prices <b>rose</b> sharply last month.","The delay <b>occurred</b> at the port."],"Phân biệt rise (nội động từ, giá tăng) với raise (ngoại động từ, cần tân ngữ: raise prices)."],
+ ["Cấu trúc 2: S + Động từ nối (linking verb) + Bổ ngữ chủ ngữ (subject complement)","Động từ nối (linking verb) gồm be, become, seem, appear, look, remain, stay, sound, feel, prove. Theo sau là tính từ hoặc danh từ dùng để miêu tả chính chủ ngữ.",["The plan seems <b>reasonable</b>.","✗ The plan seems <b>reasonably</b>.","She became <b>a manager</b> in 2023."],"Sau linking verb không dùng trạng từ. Thấy remain/stay/become + chỗ trống thì chọn tính từ."],
+ ["Cấu trúc 3: S + Ngoại động từ (transitive verb) + Tân ngữ (object)","Ngoại động từ cần tân ngữ đứng ngay sau. Bẫy hay gặp: attend, discuss, mention, reach, contact, enter, approach, answer đi thẳng với tân ngữ, không có giới từ.",["We discussed <b>the budget</b>.","✗ We discussed <b>about</b> the budget.","Please contact <b>our office</b>."],"Ngược lại, có những động từ bắt buộc đi với giới từ: listen to, respond to, depend on, apply for, comply with."],
+ ["Cấu trúc 4: S + V + Tân ngữ gián tiếp (indirect object) + Tân ngữ trực tiếp (direct object)","Động từ hai tân ngữ: give, send, offer, show, lend, grant, award, bring. Tân ngữ gián tiếp (người nhận) đứng trước, tân ngữ trực tiếp (vật) đứng sau. Nếu đảo vật lên trước thì phải thêm to/for trước người nhận.",["The firm sent <b>us</b> <b>a letter</b>.","= The firm sent a letter <b>to us</b>."],"Vị trí tân ngữ gián tiếp là đại từ tân ngữ (me, us, them), không phải we hay our."],
+ ["Cấu trúc 5: S + V + O + Bổ ngữ tân ngữ (object complement)","make, keep, find, consider, leave, deem + tân ngữ + tính từ/danh từ. Bổ ngữ miêu tả tân ngữ, không miêu tả hành động nên dùng tính từ.",["Please keep the door <b>closed</b>.","The board considers her <b>an expert</b>.","✗ The policy makes the process <b>simply</b>."],"Gặp make/keep/find + danh từ + chỗ trống thì gần như chắc chắn chọn tính từ."]],
+2:[
+ ["Vị trí của danh từ (nouns)","Danh từ đứng sau mạo từ (a/an/the), sau tính từ sở hữu (my, its, their), sau tính từ, sau giới từ, và làm chủ ngữ hoặc tân ngữ của câu.",["the <b>approval</b> of the plan","Thank you for your <b>cooperation</b>.","a detailed <b>analysis</b>"],"Thấy the/your/its + (tính từ) + chỗ trống + giới từ thì chọn danh từ."],
+ ["Hậu tố danh từ (noun suffixes)","Đuôi chỉ vật hoặc khái niệm: -tion/-sion (decision), -ment (agreement), -ance/-ence (performance), -ness (awareness), -ity (ability), -al (approval, arrival). Đuôi chỉ người: -er/-or (employer), -ee (employee), -ant/-ent (applicant), -ist (specialist).",["applicant (người nộp đơn) và application (lá đơn)","attendee (người dự) và attendance (sự có mặt)"],"Nhiều phương án đều là danh từ thì xét nghĩa: cần người hay vật? Sau a/an thì cần danh từ đếm được số ít."],
+ ["Danh từ đếm được (countable nouns) và không đếm được (uncountable nouns)","Danh từ đếm được có số ít và số nhiều; số ít phải có a/an/the/my… đi kèm. Danh từ không đếm được không thêm -s, không đi với a/an, động từ chia số ít. Hay gặp: information, advice, equipment, furniture, luggage, baggage, machinery, feedback, research, access.",["many <b>complaints</b> / few <b>options</b> (đếm được)","much <b>information</b> / little <b>equipment</b> (không đếm được)","✗ an information, ✗ equipments"],"many, few, a number of, several đi với danh từ đếm được số nhiều. much, little, a great deal of, an amount of đi với không đếm được."],
+ ["Từ hạn định (determiners): some, any, no","some dùng trong câu khẳng định và lời mời. any dùng trong câu phủ định và câu hỏi; trong câu khẳng định any nghĩa là bất kỳ. no = not any, nên không dùng no cùng với not.",["We need <b>some</b> volunteers.","There aren't <b>any</b> seats left.","<b>Any</b> employee can apply."],""],
+ ["Đại từ nhân xưng (personal pronouns) và đại từ sở hữu (possessive pronouns)","Chủ ngữ: I, he, she, we, they. Tân ngữ (sau động từ, giới từ): me, him, her, us, them. Tính từ sở hữu luôn đi kèm danh từ: my, his, their + N. Đại từ sở hữu đứng một mình thay cho cả cụm: mine, his, hers, ours, theirs.",["<b>Her</b> report is longer than <b>mine</b>. (mine = my report)","The manager called <b>them</b>."],"Sau chỗ trống có danh từ thì chọn tính từ sở hữu; không có danh từ thì chọn đại từ sở hữu."],
+ ["Đại từ phản thân (reflexive pronouns)","myself, yourself, herself, themselves… dùng khi tân ngữ chính là chủ ngữ, khi muốn nhấn mạnh, hoặc trong cụm by + -self (tự mình, một mình).",["She introduced <b>herself</b> to the clients.","Mr. Lee wrote the proposal <b>by himself</b>.","The CEO <b>himself</b> answered the call."],"Đại từ phản thân không làm chủ ngữ được: ✗ Myself will call you."],
+ ["Đại từ chỉ định (demonstrative pronouns) that / those thay thế danh từ","Để tránh lặp lại danh từ trong phép so sánh, dùng that (số ít, không đếm được) hoặc those (số nhiều). those who = những người mà.",["Our prices are lower than <b>those</b> of our competitors.","<b>Those who</b> register early get a discount."],""]],
+3:[
+ ["Vị trí của tính từ (adjectives)","Tính từ đứng trước danh từ để bổ nghĩa, hoặc đứng sau linking verb (be, become, seem…). Đuôi tính từ thường gặp: -ful, -less, -ous, -ive, -able/-ible, -al, -ic, -ant/-ent.",["an <b>urgent</b> request","The request is <b>urgent</b>."],"Chỗ trống nằm giữa mạo từ và danh từ (a ___ decision) thì chọn tính từ."],
+ ["Vị trí của trạng từ (adverbs)","Trạng từ bổ nghĩa cho động từ, tính từ, trạng từ khác hoặc cả câu. Trạng từ hay đứng giữa trợ động từ và động từ chính, hoặc giữa be và V3/V-ing.",["respond <b>quickly</b>","<b>extremely</b> busy","The store has <b>recently</b> opened.","The fee will be <b>fully</b> refunded.","<b>Fortunately</b>, no one was hurt."],"Câu đã đầy đủ thành phần (S + V + O) mà còn chỗ trống thì gần như luôn là trạng từ."],
+ ["Cặp từ dễ nhầm (confusing word pairs)","Một số trạng từ có hai dạng nhưng khác nghĩa: hard (chăm chỉ) / hardly (hầu như không); late (muộn) / lately (gần đây); high (cao) / highly (rất); near (gần) / nearly (gần như). Một số từ đuôi -ly lại là tính từ: friendly, costly, timely, lively, likely.",["She works <b>hard</b>. / She <b>hardly</b> works.","a <b>highly</b> qualified candidate","a <b>timely</b> response (tính từ)"],""],
+ ["So sánh bằng (equative comparison)","as + tính từ/trạng từ nguyên mẫu + as. Phủ định: not as/so … as. Giữa hai chữ as không dùng dạng so sánh hơn.",["This model is <b>as reliable as</b> the old one.","✗ as more reliable as"],""],
+ ["So sánh hơn (comparative)","Tính từ ngắn thêm -er, tính từ dài dùng more + tính từ, theo sau là than. Nhấn mạnh so sánh hơn bằng much, far, even, still, a lot, không dùng very. Bất quy tắc: good/well → better → best; bad → worse → worst; many/much → more → most; little → less → least; far → farther/further.",["Sales are <b>much higher</b> than last year.","✗ <b>very</b> higher than"],"Thấy than ở phía sau thì chọn dạng so sánh hơn."],
+ ["So sánh nhất (superlative)","the + -est / the most + tính từ. Hay đi kèm in + nơi chốn, of + nhóm, hoặc mệnh đề với ever. Cấu trúc one of the + so sánh nhất + danh từ số nhiều.",["the <b>lowest</b> rates in the area","the best service we have <b>ever</b> had","one of the <b>largest</b> companies"],""],
+ ["So sánh kép càng… càng… (double comparative)","The + so sánh hơn + S + V, the + so sánh hơn + S + V.",["<b>The sooner</b> you apply, <b>the better</b> your chances."],""]],
+4:[
+ ["Hiện tại đơn (simple present)","Diễn tả thói quen, sự thật, lịch trình cố định. Dấu hiệu: every day/week, usually, always, often, regularly.",["The factory <b>produces</b> 500 units every day.","The train <b>leaves</b> at 8 a.m."],""],
+ ["Quá khứ đơn (simple past)","Hành động đã kết thúc tại một thời điểm xác định trong quá khứ. Dấu hiệu: yesterday, last week/year, ago, in 2020.",["The company <b>opened</b> three stores last year."],"Có mốc quá khứ xác định thì không dùng hiện tại hoàn thành."],
+ ["Tương lai đơn (simple future)","will + V nguyên mẫu. Dấu hiệu: next, tomorrow, soon, upcoming, in the future. be going to + V dùng cho dự định đã có kế hoạch.",["The shipment <b>will arrive</b> next Tuesday."],""],
+ ["Các thì tiếp diễn (progressive / continuous tenses)","be + V-ing. Hiện tại tiếp diễn: now, at the moment, currently. Quá khứ tiếp diễn: hành động đang diễn ra thì có hành động khác xen vào (when/while). Tương lai tiếp diễn: at this time tomorrow.",["We <b>are currently reviewing</b> your application.","She <b>was leading</b> a meeting when the client called."],"Động từ chỉ trạng thái (know, believe, belong, own, need) thường không dùng ở dạng tiếp diễn."],
+ ["Hiện tại hoàn thành (present perfect)","has/have + V3. Hành động bắt đầu trong quá khứ kéo dài đến nay, hoặc đã xảy ra và còn ảnh hưởng tới hiện tại. Dấu hiệu: since + mốc, for + khoảng, recently, already, yet, so far, over the past … years.",["Mr. Brown <b>has worked</b> here since 2018.","Sales <b>have doubled</b> over the past two years."],""],
+ ["Quá khứ hoàn thành (past perfect)","had + V3. Hành động xảy ra trước một hành động khác trong quá khứ. Dấu hiệu: by the time + quá khứ đơn, before, after.",["By the time we arrived, the talk <b>had</b> already <b>begun</b>."],""],
+ ["Tương lai hoàn thành (future perfect)","will have + V3. Hành động sẽ xong trước một mốc trong tương lai. Dấu hiệu: by + mốc tương lai, by the time + hiện tại đơn.",["By next March, we <b>will have completed</b> the renovation."],""],
+ ["Mệnh đề thời gian (time clauses) và điều kiện (conditional clauses)","Sau when, before, after, until, as soon as, once, if, unless, dùng thì hiện tại để nói về tương lai, không dùng will.",["We will call you when the parts <b>arrive</b>.","✗ when the parts <b>will arrive</b>"],"Đây là bẫy rất hay gặp: mệnh đề chính có will, mệnh đề thời gian vẫn chia hiện tại đơn."]],
+5:[
+ ["Cấu tạo câu bị động (passive voice)","be + V3. Chủ ngữ là đối tượng chịu tác động của hành động. Người thực hiện đặt sau by, có thể bỏ nếu không quan trọng.",["The manager approved the budget. (chủ động)","The budget <b>was approved</b> (by the manager). (bị động)"],""],
+ ["Mẹo nhận biết chủ động (active) hay bị động (passive)","Với ngoại động từ: sau chỗ trống có tân ngữ thì dùng chủ động; không có tân ngữ (thường là giới từ, trạng từ hoặc dấu chấm) thì dùng bị động. Đồng thời xét nghĩa: chủ ngữ tự làm hay bị làm.",["The CEO <b>approved</b> the plan. (có tân ngữ the plan)","The plan <b>was approved</b> yesterday. (không có tân ngữ)"],"Đây là cách nhanh nhất để làm câu bị động trong Part 5."],
+ ["Bị động theo từng thì (passive forms by tense)","Hiện tại: is/are + V3. Quá khứ: was/were + V3. Tương lai: will be + V3. Tiếp diễn: is/are being + V3. Hoàn thành: has/have been + V3. Động từ khuyết thiếu: must/can/should/may + be + V3.",["The lobby <b>is being cleaned</b> now.","The contract <b>has been signed</b>.","All forms <b>must be submitted</b> by Friday."],""],
+ ["Nội động từ (intransitive verbs) không có bị động","Động từ không có tân ngữ thì không chuyển sang bị động được: happen, occur, arrive, rise, appear, exist, remain, take place.",["The accident <b>happened</b> at noon.","✗ The accident <b>was happened</b>."],""],
+ ["Cụm bị động hay gặp (common passive expressions)","Động từ hai tân ngữ ở bị động: Employees were given a bonus. Cấu trúc be + V3 + to V: be asked/required/expected/advised/encouraged to V. Cụm be + V3 + giới từ: be interested in, be satisfied with, be located in, be committed to, be involved in, be based on, be qualified for.",["Visitors <b>are asked to</b> sign in.","The office <b>is located in</b> the city center."],""]],
+6:[
+ ["To V làm danh từ (to-infinitive as a noun)","To V có thể làm chủ ngữ (thường chuyển thành It … to V), tân ngữ sau một số động từ, hoặc bổ ngữ sau be. Động từ + to V: want, plan, decide, hope, agree, expect, offer, refuse, promise, fail, afford, aim, intend.",["We plan <b>to open</b> a new branch.","Our goal is <b>to reduce</b> costs.","It takes time <b>to learn</b> a new system."],""],
+ ["To V làm tính từ (to-infinitive as an adjective)","To V đứng sau danh từ để bổ nghĩa cho danh từ đó. Danh từ hay đi với to V: ability, chance, decision, effort, opportunity, plan, right, way, time.",["an opportunity <b>to work</b> abroad","We have a lot of work <b>to do</b>."],""],
+ ["To V làm trạng từ chỉ mục đích (infinitive of purpose)","(in order) to V, so as to V = để làm gì. To V cũng đứng sau một số tính từ: be able, eager, likely, ready, pleased, willing, reluctant to V.",["Ms. Chen called <b>to confirm</b> the order.","We are <b>pleased to announce</b> …"],""],
+ ["Động từ + tân ngữ + to V (verb + object + to-infinitive)","ask, allow, advise, encourage, require, expect, invite, remind, enable, want + O + to V. Ở dạng bị động: be allowed/required/encouraged to V.",["The manager asked <b>us to submit</b> the report.","Staff <b>are required to wear</b> badges."],"Ngoại lệ: make, let, have + O + V nguyên mẫu (không có to). help + O + (to) V đều được."],
+ ["Phủ định của to V (negative infinitive)","Đặt not ngay trước to: not to V.",["She decided <b>not to accept</b> the offer.","✗ to accept not"],""],
+ ["Quá… không thể / đủ… để (too … to / enough to)","too + tính từ/trạng từ + (for O) + to V = quá … nên không thể. Tính từ/trạng từ + enough + to V = đủ … để. enough + danh từ + to V.",["The box is <b>too heavy to carry</b> alone.","The hall is <b>large enough to hold</b> 300 guests.","We have <b>enough time to finish</b>."],"enough đứng sau tính từ nhưng đứng trước danh từ."]],
+7:[
+ ["Danh động từ làm danh từ (gerund as a noun)","Danh động từ làm chủ ngữ (động từ chia số ít), tân ngữ, bổ ngữ sau be, hoặc đứng sau giới từ.",["<b>Reducing</b> costs <b>is</b> our priority.","My job is <b>checking</b> invoices."],""],
+ ["Động từ + V-ing (verbs followed by gerunds)","enjoy, avoid, consider, suggest, recommend, finish, mind, postpone, delay, deny, keep, practice, quit, include, discontinue.",["Please avoid <b>using</b> your phone.","We are considering <b>postponing</b> the event."],"Học thuộc nhóm này: gặp các động từ trên thì chỗ trống sau đó là V-ing."],
+ ["Giới từ + V-ing (preposition + gerund)","Sau mọi giới từ (in, on, for, about, without, before, after, by…) động từ phải ở dạng V-ing. Bẫy: to trong các cụm sau là giới từ nên theo sau là V-ing: look forward to, be used to, be committed to, be dedicated to, object to, contribute to, in addition to.",["Thank you for <b>completing</b> the survey.","We look forward to <b>meeting</b> you.","✗ look forward to <b>meet</b>"],""],
+ ["Cụm cố định với V-ing (gerund expressions)","be worth V-ing (đáng làm), have difficulty (in) V-ing, spend time V-ing, be busy V-ing, can't help V-ing, it's no use V-ing.",["The course is worth <b>taking</b>.","She spent two hours <b>preparing</b> the slides."],""],
+ ["Danh động từ (gerund) hay danh từ thường (noun)?","Danh động từ có thể nhận tân ngữ trực tiếp. Danh từ thường thì cần of mới nối được với tân ngữ.",["by <b>reviewing</b> the data (V-ing + tân ngữ)","by the <b>review</b> of the data (danh từ + of)","✗ by <b>review</b> the data"],"Chỗ trống sau giới từ và trước một cụm danh từ (không có of) thì chọn V-ing."],
+ ["Động từ đi được cả to V và V-ing nhưng khác nghĩa (verbs that change meaning)","remember/forget to V: nhớ/quên phải làm (chưa làm); remember/forget V-ing: nhớ/quên đã làm. stop to V: dừng lại để làm việc khác; stop V-ing: thôi không làm nữa. try to V: cố gắng; try V-ing: thử.",["Remember <b>to lock</b> the door.","He stopped <b>smoking</b> last year."],""]],
+8:[
+ ["Hai loại phân từ: hiện tại phân từ (present participle) và quá khứ phân từ (past participle)","Hiện tại phân từ V-ing mang nghĩa chủ động hoặc đang diễn ra. Quá khứ phân từ V3/V-ed mang nghĩa bị động hoặc đã hoàn thành.",["a <b>growing</b> company (công ty đang phát triển)","a <b>completed</b> form (mẫu đơn đã được điền)"],""],
+ ["Tính từ chỉ cảm xúc (-ing / -ed adjectives)","V-ing dùng cho người hoặc vật gây ra cảm xúc. V-ed dùng cho người cảm nhận cảm xúc. Các cặp hay gặp: interesting/interested, satisfying/satisfied, confusing/confused, exciting/excited, disappointing/disappointed, surprising/surprised, tiring/tired.",["The results were <b>disappointing</b>. (kết quả gây thất vọng)","The staff were <b>disappointed</b>. (nhân viên thấy thất vọng)"],"Chủ ngữ là người thì phần lớn chọn V-ed; chủ ngữ là sự việc thì chọn V-ing."],
+ ["Phân từ dùng như tính từ (participial adjectives) trước danh từ","Một số cụm cố định hay xuất hiện trong TOEIC: attached file, enclosed document, experienced staff, qualified candidate, detailed report, limited time, existing customers, leading company, remaining seats, rising costs, preferred method.",["Please read the <b>attached</b> document.","We hire <b>experienced</b> engineers."],""],
+ ["Phân từ đứng sau danh từ (reduced relative clauses)","Đây là mệnh đề quan hệ rút gọn. Danh từ + V-ing khi danh từ tự làm hành động (who/which + động từ chủ động). Danh từ + V3 khi danh từ bị tác động (who/which + be + V3).",["Employees <b>wishing</b> to attend should register. (= who wish)","the report <b>submitted</b> yesterday (= which was submitted)"],"Sau chỗ trống có tân ngữ thì chọn V-ing; không có tân ngữ, thường là by hoặc giới từ, thì chọn V3."],
+ ["Cụm phân từ (participial phrases)","Rút gọn mệnh đề trạng ngữ khi hai mệnh đề cùng chủ ngữ. Dùng V-ing nếu chủ ngữ tự làm, V3 nếu chủ ngữ bị tác động, Having V3 nếu hành động đã xong trước. Có thể giữ liên từ: when/while/before/after/once/if + V-ing/V3.",["<b>Located</b> near the station, the hotel is popular. (khách sạn được đặt ở)","<b>Having finished</b> the report, she left early.","When <b>using</b> the machine, wear gloves.","Once <b>approved</b>, the plan will start in May."],"Chủ ngữ ẩn của cụm phân từ phải là chủ ngữ của mệnh đề chính. Hỏi: chủ ngữ đó tự làm hay bị làm?"]],
+9:[
+ ["Liên từ đẳng lập (coordinating conjunctions)","and, but, or, so, yet, nor nối hai thành phần cùng loại: danh từ với danh từ, tính từ với tính từ, mệnh đề với mệnh đề. and để thêm ý, but/yet chỉ đối lập, or chỉ lựa chọn, so chỉ kết quả.",["You can pay by card <b>or</b> bank transfer.","The room was small <b>but</b> comfortable."],""],
+ ["Liên từ tương quan (correlative conjunctions)","Luôn đi thành cặp: both A and B (động từ số nhiều), either A or B, neither A nor B, not only A but (also) B, not A but B, A as well as B.",["<b>Neither</b> the manager <b>nor</b> the assistant was available.","The seminar was <b>both</b> useful <b>and</b> informative."],"Đây là dạng câu dễ ăn điểm: thấy nor thì chọn neither, thấy but also thì chọn not only, thấy and thì chọn both."],
+ ["Mệnh đề danh từ (noun clauses): that, whether/if","that = rằng, dùng sau said, believe, announce, confirm khi nội dung chắc chắn. whether/if = liệu … hay không, dùng sau ask, know, wonder, not sure, decide. Chỉ dùng whether khi mệnh đề đứng đầu câu, đứng sau giới từ, hoặc có or not ngay sau.",["The CEO announced <b>that</b> the merger was complete.","I'm not sure <b>whether</b> the client will agree.","<b>Whether</b> the event goes ahead depends on the weather."],""],
+ ["Mệnh đề trạng ngữ (adverb clauses): thời gian (time) và điều kiện (condition)","Thời gian: when, while, before, after, until, since, as soon as, once. Điều kiện: if, unless (= if not), as long as / provided that (miễn là), in case (phòng khi). Trong các mệnh đề này dùng thì hiện tại cho nghĩa tương lai.",["<b>As soon as</b> the shipment arrives, we will contact you.","We will cancel the order <b>unless</b> the price drops."],""],
+ ["Mệnh đề trạng ngữ (adverb clauses): lý do (reason), nhượng bộ (concession), mục đích (purpose), kết quả (result)","Lý do: because, since, as, now that. Nhượng bộ: although, though, even though, even if; whereas/while (trong khi, đối lập). Mục đích: so that / in order that + S + can/will. Kết quả: so + tính từ + that; such + (a) tính từ + danh từ + that.",["<b>Although</b> it rained, the concert continued.","Arrive early <b>so that</b> we can start on time.","The demand was <b>so</b> high <b>that</b> we ran out of stock."],""],
+ ["Phân biệt liên từ (conjunctions), giới từ (prepositions) và trạng từ nối (conjunctive adverbs)","Liên từ đi với mệnh đề (S + V). Giới từ đi với danh từ hoặc V-ing. Trạng từ nối (however, therefore, moreover, otherwise) không nối hai mệnh đề bằng dấu phẩy; chúng đứng sau dấu chấm hoặc chấm phẩy.",["<b>because</b> the road was closed / <b>because of</b> the road closure","<b>although</b> it was late / <b>despite</b> the late hour","<b>while</b> he was away / <b>during</b> his absence"],"Đây là dạng câu hay gặp nhất của chương: nhìn sau chỗ trống là mệnh đề hay cụm danh từ trước rồi mới xét nghĩa."]],
+10:[
+ ["Giới từ chỉ thời gian (prepositions of time): at, on, in","at + giờ, at noon, at the end of. on + thứ, ngày tháng, ngày cụ thể (on May 5, on Monday morning). in + tháng, năm, mùa, buổi (in the morning); in + khoảng thời gian = sau bao lâu nữa (in two weeks).",["The meeting starts <b>at</b> 9 a.m. <b>on</b> Monday.","The office opened <b>in</b> 2019."],""],
+ ["Hạn chót và kéo dài (by / until)","by = muộn nhất là, chỉ hạn chót; đi với hành động xảy ra một lần (submit, finish, arrive, return). until = kéo dài liên tục cho đến; đi với trạng thái kéo dài (stay, wait, remain, be open, be valid).",["Submit the report <b>by</b> Friday.","The store stays open <b>until</b> 10 p.m."],"Tự hỏi: hành động diễn ra một lần trước mốc đó (by) hay kéo dài suốt đến mốc đó (until)?"],
+ ["Giới từ chỉ khoảng thời gian (for, during, since, within, throughout)","for + khoảng thời gian (for three years). during + sự kiện hoặc giai đoạn (during the meeting). since + mốc thời gian, đi với hiện tại hoàn thành. within + khoảng = trong vòng (within 24 hours). throughout = suốt cả (throughout the year).",["Sales have risen <b>since</b> January.","Please reply <b>within</b> three days."],""],
+ ["Giới từ chỉ nơi chốn (prepositions of place)","at + điểm cụ thể (at the front desk). on + bề mặt, tầng (on the third floor). in + không gian kín, thành phố, quốc gia (in Room 3, in Hanoi). between (giữa hai), among (giữa nhóm từ ba trở lên), next to/beside (bên cạnh), across from/opposite (đối diện), in front of, behind, near.",["The printer is <b>next to</b> the reception desk.","The award was shared <b>among</b> five teams."],""],
+ ["Cụm giới từ thường gặp (prepositional phrases)","due to / because of / owing to (vì), despite / in spite of (mặc dù), in addition to (ngoài ra), instead of (thay vì), according to (theo), regardless of (bất kể), prior to (= before), in charge of (phụ trách), on behalf of (thay mặt).",["The event was postponed <b>due to</b> a lack of funding.","<b>Prior to</b> joining us, she worked in Seoul."],""],
+ ["Giới từ (prepositions) và liên từ (conjunctions) có cùng nghĩa","Giới từ + danh từ/V-ing; liên từ + mệnh đề. because of ↔ because; despite/in spite of ↔ although; during ↔ while. before và after dùng được cả hai cách.",["<b>Despite</b> the bad weather, the flight left on time.","<b>Although</b> the weather was bad, the flight left on time."],""]],
+11:[
+ ["Mệnh đề quan hệ (relative clauses) làm gì?","Mệnh đề quan hệ bổ nghĩa cho danh từ đứng ngay trước nó (gọi là tiền ngữ – antecedent). Để chọn đúng đại từ, hỏi hai câu: tiền ngữ là người hay vật? Trong mệnh đề, đại từ làm chủ ngữ, tân ngữ hay chỉ sở hữu?",["the candidate <b>who</b> applied (người, chủ ngữ)","the laptop <b>which</b> I bought (vật, tân ngữ)"],""],
+ ["Đại từ quan hệ (relative pronouns): who, whom, which, that","who: người, làm chủ ngữ, sau nó là động từ. whom: người, làm tân ngữ, sau nó là S + V. which: vật, làm chủ ngữ hoặc tân ngữ. that: thay cho cả người và vật, nhưng không dùng sau dấu phẩy và không dùng sau giới từ.",["We need an assistant <b>who</b> speaks French.","The candidate <b>whom</b> we interviewed was impressive."],""],
+ ["Đại từ quan hệ sở hữu (possessive relative pronoun): whose + danh từ","whose chỉ sở hữu, dùng cho cả người lẫn vật. Ngay sau whose phải là một danh từ không có mạo từ.",["a company <b>whose products</b> are sold worldwide","✗ whose the products"],"Thấy chỗ trống nằm giữa danh từ và một danh từ khác không có mạo từ thì chọn whose."],
+ ["Giới từ + whom/which (preposition + relative pronoun)","Giới từ có thể đứng trước whom hoặc which. Sau giới từ không dùng that hay who.",["the person <b>to whom</b> I spoke","the firm <b>for which</b> she works"],""],
+ ["Đại từ quan hệ what (= the thing that)","what = the thing(s) that (điều mà). what không có tiền ngữ; mệnh đề what làm chủ ngữ hoặc tân ngữ của câu.",["<b>What</b> customers want is faster delivery.","✗ the thing <b>what</b> I need"],"Trước chỗ trống có danh từ thì không chọn what."],
+ ["Trạng từ quan hệ (relative adverbs): where, when, why","where (= in/at which) cho nơi chốn, when (= on/in which) cho thời gian, why (= for which) cho lý do. Sau chúng là một mệnh đề đầy đủ.",["the hotel <b>where</b> the conference was held","the day <b>when</b> the store opened","the city <b>which</b> I visited (thiếu tân ngữ nên dùng which)"],"Tiền ngữ là nơi chốn chưa chắc đã dùng where: nếu mệnh đề sau còn thiếu chủ ngữ hoặc tân ngữ thì dùng which/that."],
+ ["Lược bỏ (omission) và rút gọn mệnh đề quan hệ (reduced relative clauses)","Đại từ quan hệ làm tân ngữ có thể lược bỏ. who/which + be có thể bỏ, giữ lại V-ing, V3 hoặc cụm giới từ.",["The laptop (that) I bought is broken.","The documents (which were) <b>prepared</b> by the lawyer …"],""],
+ ["Mệnh đề quan hệ không xác định (non-defining relative clauses)","Có dấu phẩy, chỉ thêm thông tin phụ cho một danh từ đã rõ. Trong mệnh đề này không dùng that.",["Ms. Ono, <b>who</b> joined us last year, leads the team.","✗ Ms. Ono, <b>that</b> joined us …"],""]],
+12:[
+ ["Ý tưởng chung về câu giả định (subjunctive mood)","Câu giả định nói về điều trái với thực tế, hoặc khó xảy ra. Động từ được lùi một thì so với thời gian thật: nói về hiện tại thì dùng quá khứ, nói về quá khứ thì dùng quá khứ hoàn thành.",[],""],
+ ["Giả định trái hiện tại (second conditional / past subjunctive)","If + S + V2 (be dùng were cho mọi ngôi), S + would/could/might + V nguyên mẫu.",["If I <b>had</b> more time, I <b>would join</b> the course. (thực tế không có thời gian)","If I <b>were</b> you, I would accept the offer."],""],
+ ["Giả định trái quá khứ (third conditional / past perfect subjunctive)","If + S + had + V3, S + would/could/might have + V3.",["If we <b>had left</b> earlier, we <b>would have caught</b> the train."],""],
+ ["Giả định hỗn hợp (mixed conditional)","Điều kiện trái quá khứ, kết quả trái hiện tại: If + had V3, would + V nguyên mẫu. Dấu hiệu là now, today ở mệnh đề kết quả.",["If she <b>had accepted</b> the job, she <b>would be living</b> in London now."],""],
+ ["Giả định tương lai ít khả năng (future subjunctive: if … should)","If + S + should + V nguyên mẫu, theo sau là câu mệnh lệnh hoặc will. Đây là cách nói lịch sự rất phổ biến trong thư từ công việc.",["If you <b>should need</b> help, please contact the front desk."],""],
+ ["Đảo ngữ bỏ if (inverted conditionals)","Bỏ if và đảo trợ động từ lên đầu: Were + S …, Had + S + V3 …, Should + S + V ….",["<b>Should</b> you have any questions, please call us.","<b>Had</b> I known about the delay, I would have taken a taxi.","<b>Were</b> I in your position, I would wait."],"Câu bắt đầu bằng chỗ trống, theo sau là S + V nguyên mẫu, và vế sau là mệnh lệnh: chọn Should."],
+ ["Câu ước (wishes): wish và if only","Ước cho hiện tại: wish + V2/were. Ước cho quá khứ: wish + had V3. Mong ai đó thay đổi hành vi: wish + S + would + V.",["I wish I <b>spoke</b> French.","I wish I <b>had attended</b> the meeting yesterday."],""],
+ ["Giả định với động từ đề nghị (mandative subjunctive)","suggest, recommend, request, require, insist, ask, propose + that + S + V nguyên mẫu (không chia theo ngôi, không thêm -s). Tương tự: It is important/essential/necessary/vital that + S + V nguyên mẫu.",["The manager requested that every employee <b>submit</b> a report.","It is essential that the form <b>be</b> signed."],"Thấy request/require/suggest that + chủ ngữ số ít + chỗ trống thì chọn động từ nguyên mẫu, không chọn dạng có -s."]],
+13:[
+ ["Nguyên tắc hòa hợp chủ ngữ – động từ (subject-verb agreement)","Động từ chia theo chủ ngữ chính, không theo danh từ đứng gần nó nhất. Muốn tìm chủ ngữ chính, gạch bỏ cụm giới từ và mệnh đề chen giữa.",["The list [of applicants] <b>is</b> on your desk.","The information [in these files] <b>is</b> confidential."],""],
+ ["Những chủ ngữ luôn số ít (singular subjects)","each, every, everyone/everybody/someone/nobody/anything; each of + danh từ số nhiều; one of + danh từ số nhiều; danh từ không đếm được; V-ing hoặc to V làm chủ ngữ; mệnh đề làm chủ ngữ; khoảng tiền, thời gian, khoảng cách.",["Each of the employees <b>has</b> a laptop.","Five years <b>is</b> a long time."],""],
+ ["Những chủ ngữ số nhiều (plural subjects)","both, several, many, a few + danh từ; A and B.",["The manager and the assistant <b>are</b> in a meeting."],""],
+ ["Số lượng của / nhiều (the number of / a number of)","the number of + danh từ số nhiều = số lượng của, động từ số ít. a number of + danh từ số nhiều = nhiều, động từ số nhiều.",["The number of applicants <b>has</b> increased.","A number of customers <b>have</b> complained."],""],
+ ["Từ chỉ lượng + of (quantifiers + of)","all, most, some, half, part, the rest, phần trăm + of + danh từ: chia động từ theo danh từ sau of.",["Most of the information <b>is</b> outdated.","Most of the employees <b>are</b> remote."],""],
+ ["Chủ ngữ nối bằng liên từ (compound subjects)","either … or, neither … nor, not only … but also, or: chia theo chủ ngữ đứng gần động từ hơn. along with, as well as, together with, accompanied by, in addition to: chia theo chủ ngữ thứ nhất.",["Neither the manager nor the staff <b>are</b> ready.","The manager, along with two assistants, <b>is</b> attending."],""],
+ ["Động từ trong mệnh đề quan hệ (verbs in relative clauses)","Động từ trong mệnh đề quan hệ chia theo tiền ngữ.",["an employee who <b>works</b> nights","employees who <b>work</b> nights"],""],
+ ["Hòa hợp thì (sequence of tenses)","Khi động từ ở mệnh đề chính đang ở quá khứ (said, announced, confirmed), động từ trong mệnh đề that lùi một thì: will → would, can → could, is → was, has done → had done. Ngoại lệ là sự thật hiển nhiên.",["Mr. Sato said that he <b>would finish</b> the report the next day."],""]],
+14:[
+ ["Thứ tự làm bài Part 7 (test-taking strategy)","Đọc câu hỏi trước, gạch từ khóa, rồi mới đọc bài để biết cần tìm gì. Trung bình chỉ có khoảng 1 phút cho mỗi câu, nên làm câu chi tiết trước và để câu NOT, câu suy luận làm sau.",[],""],
+ ["Câu hỏi ý chính (Overview/Gist)","Dạng hỏi: What is the purpose of the email? What is the article mainly about? Why was the notice written? Đọc tiêu đề, dòng Subject, câu đầu của đoạn đầu và đoạn cuối.",["What is the purpose of the letter? → To confirm a reservation."],"Loại các phương án chỉ đúng với một chi tiết nhỏ trong bài; ý chính phải bao quát cả bài."],
+ ["Câu hỏi chi tiết (Detail)","Dạng hỏi: When/Where/How much …? What does Ms. Park request? Gạch từ khóa là tên riêng, con số, ngày tháng, dò trong bài rồi đọc kỹ câu chứa từ khóa.",["Trong bài: eco-friendly products → Đáp án: environmentally friendly"],"Đáp án đúng thường diễn đạt lại ý (paraphrase). Phương án lặp nguyên văn từ trong bài lại hay là bẫy; con số đúng nhưng có thể thuộc thông tin khác."],
+ ["Câu hỏi NOT / TRUE","Dạng hỏi: What is NOT mentioned/indicated about …? What is true about …? Đối chiếu lần lượt từng phương án với bài. Với câu NOT, phương án nào tìm được trong bài thì loại, phương án còn lại là đáp án.",[],"Dạng này tốn thời gian vì phải dò cả bài. Nên làm sau cùng trong nhóm câu."],
+ ["Câu hỏi suy luận (Inference)","Dạng hỏi: What is suggested/implied about …? Who most likely is …? What can be inferred? Đáp án không viết thẳng trong bài, nhưng phải có căn cứ cụ thể.",["Bài viết: the new store will stay open later than any other location → Suy ra: các cửa hàng khác đóng sớm hơn."],"Loại phương án dựa vào hiểu biết bên ngoài hoặc suy diễn quá xa so với bài."],
+ ["Câu hỏi từ đồng nghĩa (Synonym)","Dạng hỏi: The word X in paragraph 1, line 2 is closest in meaning to … Đọc cả câu chứa từ, thay từng phương án vào chỗ của từ đó, chọn phương án giữ nguyên nghĩa câu.",["cover the cost → pay for","cover the event → report on"],"Đề thường hỏi nghĩa phụ của một từ quen thuộc, nên đừng chọn nghĩa phổ biến nhất mà không đọc ngữ cảnh."]],
+15:[
+ ["Thư và email (letters & emails)","Phần đầu (From, To, Date, Subject) cho biết ai viết cho ai và về việc gì. Đoạn đầu thường nêu mục đích; đoạn cuối nêu yêu cầu hoặc việc cần làm tiếp. Để ý các từ enclosed/attached (tài liệu đính kèm).",["Câu hỏi hay gặp: Why did Mr. Kim write the email? What is enclosed with the letter? What is Ms. Park asked to do?"],""],
+ ["Thông báo và bản ghi nhớ (notices & memos)","Thường thông báo một thay đổi về chính sách, lịch, địa điểm. Cần tìm: cái gì thay đổi, vì sao, có hiệu lực từ khi nào, nhân viên phải làm gì. Từ khóa: effective (có hiệu lực từ), mandatory (bắt buộc), in the meantime, until further notice.",["Effective June 1, all visitors must sign in. → Từ 1/6 khách phải ký tên khi vào."],""],
+ ["Quảng cáo (advertisements)","Quảng cáo sản phẩm/dịch vụ: tìm sản phẩm là gì, điểm khác biệt, ưu đãi và điều kiện (limited time, the first 50 customers, with this coupon), cách liên hệ. Quảng cáo tuyển dụng: requirements/qualifications (bắt buộc), preferred (ưu tiên), cách nộp hồ sơ.",["New customers get 20% off when they sign up before June 30. → Điều kiện: khách mới, đăng ký trước 30/6."],"Câu hỏi về ưu đãi gần như luôn hỏi điều kiện để nhận ưu đãi."],
+ ["Hóa đơn, lịch trình, biểu mẫu (invoices, schedules & forms)","Thông tin trình bày dạng bảng. Câu hỏi thường về con số, giờ giấc, tổng tiền. Đọc cả ghi chú có dấu * và dòng chữ nhỏ ở cuối, vì đáp án hay nằm ở đó.",["*Prices do not include tax. → Giá chưa gồm thuế."],""],
+ ["Bài đọc kép (Double Passages)","Hai văn bản liên quan nhau, ví dụ quảng cáo + email đặt hàng, hoặc lịch trình + email. Thường có 5 câu hỏi: phần lớn chỉ cần một bài, 1–2 câu phải nối thông tin từ cả hai bài.",["Email nói: I'll arrive around 11:30. Lịch trình: Keynote 9:30. → Người viết sẽ lỡ phần keynote."],"Đọc lướt cả hai bài trước để biết mối liên hệ (ai gửi cho ai, phản hồi điều gì). Với câu liên kết, thường tìm dữ kiện ở bài 2 rồi tra lại bảng ở bài 1."]]
+};
+function theoryHTML(items){
+  return `<details class="theory" open><summary>Lý thuyết chi tiết · ${items.length} mục</summary><div class="th-list">${items.map((it,i)=>{
+    const [t,d,ex,tip]=it;
+    return `<div class="th"><h3><span>${i+1}</span>${t}</h3><p>${d}</p>${ex.length?`<ul class="ex">${ex.map(e=>e.startsWith("✗ ")?`<li class="x"><i>✗</i><span>${e.slice(2)}</span></li>`:`<li><i>✓</i><span>${e}</span></li>`).join("")}</ul>`:""}${tip?`<p class="tip"><b>Mẹo làm bài:</b> ${tip}</p>`:""}</div>`}).join("")}</div></details>`;
+}
+
+// ---------- storage (per-viewer convenience) ----------
+const KEY="abc-toeic-luyen-v1";
+let store={best:{},wrong:{}};
+try{const s=JSON.parse(localStorage.getItem(KEY)||"null");if(s&&s.best)store=s}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(store))}catch(e){}}
+
+// ---------- question bank ----------
+const BANK={};
+CH.forEach(c=>c.qs.forEach((q,i)=>{BANK[`${c.no}-${i}`]={id:`${c.no}-${i}`,ch:c.no,q:q[0],o:q[1],a:q[2],e:q[3]}}));
+READ.forEach(c=>c.passages.forEach((p,pi)=>p.qs.forEach((q,i)=>{BANK[`${c.no}-${pi}-${i}`]={id:`${c.no}-${pi}-${i}`,ch:c.no,p:pi,tag:q[0],q:q[1],o:q[2],a:q[3],e:q[4]}})));
+const ALLCH=[...CH,...READ];
+ALLCH.forEach(c=>c.theory=THEORY[c.no]);
+const chById=n=>ALLCH.find(c=>c.no===n);
+const total=n=>Object.values(BANK).filter(q=>q.ch===n).length;
+const pad=n=>String(n).padStart(2,"0");
+const esc=s=>s.replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+
+const app=document.getElementById("app");
+
+function home(){
+  const done=n=>store.best[n]!=null;
+  const row=c=>`<a class="ch" href="#ch-${c.no}"><span class="no">${pad(c.no)}</span><span class="nm"><b>${c.en}</b><span>${c.vi}</span></span><span class="sc ${done(c.no)?"done":""}">${done(c.no)?`Tốt nhất ${store.best[c.no]}/${total(c.no)}`:`${total(c.no)} câu`}</span></a>`;
+  const wrongN=Object.keys(store.wrong).length;
+  app.innerHTML=`
+  <div class="hero"><span class="eyebrow">15 chapter · Part 5–7</span>
+   <h1>Luyện TOEIC Reading theo giáo trình ABC</h1></div>
+  <section>
+   <div class="chs"><div class="split">Section 1 · Grammar &amp; Vocabulary · Part 5–6</div>${CH.map(row).join("")}<div class="split">Section 2 · Reading · Part 7</div>${READ.map(row).join("")}</div></section>
+  <section><h2>Luyện tổng hợp</h2><div class="extra">
+   <a class="card" href="#tron"><b>Đề trộn 20 câu</b><span>Lấy ngẫu nhiên từ Ch.01–13, giống Part 5 thật: không biết trước chủ điểm.</span></a>
+   <a class="card" href="#on-tap"><b>Ôn câu sai${wrongN?` (${wrongN})`:""}</b><span>Những câu bạn từng chọn sai. Làm đúng lại thì câu đó được xóa khỏi danh sách.</span></a></div></section>`;
+}
+
+function qHTML(q,n){
+  return `<div class="q" data-id="${q.id}"><span class="n">${n}.</span><div class="body"><div class="stem">${q.tag?`<span class="tag">${q.tag}</span>`:""}${esc(q.q)}</div><div class="opts">${q.o.map((o,i)=>`<button class="opt" data-i="${i}"><span class="b">${"ABCD"[i]}</span><span>${esc(o)}</span></button>`).join("")}</div><div class="exp" hidden></div></div></div>`;
+}
+
+function quiz({eyebrow,title,sub,theory,blocks,chNo,onEmpty}){
+  const qs=blocks.flatMap(b=>b.qs);
+  if(!qs.length){app.innerHTML=`<div class="qhead"><span class="eyebrow">${eyebrow}</span><h1>${title}</h1></div><div class="empty">${onEmpty}</div>`;return}
+  let n=0;
+  app.innerHTML=`<div class="qhead"><span class="eyebrow">${eyebrow}</span><h1>${title}</h1>${sub?`<p style="margin:0;color:var(--muted)">${sub}</p>`:""}</div>
+  ${theory?theoryHTML(theory):""}
+  <div class="bar"><span class="score" id="score">0/${qs.length}</span><span class="meter"><i id="meter"></i></span><button class="btn" id="redo">Làm lại</button></div>
+  <div id="qs">${blocks.map(b=>(b.passage?`<div class="passage"><div class="ptitle">${b.passage.t}</div>${b.passage.h}</div>`:"")+b.qs.map(q=>qHTML(q,++n)).join("")).join("")}</div>
+  ${chNo?navNext(chNo):""}`;
+  let answered=0,right=0;
+  const upd=()=>{document.getElementById("score").textContent=`${right}/${qs.length}`;document.getElementById("meter").style.width=(answered/qs.length*100)+"%"};
+  document.getElementById("qs").addEventListener("click",ev=>{
+    const btn=ev.target.closest(".opt");if(!btn||btn.disabled)return;
+    const box=btn.closest(".q"),q=BANK[box.dataset.id],i=+btn.dataset.i,ok=i===q.a;
+    box.querySelectorAll(".opt").forEach((b,j)=>{b.disabled=true;if(j===q.a)b.classList.add("right");if(j===i&&!ok)b.classList.add("wrong")});
+    const ex=box.querySelector(".exp");ex.hidden=false;
+    ex.innerHTML=`<b class="${ok?"ok":"no"}">${ok?"Đúng.":`Chưa đúng. Đáp án ${"ABCD"[q.a]}.`}</b> ${q.e}`;
+    answered++;if(ok){right++;delete store.wrong[q.id]}else store.wrong[q.id]=1;
+    if(answered===qs.length&&chNo){store.best[chNo]=Math.max(store.best[chNo]||0,right)}
+    save();upd();
+  });
+  document.getElementById("redo").onclick=()=>{route();window.scrollTo(0,0)};
+}
+
+function navNext(no){
+  const i=ALLCH.findIndex(c=>c.no===no),p=ALLCH[i-1],nx=ALLCH[i+1];
+  return `<div class="next">${p?`<a class="btn" href="#ch-${p.no}">← Ch.${pad(p.no)} ${p.en}</a>`:"<span></span>"}${nx?`<a class="btn" href="#ch-${nx.no}">Ch.${pad(nx.no)} ${nx.en} →</a>`:`<a class="btn" href="#tron">Làm Đề trộn →</a>`}</div>`;
+}
+
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a}
+
+function route(){
+  const h=location.hash.slice(1);
+  document.querySelectorAll("#nav a").forEach(a=>a.classList.toggle("on",a.dataset.r===h||(a.dataset.r===""&&h.startsWith("ch-"))));
+  const m=h.match(/^ch-(\d+)$/);
+  if(m&&chById(+m[1])){
+    const c=chById(+m[1]);
+    const blocks=c.qs?[{qs:Object.values(BANK).filter(q=>q.ch===c.no)}]
+      :c.passages.map((p,pi)=>({passage:p,qs:Object.values(BANK).filter(q=>q.ch===c.no&&q.p===pi)}));
+    quiz({eyebrow:`Chapter ${pad(c.no)} · ${c.no<=13?"Part 5–6":"Part 7"}`,title:`${c.en} · ${c.vi}`,theory:c.theory,blocks,chNo:c.no});
+  }else if(h==="tron"){
+    const pool=shuffle(Object.values(BANK).filter(q=>q.ch<=13)).slice(0,20);
+    quiz({eyebrow:"Luyện tổng hợp",title:"Đề trộn 20 câu",sub:"Câu hỏi lấy ngẫu nhiên từ Ch.01–13. Bấm Làm lại để có đề khác.",blocks:[{qs:pool}]});
+  }else if(h==="on-tap"){
+    const ids=Object.keys(store.wrong).filter(id=>BANK[id]);
+    const ws=ids.map(id=>BANK[id]);
+    const blocks=[{qs:ws.filter(q=>q.p==null)}];
+    // keep reading questions with their passage
+    const seen={};ws.filter(q=>q.p!=null).forEach(q=>{const k=q.ch+"-"+q.p;(seen[k]||(seen[k]={passage:chById(q.ch).passages[q.p],qs:[]})).qs.push(q)});
+    quiz({eyebrow:"Ôn tập",title:"Ôn câu sai",sub:"Làm đúng câu nào thì câu đó rời khỏi danh sách.",blocks:[...blocks,...Object.values(seen)].filter(b=>b.qs.length),onEmpty:"Chưa có câu sai nào. Làm một chapter hoặc Đề trộn, câu chọn sai sẽ được đưa vào đây."});
+  }else home();
+}
+addEventListener("hashchange",()=>{route();window.scrollTo(0,0)});
+route();
+</script>
+
+</html>

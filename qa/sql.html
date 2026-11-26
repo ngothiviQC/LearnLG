@@ -1,0 +1,1652 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><script>(function(){var e=false;try{e=window.top!==window}catch(x){e=true}if(e)document.documentElement.classList.add("embedded")})()</script><style>html.embedded nav.switch{display:none!important}</style>
+<title>Luyện SQL qua ticket QC</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: bàn làm việc của QC — hàng đợi ticket bên trái, ticket ở giữa, console SQL bên phải; điện thoại thì xếp chồng. */
+:root{
+  --bg:#f8f4f6; --surface:#ffffff; --sunken:#f1e9ed; --ink:#22161c; --muted:#6b5a63; --line:#e6d9df;
+  --accent:#c2185b; --accent-ink:#ffffff; --accent-soft:#fce4ec;
+  --pass:#1d7a46; --pass-soft:#e1f3e7; --fail:#b3261e; --fail-soft:#fbe7e5; --warn:#8a5a00; --warn-soft:#fbf0d6;
+  --t-ui:#1f5fae; --t-ui-soft:#e3edfa; --t-bug:#b3261e; --t-bug-soft:#fbe7e5; --t-dc:#8a5a00; --t-dc-soft:#fbf0d6; --t-td:#6a3fb0; --t-td-soft:#efe7fb;
+  --code-bg:#fbf8f9; --kw:#ad1457; --str:#9a4b00; --num:#1f5fae; --cmt:#7c8a84;
+  --f-display:"Be Vietnam Pro", "Segoe UI", system-ui, sans-serif;
+  --f-body:"Inter", "Segoe UI", system-ui, sans-serif;
+  --f-mono:"JetBrains Mono", Consolas, "Courier New", monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#151013; --surface:#1d161a; --sunken:#100c0e; --ink:#efe6ea; --muted:#ab99a2; --line:#352a30;
+  --accent:#f48fb1; --accent-ink:#2a0a17; --accent-soft:#3d1a29;
+  --pass:#5fd08e; --pass-soft:#163322; --fail:#ff8a80; --fail-soft:#3a1a18; --warn:#f0c35a; --warn-soft:#352a12;
+  --t-ui:#8db8f2; --t-ui-soft:#18273b; --t-bug:#ff8a80; --t-bug-soft:#3a1a18; --t-dc:#f0c35a; --t-dc-soft:#352a12; --t-td:#c3a6f5; --t-td-soft:#2a2040;
+  --code-bg:#171114; --kw:#f8a5c2; --str:#f0b070; --num:#8db8f2; --cmt:#73827b; color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#151013; --surface:#1d161a; --sunken:#100c0e; --ink:#efe6ea; --muted:#ab99a2; --line:#352a30;
+  --accent:#f48fb1; --accent-ink:#2a0a17; --accent-soft:#3d1a29;
+  --pass:#5fd08e; --pass-soft:#163322; --fail:#ff8a80; --fail-soft:#3a1a18; --warn:#f0c35a; --warn-soft:#352a12;
+  --t-ui:#8db8f2; --t-ui-soft:#18273b; --t-bug:#ff8a80; --t-bug-soft:#3a1a18; --t-dc:#f0c35a; --t-dc-soft:#352a12; --t-td:#c3a6f5; --t-td-soft:#2a2040;
+  --code-bg:#171114; --kw:#f8a5c2; --str:#f0b070; --num:#8db8f2; --cmt:#73827b; color-scheme:dark;
+}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:14px;line-height:1.55;display:flex;flex-direction:column}
+*{box-sizing:border-box}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0}
+code,kbd,pre,textarea{font-family:var(--f-mono)}
+code{font-size:.9em;background:var(--sunken);padding:1px 5px;border-radius:4px}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* Thanh trên */
+.top{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding-block:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));border-bottom:1px solid var(--line);background:var(--surface)}
+.brand{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;min-width:0}
+.brand h1{font-size:18px;font-weight:700;letter-spacing:-.01em}
+.brand h1 span{color:var(--accent)}
+.brand p{margin:0;color:var(--muted);font-size:12.5px}
+.progress{margin-left:auto;display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--muted)}
+.bar{width:120px;height:6px;border-radius:3px;background:var(--sunken);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);width:0;transition:width .3s}
+.switch{display:flex;gap:2px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:2px;background:var(--bg)}
+.sw{padding:4px 12px;border-radius:6px;font-size:12.5px;font-weight:500;text-decoration:none;color:var(--muted);white-space:nowrap}
+a.sw:hover{background:var(--sunken);color:var(--ink)}
+.sw.cur{background:var(--accent);color:var(--accent-ink)}
+.theme-btn{border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:6px;padding:4px 8px;font-size:12px}
+
+/* Khung chính */
+.app{flex:1;min-height:0;display:grid;grid-template-columns:240px minmax(0,1fr) minmax(0,1.15fr)}
+.pane{min-height:0;overflow:auto}
+.queue{border-right:1px solid var(--line);background:var(--surface);padding:12px 10px 24px}
+.phase{margin-bottom:14px}
+.phase h2{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:4px 8px 6px}
+.qitem{display:grid;grid-template-columns:18px 1fr;gap:8px;align-items:start;width:100%;text-align:left;border:0;background:transparent;color:var(--ink);padding:7px 8px;border-radius:6px}
+.qitem:hover{background:var(--sunken)}
+.qitem[aria-current="true"]{background:var(--accent-soft)}
+.qitem .dot{width:14px;height:14px;margin-top:3px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center}
+.qitem.done .dot{background:var(--pass);border-color:var(--pass)}
+.qitem.done .dot::after{content:"";width:6px;height:3px;border:solid var(--surface);border-width:0 0 1.5px 1.5px;transform:rotate(-45deg) translate(1px,-1px)}
+.qitem .k{font-family:var(--f-mono);font-size:11px;color:var(--muted);display:block}
+.qitem .t{font-size:13px;line-height:1.35;display:block}
+.qitem .s{font-family:var(--f-mono);font-size:12.5px;font-weight:500;color:var(--accent);display:block;line-height:1.35;margin-bottom:2px}
+.qitem .t{color:var(--muted);font-size:12.5px}
+.subtitle{font-size:15px;color:var(--muted);margin:0 0 10px;font-weight:500}
+.practice{display:inline-flex;gap:8px;align-items:baseline;flex-wrap:wrap;background:var(--accent-soft);border-radius:8px;padding:6px 12px;margin-bottom:12px;font-size:13.5px}
+.practice b{color:var(--accent);font-weight:600}
+.practice code{background:transparent;padding:0;font-weight:500}
+
+.ticket{padding:20px 24px 40px;border-right:1px solid var(--line)}
+.tk-head{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px}
+.tk-key{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.chip{font-size:11.5px;font-weight:600;padding:2px 8px;border-radius:999px}
+.chip.ui{color:var(--t-ui);background:var(--t-ui-soft)}
+.chip.bug{color:var(--t-bug);background:var(--t-bug-soft)}
+.chip.dc{color:var(--t-dc);background:var(--t-dc-soft)}
+.chip.td{color:var(--t-td);background:var(--t-td-soft)}
+.chip.prio{color:var(--muted);background:var(--sunken)}
+.ticket h2.title{font-size:21px;font-weight:700;line-height:1.3;margin-bottom:6px}
+.meta{font-size:12.5px;color:var(--muted);margin-bottom:18px;display:flex;gap:14px;flex-wrap:wrap}
+.field{margin-bottom:18px;max-width:68ch}
+.field h3{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.field p,.field ul,.field ol{margin:0 0 8px}
+.field ul,.field ol{padding-left:20px}
+.expect{border:1px dashed var(--line);border-radius:8px;padding:10px 12px;background:var(--surface)}
+.skills{display:flex;gap:6px;flex-wrap:wrap}
+.skills span{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--line);border-radius:4px;padding:1px 6px;color:var(--muted)}
+.hints{display:flex;flex-direction:column;gap:8px}
+.hint{background:var(--warn-soft);color:var(--ink);border-radius:8px;padding:8px 12px;font-size:13.5px}
+.hint b{color:var(--warn);font-weight:600;margin-right:4px}
+.linkbtn{border:0;background:none;color:var(--accent);font-weight:600;padding:0;font-size:13px}
+.linkbtn:disabled{color:var(--muted);cursor:default}
+.lesson{display:flex;flex-direction:column;gap:8px}
+.kw{border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+.kw summary{cursor:pointer;padding:8px 12px;font-weight:600}
+.kw summary code{background:transparent;padding:0;color:var(--accent);font-size:13px}
+.kw-body{padding:0 12px 12px;display:flex;flex-direction:column;gap:6px}
+.kw-body p{margin:0}
+.kw-label{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;margin-top:4px}
+.kw-label .linkbtn{text-transform:none;letter-spacing:0;font-size:12.5px}
+pre.syn{margin:0;background:var(--code-bg);border:1px solid var(--line);border-radius:6px;padding:8px 10px;overflow-x:auto;font-size:12.5px;line-height:1.55;white-space:pre}
+.kw-note{font-size:13px;color:var(--muted)}
+.kw-note b{color:var(--ink)}
+.out .answer pre{margin-bottom:10px}
+.qc{border-radius:8px;padding:12px 14px;background:var(--accent-soft);max-width:68ch}
+.qc h3{color:var(--accent)}
+.answer pre{margin:0;background:var(--code-bg);border:1px solid var(--line);border-radius:8px;padding:10px 12px;overflow-x:auto;font-size:12.5px;line-height:1.6;white-space:pre}
+
+/* Console */
+.work{display:flex;flex-direction:column;min-height:0;overflow:hidden;background:var(--surface)}
+.toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:10px 14px;border-bottom:1px solid var(--line)}
+.btn{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:7px;padding:6px 12px;font-weight:500;font-size:13px}
+.btn:hover{background:var(--sunken)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn:disabled{opacity:.55;cursor:default}
+.kbd{font-size:11.5px;color:var(--muted);margin-left:auto}
+.editor-wrap{position:relative;flex:0 0 42%;min-height:170px;border-bottom:1px solid var(--line);background:var(--code-bg)}
+.editor-wrap pre,.editor-wrap textarea{position:absolute;inset:0;margin:0;padding:12px 14px;font-size:13.5px;line-height:1.6;white-space:pre-wrap;word-wrap:break-word;overflow:auto;tab-size:2}
+.editor-wrap pre{pointer-events:none;color:var(--ink)}
+.editor-wrap textarea{border:0;resize:none;background:transparent;color:transparent;caret-color:var(--ink);outline:none}
+.editor-wrap textarea::selection{background:var(--accent-soft);color:var(--ink);-webkit-text-fill-color:var(--ink)}
+.hl-k{color:var(--kw);font-weight:500}.hl-s{color:var(--str)}.hl-n{color:var(--num)}.hl-c{color:var(--cmt);font-style:italic}
+.tabs{display:flex;gap:2px;padding:0 10px;border-bottom:1px solid var(--line)}
+.tab{border:0;background:none;padding:9px 10px;color:var(--muted);font-size:13px;font-weight:500;border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.tab .badge{font-size:11px;margin-left:4px;padding:0 6px;border-radius:999px;background:var(--sunken)}
+.tab .badge.pass{background:var(--pass-soft);color:var(--pass)}.tab .badge.fail{background:var(--fail-soft);color:var(--fail)}
+.out{flex:1;min-height:0;overflow:auto;padding:12px 14px 24px}
+.msg{font-size:13px;color:var(--muted);margin:0 0 10px}
+.msg.err{color:var(--fail);background:var(--fail-soft);padding:8px 12px;border-radius:8px;font-family:var(--f-mono);font-size:12.5px;white-space:pre-wrap}
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:8px;max-width:100%}
+table.res{border-collapse:collapse;font-size:12.5px;font-variant-numeric:tabular-nums;min-width:100%}
+table.res th,table.res td{padding:5px 10px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+table.res th{position:sticky;top:0;background:var(--sunken);font-family:var(--f-mono);font-weight:500;font-size:12px}
+table.res td.num{text-align:right;font-family:var(--f-mono)}
+table.res td.null{color:var(--muted);font-style:italic}
+table.res tr:last-child td{border-bottom:0}
+.checks{list-style:none;padding:0;margin:0 0 14px;display:flex;flex-direction:column;gap:6px}
+.checks li{display:grid;grid-template-columns:22px 1fr;gap:6px;align-items:start;font-size:13.5px}
+.checks .ic{width:18px;height:18px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:700;margin-top:1px}
+.checks .ok .ic{background:var(--pass-soft);color:var(--pass)}
+.checks .no .ic{background:var(--fail-soft);color:var(--fail)}
+.checks .skip .ic{background:var(--sunken);color:var(--muted)}
+.verdict{border-radius:8px;padding:10px 14px;margin-bottom:12px;font-weight:600}
+.verdict.pass{background:var(--pass-soft);color:var(--pass)}
+.verdict.fail{background:var(--fail-soft);color:var(--fail)}
+.trap{background:var(--warn-soft);border-radius:8px;padding:8px 12px;margin-bottom:12px;font-size:13.5px}
+.trap b{color:var(--warn)}
+.dtable{border:1px solid var(--line);border-radius:8px;margin-bottom:10px;overflow:hidden}
+.dtable summary{cursor:pointer;padding:8px 12px;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;list-style:none}
+.dtable summary::-webkit-details-marker{display:none}
+.dtable summary b{font-family:var(--f-mono);font-weight:500}
+.dtable summary span{color:var(--muted);font-size:12.5px}
+.dtable .cols{padding:0 12px 8px;font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.dtable .body{padding:0 12px 12px}
+.legend{font-size:12.5px;color:var(--muted);margin-bottom:12px;max-width:68ch}
+.loading{color:var(--muted);font-size:13px}
+
+/* Buổi 2: nhãn kế hoạch, tiêu chí đạt, câu hỏi ERD, sơ đồ ERD */
+.chip.learn{color:var(--accent);background:var(--accent-soft)}
+.phase h2 .ses{display:block;text-transform:none;letter-spacing:0;font-weight:500;color:var(--accent);font-size:11.5px;margin-top:1px}
+.crit{border:1px solid var(--line);border-radius:8px;background:var(--bg);padding:10px 12px;margin:0 0 14px;display:flex;flex-direction:column;gap:8px}
+.crit-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.crit-head h2{font-size:13px;font-weight:700;letter-spacing:0;text-transform:none;color:var(--ink);padding:0}
+.crit-chip{font-size:11px;font-weight:600;padding:1px 8px;border-radius:999px;background:var(--sunken);color:var(--muted);white-space:nowrap}
+.crit-chip.ok{background:var(--pass-soft);color:var(--pass)}
+.crit ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px}
+.crit li{display:grid;grid-template-columns:1fr auto;gap:2px 8px;font-size:12.5px;align-items:baseline}
+.crit li .cn{font-family:var(--f-mono);font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.crit li.ok .cn{color:var(--pass);font-weight:600}
+.crit li .bar{grid-column:1/-1;width:100%;height:4px}
+.crit li.ok .bar i{background:var(--pass)}
+.crit p{margin:0;font-size:12px;color:var(--muted);line-height:1.45}
+.crit textarea{width:100%;min-height:120px;font-size:11.5px;border:1px solid var(--line);border-radius:6px;background:var(--code-bg);color:var(--ink);padding:6px}
+.crit-inline{display:none;max-width:68ch;margin-top:8px}
+.quiz{padding-left:20px;margin:8px 0 0;display:flex;flex-direction:column;gap:14px}
+.quiz .opts{display:flex;flex-direction:column;gap:5px;margin-top:6px}
+.quiz label{display:flex;gap:8px;align-items:flex-start;cursor:pointer;padding:5px 10px;border:1px solid var(--line);border-radius:6px;background:var(--surface);font-size:13.5px}
+.quiz label:hover{background:var(--sunken)}
+.quiz input{margin:3px 0 0;accent-color:var(--accent)}
+.erd{overflow-x:auto;margin:6px 0 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);padding:8px}
+.erd svg{display:block;width:100%;min-width:520px;height:auto}
+.erd text{font-family:var(--f-mono);font-size:11px;fill:var(--ink)}
+.erd .bx{fill:var(--surface);stroke:var(--line)}
+.erd .hd{fill:var(--accent-soft)}
+.erd .tn{font-family:var(--f-display);font-weight:700;font-size:12px}
+.erd .pk{fill:var(--accent);font-weight:600;font-size:10px}
+.erd .fk{fill:var(--t-ui);font-weight:600;font-size:10px}
+.erd .ln{stroke:var(--muted);fill:none;stroke-width:1.4}
+.erd .ln.opt{stroke-dasharray:5 4}
+.erd .card{fill:var(--muted);font-weight:600}
+.erd .lg{fill:var(--muted);font-family:var(--f-body)}
+
+@media (max-width:1100px){
+  .app{grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);grid-template-rows:auto minmax(0,1fr)}
+  .queue{grid-column:1/-1;border-right:0;border-bottom:1px solid var(--line);display:flex;gap:4px;overflow-x:auto;padding:8px 10px}
+  .phase{display:contents}
+  .phase h2{display:none}
+  .qitem{flex:0 0 auto;width:auto;grid-template-columns:14px auto}
+  .qitem .s{white-space:nowrap;margin-bottom:0}
+  .qitem .t{display:none}
+  .queue .crit{display:none}
+  .crit-inline{display:flex}
+}
+@media (max-width:760px){
+  html,body{height:auto}
+  .app{display:block}
+  .pane{overflow:visible}
+  .queue{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;overflow-x:auto}
+  .switch{max-width:100%;overflow-x:auto}
+  .ticket{border-right:0;padding:16px max(16px,env(safe-area-inset-right,0px)) 20px max(16px,env(safe-area-inset-left,0px))}
+  .work{overflow:visible;border-top:1px solid var(--line)}
+  .editor-wrap{flex:none;height:230px}
+  .out{overflow:visible;min-height:200px}
+  .kbd{display:none}
+  .bar{width:70px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<header class="top">
+  <div class="brand">
+    <h1>Luyện SQL <span>qua ticket QC</span></h1>
+    <p>Buổi 2 · SQL cho tester · Nền tảng · Đối chiếu UI với DB · Điều tra bug · Kiểm tra dữ liệu · Data test</p>
+  </div>
+  <nav class="switch" aria-label="Chuyển bài luyện">
+    <a class="sw" href="https://claude.ai/artifact/JaoKpmEcfkpAuEXorgS3pS" target="_blank" rel="noopener">Trang chủ</a>
+    <a class="sw cur" aria-current="page">Luyện SQL</a>
+    <a class="sw" href="https://claude.ai/artifact/UEyyLXfD54P1DxKUjVyGEN" target="_blank" rel="noopener">Luyện Java</a>
+    <a class="sw" href="https://claude.ai/artifact/BnjTWDD4PMrHT31KFUc7vQ" target="_blank" rel="noopener">Luyện ISTQB</a>
+    <a class="sw" href="https://claude.ai/artifact/SjkaU5hz7dHfEJrDGLyfAw" target="_blank" rel="noopener">Luyện test API</a>
+  </nav>
+  <div class="progress"><span id="progText">0/20 bài</span><div class="bar"><i id="progBar"></i></div>
+    <button class="theme-btn" id="themeBtn" type="button" aria-label="Đổi giao diện sáng/tối">Sáng/Tối</button></div>
+</header>
+
+<div class="app">
+  <nav class="pane queue" id="queue" aria-label="Danh sách ticket"></nav>
+  <article class="pane ticket" id="ticket"></article>
+  <section class="work" aria-label="Console SQL">
+    <div class="toolbar">
+      <button class="btn primary" id="runBtn" type="button">Chạy</button>
+      <button class="btn" id="checkBtn" type="button">Kiểm tra bài</button>
+      <button class="btn" id="resetBtn" type="button">Khôi phục code gốc</button>
+      <span class="kbd">Ctrl+Enter chạy · Ctrl+Shift+Enter kiểm tra</span>
+    </div>
+    <div class="editor-wrap">
+      <pre id="hl" aria-hidden="true"></pre>
+      <textarea id="editor" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="Câu SQL"></textarea>
+    </div>
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" data-tab="result" aria-selected="true" type="button">Kết quả</button>
+      <button class="tab" role="tab" data-tab="grade" aria-selected="false" type="button">Chấm bài <span class="badge" id="gradeBadge" hidden></span></button>
+      <button class="tab" role="tab" data-tab="data" aria-selected="false" type="button">Dữ liệu</button>
+    </div>
+    <div class="out" id="out-result"><p class="loading" id="loadMsg">Đang tải SQLite…</p></div>
+    <div class="out" id="out-grade" hidden><p class="msg">Bấm <b>Kiểm tra bài</b> để chấm câu SQL hiện tại.</p></div>
+    <div class="out" id="out-data" hidden></div>
+  </section>
+</div>
+
+<script type="text/plain" id="seed">
+CREATE TABLE customers (id INTEGER PRIMARY KEY, email TEXT, full_name TEXT, phone TEXT, status TEXT, created_at TEXT);
+INSERT INTO customers VALUES
+(1,'an.nguyen@shopdemo.test','Nguyễn Văn An','0901000001','active','2026-08-02 03:10:00'),
+(2,'binh.tran@shopdemo.test','Trần Thị Bình','0901000002','active','2026-08-15 09:22:00'),
+(3,'chi.le@shopdemo.test','Lê Minh Chi','0901000003','active','2026-09-01 12:05:00'),
+(4,'dung.pham@shopdemo.test','Phạm Quốc Dũng','0901000004','locked','2026-09-10 02:40:00'),
+(5,'Binh.Tran@shopdemo.test ','Trần Thị Bình','0901000002','active','2026-10-20 14:11:00'),
+(6,'giang.vo@shopdemo.test','Võ Thu Giang',NULL,'active','2026-10-05 08:30:00'),
+(7,'hai.do@shopdemo.test','Đỗ Thanh Hải','0901000007','active','2026-10-28 01:55:00'),
+(8,'khanh.bui@shopdemo.test','Bùi Ngọc Khánh','0901000008','deleted','2026-07-01 06:00:00');
+CREATE TABLE products (id INTEGER PRIMARY KEY, sku TEXT, name TEXT, price INTEGER, stock INTEGER, is_active INTEGER);
+INSERT INTO products VALUES
+(1,'TS-001','Áo thun basic trắng',149000,120,1),
+(2,'TS-002','Áo thun basic đen',149000,0,1),
+(3,'JN-010','Quần jeans slim',459000,35,1),
+(4,'SN-021','Giày sneaker canvas',699000,-2,1),
+(5,'BG-005','Balo laptop 15 inch',389000,18,1),
+(6,'CP-100','Mũ lưỡi trai',99000,60,1),
+(7,'SK-300','Tất cổ ngắn (3 đôi)',59000,200,0);
+CREATE TABLE vouchers (code TEXT PRIMARY KEY, discount_percent INTEGER, max_uses INTEGER, used_count INTEGER, valid_from TEXT, valid_to TEXT);
+INSERT INTO vouchers VALUES
+('SALE10',10,100,2,'2026-11-01','2026-11-30'),
+('VIP20',20,2,3,'2026-11-01','2026-11-30'),
+('OCT15',15,100,1,'2026-10-01','2026-10-31'),
+('BF50',50,50,0,'2026-11-27','2026-11-29');
+CREATE TABLE orders (id INTEGER PRIMARY KEY, code TEXT, customer_id INTEGER, status TEXT, voucher_code TEXT, discount_amount INTEGER, total_amount INTEGER, created_at TEXT);
+INSERT INTO orders VALUES
+(1,'DH-2001',1,'delivered',NULL,0,298000,'2026-11-02 02:15:00'),
+(2,'DH-2002',2,'delivered','SALE10',45900,413100,'2026-11-03 07:40:00'),
+(3,'DH-2003',1,'paid',NULL,0,389000,'2026-11-05 13:20:00'),
+(4,'DH-2004',3,'cancelled',NULL,0,699000,'2026-11-06 04:05:00'),
+(5,'DH-2005',3,'shipping','VIP20',159600,638400,'2026-11-08 09:00:00'),
+(6,'DH-2006',6,'pending_payment',NULL,0,149000,'2026-11-10 15:30:00'),
+(7,'DH-2007',7,'delivered','VIP20',183600,734400,'2026-11-09 03:00:00'),
+(8,'DH-2008',7,'paid','VIP20',39600,158400,'2026-11-11 02:00:00'),
+(9,'DH-2009',2,'paid','SALE10',68600,617500,'2026-11-11 08:45:00'),
+(10,'DH-2010',1,'pending_payment',NULL,0,99000,'2026-11-12 16:20:05'),
+(11,'DH-2011',1,'pending_payment',NULL,0,99000,'2026-11-12 16:20:07'),
+(12,'DH-2012',3,'paid',NULL,0,149000,'2026-11-12 17:05:00'),
+(13,'DH-2013',6,'pending_payment','OCT15',68850,390150,'2026-11-13 01:30:00'),
+(14,'DH-2014',2,'pending_payment',NULL,0,389000,'2026-11-13 03:10:00'),
+(15,'DH-2015',7,'cancelled',NULL,0,447000,'2026-11-13 04:00:00'),
+(16,'DH-2016',2,'pending_payment',NULL,0,99000,'2026-11-13 05:00:00'),
+(17,'DH-2017',2,'pending_payment',NULL,0,99000,'2026-11-13 05:00:40'),
+(18,'DH-2018',12,'pending_payment',NULL,0,99000,'2026-11-12 10:00:00');
+CREATE TABLE order_items (id INTEGER PRIMARY KEY, order_id INTEGER, product_id INTEGER, qty INTEGER, unit_price INTEGER);
+INSERT INTO order_items VALUES
+(1,1,1,2,149000),(2,2,3,1,459000),(3,3,5,1,389000),(4,4,4,1,699000),(5,5,4,1,699000),(6,5,6,1,99000),
+(7,6,1,1,149000),(8,7,3,2,459000),(9,8,6,2,99000),(10,9,5,1,389000),(11,9,6,3,99000),(12,10,6,1,99000),
+(13,11,6,1,99000),(14,12,1,1,149000),(15,12,2,1,149000),(16,13,3,1,459000),(17,14,5,1,389000),(18,15,1,3,149000),
+(19,16,6,1,99000),(20,17,6,1,99000),(21,18,6,1,99000);
+CREATE TABLE payments (id INTEGER PRIMARY KEY, order_id INTEGER, type TEXT, method TEXT, amount INTEGER, status TEXT, created_at TEXT);
+INSERT INTO payments VALUES
+(1,1,'charge','card',298000,'success','2026-11-02 02:16:10'),
+(2,2,'charge','momo',413100,'success','2026-11-03 07:41:02'),
+(3,3,'charge','bank_transfer',389000,'success','2026-11-05 13:35:40'),
+(4,4,'charge','card',699000,'success','2026-11-06 04:06:00'),
+(5,4,'refund','card',699000,'success','2026-11-06 10:00:00'),
+(6,5,'charge','card',638400,'success','2026-11-08 09:01:30'),
+(7,6,'charge','momo',149000,'success','2026-11-10 15:31:12'),
+(8,7,'charge','card',734400,'success','2026-11-09 03:01:00'),
+(9,8,'charge','momo',158400,'success','2026-11-11 02:00:50'),
+(10,9,'charge','card',617500,'success','2026-11-11 08:46:05'),
+(11,12,'charge','card',149000,'success','2026-11-12 17:06:00'),
+(12,13,'charge','momo',390150,'failed','2026-11-13 01:31:20'),
+(13,14,'charge','bank_transfer',389000,'success','2026-11-13 03:12:45'),
+(14,15,'charge','card',447000,'success','2026-11-13 04:00:30'),
+(15,15,'refund','card',500000,'success','2026-11-13 06:15:00');
+CREATE TABLE order_status_history (id INTEGER PRIMARY KEY, order_id INTEGER, from_status TEXT, to_status TEXT, changed_at TEXT, changed_by TEXT);
+INSERT INTO order_status_history VALUES
+(1,1,NULL,'pending_payment','2026-11-02 02:15:00','customer'),(2,1,'pending_payment','paid','2026-11-02 02:16:10','system'),
+(3,1,'paid','shipping','2026-11-02 08:00:00','admin'),(4,1,'shipping','delivered','2026-11-04 03:30:00','carrier'),
+(5,2,NULL,'pending_payment','2026-11-03 07:40:00','customer'),(6,2,'pending_payment','paid','2026-11-03 07:41:02','system'),
+(7,2,'paid','delivered','2026-11-05 09:12:00','admin'),
+(8,3,NULL,'pending_payment','2026-11-05 13:20:00','customer'),(9,3,'pending_payment','paid','2026-11-05 13:35:40','system'),
+(10,4,NULL,'pending_payment','2026-11-06 04:05:00','customer'),(11,4,'pending_payment','paid','2026-11-06 04:06:00','system'),
+(12,4,'paid','cancelled','2026-11-06 10:00:00','customer'),
+(13,5,NULL,'pending_payment','2026-11-08 09:00:00','customer'),(14,5,'pending_payment','paid','2026-11-08 09:01:30','system'),
+(15,5,'paid','shipping','2026-11-09 02:00:00','admin'),
+(16,6,NULL,'pending_payment','2026-11-10 15:30:00','customer'),
+(17,7,NULL,'pending_payment','2026-11-09 03:00:00','customer'),(18,7,'pending_payment','paid','2026-11-09 03:01:00','system'),
+(19,7,'paid','shipping','2026-11-09 07:00:00','admin'),(20,7,'shipping','delivered','2026-11-11 04:20:00','carrier'),
+(21,8,NULL,'pending_payment','2026-11-11 02:00:00','customer'),(22,8,'pending_payment','paid','2026-11-11 02:00:50','system'),
+(23,9,NULL,'pending_payment','2026-11-11 08:45:00','customer'),(24,9,'pending_payment','paid','2026-11-11 08:46:05','system'),
+(25,10,NULL,'pending_payment','2026-11-12 16:20:05','customer'),(26,11,NULL,'pending_payment','2026-11-12 16:20:07','customer'),
+(27,12,NULL,'pending_payment','2026-11-12 17:05:00','customer'),(28,12,'pending_payment','paid','2026-11-12 17:06:00','system'),
+(29,13,NULL,'pending_payment','2026-11-13 01:30:00','customer'),(30,14,NULL,'pending_payment','2026-11-13 03:10:00','customer'),
+(31,15,NULL,'pending_payment','2026-11-13 04:00:00','customer'),(32,15,'pending_payment','paid','2026-11-13 04:00:30','system'),
+(33,15,'paid','cancelled','2026-11-13 06:15:00','customer'),
+(34,16,NULL,'pending_payment','2026-11-13 05:00:00','customer'),(35,17,NULL,'pending_payment','2026-11-13 05:00:40','customer'),
+(36,18,NULL,'pending_payment','2026-11-12 10:00:00','customer');
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.12.0/sql-asm.js"></script>
+<script>
+/* ===================== Ticket ===================== */
+/* plan: buổi tương ứng trong Kế hoạch học Automation Testing 22 buổi (v2) */
+const PHASES = [
+  { id:'N', name:'Nền tảng', plan:'Buổi 2' },
+  { id:'A', name:'Đối chiếu giao diện với DB', plan:'Buổi 2' },
+  { id:'B', name:'Điều tra bug', plan:'Buổi 2' },
+  { id:'C', name:'Kiểm tra toàn vẹn dữ liệu', plan:'Buổi 2' },
+  { id:'D', name:'Dữ liệu test & tự động hóa', plan:'Buổi 2, dùng lại ở buổi 9 và 12' },
+];
+const TYPES = { learn:'Nền tảng', ui:'Đối chiếu UI', bug:'Bug', dc:'Data check', td:'Test data' };
+const PLAN_DEFAULT = 'Buổi 2 · SQL cho tester';
+
+/* Tiêu chí đạt buổi 2: đếm từ các bài đã chấm Đạt */
+const CRIT = [
+  { label:'Truy vấn có JOIN', need:3, ids:['N3','N4','B1','B2','B3','B4','B5','C2'] },
+  { label:'Truy vấn có GROUP BY', need:2, ids:['N5','A2','B4','B5','C2','C3'] },
+  { label:'Truy vấn có subquery', need:1, ids:['A1','C1','D2'] },
+];
+
+/* ===================== Sơ đồ ERD ===================== */
+const ERD_T = [
+  { n:'vouchers', x:270, y:10, c:[['code','pk'],['discount_percent'],['valid_from / valid_to']] },
+  { n:'products', x:500, y:10, c:[['id','pk'],['sku'],['price, stock']] },
+  { n:'customers', x:20, y:140, c:[['id','pk'],['email'],['status']] },
+  { n:'orders', x:270, y:130, c:[['id','pk'],['customer_id','fk'],['voucher_code','fk'],['status'],['total_amount']] },
+  { n:'order_items', x:500, y:130, c:[['id','pk'],['order_id','fk'],['product_id','fk'],['qty, unit_price']] },
+  { n:'payments', x:130, y:300, c:[['id','pk'],['order_id','fk'],['type, status'],['amount']] },
+  { n:'order_status_history', x:390, y:300, c:[['id','pk'],['order_id','fk'],['from_status → to_status']] },
+];
+const ERD_E = [
+  { p:[[190,180],[270,180]], a:[196,174], b:[258,174] },
+  { p:[[355,89],[355,130]], a:[361,102], b:[361,125], opt:true },
+  { p:[[440,186],[500,186]], a:[446,180], b:[488,180] },
+  { p:[[585,89],[585,130]], a:[591,102], b:[591,125] },
+  { p:[[300,243],[300,270],[215,270],[215,300]], a:[306,257], b:[221,294] },
+  { p:[[410,243],[410,270],[475,270],[475,300]], a:[416,257], b:[481,294] },
+];
+function erdSVG(){
+  const W = 170, H = n => 28 + n * 17;
+  let s = '<div class="erd"><svg viewBox="0 0 690 425" role="img" aria-label="Sơ đồ ERD 7 bảng của ShopDemo: khóa chính, khóa ngoại và quan hệ một – nhiều">';
+  ERD_E.forEach(e => {
+    s += '<polyline class="ln' + (e.opt ? ' opt' : '') + '" points="' + e.p.map(q => q.join(',')).join(' ') + '"/>' +
+         '<text class="card" x="' + e.a[0] + '" y="' + e.a[1] + '">1</text><text class="card" x="' + e.b[0] + '" y="' + e.b[1] + '">n</text>';
+  });
+  ERD_T.forEach(t => {
+    const h = H(t.c.length);
+    s += '<g><rect class="bx" x="' + t.x + '" y="' + t.y + '" width="' + W + '" height="' + h + '" rx="6"/>' +
+         '<rect class="hd" x="' + (t.x + .5) + '" y="' + (t.y + .5) + '" width="' + (W - 1) + '" height="21" rx="5.5"/>' +
+         '<rect class="hd" x="' + (t.x + .5) + '" y="' + (t.y + 12) + '" width="' + (W - 1) + '" height="10"/>' +
+         '<text class="tn" x="' + (t.x + 8) + '" y="' + (t.y + 15) + '">' + t.n + '</text>';
+    t.c.forEach((c, i) => {
+      const y = t.y + 22 + 17 * i + 13;
+      s += '<text x="' + (t.x + 8) + '" y="' + y + '">' + c[0] + '</text>' +
+           (c[1] ? '<text class="' + c[1] + '" x="' + (t.x + W - 8) + '" y="' + y + '" text-anchor="end">' + c[1].toUpperCase() + '</text>' : '');
+    });
+    s += '</g>';
+  });
+  s += '<text class="lg" x="2" y="418">PK: khóa chính · FK: khóa ngoại · 1 – n: một – nhiều · nét đứt: khóa ngoại được phép NULL</text>';
+  return s + '</svg></div>';
+}
+
+const TICKETS = [
+{ id:'N1', phase:'N', key:'Nền tảng 1', name:'SELECT, WHERE, ORDER BY', type:'ui', prio:'Medium', reporter:'Bạn (đang chạy test)',
+  title:'Danh sách "Sản phẩm đang bán" có đúng không?',
+  skills:['SELECT','WHERE','AND','ORDER BY'],
+  context:`<p>Màn <b>Sản phẩm</b> của ShopDemo chỉ hiện sản phẩm <b>đang bán</b> (<code>is_active = 1</code>) và <b>còn hàng</b> (<code>stock &gt; 0</code>), giá thấp nhất ở trên cùng. Màn hình đang hiện 4 sản phẩm.</p>`,
+  task:`<p>Lấy <code>sku</code>, <code>name</code>, <code>price</code> của các sản phẩm thỏa cả hai điều kiện trên, sắp theo giá tăng dần.</p>`,
+  expect:'3 cột: sku, name, price. Đúng thứ tự giá từ thấp đến cao.',
+  ordered:true,
+  answer:`SELECT sku, name, price
+FROM products
+WHERE is_active = 1 AND stock > 0
+ORDER BY price ASC;`,
+  starter:`-- Nền tảng 1 · Sản phẩm đang bán và còn hàng, giá thấp nhất trước
+SELECT sku, name, price
+FROM products
+`,
+  hints:[
+    'Hai điều kiện phải cùng đúng: nối bằng <code>AND</code>.',
+    'Còn hàng là <code>stock &gt; 0</code>. Viết <code>stock &lt;&gt; 0</code> sẽ lọt cả sản phẩm tồn kho âm.',
+    '<code>ORDER BY price ASC</code> (ASC là mặc định, có thể bỏ).'],
+  qc:`<p>Kết quả khớp 4 sản phẩm trên màn hình. Hai dòng bị loại đáng chú ý:</p>
+<ul><li><b>TS-002</b> có <code>stock = 0</code>, đúng giá trị biên của điều kiện "còn hàng". Testcase nên có sản phẩm tồn kho 0, 1 và âm.</li><li><b>SN-021</b> có <code>stock = -2</code>: tồn kho âm là lỗi dữ liệu. Bạn sẽ đưa nó vào health check ở bài 13 (UNION ALL).</li></ul>`,
+  traps:[
+    r => r && r.values.some(v => v[0] === 'SN-021') ? 'Có SN-021 (tồn kho -2). "Còn hàng" là <code>stock &gt; 0</code>, không phải <code>stock &lt;&gt; 0</code>.' : null,
+    r => r && r.values.some(v => v[0] === 'SK-300') ? 'Có SK-300 là sản phẩm đã ẩn khỏi shop. Thêm điều kiện <code>is_active = 1</code>.' : null,
+    r => r && r.values.length === 4 && r.values[0][0] === 'JN-010' ? 'Đủ 4 sản phẩm nhưng đang giá cao nhất trước. Spec yêu cầu giá thấp nhất trước.' : null ],
+},
+{ id:'N2', phase:'N', key:'Nền tảng 2', name:'Đọc ERD', type:'learn', prio:'Medium', reporter:'Người hướng dẫn (buổi 2)',
+  title:'Đọc sơ đồ quan hệ của DB ShopDemo trước khi viết JOIN',
+  skills:['PRIMARY KEY','FOREIGN KEY','1 – n','n – n'],
+  context:`<p>Trước khi JOIN, QC cần biết bảng nào nối với bảng nào và qua cột nào. Sơ đồ ERD (Entity Relationship Diagram) dưới đây vẽ 7 bảng của ShopDemo, chỉ ghi các cột chính.</p>` + erdSVG() +
+`<p>Sơ đồ này cũng có ở đầu tab <b>Dữ liệu</b> bên phải.</p>`,
+  task:`<p>Trả lời 6 câu hỏi. Bạn có thể chạy SQL ở console bên phải để kiểm chứng trước khi chọn, rồi bấm <b>Kiểm tra bài</b>.</p>`,
+  expect:'Chọn đúng cả 6 câu.',
+  quiz:[
+    { q:'Khóa chính (PRIMARY KEY) của bảng <code>vouchers</code> là cột nào?', o:['id','code','discount_percent','valid_to'], a:1, h:'Bảng vouchers không có cột id. Xem cột đánh dấu PK, hoặc chạy PRAGMA table_info(vouchers).' },
+    { q:'<code>orders.customer_id</code> là khóa ngoại trỏ tới cột nào?', o:['customers.id','customers.email','payments.order_id','orders.id'], a:0, h:'Khóa ngoại trỏ tới khóa chính của bảng cha.' },
+    { q:'Quan hệ giữa <code>orders</code> và <code>order_items</code> là gì?', o:['1 – 1','1 – n: một đơn có nhiều dòng chi tiết','n – 1: một dòng chi tiết thuộc nhiều đơn','Hai bảng không liên quan'], a:1, h:'Chạy câu mẫu trong console: có đơn nào có hơn 1 dòng chi tiết không?' },
+    { q:'Bảng nào nối <code>orders</code> với <code>products</code> thành quan hệ n – n?', o:['payments','order_status_history','order_items','vouchers'], a:2, h:'Tìm bảng có khóa ngoại tới cả orders và products.' },
+    { q:'Đơn không dùng voucher thì <code>orders.voucher_code</code> có giá trị gì?', o:["Chuỗi rỗng ''",'Số 0','NULL','SALE10 (mặc định)'], a:2, h:'Chạy SELECT code, voucher_code FROM orders; để xem.' },
+    { q:'Schema này không khai báo FOREIGN KEY. QC nên kiểm tra rủi ro nào?', o:['Bản ghi mồ côi: đơn trỏ tới khách không tồn tại','Không JOIN được hai bảng','Khóa chính bị trùng','Không lưu được giá trị NULL'], a:0, h:'Không có FOREIGN KEY thì vẫn JOIN được, nhưng DB không chặn giá trị trỏ tới dòng không tồn tại.' },
+  ],
+  answer:`-- Đáp án: 1 code · 2 customers.id · 3 1 – n · 4 order_items · 5 NULL · 6 bản ghi mồ côi
+-- Câu 1: cột có pk = 1 là khóa chính
+PRAGMA table_info(vouchers);
+-- Câu 3: có đơn nhiều hơn 1 dòng chi tiết
+SELECT order_id, COUNT(*) AS so_dong FROM order_items GROUP BY order_id HAVING COUNT(*) > 1;
+-- Câu 6: đơn trỏ tới khách không tồn tại
+SELECT o.code, o.customer_id
+FROM orders o LEFT JOIN customers c ON c.id = o.customer_id
+WHERE c.id IS NULL;`,
+  starter:`-- Nền tảng 2 · Đọc ERD: kiểm chứng câu trả lời bằng SQL
+-- Một đơn có bao nhiêu dòng chi tiết? (quan hệ 1 – n)
+SELECT order_id, COUNT(*) AS so_dong
+FROM order_items
+GROUP BY order_id;
+`,
+  hints:[
+    'Chạy <code>PRAGMA table_info(ten_bang);</code>: cột có <code>pk = 1</code> là khóa chính.',
+    'Khóa ngoại là cột ở bảng con trỏ tới khóa chính của bảng cha, vd <code>order_items.order_id</code> → <code>orders.id</code>.',
+    'Một đơn có nhiều sản phẩm và một sản phẩm nằm trong nhiều đơn: quan hệ n – n cần một bảng ở giữa.'],
+  qc:`<ul><li>ERD cho biết JOIN qua cột nào. Viết sai cột nối (vd <code>o.id = c.id</code>) vẫn chạy được nhưng ra kết quả sai, và lỗi này khó thấy.</li>
+<li><code>voucher_code</code> được phép NULL (nét đứt trên sơ đồ): testcase cần cả đơn có voucher và đơn không có voucher.</li>
+<li>Schema không khai báo FOREIGN KEY nên DB không chặn dữ liệu mồ côi. QC nên có câu kiểm tra định kỳ (bài 6 và bài 13).</li></ul>`,
+},
+{ id:'N3', phase:'N', key:'Nền tảng 3', name:'INNER JOIN', type:'ui', prio:'Medium', reporter:'Bạn (đang chạy test)',
+  title:'Màn "Chi tiết đơn DH-2005" hiển thị đúng sản phẩm chưa?',
+  skills:['JOIN','JOIN 3 bảng','cột tính toán'],
+  context:`<p>Màn <b>Chi tiết đơn</b> của đơn <code>DH-2005</code> hiện mỗi sản phẩm một dòng: tên sản phẩm, số lượng, đơn giá, thành tiền.</p>
+<p>Bảng <code>order_items</code> chỉ lưu <code>order_id</code> và <code>product_id</code>. Mã đơn nằm ở <code>orders</code>, tên sản phẩm nằm ở <code>products</code> (xem sơ đồ ở bài Nền tảng 2).</p>`,
+  task:`<p>Lấy tên sản phẩm, số lượng, đơn giá và thành tiền (<code>qty × unit_price</code>) của từng dòng trong đơn <code>DH-2005</code>. Lọc theo mã đơn, không dùng id.</p>`,
+  expect:'4 cột: tên sản phẩm, qty, unit_price, thành tiền. Thứ tự dòng không quan trọng.',
+  answer:`SELECT p.name, i.qty, i.unit_price, i.qty * i.unit_price AS thanh_tien
+FROM orders o
+JOIN order_items i ON i.order_id = o.id
+JOIN products p ON p.id = i.product_id
+WHERE o.code = 'DH-2005';`,
+  starter:`-- Nền tảng 3 · INNER JOIN: các dòng sản phẩm của đơn DH-2005
+SELECT p.name, i.qty, i.unit_price
+FROM orders o
+JOIN order_items i ON i.order_id = o.id
+`,
+  hints:[
+    'Cần 3 bảng: <code>orders</code> (lọc mã đơn) → <code>order_items</code> (dòng chi tiết) → <code>products</code> (tên sản phẩm).',
+    'Thêm <code>JOIN products p ON p.id = i.product_id</code>.',
+    'Thành tiền là cột tính toán: <code>i.qty * i.unit_price AS thanh_tien</code>. Lọc bằng <code>WHERE o.code = \'DH-2005\'</code>.'],
+  qc:`<p>Cộng thành tiền: 699.000 + 99.000 = 798.000đ. Trừ 159.600đ giảm giá của voucher VIP20 thì ra 638.400đ, đúng bằng <code>total_amount</code> của đơn.</p>
+<p>Đối chiếu tổng đơn với chi tiết là một testcase quan trọng. Ở bài 7 bạn sẽ làm việc này cho mọi đơn cùng lúc.</p>`,
+  traps:[
+    r => r && r.values.length > 2 ? 'Ra ' + r.values.length + ' dòng: thiếu điều kiện lọc <code>WHERE o.code = \'DH-2005\'</code>.' : null,
+    r => r && r.columns.length === 3 ? 'Thiếu cột thành tiền: <code>i.qty * i.unit_price</code>.' : null ],
+},
+{ id:'N4', phase:'N', key:'Nền tảng 4', name:'LEFT JOIN', type:'dc', prio:'Low', reporter:'Marketing',
+  title:'Những khách chưa từng đặt đơn nào',
+  skills:['LEFT JOIN','IS NULL'],
+  context:`<p>Marketing muốn gửi mã giảm giá cho khách <b>chưa từng đặt đơn</b>. Bạn cần kiểm tra danh sách mà hệ thống sẽ gửi.</p>
+<p><code>JOIN</code> thường chỉ giữ khách có đơn, nên không dùng được ở đây.</p>`,
+  task:`<p>Liệt kê <code>email</code> và <code>status</code> của mọi khách không có đơn nào trong bảng <code>orders</code>.</p>`,
+  expect:'2 cột: email, status.',
+  answer:`SELECT c.email, c.status
+FROM customers c
+LEFT JOIN orders o ON o.customer_id = c.id
+WHERE o.id IS NULL;`,
+  starter:`-- Nền tảng 4 · LEFT JOIN: khách chưa từng đặt đơn
+SELECT c.email, c.status
+FROM customers c
+`,
+  hints:[
+    '<code>LEFT JOIN orders o ON o.customer_id = c.id</code> giữ mọi khách, kể cả khách không có đơn.',
+    'Khách không có đơn thì mọi cột của <code>o</code> là NULL.',
+    '<code>WHERE o.id IS NULL</code>. Viết <code>= NULL</code> sẽ luôn ra 0 dòng.'],
+  qc:`<p>Cả 3 khách đều đặc biệt: <b>dung.pham</b> bị khóa, <b>khanh.bui</b> đã xóa, còn <b>Binh.Tran@…</b> là tài khoản trùng của khách Bình (bài 11). Gửi mã cho cả 3 là sai. Câu hỏi cho BA: danh sách gửi mã có lọc <code>status = 'active'</code> không?</p>
+<p>Khi cần dữ liệu test "khách chưa mua hàng", hãy chọn có chủ đích, đừng lấy dòng đầu tiên tìm được.</p>`,
+  traps:[ r => !r || r.values.length === 0 ? 'Không ra dòng nào: có thể bạn dùng <code>JOIN</code> thường hoặc viết <code>= NULL</code> thay vì <code>IS NULL</code>.' : null ],
+},
+{ id:'N5', phase:'N', key:'Nền tảng 5', name:'GROUP BY, SUM, HAVING', type:'ui', prio:'Medium', reporter:'Bạn (đang chạy test)',
+  title:'Báo cáo "Khách chi tiêu từ 700.000đ"',
+  skills:['COUNT','SUM','GROUP BY','HAVING'],
+  context:`<p>Báo cáo <b>Khách thân thiết</b> liệt kê khách có tổng giá trị đơn từ <b>700.000đ trở lên</b>, kèm số đơn. Spec: <b>không tính đơn đã hủy</b>.</p>`,
+  task:`<p>Theo từng <code>customer_id</code>: đếm số đơn và cộng <code>total_amount</code>, bỏ đơn <code>cancelled</code>. Chỉ giữ khách có tổng ≥ 700000.</p>`,
+  expect:'3 cột: customer_id, số đơn, tổng tiền.',
+  answer:`SELECT customer_id, COUNT(*) AS so_don, SUM(total_amount) AS tong_tien
+FROM orders
+WHERE status <> 'cancelled'
+GROUP BY customer_id
+HAVING SUM(total_amount) >= 700000;`,
+  starter:`-- Nền tảng 5 · GROUP BY, SUM, HAVING: khách có tổng đơn (không tính đơn hủy) >= 700000
+SELECT customer_id
+FROM orders
+`,
+  hints:[
+    'Bỏ đơn hủy trước khi gom nhóm: <code>WHERE status &lt;&gt; \'cancelled\'</code>.',
+    '<code>GROUP BY customer_id</code>, rồi <code>COUNT(*)</code> và <code>SUM(total_amount)</code>.',
+    'Lọc theo tổng sau khi gom: <code>HAVING SUM(total_amount) &gt;= 700000</code>.'],
+  qc:`<p>"Từ 700.000đ trở lên" nghĩa là <code>&gt;=</code>. Viết <code>&gt;</code> thì khách có tổng đúng 700.000đ bị loại. Testcase cho báo cáo này nên có khách tổng 699.999đ, 700.000đ và 700.001đ: phân tích giá trị biên của buổi 1 áp dụng thẳng vào SQL.</p>
+<p>Khách Bình có 2 tài khoản (bài 11). Nếu gộp theo email thì tổng chi tiêu có thể khác. Đây là câu hỏi cho BA.</p>`,
+  traps:[
+    r => r && r.values.some(v => v.some(x => x === 1486400 || x === 1339800)) ? 'Tổng đang tính cả đơn đã hủy. Thêm <code>WHERE status &lt;&gt; \'cancelled\'</code> trước GROUP BY.' : null,
+    r => r && r.values.length > 4 ? 'Nhiều hơn 4 khách: thiếu <code>HAVING SUM(total_amount) &gt;= 700000</code>.' : null ],
+},
+{ id:'N6', phase:'N', key:'Nền tảng 6', name:'NULL và COALESCE', type:'ui', prio:'Low', reporter:'Bạn (đang chạy test)',
+  title:'Số điện thoại trống hiện chữ "null" trên màn khách hàng',
+  skills:['IS NULL','COALESCE','ORDER BY'],
+  context:`<p>Màn <b>Danh sách khách</b> (chỉ khách <code>active</code>, sắp theo id) có cột số điện thoại. Một dòng đang hiện chữ <b>null</b>. Spec: khách chưa có số thì hiện <b>Chưa cập nhật</b>.</p>`,
+  task:`<p>Lấy <code>full_name</code> và số điện thoại hiển thị của khách <code>active</code>, sắp theo <code>id</code> tăng dần. Số điện thoại NULL thay bằng đúng chuỗi <code>Chưa cập nhật</code>.</p>`,
+  expect:'2 cột: full_name, số điện thoại hiển thị. Đúng thứ tự id.',
+  ordered:true,
+  answer:`SELECT full_name, COALESCE(phone, 'Chưa cập nhật') AS so_dien_thoai
+FROM customers
+WHERE status = 'active'
+ORDER BY id;`,
+  starter:`-- Nền tảng 6 · NULL và COALESCE: số điện thoại hiển thị của khách active
+SELECT full_name, phone
+FROM customers
+`,
+  hints:[
+    'Tìm dòng thiếu số trước: <code>WHERE phone IS NULL</code>.',
+    '<code>COALESCE(a, b)</code> trả về a nếu a khác NULL, ngược lại trả về b.',
+    '<code>COALESCE(phone, \'Chưa cập nhật\')</code>, thêm <code>WHERE status = \'active\' ORDER BY id</code>.'],
+  qc:`<p>Màn hình hiện "null", "undefined" hay "NaN" là lỗi rất hay gặp ở trường không bắt buộc. Với mỗi trường tùy chọn trong spec, testcase cần một dòng dữ liệu để trống trường đó và kiểm tra cách hiển thị.</p>
+<p>Nếu spec không nói hiển thị gì khi trống, đó là câu hỏi cho BA trước khi test.</p>`,
+  traps:[
+    r => r && r.values.some(v => v[1] === null) ? 'Vẫn còn NULL ở cột số điện thoại: dùng <code>COALESCE(phone, \'Chưa cập nhật\')</code>.' : null,
+    r => r && r.values.length === 8 ? 'Đang lấy cả khách bị khóa và đã xóa. Thêm <code>WHERE status = \'active\'</code>.' : null ],
+},
+{ id:'N7', phase:'N', key:'Nền tảng 7', name:'INSERT, UPDATE, DELETE', type:'td', prio:'Medium', reporter:'Bạn (chuẩn bị test)',
+  title:'Sửa dữ liệu test và kiểm tra trước – sau',
+  skills:['INSERT','UPDATE','DELETE','SELECT kiểm tra'],
+  dml:true, dmlNeed:['INSERT','UPDATE','DELETE'], mustSelect:true,
+  context:`<p>Trước khi chạy bộ test giỏ hàng, bạn cần chuẩn bị dữ liệu trên môi trường test. Quy tắc của team: <b>trước mỗi UPDATE / DELETE phải SELECT với cùng WHERE</b>, và SELECT lại sau khi sửa để xác nhận.</p>`,
+  task:`<ol><li>Thêm sản phẩm: id <code>100</code>, sku <code>TEST-100</code>, tên <code>Sản phẩm test</code>, giá <code>1000</code>, tồn kho <code>10</code>, đang bán (<code>is_active = 1</code>).</li>
+<li>Đổi giá sản phẩm <code>CP-100</code> thành <code>109000</code>.</li>
+<li>Xóa voucher <code>BF50</code> (chưa đơn nào dùng).</li></ol>
+<p>Viết ít nhất 2 câu SELECT để kiểm tra trước / sau. Không sửa dữ liệu nào khác.</p>`,
+  expect:'Chấm bằng cách so toàn bộ bảng products và vouchers sau khi chạy với kết quả mong đợi, và kiểm tra các bảng khác không đổi.',
+  after:[
+    'SELECT id, sku, name, price, stock, is_active FROM products ORDER BY id',
+    'SELECT code, discount_percent, max_uses, used_count, valid_from, valid_to FROM vouchers ORDER BY code',
+    'SELECT (SELECT COUNT(*) FROM orders), (SELECT COUNT(*) FROM customers), (SELECT COUNT(*) FROM order_items), (SELECT COUNT(*) FROM payments)'],
+  afterLabels:['Bảng products sau khi chạy khớp mong đợi', 'Bảng vouchers sau khi chạy khớp mong đợi (chỉ BF50 bị xóa)', 'Không thêm / xóa nhầm dữ liệu ở bảng khác'],
+  answer:`-- 1. Trước: chắc chắn chưa có TEST-100
+SELECT * FROM products WHERE sku = 'TEST-100';
+INSERT INTO products (id, sku, name, price, stock, is_active)
+VALUES (100, 'TEST-100', 'Sản phẩm test', 1000, 10, 1);
+
+-- 2. SELECT trước, UPDATE, SELECT sau
+SELECT sku, price FROM products WHERE sku = 'CP-100';
+UPDATE products SET price = 109000 WHERE sku = 'CP-100';
+SELECT sku, price FROM products WHERE sku = 'CP-100';
+
+-- 3. SELECT trước, DELETE, SELECT sau
+SELECT * FROM vouchers WHERE code = 'BF50';
+DELETE FROM vouchers WHERE code = 'BF50';
+SELECT code FROM vouchers;`,
+  starter:`-- Nền tảng 7 · INSERT, UPDATE, DELETE có kiểm tra trước – sau
+-- 1. Thêm sản phẩm TEST-100
+
+-- 2. Đổi giá CP-100 thành 109000 (SELECT trước, UPDATE, SELECT sau)
+
+-- 3. Xóa voucher BF50 (SELECT trước, DELETE, SELECT sau)
+`,
+  hints:[
+    '<code>INSERT INTO products (id, sku, name, price, stock, is_active) VALUES (100, \'TEST-100\', \'Sản phẩm test\', 1000, 10, 1);</code>',
+    'Chạy <code>SELECT sku, price FROM products WHERE sku = \'CP-100\';</code> trước, thấy đúng 1 dòng rồi mới <code>UPDATE products SET price = 109000 WHERE sku = \'CP-100\';</code>',
+    '<code>DELETE FROM vouchers WHERE code = \'BF50\';</code> rồi <code>SELECT code FROM vouchers;</code> để xác nhận.'],
+  qc:`<p>Thói quen SELECT trước – sau bảo vệ bạn khi sửa dữ liệu ở môi trường dùng chung. Thêm một mẹo: ngay sau UPDATE / DELETE, chạy <code>SELECT changes();</code> để biết số dòng vừa bị sửa. Mong đợi 1 mà ra 7 thì phải dừng lại ngay.</p>
+<p>Dữ liệu test nên có tiền tố dễ nhận ra (<code>TEST-</code>) để dọn bằng một câu <code>DELETE … WHERE sku LIKE 'TEST-%'</code> sau khi chạy xong.</p>`,
+  trapsAfter:[
+    db => { const r = db.exec("SELECT COUNT(*) FROM products WHERE price = 109000")[0]; return r && r.values[0][0] > 1 ? 'Có ' + r.values[0][0] + ' sản phẩm giá 109000: câu UPDATE thiếu hoặc sai WHERE.' : null; },
+    db => { const r = db.exec("SELECT COUNT(*) FROM vouchers")[0]; return r && r.values[0][0] === 0 ? 'Bảng vouchers trống: câu DELETE thiếu WHERE.' : null; } ],
+},
+{ id:'A1', phase:'A', key:'Bài 1', name:'Subquery & ORDER BY', type:'ui', prio:'Medium', reporter:'Bạn (đang chạy test)',
+  title:'Màn "Đơn hàng của tôi" hiển thị có đúng không?',
+  skills:['SELECT','WHERE','subquery','ORDER BY'],
+  context:`<p>Bạn đang chạy testcase cho màn <b>Đơn hàng của tôi</b> trên app ShopDemo, đăng nhập bằng <code>an.nguyen@shopdemo.test</code>. Màn hình hiện 4 đơn, đơn mới nhất ở trên cùng.</p>
+<p>Spec: hiển thị mọi đơn của khách, sắp xếp theo thời gian đặt giảm dần; mỗi dòng có mã đơn, trạng thái, tổng tiền.</p>`,
+  task:`<p>Lấy <code>code</code>, <code>status</code>, <code>total_amount</code> của mọi đơn thuộc khách này, đơn mới nhất trước.</p>
+<p>QC chỉ biết email đăng nhập, không biết id khách, nên hãy tìm theo email.</p>`,
+  expect:'3 cột: code, status, total_amount. Đúng thứ tự từ mới đến cũ.',
+  ordered:true,
+  answer:`SELECT code, status, total_amount
+FROM orders
+WHERE customer_id = (SELECT id FROM customers WHERE email = 'an.nguyen@shopdemo.test')
+ORDER BY created_at DESC;`,
+  starter:`-- Bài 1 · Subquery & ORDER BY: đơn hàng của an.nguyen@shopdemo.test, mới nhất trước
+SELECT code, status, total_amount
+FROM orders
+`,
+  hints:[
+    'Bảng <code>orders</code> chỉ có <code>customer_id</code>. Id khách nằm ở bảng <code>customers</code>, tìm theo cột <code>email</code>.',
+    'Câu lồng: <code>WHERE customer_id = (SELECT id FROM customers WHERE email = \'...\')</code>. Dùng JOIN cũng được.',
+    'Sắp xếp mới nhất trước: <code>ORDER BY created_at DESC</code>.'],
+  qc:`<p>Màn hình khớp DB, testcase Pass. Nhưng hãy nhìn lại: <b>DH-2010</b> và <b>DH-2011</b> giống hệt nhau và được tạo cách nhau 2 giây. Đối chiếu UI với DB không chỉ để tick Pass mà còn để phát hiện điều bất thường. Ghi chú lại, bạn sẽ gặp nó ở bài 4 (Self join).</p>`,
+  traps:[ r => r && r.values.length === 4 && r.values[0][0] === 'DH-2001' ? 'Đủ 4 đơn nhưng đang cũ nhất trước. Spec yêu cầu mới nhất trước: <code>DESC</code>.' : null ],
+},
+{ id:'A2', phase:'A', key:'Bài 2', name:'COUNT & GROUP BY', type:'ui', prio:'Medium', reporter:'Bạn (đang chạy test)',
+  title:'Số đếm trên các tab trạng thái của trang admin',
+  skills:['COUNT','GROUP BY'],
+  context:`<p>Trang admin <b>Quản lý đơn</b> có 5 tab kèm số đơn:</p>
+<p><b>Chờ thanh toán (7)</b> · Đã thanh toán (4) · Đang giao (1) · Đã giao (3) · Đã hủy (2)</p>
+<p>Bạn cần đối chiếu từng con số với DB. Bảng tên trạng thái nằm ở tab <b>Dữ liệu</b>.</p>`,
+  task:`<p>Đếm số đơn theo từng <code>status</code>, mỗi trạng thái một dòng.</p>`,
+  expect:'2 cột: status, số đơn. 5 dòng, thứ tự không quan trọng.',
+  answer:`SELECT status, COUNT(*) AS so_don
+FROM orders
+GROUP BY status;`,
+  starter:`-- Bài 2 · COUNT & GROUP BY: đếm số đơn theo từng trạng thái
+SELECT status
+FROM orders
+`,
+  hints:[
+    'Đếm theo nhóm thì dùng <code>GROUP BY</code>: mọi dòng có cùng giá trị cột được gom thành một nhóm.',
+    '<code>COUNT(*)</code> đặt trong SELECT sẽ đếm số dòng của từng nhóm.',
+    '<code>SELECT status, COUNT(*) FROM orders GROUP BY status;</code>'],
+  qc:`<p>DB có <b>8</b> đơn <code>pending_payment</code>, admin hiện <b>7</b>. Có nên báo bug "số đếm sai" ngay không? Chưa nên. Hãy tìm xem đơn nào bị thiếu trước (bài 6: LEFT JOIN & IS NULL). Bug report ghi rõ mã đơn cụ thể sẽ được dev sửa nhanh hơn nhiều so với "số trên tab bị sai".</p>`,
+},
+{ id:'A3', phase:'A', key:'Bài 3', name:'Hàm ngày & múi giờ', type:'ui', prio:'High', reporter:'Dev: "UI sai, DB chỉ có 5"',
+  title:'Dashboard "Đơn hôm nay" và chuyện múi giờ',
+  skills:['date()','múi giờ','COUNT'],
+  context:`<p>Hôm nay là <b>13/11/2026</b> (giờ Việt Nam). Dashboard hiện <b>Đơn hôm nay: 6</b>.</p>
+<p>Dev chạy <code>SELECT COUNT(*) FROM orders WHERE date(created_at) = '2026-11-13'</code>, được 5, và kết luận UI sai.</p>
+<p>Trong tài liệu DB có ghi: <b>mọi cột thời gian lưu theo giờ UTC</b>.</p>`,
+  task:`<p>Đếm số đơn được đặt trong ngày 13/11/2026 <b>theo giờ Việt Nam (UTC+7)</b>. Kết quả: 1 dòng, 1 cột. Sau đó tự trả lời: UI đúng hay dev đúng?</p>`,
+  expect:'1 dòng, 1 cột: số đơn trong ngày 13/11 giờ VN.',
+  answer:`SELECT COUNT(*) AS don_hom_nay
+FROM orders
+WHERE date(created_at, '+7 hours') = '2026-11-13';`,
+  starter:`-- Bài 3 · Hàm ngày & múi giờ: số đơn ngày 13/11/2026 theo giờ Việt Nam
+-- created_at đang lưu giờ UTC
+SELECT COUNT(*)
+FROM orders
+`,
+  hints:[
+    'Giờ VN = UTC + 7. Đơn tạo lúc <code>2026-11-12 17:05</code> UTC là 00:05 ngày 13/11 giờ VN.',
+    'SQLite cộng giờ bằng modifier: <code>date(created_at, \'+7 hours\')</code> trả về ngày theo giờ VN.',
+    '<code>WHERE date(created_at, \'+7 hours\') = \'2026-11-13\'</code>'],
+  qc:`<p>UI đúng, câu SQL của dev sai. Bug múi giờ hay nằm ở <b>biên ngày</b>: đơn đặt từ 00:00 đến 06:59 giờ VN bị tính vào ngày hôm trước nếu đếm theo UTC.</p>
+<p>Khi test báo cáo theo ngày, luôn tạo một đơn trong khung 00:00–07:00 giờ VN. Đó là giá trị biên của bài toán ngày.</p>`,
+  traps:[ r => r && r.values.length === 1 && Number(r.values[0][0]) === 5 ? 'Ra 5 giống dev: bạn đang đếm theo ngày <b>UTC</b>. Đơn DH-2012 đặt lúc 17:05 UTC ngày 12 thực ra là 00:05 ngày 13 giờ VN.' : null ],
+},
+{ id:'B1', phase:'B', key:'Bài 4', name:'Self join', type:'bug', prio:'High', reporter:'CSKH, khách an.nguyen',
+  title:'Bấm "Đặt hàng" hai lần thì ra hai đơn',
+  skills:['self join','julianday()'],
+  context:`<p>Khách an.nguyen phản ánh: mạng chậm, bấm <b>Đặt hàng</b> 2 lần thì bị tạo 2 đơn. Dev cần biết lỗi này có xảy ra với khách khác không.</p>
+<p>Team thống nhất định nghĩa <b>đơn trùng do double submit</b>: hai đơn cùng khách, cùng tổng tiền, tạo cách nhau <b>không quá 10 giây</b>.</p>`,
+  task:`<p>Liệt kê mọi cặp đơn trùng: mã đơn tạo trước, mã đơn tạo sau.</p>`,
+  expect:'2 cột: code đơn trước, code đơn sau. Mỗi cặp đúng 1 dòng (không có cả A–B lẫn B–A).',
+  answer:`SELECT a.code AS don_truoc, b.code AS don_sau
+FROM orders a
+JOIN orders b
+  ON b.customer_id = a.customer_id
+ AND b.total_amount = a.total_amount
+ AND b.id > a.id
+WHERE (julianday(b.created_at) - julianday(a.created_at)) * 86400 <= 10;`,
+  starter:`-- Bài 4 · Self join: tìm cặp đơn trùng (cùng khách, cùng tổng tiền, cách nhau <= 10 giây)
+SELECT a.code, b.code
+FROM orders a
+JOIN orders b ON
+`,
+  hints:[
+    'So một đơn với các đơn khác trong cùng bảng: nối <code>orders</code> với chính nó, đặt 2 bí danh <code>a</code> và <code>b</code> (self join).',
+    'Điều kiện nối: cùng <code>customer_id</code>, cùng <code>total_amount</code>, và <code>b.id &gt; a.id</code> để không ghép đơn với chính nó và không lặp cặp ngược.',
+    'Khoảng cách tính bằng giây: <code>(julianday(b.created_at) - julianday(a.created_at)) * 86400 &lt;= 10</code>.'],
+  qc:`<p>Kết quả SQL là bằng chứng cho bug report: "Có trên dữ liệu thật: DH-2010/DH-2011 cách nhau 2 giây".</p>
+<p>Cặp DH-2016/DH-2017 cách nhau 40 giây thì nhiều khả năng khách cố ý đặt 2 lần. Có ngưỡng rõ ràng thì không báo nhầm.</p>
+<p>Testcase nên bổ sung: bấm Đặt hàng 2 lần liên tiếp (hoặc giả lập mạng chậm), mong đợi chỉ 1 đơn được tạo và nút bị vô hiệu sau lần bấm đầu.</p>`,
+  traps:[
+    r => r && r.values.some(v => v.includes('DH-2016')) ? 'DH-2016 và DH-2017 cách nhau 40 giây, vượt ngưỡng 10 giây. Kiểm tra lại điều kiện thời gian.' : null,
+    r => r && r.values.length === 2 && r.values.some(v => v[0] === 'DH-2011') ? 'Cặp đơn đang bị lặp hai chiều (A–B và B–A). Thêm <code>b.id &gt; a.id</code>.' : null ],
+},
+{ id:'B2', phase:'B', key:'Bài 5', name:'JOIN nhiều điều kiện', type:'bug', prio:'Critical', reporter:'CSKH',
+  title:'Đã trừ tiền nhưng đơn vẫn "Chờ thanh toán"',
+  skills:['JOIN','nhiều điều kiện'],
+  context:`<p>CSKH nhận 2 khiếu nại: khách đã thanh toán (ví Momo / chuyển khoản báo thành công) nhưng app vẫn hiện <b>Chờ thanh toán</b>. Nghi callback từ cổng thanh toán không cập nhật trạng thái đơn.</p>
+<p>Bảng <code>payments</code>: <code>type</code> là <code>charge</code> (thu) hoặc <code>refund</code> (hoàn); <code>status</code> là <code>success</code> hoặc <code>failed</code>.</p>`,
+  task:`<p>Tìm các đơn đang <code>pending_payment</code> nhưng đã có giao dịch thu tiền thành công. Lấy mã đơn, phương thức, số tiền.</p>`,
+  expect:'3 cột: code, method, amount.',
+  answer:`SELECT o.code, p.method, p.amount
+FROM orders o
+JOIN payments p
+  ON p.order_id = o.id
+ AND p.type = 'charge'
+ AND p.status = 'success'
+WHERE o.status = 'pending_payment';`,
+  starter:`-- Bài 5 · JOIN nhiều điều kiện: đơn chờ thanh toán nhưng đã thu tiền thành công
+SELECT o.code, p.method, p.amount
+FROM orders o
+`,
+  hints:[
+    'Nối 2 bảng: <code>JOIN payments p ON p.order_id = o.id</code>.',
+    'Chỉ tính giao dịch thu tiền thành công: <code>p.type = \'charge\' AND p.status = \'success\'</code>.',
+    'Cuối cùng lọc đơn: <code>WHERE o.status = \'pending_payment\'</code>.'],
+  qc:`<p>Mức độ <b>Critical</b>: khách mất tiền mà không nhận được hàng. Trong report ghi rõ cả <code>momo</code> và <code>bank_transfer</code> đều lỗi, để dev biết lỗi không nằm riêng ở một cổng.</p>
+<p>Testcase nên bổ sung: callback đến chậm, callback đến 2 lần, callback không đến.</p>`,
+  traps:[ r => r && r.values.some(v => v.includes('DH-2013')) ? 'DH-2013 có giao dịch nhưng <code>status = \'failed\'</code>: khách chưa mất tiền. Lọc thêm trạng thái giao dịch.' : null ],
+},
+{ id:'B3', phase:'B', key:'Bài 6', name:'LEFT JOIN & IS NULL', type:'bug', prio:'Medium', reporter:'Bạn (từ bài 2 (COUNT & GROUP BY))',
+  title:'Tab "Chờ thanh toán" thiếu một đơn',
+  skills:['LEFT JOIN','IS NULL'],
+  context:`<p>Ở bài 2 (COUNT &amp; GROUP BY) bạn đã thấy DB có 8 đơn <code>pending_payment</code> nhưng tab admin chỉ hiện 7.</p>
+<p>Dev cho biết màn admin dùng <code>INNER JOIN orders</code> với <code>customers</code> để lấy tên khách.</p>`,
+  task:`<p>Tìm đơn có <code>customer_id</code> không khớp với khách nào trong bảng <code>customers</code>. Lấy mã đơn và customer_id.</p>`,
+  expect:'2 cột: code, customer_id.',
+  answer:`SELECT o.code, o.customer_id
+FROM orders o
+LEFT JOIN customers c ON c.id = o.customer_id
+WHERE c.id IS NULL;`,
+  starter:`-- Bài 6 · LEFT JOIN & IS NULL: đơn không có khách hàng tương ứng
+SELECT o.code, o.customer_id
+FROM orders o
+`,
+  hints:[
+    '<code>INNER JOIN</code> bỏ mất những dòng không khớp, vì vậy admin thiếu đơn.',
+    '<code>LEFT JOIN</code> giữ mọi dòng của bảng bên trái. Dòng không khớp thì các cột bên phải là NULL.',
+    '<code>LEFT JOIN customers c ON c.id = o.customer_id WHERE c.id IS NULL</code>. Lưu ý: phải viết <code>IS NULL</code>, không phải <code>= NULL</code>.'],
+  qc:`<p>Đây là dữ liệu <b>mồ côi</b>: bảng <code>orders</code> không có khóa ngoại tới <code>customers</code>. Nên tách thành 2 bug:</p>
+<ol><li>Màn admin ẩn mất đơn: sửa thành LEFT JOIN, hiện "Khách không xác định".</li><li>Vì sao có đơn trỏ tới khách id 12 không tồn tại (xóa cứng khách? import lỗi?).</li></ol>`,
+},
+{ id:'B4', phase:'B', key:'Bài 7', name:'SUM, GROUP BY, HAVING', type:'bug', prio:'High', reporter:'Kế toán',
+  title:'Tổng tiền đơn không khớp với chi tiết sản phẩm',
+  skills:['SUM','GROUP BY','HAVING'],
+  context:`<p>Kế toán đối soát thấy vài đơn có tổng tiền lệch với chi tiết sản phẩm.</p>
+<p>Quy tắc: <code>total_amount</code> = tổng (<code>qty × unit_price</code>) trong <code>order_items</code> − <code>discount_amount</code>.</p>`,
+  task:`<p>Tìm các đơn sai quy tắc. Lấy mã đơn, tổng tiền đang lưu, tổng tiền tính lại đúng.</p>`,
+  expect:'3 cột: code, total_amount, tổng đúng.',
+  answer:`SELECT o.code,
+       o.total_amount,
+       SUM(i.qty * i.unit_price) - o.discount_amount AS tong_dung
+FROM orders o
+JOIN order_items i ON i.order_id = o.id
+GROUP BY o.id
+HAVING o.total_amount <> SUM(i.qty * i.unit_price) - o.discount_amount;`,
+  starter:`-- Bài 7 · SUM, GROUP BY, HAVING: đơn có total_amount khác tổng chi tiết - giảm giá
+SELECT o.code, o.total_amount
+FROM orders o
+JOIN order_items i ON i.order_id = o.id
+`,
+  hints:[
+    'Mỗi đơn có nhiều dòng <code>order_items</code>: cần <code>GROUP BY o.id</code> để cộng lại theo đơn.',
+    'Tổng đúng: <code>SUM(i.qty * i.unit_price) - o.discount_amount</code>.',
+    'Lọc sau khi gom nhóm dùng <code>HAVING</code> chứ không phải <code>WHERE</code>: <code>HAVING o.total_amount &lt;&gt; SUM(...) - o.discount_amount</code>.'],
+  qc:`<p>Hai đơn sai theo hai kiểu khác nhau:</p>
+<ul><li><b>DH-2009</b> lệch 100đ: lỗi làm tròn khi giảm 10%.</li><li><b>DH-2012</b> thiếu hẳn một sản phẩm: có thể tổng được tính trước khi món thứ hai vào giỏ.</li></ul>
+<p>Ghi thành 2 bug riêng vì nguyên nhân khác nhau. Testcase biên cho giảm giá %: chọn giá sao cho số tiền giảm có phần lẻ.</p>`,
+},
+{ id:'B5', phase:'B', key:'Bài 8', name:'SUM(CASE WHEN)', type:'bug', prio:'Critical', reporter:'Phòng tài chính',
+  title:'Hoàn tiền nhiều hơn số tiền khách đã trả',
+  skills:['SUM(CASE WHEN)','HAVING'],
+  context:`<p>Đơn bị hủy sẽ được hoàn tiền. Tài chính thấy tổng tiền hoàn trong tuần cao bất thường.</p>
+<p>Chỉ tính giao dịch <code>status = 'success'</code>. <code>type = 'charge'</code> là thu, <code>type = 'refund'</code> là hoàn.</p>`,
+  task:`<p>Tìm đơn có tổng tiền hoàn lớn hơn tổng tiền đã thu. Lấy mã đơn, tổng thu, tổng hoàn.</p>`,
+  expect:'3 cột: code, tổng thu, tổng hoàn.',
+  answer:`SELECT o.code,
+       SUM(CASE WHEN p.type = 'charge' THEN p.amount ELSE 0 END) AS tong_thu,
+       SUM(CASE WHEN p.type = 'refund' THEN p.amount ELSE 0 END) AS tong_hoan
+FROM orders o
+JOIN payments p ON p.order_id = o.id AND p.status = 'success'
+GROUP BY o.id
+HAVING tong_hoan > tong_thu;`,
+  starter:`-- Bài 8 · SUM(CASE WHEN): đơn có tổng hoàn > tổng thu
+SELECT o.code
+FROM orders o
+JOIN payments p ON p.order_id = o.id
+`,
+  hints:[
+    'Cần 2 tổng khác nhau trên cùng một nhóm. <code>CASE WHEN</code> biến dòng không cần tính thành 0.',
+    '<code>SUM(CASE WHEN p.type = \'charge\' THEN p.amount ELSE 0 END)</code> là tổng thu; tổng hoàn làm tương tự.',
+    '<code>GROUP BY o.id HAVING tong_hoan &gt; tong_thu</code>. Nhớ chỉ lấy giao dịch success.'],
+  qc:`<p>DH-2015 thu 447.000đ, hoàn 500.000đ: công ty mất 53.000đ. Mức độ <b>Critical</b>.</p>
+<p>Testcase cần có: hủy đơn đã thanh toán, mong đợi số hoàn bằng số đã thu; thử gửi yêu cầu hoàn 2 lần, mong đợi lần thứ hai bị từ chối.</p>`,
+},
+{ id:'C1', phase:'C', key:'Bài 9', name:'NOT EXISTS', type:'dc', prio:'Medium', reporter:'QC lead: kiểm tra sau release 2.4',
+  title:'Đơn "Đã giao" nhưng chưa từng "Đang giao"',
+  skills:['NOT EXISTS','chuyển trạng thái'],
+  context:`<p>Luồng trạng thái hợp lệ:</p>
+<p><code>pending_payment → paid → shipping → delivered</code>, hoặc <code>→ cancelled</code> trước khi giao.</p>
+<p>Mỗi lần đổi trạng thái được ghi vào <code>order_status_history</code>. Sau release cần chắc chắn không có đơn nào "nhảy cóc".</p>`,
+  task:`<p>Tìm đơn đang <code>delivered</code> mà trong lịch sử chưa từng có <code>to_status = 'shipping'</code>. Lấy mã đơn.</p>`,
+  expect:'1 cột: code.',
+  answer:`SELECT o.code
+FROM orders o
+WHERE o.status = 'delivered'
+  AND NOT EXISTS (
+    SELECT 1 FROM order_status_history h
+    WHERE h.order_id = o.id AND h.to_status = 'shipping'
+  );`,
+  starter:`-- Bài 9 · NOT EXISTS: đơn đã giao nhưng lịch sử không có bước shipping
+SELECT o.code
+FROM orders o
+WHERE o.status = 'delivered'
+`,
+  hints:[
+    'Cần kiểm tra "không tồn tại dòng nào trong bảng khác thỏa điều kiện". Đó là <code>NOT EXISTS (câu SELECT con)</code>.',
+    'Câu con: <code>SELECT 1 FROM order_status_history h WHERE h.order_id = o.id AND h.to_status = \'shipping\'</code>.',
+    'Ghép lại: <code>AND NOT EXISTS (SELECT 1 FROM ... )</code>. Dùng LEFT JOIN ... IS NULL cũng được.'],
+  qc:`<p>Đây là test <b>chuyển trạng thái</b> làm bằng SQL. Xem lịch sử DH-2002: <code>admin</code> đổi thẳng <code>paid → delivered</code>.</p>
+<p>Câu hỏi cho BA: admin có được phép làm vậy không? Nếu không, bug nằm ở màn admin cho chọn mọi trạng thái. Hỏi rõ "có được phép không" là việc của QC, đừng tự suy đoán.</p>`,
+},
+{ id:'C2', phase:'C', key:'Bài 10', name:'HAVING so với cột', type:'dc', prio:'High', reporter:'Marketing',
+  title:'Voucher VIP20 bị dùng vượt giới hạn',
+  skills:['JOIN','GROUP BY','HAVING'],
+  context:`<p>Voucher <code>VIP20</code> giảm 20%, tối đa <b>2 lượt</b>, nhưng cột <code>used_count</code> đang là 3.</p>
+<p>Quy định: đơn đã hủy không tính lượt dùng.</p>`,
+  task:`<p>Với mỗi voucher, đếm số đơn (không tính <code>cancelled</code>) đã dùng. Liệt kê voucher có số lượt thực tế vượt <code>max_uses</code>: mã voucher, max_uses, số lượt thực tế.</p>`,
+  expect:'3 cột: code, max_uses, số lượt thực tế.',
+  answer:`SELECT v.code, v.max_uses, COUNT(o.id) AS luot_thuc_te
+FROM vouchers v
+JOIN orders o ON o.voucher_code = v.code AND o.status <> 'cancelled'
+GROUP BY v.code
+HAVING COUNT(o.id) > v.max_uses;`,
+  starter:`-- Bài 10 · HAVING so với cột: voucher có số lượt dùng thực tế > max_uses
+SELECT v.code, v.max_uses
+FROM vouchers v
+`,
+  hints:[
+    'Nối voucher với các đơn dùng nó: <code>JOIN orders o ON o.voucher_code = v.code</code>, thêm điều kiện bỏ đơn hủy.',
+    '<code>GROUP BY v.code</code> rồi đếm <code>COUNT(o.id)</code>.',
+    '<code>HAVING COUNT(o.id) &gt; v.max_uses</code>.'],
+  qc:`<p>Vượt giới hạn thường do <b>race condition</b>: hai khách áp mã cùng lúc khi chỉ còn 1 lượt. Testcase: 2 thiết bị cùng áp mã ở lượt cuối, mong đợi chỉ 1 thiết bị thành công.</p>
+<p>Dữ liệu voucher còn một lỗi khác (mã OCT15). Bạn sẽ bắt nó ở bài 13 (UNION ALL).</p>`,
+},
+{ id:'C3', phase:'C', key:'Bài 11', name:'lower(), trim() tìm trùng', type:'dc', prio:'Medium', reporter:'Khách Trần Thị Bình',
+  title:'Một email đăng ký được hai tài khoản',
+  skills:['lower()','trim()','GROUP BY'],
+  context:`<p>Spec form đăng ký: email là duy nhất, <b>không phân biệt hoa thường</b> và <b>bỏ khoảng trắng đầu/cuối</b>. Khách Bình báo mình có 2 tài khoản.</p>`,
+  task:`<p>Tìm email (đã chuẩn hóa: chữ thường, bỏ khoảng trắng) xuất hiện hơn 1 lần. Lấy email đã chuẩn hóa và số tài khoản.</p>`,
+  expect:'2 cột: email chuẩn hóa, số tài khoản.',
+  answer:`SELECT lower(trim(email)) AS email_chuan, COUNT(*) AS so_tai_khoan
+FROM customers
+GROUP BY lower(trim(email))
+HAVING COUNT(*) > 1;`,
+  starter:`-- Bài 11 · lower(), trim() tìm trùng: email trùng sau khi chuẩn hóa
+SELECT email
+FROM customers
+`,
+  hints:[
+    '<code>lower(x)</code> chuyển chữ thường, <code>trim(x)</code> bỏ khoảng trắng hai đầu.',
+    'Gom nhóm theo email đã chuẩn hóa: <code>GROUP BY lower(trim(email))</code>.',
+    '<code>HAVING COUNT(*) &gt; 1</code>.'],
+  qc:`<p>Ràng buộc UNIQUE trong DB phân biệt hoa thường nên không chặn được trường hợp này. Bug thuộc phần validate ở backend.</p>
+<p>Testcase cho form đăng ký nên thử: email viết hoa, email có dấu cách ở cuối, và cả hai cùng lúc.</p>`,
+  traps:[ r => !r || r.values.length === 0 ? 'Không ra dòng nào: bạn đang so email nguyên gốc. <code>Binh.Tran@...</code> và <code>binh.tran@...</code> khác nhau nếu chưa chuẩn hóa.' : null ],
+},
+{ id:'D1', phase:'D', key:'Bài 12', name:'INSERT & UPDATE', type:'td', prio:'Medium', reporter:'Bạn (chuẩn bị test ngày mai)',
+  title:'Chuẩn bị dữ liệu cho 2 testcase',
+  skills:['INSERT','UPDATE'],
+  dml:true,
+  plan:'Buổi 2, dùng lại ở buổi 9 (data-driven)',
+  planNote:`<p><b>Buổi 9 (POM và data-driven):</b> mỗi bộ dữ liệu trong file CSV của Data Provider cần dữ liệu tương ứng trong DB. Các câu INSERT / UPDATE ở bài này chính là precondition cho những bộ dữ liệu đó; lưu chúng thành script chạy trước bộ test.</p>`,
+  context:`<p>Ngày mai bạn chạy 2 testcase:</p>
+<ul><li><b>TC-15</b>: áp voucher hết hạn, mong đợi báo lỗi "Mã đã hết hạn".</li><li><b>TC-16</b>: tài khoản bị khóa không đặt hàng được.</li></ul>
+<p>Môi trường test chưa có dữ liệu phù hợp.</p>`,
+  task:`<ol><li>Thêm voucher <code>TEST_EXP</code>: giảm 10%, max_uses 10, used_count 0, hiệu lực từ <code>2026-11-01</code> đến <code>2026-11-12</code>.</li>
+<li>Khóa tài khoản <code>hai.do@shopdemo.test</code> (<code>status = 'locked'</code>).</li></ol>
+<p>Không sửa dữ liệu nào khác.</p>`,
+  expect:'Chấm bằng cách so toàn bộ bảng vouchers và customers sau khi chạy với kết quả mong đợi.',
+  after:[
+    'SELECT code, discount_percent, max_uses, used_count, valid_from, valid_to FROM vouchers ORDER BY code',
+    'SELECT id, email, status FROM customers ORDER BY id',
+    'SELECT (SELECT COUNT(*) FROM orders), (SELECT COUNT(*) FROM products), (SELECT COUNT(*) FROM payments)'],
+  answer:`INSERT INTO vouchers (code, discount_percent, max_uses, used_count, valid_from, valid_to)
+VALUES ('TEST_EXP', 10, 10, 0, '2026-11-01', '2026-11-12');
+
+-- Luôn SELECT với cùng WHERE trước khi UPDATE
+SELECT id, email, status FROM customers WHERE email = 'hai.do@shopdemo.test';
+
+UPDATE customers SET status = 'locked'
+WHERE email = 'hai.do@shopdemo.test';`,
+  starter:`-- Bài 12 · INSERT & UPDATE: chuẩn bị dữ liệu cho TC-15 và TC-16
+-- 1. Thêm voucher TEST_EXP
+
+-- 2. Khóa tài khoản hai.do@shopdemo.test
+
+-- Mẹo: viết thêm SELECT ở cuối để xem kết quả sau khi sửa
+`,
+  hints:[
+    '<code>INSERT INTO vouchers (code, discount_percent, ...) VALUES (\'TEST_EXP\', 10, ...);</code>',
+    '<code>UPDATE customers SET status = \'locked\' WHERE email = \'...\';</code> Quên WHERE là khóa toàn bộ khách.',
+    'Trước khi UPDATE, chạy <code>SELECT * FROM customers WHERE email = \'hai.do@shopdemo.test\';</code> để chắc chắn chỉ trúng 1 dòng.'],
+  qc:`<p>Quy tắc an toàn khi sửa dữ liệu:</p>
+<ul><li>Chỉ sửa trên môi trường test, không bao giờ trên production.</li><li>Trước UPDATE/DELETE luôn SELECT với cùng điều kiện WHERE.</li><li>Ghi câu SQL vào phần <b>Precondition</b> của testcase để người khác tạo lại được dữ liệu.</li></ul>
+<p>Ở trang này mỗi lần bấm Chạy là một DB mới, nên cứ thử thoải mái.</p>`,
+  trapsAfter:[ (db) => { const r = db.exec("SELECT COUNT(*) FROM customers WHERE status='locked'")[0]; return r && r.values[0][0] > 2 ? 'Có ' + r.values[0][0] + ' tài khoản bị khóa: câu UPDATE thiếu hoặc sai WHERE.' : null; } ],
+},
+{ id:'D2', phase:'D', key:'Bài 13', name:'UNION ALL', type:'td', prio:'High', reporter:'QC lead',
+  title:'Câu SQL health check chạy sau mỗi release',
+  skills:['UNION ALL','subquery','tổng hợp'],
+  plan:'Buổi 2, dùng lại ở buổi 12 (JDBC)',
+  planNote:`<p><b>Buổi 12 (REST Assured và JDBC):</b> đưa câu health check này vào một test Java: kết nối DB bằng JDBC, chạy câu SQL, assert mọi <code>so_loi = 0</code>. Thông tin kết nối lấy từ biến môi trường, không ghi cứng trong code. Test chạy trong GitHub Actions sau mỗi lần deploy môi trường test.</p>`,
+  context:`<p>Team muốn có <b>một câu SQL</b> để chạy sau mỗi release, kiểm tra nhanh các loại lỗi dữ liệu đã từng gặp. Mỗi loại lỗi là 1 dòng: tên kiểm tra và số bản ghi lỗi. Khi mọi bug đã được sửa, tất cả phải bằng 0.</p>`,
+  task:`<p>Viết 1 câu trả về đúng 4 dòng, tên kiểm tra viết chính xác như sau:</p>
+<ul><li><code>tong_tien_sai</code>: số đơn sai quy tắc tổng tiền (bài 7: SUM, GROUP BY, HAVING)</li>
+<li><code>da_tra_van_cho</code>: số đơn chờ thanh toán đã thu tiền thành công (bài 5: JOIN nhiều điều kiện)</li>
+<li><code>ton_kho_am</code>: số sản phẩm có <code>stock &lt; 0</code></li>
+<li><code>voucher_het_han</code>: số đơn dùng voucher ngoài thời gian hiệu lực (so theo ngày giờ VN; <code>valid_from</code>/<code>valid_to</code> là ngày VN)</li></ul>`,
+  expect:'2 cột: tên kiểm tra, số lỗi. 4 dòng.',
+  answer:`SELECT 'tong_tien_sai' AS kiem_tra, COUNT(*) AS so_loi FROM (
+  SELECT o.id FROM orders o JOIN order_items i ON i.order_id = o.id
+  GROUP BY o.id
+  HAVING o.total_amount <> SUM(i.qty * i.unit_price) - o.discount_amount
+)
+UNION ALL
+SELECT 'da_tra_van_cho', COUNT(*)
+FROM orders o JOIN payments p
+  ON p.order_id = o.id AND p.type = 'charge' AND p.status = 'success'
+WHERE o.status = 'pending_payment'
+UNION ALL
+SELECT 'ton_kho_am', COUNT(*) FROM products WHERE stock < 0
+UNION ALL
+SELECT 'voucher_het_han', COUNT(*)
+FROM orders o JOIN vouchers v ON v.code = o.voucher_code
+WHERE date(o.created_at, '+7 hours') NOT BETWEEN v.valid_from AND v.valid_to;`,
+  starter:`-- Bài 13 · UNION ALL: health check, mỗi kiểm tra 1 dòng (ten, so_loi)
+SELECT 'ton_kho_am' AS kiem_tra, COUNT(*) AS so_loi FROM products WHERE stock < 0
+UNION ALL
+-- thêm 3 kiểm tra còn lại...
+`,
+  hints:[
+    'Mỗi kiểm tra là một câu <code>SELECT \'ten\', COUNT(*) FROM ...</code>; nối các câu bằng <code>UNION ALL</code>.',
+    'Kiểm tra cần GROUP BY (tổng tiền sai) thì bọc lại: <code>SELECT \'tong_tien_sai\', COUNT(*) FROM (SELECT o.id ... GROUP BY o.id HAVING ...)</code>.',
+    'Voucher hết hạn: <code>JOIN vouchers v ON v.code = o.voucher_code WHERE date(o.created_at, \'+7 hours\') NOT BETWEEN v.valid_from AND v.valid_to</code>.'],
+  qc:`<p>Đây là bước chuyển từ kiểm tra thủ công sang tự động: câu này có thể chạy trong job hằng ngày và cảnh báo khi có số lớn hơn 0.</p>
+<p>Mỗi dòng là một bug đã từng xảy ra, nên health check chính là <b>regression test cho dữ liệu</b>. Gặp bug dữ liệu mới thì thêm một dòng.</p>`,
+},
+];
+
+/* ===================== Giải thích cú pháp theo bài ===================== */
+const LESSONS = {
+N1:[
+ {k:'SELECT cột FROM bảng', d:'Chọn những cột cần xem. Liệt kê đúng các cột màn hình hiển thị để đối chiếu dễ hơn.',
+  s:'SELECT cot_1, cot_2 FROM ten_bang;',
+  e:"SELECT sku, name, price, stock, is_active FROM products;",
+  n:'<code>SELECT *</code> lấy mọi cột. Dùng để xem nhanh dữ liệu, nhưng khi đối chiếu thì chọn cột cụ thể.'},
+ {k:'WHERE với AND / OR', d:'AND: mọi điều kiện cùng đúng. OR: ít nhất một điều kiện đúng.',
+  s:'WHERE dk_1 AND dk_2',
+  e:"SELECT sku, stock, is_active FROM products WHERE is_active = 1 AND stock <= 0;",
+  n:'Ví dụ trên tìm sản phẩm đang bán nhưng hết hàng: ra cả tồn kho 0 và tồn kho âm.'},
+ {k:'So sánh và BETWEEN', d:'Toán tử: <code>=</code>, <code>&lt;&gt;</code>, <code>&gt;</code>, <code>&gt;=</code>, <code>&lt;</code>, <code>&lt;=</code>. <code>BETWEEN a AND b</code> lấy cả hai đầu a và b.',
+  s:'WHERE cot BETWEEN gia_tri_1 AND gia_tri_2',
+  e:"SELECT sku, price FROM products WHERE price BETWEEN 99000 AND 389000;",
+  n:'BETWEEN bao gồm cả hai biên: ra cả CP-100 (99000) và BG-005 (389000). Đây là chỗ hay sai khi test giá trị biên.'},
+ {k:'ORDER BY và LIMIT', d:'ORDER BY sắp xếp kết quả; LIMIT n chỉ lấy n dòng đầu.',
+  s:'ORDER BY cot DESC LIMIT 3',
+  e:"SELECT sku, name, price FROM products ORDER BY price DESC LIMIT 3;",
+  n:'LIMIT không có ORDER BY thì "3 dòng đầu" có thể khác nhau giữa các lần chạy.'},
+],
+N2:[
+ {k:'PRIMARY KEY', d:'Khóa chính: cột (hoặc nhóm cột) xác định duy nhất mỗi dòng. Không trùng, không NULL.',
+  s:'PRAGMA table_info(ten_bang);',
+  e:"PRAGMA table_info(vouchers);",
+  n:'Cột <code>pk = 1</code> là khóa chính. Đây là lệnh của SQLite; MySQL dùng <code>DESCRIBE ten_bang;</code>.'},
+ {k:'FOREIGN KEY', d:'Khóa ngoại: cột ở bảng con lưu giá trị khóa chính của bảng cha. JOIN đi theo cặp cột này.',
+  s:'bang_con.cot_fk → bang_cha.id',
+  e:"SELECT o.code, o.customer_id, c.email\nFROM orders o LEFT JOIN customers c ON c.id = o.customer_id;",
+  n:'Dòng có email NULL là đơn trỏ tới khách không tồn tại. Khai báo FOREIGN KEY trong schema sẽ chặn được trường hợp này.'},
+ {k:'Quan hệ 1 – n', d:'Một dòng ở bảng cha ứng với nhiều dòng ở bảng con, vd một đơn có nhiều dòng chi tiết.',
+  s:'SELECT khoa_ngoai, COUNT(*) FROM bang_con GROUP BY khoa_ngoai;',
+  e:"SELECT o.code, COUNT(i.id) AS so_dong\nFROM orders o JOIN order_items i ON i.order_id = o.id\nGROUP BY o.id;",
+  n:'Sau khi JOIN quan hệ 1 – n, dòng của bảng cha bị lặp lại theo số dòng con. Cộng tiền của bảng cha sau JOIN sẽ bị nhân lên.'},
+ {k:'Quan hệ n – n qua bảng trung gian', d:'Hai bảng nhiều – nhiều được nối qua một bảng ở giữa có khóa ngoại tới cả hai.',
+  s:'bang_a JOIN bang_giua ON … JOIN bang_b ON …',
+  e:"SELECT o.code, p.name\nFROM orders o\nJOIN order_items i ON i.order_id = o.id\nJOIN products p ON p.id = i.product_id\nWHERE o.code IN ('DH-2005', 'DH-2009');",
+  n:'Bảng trung gian thường còn chứa dữ liệu riêng của mối quan hệ, ở đây là <code>qty</code> và <code>unit_price</code> lúc đặt.'},
+],
+N3:[
+ {k:'JOIN … ON', d:'INNER JOIN (viết tắt JOIN) nối hai bảng theo cột liên kết, chỉ giữ các dòng khớp ở cả hai bên.',
+  s:'FROM bang_a a JOIN bang_b b ON b.khoa_ngoai = a.id',
+  e:"SELECT o.code, c.full_name, o.total_amount\nFROM orders o JOIN customers c ON c.id = o.customer_id;",
+  n:'Đơn DH-2018 không có trong kết quả vì khách id 12 không tồn tại. INNER JOIN bỏ dòng không khớp mà không báo gì.'},
+ {k:'JOIN nhiều bảng', d:'Nối tiếp từng bảng một, mỗi JOIN một điều kiện ON.',
+  s:'FROM a JOIN b ON … JOIN c ON …',
+  e:"SELECT o.code, p.sku, i.qty\nFROM orders o\nJOIN order_items i ON i.order_id = o.id\nJOIN products p ON p.id = i.product_id\nWHERE o.code = 'DH-2009';",
+  n:'Đặt bí danh ngắn cho từng bảng và ghi bí danh trước mọi cột để tránh lỗi "ambiguous column".'},
+ {k:'Cột tính toán', d:'SELECT có thể tính toán trên cột: + - * /, rồi đặt tên bằng AS.',
+  s:'SELECT cot_1 * cot_2 AS ten_moi',
+  e:"SELECT order_id, qty, unit_price, qty * unit_price AS thanh_tien FROM order_items WHERE order_id = 9;",
+  n:'Phép chia hai số nguyên trong SQLite ra số nguyên (7 / 2 = 3). Muốn có phần lẻ thì viết <code>7 * 1.0 / 2</code>.'},
+],
+N4:[
+ {k:'LEFT JOIN', d:'Giữ mọi dòng của bảng bên trái. Dòng không khớp thì các cột của bảng bên phải là NULL.',
+  s:'FROM bang_trai t LEFT JOIN bang_phai p ON p.cot = t.cot',
+  e:"SELECT c.id, c.email, o.code\nFROM customers c LEFT JOIN orders o ON o.customer_id = c.id\nORDER BY c.id;",
+  n:'Khách chưa có đơn vẫn hiện, với <code>code</code> là NULL.'},
+ {k:'LEFT JOIN … IS NULL', d:'Thêm điều kiện cột bên phải IS NULL để chỉ giữ dòng không khớp: tìm "cái chưa có".',
+  s:'LEFT JOIN b ON … WHERE b.id IS NULL',
+  e:"SELECT p.sku, p.name\nFROM products p LEFT JOIN order_items i ON i.product_id = p.id\nWHERE i.id IS NULL;",
+  n:'Ví dụ trên tìm sản phẩm chưa từng được bán. Kiểm tra IS NULL trên khóa chính của bảng bên phải là chắc chắn nhất.'},
+ {k:'INNER JOIN hay LEFT JOIN?', d:'Cùng dữ liệu, hai loại JOIN có thể cho số dòng khác nhau. Khác biệt chính là những dòng không khớp.',
+  s:'SELECT (SELECT COUNT(*) …) AS a, (SELECT COUNT(*) …) AS b',
+  e:"SELECT\n  (SELECT COUNT(*) FROM orders o JOIN customers c ON c.id = o.customer_id) AS inner_join,\n  (SELECT COUNT(*) FROM orders o LEFT JOIN customers c ON c.id = o.customer_id) AS left_join;",
+  n:'17 và 18: một đơn bị INNER JOIN làm mất. Màn hình dùng INNER JOIN sẽ "giấu" đơn đó (bài 6).'},
+],
+N5:[
+ {k:'COUNT, SUM, AVG, MIN, MAX', d:'Hàm gộp: tính một giá trị từ nhiều dòng.',
+  s:'SELECT COUNT(*), SUM(cot), AVG(cot), MIN(cot), MAX(cot) FROM …',
+  e:"SELECT COUNT(*) AS so_don, SUM(total_amount) AS tong, MIN(total_amount) AS nho_nhat, MAX(total_amount) AS lon_nhat\nFROM orders WHERE status <> 'cancelled';",
+  n:'Không có GROUP BY thì hàm gộp tính trên toàn bộ dòng sau WHERE và ra đúng 1 dòng.'},
+ {k:'GROUP BY', d:'Gom dòng có cùng giá trị thành nhóm; hàm gộp tính riêng cho từng nhóm.',
+  s:'SELECT cot_nhom, COUNT(*) FROM … GROUP BY cot_nhom',
+  e:"SELECT customer_id, COUNT(*) AS so_don, SUM(total_amount) AS tong FROM orders GROUP BY customer_id;",
+  n:'Cột nào trong SELECT không nằm trong hàm gộp thì phải có trong GROUP BY.'},
+ {k:'WHERE trước, HAVING sau', d:'WHERE lọc dòng trước khi gom nhóm. HAVING lọc nhóm sau khi đã tính hàm gộp.',
+  s:'WHERE … GROUP BY … HAVING SUM(…) >= …',
+  e:"SELECT customer_id, SUM(total_amount) AS tong\nFROM orders WHERE status <> 'cancelled'\nGROUP BY customer_id HAVING SUM(total_amount) >= 500000;",
+  n:'Bỏ đơn hủy phải đặt ở WHERE. Đặt điều kiện status vào HAVING sẽ báo lỗi hoặc cho kết quả sai.'},
+],
+N6:[
+ {k:'NULL và IS NULL', d:'NULL là "không có giá trị", khác chuỗi rỗng và khác 0. So sánh với NULL phải dùng IS NULL / IS NOT NULL.',
+  s:'WHERE cot IS NULL',
+  e:"SELECT id, full_name, phone FROM customers WHERE phone IS NULL;",
+  n:'<code>phone = NULL</code> không bao giờ đúng: câu chạy không lỗi nhưng luôn ra 0 dòng.'},
+ {k:'COALESCE / IFNULL', d:'<code>COALESCE(a, b, …)</code> trả về giá trị đầu tiên khác NULL. Dùng để thay NULL bằng giá trị hiển thị.',
+  s:"COALESCE(cot, 'gia_tri_thay_the')",
+  e:"SELECT code, COALESCE(voucher_code, 'Không dùng') AS voucher FROM orders;",
+  n:'MySQL có <code>IFNULL(a, b)</code> và SQL Server có <code>ISNULL(a, b)</code> với ý nghĩa tương tự cho 2 giá trị.'},
+ {k:'NULL trong COUNT và phép tính', d:'COUNT(cot) bỏ qua NULL. Phép tính có NULL ra NULL (NULL + 1 = NULL).',
+  s:'COUNT(*) - COUNT(cot)',
+  e:"SELECT COUNT(*) AS tong, COUNT(voucher_code) AS co_voucher, COUNT(*) - COUNT(voucher_code) AS khong_voucher\nFROM orders;",
+  n:'Cộng tiền từ cột có thể NULL thì nên bọc COALESCE(cot, 0), nếu không cả biểu thức thành NULL.'},
+],
+N7:[
+ {k:'INSERT INTO … VALUES', d:'Thêm dòng mới. Luôn ghi rõ tên cột.',
+  s:"INSERT INTO bang (cot_1, cot_2) VALUES ('a', 1);",
+  e:"INSERT INTO vouchers (code, discount_percent, max_uses, used_count, valid_from, valid_to)\nVALUES ('TEST5', 5, 1, 0, '2026-11-01', '2026-11-30');\nSELECT * FROM vouchers WHERE code = 'TEST5';",
+  n:'Thêm dòng trùng khóa chính sẽ báo lỗi "UNIQUE constraint failed": thử INSERT lại SALE10 để thấy.'},
+ {k:'UPDATE an toàn: SELECT trước', d:'Chạy SELECT với đúng WHERE sẽ dùng cho UPDATE, xem số dòng, rồi mới UPDATE.',
+  s:"SELECT … WHERE dk;  UPDATE bang SET … WHERE dk;",
+  e:"SELECT sku, stock FROM products WHERE sku = 'TS-002';\nUPDATE products SET stock = 50 WHERE sku = 'TS-002';\nSELECT sku, stock FROM products WHERE sku = 'TS-002';",
+  n:'Bấm Chạy chỉ hiện bảng của câu SELECT cuối. Muốn xem bảng "trước", chạy riêng câu SELECT đầu.'},
+ {k:'DELETE FROM … WHERE', d:'Xóa các dòng thỏa WHERE. Thiếu WHERE là xóa cả bảng.',
+  s:'DELETE FROM bang WHERE dk;',
+  e:"DELETE FROM order_status_history WHERE order_id = 18;\nSELECT COUNT(*) AS con_lai FROM order_status_history;",
+  n:'Chỉ xóa dữ liệu do chính bạn tạo, và chỉ trên môi trường test.'},
+ {k:'changes(): số dòng vừa bị sửa', d:'Ngay sau INSERT / UPDATE / DELETE, <code>SELECT changes();</code> trả về số dòng câu đó vừa tác động.',
+  s:'UPDATE …; SELECT changes();',
+  e:"UPDATE products SET stock = stock + 5 WHERE is_active = 1;\nSELECT changes() AS so_dong_bi_sua;",
+  n:'MySQL dùng <code>ROW_COUNT()</code>. Các thư viện test (JDBC <code>executeUpdate</code>) cũng trả về số này để assert.'},
+],
+A1:[
+ {k:'SELECT … FROM', d:'Chọn những cột muốn xem từ một bảng. Cột hiện ra theo đúng thứ tự bạn viết sau SELECT.',
+  s:'SELECT cot_1, cot_2 FROM ten_bang;',
+  e:"SELECT sku, name, price FROM products;",
+  n:'Khi đối chiếu với màn hình, chỉ lấy đúng các cột màn hình hiển thị. <code>SELECT *</code> lấy mọi cột, dễ nhìn sót.'},
+ {k:'WHERE cột = giá trị', d:'Chỉ giữ những dòng thỏa điều kiện. Chuỗi đặt trong nháy đơn, số thì không.',
+  s:"SELECT … FROM ten_bang WHERE cot = 'gia_tri';",
+  e:"SELECT code, status, total_amount FROM orders WHERE status = 'paid';",
+  n:"So sánh chuỗi phải giống hệt: <code>'Paid'</code> khác <code>'paid'</code>. Các toán tử khác: <code>&lt;&gt;</code> (khác), <code>&gt;</code>, <code>&gt;=</code>, <code>&lt;</code>, <code>&lt;=</code>."},
+ {k:'Subquery trong WHERE', d:'Một câu SELECT đặt trong ngoặc, chạy trước và trả về giá trị để câu ngoài dùng. Dùng khi bạn chỉ biết thông tin ở bảng khác (email) mà bảng cần lọc lại lưu id.',
+  s:"WHERE cot = (SELECT cot FROM bang_khac WHERE …)",
+  e:"SELECT code, status FROM orders\nWHERE customer_id = (SELECT id FROM customers WHERE email = 'chi.le@shopdemo.test');",
+  n:'Dấu <code>=</code> chỉ dùng khi câu con trả về đúng 1 giá trị. Nếu có thể ra nhiều dòng, dùng <code>IN (SELECT …)</code>.'},
+ {k:'ORDER BY … ASC / DESC', d:'Sắp xếp kết quả. ASC: tăng dần (mặc định). DESC: giảm dần. Có thể sắp theo nhiều cột.',
+  s:'ORDER BY cot_1 DESC, cot_2 ASC',
+  e:"SELECT code, total_amount, created_at FROM orders ORDER BY total_amount DESC, created_at;",
+  n:'Không có ORDER BY thì thứ tự dòng không được đảm bảo. Spec nói "mới nhất trước" thì testcase phải kiểm tra cả thứ tự.'},
+],
+A2:[
+ {k:'COUNT(*) và COUNT(cột)', d:'<code>COUNT(*)</code> đếm mọi dòng. <code>COUNT(cot)</code> chỉ đếm dòng mà cột đó khác NULL.',
+  s:'SELECT COUNT(*), COUNT(cot) FROM ten_bang;',
+  e:"SELECT COUNT(*) AS tong_khach, COUNT(phone) AS co_sdt FROM customers;",
+  n:'Ra 8 và 7 vì một khách chưa có số điện thoại (NULL). Đây là cách nhanh để tìm cột bị thiếu dữ liệu.'},
+ {k:'GROUP BY', d:'Gom các dòng có cùng giá trị thành một nhóm, rồi hàm gộp (COUNT, SUM, AVG, MIN, MAX) tính trên từng nhóm.',
+  s:'SELECT cot_nhom, COUNT(*) FROM ten_bang GROUP BY cot_nhom;',
+  e:"SELECT method, COUNT(*) AS so_giao_dich FROM payments GROUP BY method;",
+  n:'Cột nào trong SELECT mà không nằm trong hàm gộp thì phải có trong GROUP BY.'},
+ {k:'AS (bí danh cột)', d:'Đặt tên dễ đọc cho cột kết quả. Không ảnh hưởng dữ liệu.',
+  s:'SELECT COUNT(*) AS so_don FROM …',
+  e:"SELECT status AS trang_thai, COUNT(*) AS so_don FROM orders GROUP BY status ORDER BY so_don DESC;",
+  n:'Đặt tên rõ ràng giúp người đọc bug report hiểu kết quả ngay, không phải đoán "COUNT(*)" là gì.'},
+],
+A3:[
+ {k:'date() và datetime()', d:'<code>date(x)</code> lấy phần ngày <code>YYYY-MM-DD</code>; <code>datetime(x)</code> lấy đủ ngày giờ.',
+  s:"date(cot_thoi_gian)   datetime(cot_thoi_gian)",
+  e:"SELECT code, created_at, date(created_at) AS ngay_utc FROM orders;",
+  n:'SQLite lưu thời gian dạng chuỗi <code>YYYY-MM-DD HH:MM:SS</code>. Sai định dạng (vd 13/11/2026) thì hàm trả về NULL.'},
+ {k:"Modifier '+7 hours'", d:'Cộng / trừ thời gian ngay trong hàm: <code>\'+7 hours\'</code>, <code>\'-1 day\'</code>, <code>\'+30 minutes\'</code>, <code>\'start of day\'</code>.',
+  s:"datetime(cot, '+7 hours')",
+  e:"SELECT code, created_at AS gio_utc, datetime(created_at, '+7 hours') AS gio_vn\nFROM orders ORDER BY created_at DESC;",
+  n:'Xem dòng DH-2012: 17:05 ngày 12 theo UTC là 00:05 ngày 13 giờ VN. Đây là lý do số liệu "hôm nay" bị lệch.'},
+ {k:'Lọc theo khoảng thời gian', d:'Cách thứ hai: đổi mốc ngày VN sang UTC rồi so sánh trực tiếp cột. Ngày 13/11 giờ VN = từ 12/11 17:00 UTC đến trước 13/11 17:00 UTC.',
+  s:"WHERE cot >= 'bat_dau' AND cot < 'ket_thuc'",
+  e:"SELECT code, created_at FROM orders\nWHERE created_at >= '2026-11-12 17:00:00' AND created_at < '2026-11-13 17:00:00';",
+  n:'Dùng <code>&lt;</code> cho mốc cuối để không tính trùng đơn đúng 17:00:00 vào cả hai ngày.'},
+],
+B1:[
+ {k:'Bí danh bảng', d:'Đặt tên ngắn cho bảng sau FROM / JOIN để viết gọn và phân biệt khi dùng cùng một bảng hai lần.',
+  s:'FROM orders a JOIN orders b ON …',
+  e:"SELECT o.code, o.status FROM orders o WHERE o.customer_id = 3;",
+  n:'Đã đặt bí danh thì nên dùng nó cho mọi cột: <code>o.code</code>, tránh lỗi "ambiguous column".'},
+ {k:'Self join', d:'Nối một bảng với chính nó để so từng dòng với các dòng khác trong cùng bảng, vd đơn này với đơn khác của cùng khách.',
+  s:'FROM bang a JOIN bang b ON b.cot = a.cot AND b.id > a.id',
+  e:"SELECT a.code AS don_1, b.code AS don_2, a.customer_id\nFROM orders a JOIN orders b ON b.customer_id = a.customer_id AND b.id > a.id\nWHERE a.customer_id = 1;",
+  n:'<code>b.id &gt; a.id</code> làm 2 việc: không ghép một đơn với chính nó, và mỗi cặp chỉ xuất hiện một lần (không có cả A–B lẫn B–A).'},
+ {k:'julianday()', d:'Đổi thời gian thành số ngày (có phần lẻ). Lấy hiệu hai mốc rồi nhân để ra đơn vị mong muốn: ×24 = giờ, ×1440 = phút, ×86400 = giây.',
+  s:'(julianday(t2) - julianday(t1)) * 86400',
+  e:"SELECT o.code, p.created_at, o.created_at,\n  ROUND((julianday(p.created_at) - julianday(o.created_at)) * 86400) AS giay_den_khi_tra\nFROM orders o JOIN payments p ON p.order_id = o.id AND p.type = 'charge';",
+  n:'Ví dụ trên đo thời gian từ lúc đặt đến lúc trả tiền, hữu ích khi test timeout thanh toán.'},
+],
+B2:[
+ {k:'JOIN … ON', d:'Nối hai bảng theo cột liên kết. INNER JOIN (viết tắt JOIN) chỉ giữ các dòng khớp ở cả hai bảng.',
+  s:'FROM bang_a a JOIN bang_b b ON b.khoa_ngoai = a.id',
+  e:"SELECT o.code, o.status, p.type, p.method, p.status AS tt_giao_dich\nFROM orders o JOIN payments p ON p.order_id = o.id;",
+  n:'Một đơn có 2 giao dịch (thu + hoàn) sẽ xuất hiện 2 dòng. Đếm sau JOIN cần để ý điều này.'},
+ {k:'AND / OR và dấu ngoặc', d:'AND: thỏa tất cả. OR: thỏa ít nhất một. AND được ưu tiên trước OR, nên khi trộn hai loại phải dùng ngoặc.',
+  s:"WHERE a = 1 AND (b = 'x' OR b = 'y')",
+  e:"SELECT o.code, p.method FROM orders o JOIN payments p ON p.order_id = o.id\nWHERE p.status = 'success' AND (p.method = 'momo' OR p.method = 'bank_transfer');",
+  n:"Thiếu ngoặc thì <code>a AND b OR c</code> được hiểu là <code>(a AND b) OR c</code>: kết quả lẫn cả dòng không mong muốn."},
+ {k:'IN (danh sách)', d:'Viết gọn cho nhiều OR trên cùng một cột.',
+  s:"WHERE cot IN ('a', 'b', 'c')",
+  e:"SELECT code, status FROM orders WHERE status IN ('paid', 'shipping');",
+  n:'<code>NOT IN</code> là ngược lại. Cẩn thận khi danh sách có NULL (xem bài 9).'},
+],
+B3:[
+ {k:'LEFT JOIN', d:'Giữ mọi dòng của bảng bên trái. Dòng nào không khớp bên phải thì các cột bên phải là NULL.',
+  s:'FROM bang_trai t LEFT JOIN bang_phai p ON p.cot = t.cot',
+  e:"SELECT p.sku, p.name, i.order_id\nFROM products p LEFT JOIN order_items i ON i.product_id = p.id\nORDER BY p.id;",
+  n:'So với JOIN thường: sản phẩm SK-300 chưa ai mua vẫn hiện, với order_id = NULL.'},
+ {k:'IS NULL / IS NOT NULL', d:'NULL là "không có giá trị". Kiểm tra NULL phải dùng IS NULL, không dùng dấu =.',
+  s:'WHERE cot IS NULL',
+  e:"SELECT p.sku, p.name\nFROM products p LEFT JOIN order_items i ON i.product_id = p.id\nWHERE i.id IS NULL;",
+  n:'<code>cot = NULL</code> không bao giờ đúng, nên câu chạy không lỗi nhưng luôn ra 0 dòng. Đây là lỗi rất khó phát hiện.'},
+ {k:'Điều kiện trong ON hay WHERE', d:'Với LEFT JOIN, điều kiện về bảng bên phải đặt trong ON thì vẫn giữ dòng bên trái; đặt trong WHERE thì LEFT JOIN thành JOIN thường.',
+  s:"LEFT JOIN b ON b.x = a.x AND b.cot = 'gia_tri'",
+  e:"SELECT c.email, COUNT(o.id) AS don_da_giao\nFROM customers c LEFT JOIN orders o ON o.customer_id = c.id AND o.status = 'delivered'\nGROUP BY c.id;",
+  n:'Ví dụ trên vẫn liệt kê khách chưa có đơn đã giao (ra 0). Chuyển <code>o.status = \'delivered\'</code> xuống WHERE thì những khách đó biến mất.'},
+],
+B4:[
+ {k:'SUM(biểu thức)', d:'Cộng giá trị của một cột hoặc một phép tính trên từng nhóm.',
+  s:'SUM(qty * unit_price)',
+  e:"SELECT order_id, SUM(qty * unit_price) AS tien_hang FROM order_items GROUP BY order_id;",
+  n:'AVG, MIN, MAX dùng giống hệt. Các hàm gộp bỏ qua giá trị NULL.'},
+ {k:'HAVING', d:'Lọc nhóm sau khi đã GROUP BY. WHERE lọc từng dòng trước khi gom; HAVING lọc kết quả của hàm gộp.',
+  s:'GROUP BY … HAVING SUM(…) > 100',
+  e:"SELECT order_id, SUM(qty) AS so_mon FROM order_items GROUP BY order_id HAVING SUM(qty) >= 3;",
+  n:'Viết <code>WHERE SUM(qty) &gt;= 3</code> sẽ báo lỗi "misuse of aggregate".'},
+ {k:'Thứ tự SQL thực thi', d:'Câu SQL không chạy theo thứ tự bạn viết mà theo: FROM → JOIN → WHERE → GROUP BY → HAVING → SELECT → ORDER BY → LIMIT.',
+  s:'FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY',
+  e:"SELECT o.code, COUNT(i.id) AS so_dong\nFROM orders o JOIN order_items i ON i.order_id = o.id\nWHERE o.status <> 'cancelled'\nGROUP BY o.id\nHAVING COUNT(i.id) > 1\nORDER BY so_dong DESC;",
+  n:'Hiểu thứ tự này giải thích vì sao WHERE không dùng được hàm gộp, còn ORDER BY dùng được bí danh cột.'},
+],
+B5:[
+ {k:'CASE WHEN … THEN … ELSE … END', d:'Giống if-else: trả về giá trị khác nhau tùy điều kiện.',
+  s:"CASE WHEN dieu_kien THEN gia_tri_1 ELSE gia_tri_2 END",
+  e:"SELECT code, total_amount,\n  CASE WHEN total_amount >= 500000 THEN 'Đơn lớn' ELSE 'Đơn nhỏ' END AS loai\nFROM orders;",
+  n:'Có thể nhiều nhánh: <code>CASE WHEN … THEN … WHEN … THEN … ELSE … END</code>. Thiếu ELSE thì trường hợp còn lại là NULL.'},
+ {k:'SUM(CASE WHEN …)', d:'Tính nhiều tổng có điều kiện khác nhau trong một lần GROUP BY. Dòng không thỏa điều kiện được tính là 0.',
+  s:"SUM(CASE WHEN dieu_kien THEN cot ELSE 0 END)",
+  e:"SELECT method,\n  SUM(CASE WHEN status = 'success' THEN 1 ELSE 0 END) AS thanh_cong,\n  SUM(CASE WHEN status = 'failed' THEN 1 ELSE 0 END) AS that_bai\nFROM payments GROUP BY method;",
+  n:'Đây là cách làm "bảng pivot" bằng SQL: rất hay dùng để đối soát số liệu.'},
+ {k:'Bí danh trong HAVING', d:'SQLite và MySQL cho phép dùng bí danh cột trong HAVING (vd <code>HAVING tong_hoan &gt; tong_thu</code>).',
+  s:'HAVING bi_danh > …',
+  e:"SELECT customer_id, SUM(total_amount) AS tong_mua FROM orders GROUP BY customer_id HAVING tong_mua > 1000000;",
+  n:'PostgreSQL và SQL Server không cho phép. Khi viết cho DB thật, viết lại cả biểu thức trong HAVING cho chắc.'},
+],
+C1:[
+ {k:'EXISTS (subquery)', d:'Đúng nếu câu con trả về ít nhất 1 dòng. Câu con thường tham chiếu dòng hiện tại của câu ngoài (subquery tương quan).',
+  s:'WHERE EXISTS (SELECT 1 FROM bang_khac x WHERE x.cot = ngoai.cot)',
+  e:"SELECT o.code, o.status FROM orders o\nWHERE EXISTS (SELECT 1 FROM payments p WHERE p.order_id = o.id AND p.type = 'refund');",
+  n:'<code>SELECT 1</code> vì chỉ cần biết "có hay không", không cần lấy cột nào.'},
+ {k:'NOT EXISTS', d:'Đúng nếu câu con không trả về dòng nào. Dùng để tìm "thiếu bước", "chưa từng xảy ra".',
+  s:'WHERE NOT EXISTS (SELECT 1 FROM … WHERE …)',
+  e:"SELECT o.code, o.status FROM orders o\nWHERE NOT EXISTS (SELECT 1 FROM payments p WHERE p.order_id = o.id);",
+  n:'Ví dụ trên tìm đơn chưa có giao dịch nào: kiểm tra xem đơn đó có đúng là chưa thanh toán không.'},
+ {k:'NOT IN và bẫy NULL', d:'<code>NOT IN (SELECT …)</code> cũng tìm được "không có", nhưng nếu danh sách có NULL thì kết quả luôn rỗng.',
+  s:'WHERE cot NOT IN (SELECT cot FROM … WHERE cot IS NOT NULL)',
+  e:"SELECT id, email FROM customers\nWHERE id NOT IN (SELECT customer_id FROM orders WHERE customer_id IS NOT NULL);",
+  n:'Với dữ liệu có thể NULL, NOT EXISTS an toàn hơn NOT IN.'},
+],
+C2:[
+ {k:'So sánh với cột khác', d:'Điều kiện không nhất thiết so với hằng số; có thể so với cột khác hoặc kết quả hàm gộp.',
+  s:'HAVING COUNT(…) > v.max_uses',
+  e:"SELECT code, max_uses, used_count FROM vouchers WHERE used_count > max_uses;",
+  n:'Ví dụ trên tin vào cột used_count. Bài này yêu cầu đếm lại từ orders, vì cột đếm sẵn cũng có thể sai.'},
+ {k:'COUNT(cột) sau LEFT JOIN', d:'Sau LEFT JOIN, nhóm không khớp vẫn có 1 dòng (cột bên phải NULL). COUNT(*) đếm ra 1, COUNT(cột bên phải) đếm ra 0.',
+  s:'COUNT(o.id)  thay vì  COUNT(*)',
+  e:"SELECT v.code, COUNT(*) AS dem_sao, COUNT(o.id) AS dem_dung\nFROM vouchers v LEFT JOIN orders o ON o.voucher_code = v.code\nGROUP BY v.code;",
+  n:'BF50 chưa ai dùng: COUNT(*) ra 1 (sai), COUNT(o.id) ra 0 (đúng).'},
+ {k:'Loại trừ bằng <>', d:'<code>&lt;&gt;</code> (hoặc <code>!=</code>) nghĩa là "khác". Dùng để bỏ một trạng thái khỏi phép đếm.',
+  s:"o.status <> 'cancelled'",
+  e:"SELECT status, COUNT(*) FROM orders WHERE status <> 'cancelled' GROUP BY status;",
+  n:'<code>&lt;&gt;</code> không bắt được NULL: dòng có status NULL cũng bị loại. Nếu cột có thể NULL, thêm <code>OR status IS NULL</code>.'},
+],
+C3:[
+ {k:'lower() / upper()', d:'Chuyển chuỗi thành chữ thường / chữ hoa để so sánh không phân biệt hoa thường.',
+  s:'lower(cot)',
+  e:"SELECT email, lower(email) AS email_thuong FROM customers;",
+  n:'Hàm của SQLite chỉ đổi được chữ không dấu (A–Z). Chữ có dấu tiếng Việt như "Ầ" không được đổi.'},
+ {k:'trim() và length()', d:'<code>trim(x)</code> bỏ khoảng trắng hai đầu (<code>ltrim</code>, <code>rtrim</code>: một đầu). So <code>length</code> trước và sau trim để phát hiện dữ liệu dính khoảng trắng.',
+  s:'trim(cot)   length(cot)',
+  e:"SELECT id, '[' || email || ']' AS email_trong_ngoac, length(email), length(trim(email))\nFROM customers WHERE length(email) <> length(trim(email));",
+  n:'Bọc giá trị trong <code>[ ]</code> bằng <code>||</code> (nối chuỗi) giúp nhìn thấy khoảng trắng bằng mắt.'},
+ {k:'GROUP BY biểu thức', d:'Có thể gom nhóm theo kết quả của hàm, không chỉ theo cột gốc.',
+  s:'GROUP BY lower(trim(cot))',
+  e:"SELECT phone, COUNT(*) AS so_tk FROM customers WHERE phone IS NOT NULL GROUP BY phone HAVING COUNT(*) > 1;",
+  n:'Ví dụ trên tìm số điện thoại trùng, một kiểm tra hay đi kèm với email trùng.'},
+ {k:'LIKE', d:'So khớp mẫu: <code>%</code> là chuỗi bất kỳ, <code>_</code> là đúng 1 ký tự.',
+  s:"WHERE cot LIKE '%mau%'",
+  e:"SELECT email FROM customers WHERE email LIKE 'binh%';",
+  n:'Trong SQLite, LIKE không phân biệt hoa thường với chữ không dấu, nên ra cả "Binh.Tran". MySQL tùy collation, PostgreSQL thì phân biệt.'},
+],
+D1:[
+ {k:'INSERT INTO … VALUES', d:'Thêm dòng mới. Luôn ghi rõ tên cột để không phụ thuộc thứ tự cột trong bảng.',
+  s:"INSERT INTO bang (cot_1, cot_2) VALUES ('a', 1);",
+  e:"INSERT INTO products (id, sku, name, price, stock, is_active)\nVALUES (99, 'TEST-001', 'Sản phẩm test', 1000, 5, 1);\nSELECT * FROM products WHERE id = 99;",
+  n:'Đặt tên dữ liệu test dễ nhận ra (tiền tố TEST) để dọn dẹp sau và không bị nhầm với dữ liệu khác.'},
+ {k:'UPDATE … SET … WHERE', d:'Sửa dữ liệu của các dòng thỏa WHERE.',
+  s:"UPDATE bang SET cot = 'gia_tri_moi' WHERE dieu_kien;",
+  e:"UPDATE products SET stock = 0 WHERE sku = 'BG-005';\nSELECT sku, stock FROM products;",
+  n:'Thiếu WHERE là sửa toàn bộ bảng. Quy tắc: chạy SELECT với đúng WHERE đó trước, thấy đúng số dòng mới UPDATE.'},
+ {k:'DELETE FROM … WHERE', d:'Xóa các dòng thỏa WHERE. Hay dùng để dọn dữ liệu test sau khi chạy xong.',
+  s:'DELETE FROM bang WHERE dieu_kien;',
+  e:"DELETE FROM vouchers WHERE code = 'BF50';\nSELECT * FROM vouchers;",
+  n:'Cũng như UPDATE: luôn SELECT trước, và chỉ xóa dữ liệu do chính bạn tạo.'},
+ {k:'BEGIN … ROLLBACK', d:'Gói các lệnh vào một transaction. ROLLBACK hủy toàn bộ thay đổi, COMMIT lưu lại.',
+  s:'BEGIN; … ; ROLLBACK;',
+  e:"BEGIN;\nUPDATE customers SET status = 'locked';\nSELECT COUNT(*) AS bi_khoa FROM customers WHERE status = 'locked';\nROLLBACK;\nSELECT COUNT(*) AS sau_rollback FROM customers WHERE status = 'locked';",
+  n:'Cách an toàn để thử một câu UPDATE trên môi trường test: xem kết quả rồi ROLLBACK, chắc chắn đúng mới chạy lại với COMMIT.'},
+],
+D2:[
+ {k:'UNION ALL', d:'Nối kết quả của nhiều câu SELECT thành một bảng. Các câu phải có cùng số cột.',
+  s:'SELECT … UNION ALL SELECT … UNION ALL SELECT …',
+  e:"SELECT 'Khách' AS loai, COUNT(*) AS so_luong FROM customers\nUNION ALL\nSELECT 'Sản phẩm', COUNT(*) FROM products\nUNION ALL\nSELECT 'Đơn hàng', COUNT(*) FROM orders;",
+  n:'<code>UNION</code> (không ALL) bỏ dòng trùng. Với health check, hai kiểm tra có thể cùng ra một kết quả, nên dùng UNION ALL để không mất dòng.'},
+ {k:'Hằng số làm cột', d:'SELECT một chuỗi cố định để đặt nhãn cho dòng kết quả.',
+  s:"SELECT 'ten_kiem_tra' AS kiem_tra, COUNT(*) …",
+  e:"SELECT 'san_pham_an' AS kiem_tra, COUNT(*) AS so_loi FROM products WHERE is_active = 0;",
+  n:'Tên cột của cả khối UNION lấy theo câu SELECT đầu tiên.'},
+ {k:'Subquery trong FROM', d:'Dùng kết quả của một câu SELECT như một bảng tạm, rồi đếm hoặc lọc tiếp trên nó.',
+  s:'SELECT COUNT(*) FROM (SELECT … GROUP BY … HAVING …)',
+  e:"SELECT COUNT(*) AS so_khach_mua_nhieu FROM (\n  SELECT customer_id FROM orders GROUP BY customer_id HAVING COUNT(*) >= 3\n);",
+  n:'Muốn đếm "có bao nhiêu nhóm thỏa điều kiện" thì cần bọc như vậy; COUNT trực tiếp sẽ đếm số dòng trong từng nhóm.'},
+],
+};
+
+/* ===================== Mô tả bảng ===================== */
+const TABLE_INFO = {
+  customers:'Khách hàng. status: active / locked / deleted.',
+  products:'Sản phẩm. stock = tồn kho; is_active = 0 là đã ẩn khỏi shop.',
+  vouchers:'Mã giảm giá theo %. valid_from / valid_to là ngày theo giờ Việt Nam.',
+  orders:'Đơn hàng. created_at lưu giờ UTC. discount_amount = số tiền giảm.',
+  order_items:'Chi tiết đơn: sản phẩm, số lượng, đơn giá lúc đặt.',
+  payments:'Giao dịch. type: charge (thu) / refund (hoàn). status: success / failed. created_at lưu UTC.',
+  order_status_history:'Lịch sử đổi trạng thái đơn. from_status NULL = lúc tạo đơn. changed_at lưu UTC.',
+};
+const STATUS_VI = [['pending_payment','Chờ thanh toán'],['paid','Đã thanh toán'],['shipping','Đang giao'],['delivered','Đã giao'],['cancelled','Đã hủy']];
+
+/* ===================== Trạng thái ===================== */
+const STORE_KEY = 'sqlqc.v1';
+/* qz: đáp án đã chọn của bài trắc nghiệm; cmt/sol: bài đạt có comment không, câu SQL lúc đạt (cho tiêu chí và bài nộp) */
+let state = { done:{}, drafts:{}, current:'N1', qz:{}, cmt:{}, sol:{} };
+try { const s = JSON.parse(localStorage.getItem(STORE_KEY) || 'null'); if (s) state = Object.assign(state, s); } catch(e) {}
+function save(){ try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch(e) {} }
+const hintsShown = {}; const answerArmed = {};
+let SQL = null, SEED = document.getElementById('seed').textContent;
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const cur = () => TICKETS.find(t => t.id === state.current) || TICKETS[0];
+
+/* ===================== Tô màu SQL ===================== */
+const KW = new Set(('select from where and or not in between like is null as order by asc desc limit offset group having distinct join inner left right outer cross on insert into values update set delete create table case when then else end union all exists count sum avg min max lower upper trim date datetime julianday strftime coalesce ifnull round substr length cast with pragma changes primary key foreign references').split(' '));
+function highlight(src){
+  let out = '', i = 0; const n = src.length;
+  const span = (c, s) => '<span class="hl-' + c + '">' + esc(s) + '</span>';
+  while (i < n){
+    const c = src[i];
+    if (c === '-' && src[i+1] === '-'){ let j = src.indexOf('\n', i); if (j < 0) j = n; out += span('c', src.slice(i, j)); i = j; continue; }
+    if (c === "'"){ let j = i + 1; while (j < n){ if (src[j] === "'"){ if (src[j+1] === "'"){ j += 2; continue; } break; } j++; } out += span('s', src.slice(i, Math.min(j+1, n))); i = j + 1; continue; }
+    if (/[0-9]/.test(c) && !/[A-Za-z_]/.test(src[i-1] || '')){ let j = i; while (j < n && /[0-9.]/.test(src[j])) j++; out += span('n', src.slice(i, j)); i = j; continue; }
+    if (/[A-Za-z_]/.test(c)){ let j = i; while (j < n && /[A-Za-z0-9_]/.test(src[j])) j++; const w = src.slice(i, j); out += KW.has(w.toLowerCase()) ? span('k', w) : esc(w); i = j; continue; }
+    out += esc(c); i++;
+  }
+  return out + '\n';
+}
+const editor = $('editor'), hl = $('hl');
+function syncHL(){ hl.innerHTML = highlight(editor.value); hl.scrollTop = editor.scrollTop; hl.scrollLeft = editor.scrollLeft; }
+editor.addEventListener('input', () => { syncHL(); state.drafts[state.current] = editor.value; save(); });
+editor.addEventListener('scroll', () => { hl.scrollTop = editor.scrollTop; hl.scrollLeft = editor.scrollLeft; });
+editor.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter'){ e.preventDefault(); e.shiftKey ? grade() : run(); return; }
+  if (e.key === 'Tab' && !e.shiftKey){ e.preventDefault(); const s = editor.selectionStart, en = editor.selectionEnd; editor.value = editor.value.slice(0, s) + '  ' + editor.value.slice(en); editor.selectionStart = editor.selectionEnd = s + 2; syncHL(); state.drafts[state.current] = editor.value; save(); }
+});
+
+/* ===================== Hàng đợi ticket ===================== */
+/* ===================== Tiêu chí đạt buổi 2 ===================== */
+const sqlDone = () => TICKETS.filter(t => !t.quiz && state.done[t.id]);
+const userSQL = id => (state.sol && state.sol[id]) || (state.drafts[id] != null ? state.drafts[id] : '');
+function hasCmt(id){
+  if (state.cmt && id in state.cmt) return state.cmt[id];
+  const t = TICKETS.find(x => x.id === id);
+  return /--\s*\S/.test(state.drafts[id] != null ? state.drafts[id] : t.starter);
+}
+function critHTML(){
+  const done = sqlDone();
+  const rows = CRIT.map(c => ({ label:c.label, n:c.ids.filter(id => state.done[id]).length, need:c.need }));
+  rows.push({ label:'Bài nộp: số truy vấn đã đạt', n:done.length, need:10 });
+  const withCmt = done.filter(t => hasCmt(t.id)).length;
+  rows.push({ label:'Truy vấn có comment ghi câu hỏi nghiệp vụ', n:withCmt, need:Math.max(done.length, 1), all:true });
+  const allOk = rows.every(r => r.n >= r.need);
+  return '<div class="crit-head"><h2>Tiêu chí đạt buổi 2</h2><span class="crit-chip' + (allOk ? ' ok' : '') + '">' + (allOk ? 'Đạt' : 'Chưa đạt') + '</span></div>' +
+    '<ul>' + rows.map(r => { const ok = r.n >= r.need;
+      return '<li class="' + (ok ? 'ok' : '') + '"><span>' + r.label + '</span><span class="cn">' + r.n + (r.all ? '/' + done.length : '/' + r.need) + '</span>' +
+        '<div class="bar"><i style="width:' + Math.min(100, r.n / r.need * 100) + '%"></i></div></li>'; }).join('') + '</ul>' +
+    '<p>Đếm từ các bài đã chấm Đạt. Bài nộp buổi 2: file .sql 10 truy vấn, mỗi truy vấn có comment ghi câu hỏi nghiệp vụ.</p>' +
+    '<div><button type="button" class="linkbtn crit-copy">Sao chép bài nộp (.sql)</button></div><textarea class="crit-out" readonly hidden aria-label="Nội dung bài nộp"></textarea>';
+}
+function exportSQL(){
+  const done = sqlDone();
+  if (!done.length) return '-- Chưa có bài nào đạt.';
+  return '-- Bài nộp buổi 2 · SQL cho tester\n-- Mỗi truy vấn có comment ghi câu hỏi nghiệp vụ\n\n' +
+    done.map(t => '-- ' + t.key + ' · ' + t.name + '\n-- Câu hỏi nghiệp vụ: ' + t.title + '\n' + userSQL(t.id).trim() + '\n').join('\n');
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest('.crit-copy'); if (!b) return;
+  const txt = exportSQL(), n = sqlDone().length, box = b.closest('.crit, .crit-inline').querySelector('.crit-out');
+  const fallback = () => { box.hidden = false; box.value = txt; box.focus(); box.select(); b.textContent = 'Đã chọn sẵn, bấm Ctrl+C để sao chép'; };
+  try { navigator.clipboard.writeText(txt).then(() => { b.textContent = 'Đã sao chép ' + n + ' truy vấn'; }, fallback); } catch(err){ fallback(); }
+});
+
+function renderQueue(){
+  $('queue').innerHTML = '<section class="crit" aria-label="Tiêu chí đạt buổi 2">' + critHTML() + '</section>' +
+    PHASES.map(p => '<div class="phase"><h2>' + p.id + ' · ' + esc(p.name) + '<span class="ses">' + esc(p.plan) + '</span></h2>' +
+    TICKETS.filter(t => t.phase === p.id).map(t =>
+      '<button type="button" class="qitem' + (state.done[t.id] ? ' done' : '') + '" data-id="' + t.id + '"' + (t.id === state.current ? ' aria-current="true"' : '') + '>' +
+      '<span class="dot"></span><span><span class="k">' + t.key + '</span><span class="s">' + esc(t.name) + '</span><span class="t">' + esc(t.title) + '</span></span></button>').join('') + '</div>').join('');
+  const n = Object.keys(state.done).filter(k => state.done[k]).length;
+  $('progText').textContent = n + '/' + TICKETS.length + ' bài';
+  $('progBar').style.width = (n / TICKETS.length * 100) + '%';
+}
+$('queue').addEventListener('click', e => { const b = e.target.closest('.qitem'); if (b) openTicket(b.dataset.id); });
+
+/* ===================== Ticket ===================== */
+function renderTicket(){
+  const t = cur(), shown = hintsShown[t.id] || 0, done = !!state.done[t.id];
+  let h = '<div class="tk-head"><span class="tk-key">' + t.key + '</span><span class="chip ' + t.type + '">' + TYPES[t.type] + '</span><span class="chip prio">' + t.prio + '</span></div>';
+  h += '<h2 class="title">' + esc(t.name) + '</h2>';
+  h += '<p class="subtitle">' + esc(t.title) + '</p>';
+  h += '<div class="practice"><b>Thực hành:</b>' + t.skills.map(s => '<code>' + esc(s) + '</code>').join(' · ') + '</div>';
+  h += '<div class="meta"><span>Người báo: ' + esc(t.reporter) + '</span><span>Kế hoạch: ' + esc(t.plan || PLAN_DEFAULT) + '</span><span>Trạng thái: ' + (done ? 'Đã xong' : 'Đang làm') + '</span></div>';
+  h += '<div class="field"><h3>Bối cảnh</h3>' + t.context + '</div>';
+  h += '<div class="field"><h3>Việc cần làm</h3>' + t.task + (t.quiz ? quizHTML(t) : '') + '</div>';
+  h += '<div class="field"><h3>Kết quả mong đợi</h3><div class="expect">' + esc(t.expect) + '</div></div>';
+  if (t.planNote) h += '<div class="field"><h3>Liên hệ kế hoạch</h3><div class="expect">' + t.planNote + '</div></div>';
+  const L = LESSONS[t.id] || [];
+  h += '<div class="field lesson"><h3>Giải thích cú pháp dùng trong bài</h3>' + L.map((x, i) =>
+    '<details class="kw"' + (i === 0 ? ' open' : '') + '><summary><code>' + esc(x.k) + '</code></summary><div class="kw-body">' +
+    '<p>' + x.d + '</p>' +
+    '<div class="kw-label">Cú pháp</div><pre class="syn">' + highlight(x.s) + '</pre>' +
+    '<div class="kw-label">Ví dụ trên dữ liệu ShopDemo <button type="button" class="linkbtn ex-run" data-i="' + i + '">Chạy ví dụ</button></div><pre class="syn">' + highlight(x.e) + '</pre>' +
+    '<p class="kw-note"><b>Lưu ý:</b> ' + x.n + '</p></div></details>').join('') + '</div>';
+  h += '<div class="field"><h3>Gợi ý</h3><div class="hints">' + t.hints.slice(0, shown).map((x, i) => '<div class="hint"><b>Gợi ý ' + (i+1) + '</b>' + x + '</div>').join('') +
+       '<div><button type="button" class="linkbtn" id="hintBtn"' + (shown >= t.hints.length ? ' disabled' : '') + '>' + (shown >= t.hints.length ? 'Đã hiện hết gợi ý' : 'Hiện gợi ý ' + (shown + 1) + '/' + t.hints.length) + '</button></div></div></div>';
+  if (done){
+    h += '<div class="field qc"><h3>Góc QC</h3>' + t.qc + '</div>';
+    h += '<div class="field answer"><h3>Đáp án tham khảo</h3><pre>' + highlight(t.answer) + '</pre></div>';
+  } else if (answerArmed[t.id] === 2){
+    h += '<div class="field answer"><h3>Đáp án tham khảo</h3><pre>' + highlight(t.answer) + '</pre></div>';
+  } else {
+    h += '<div class="field"><button type="button" class="linkbtn" id="ansBtn">' + (answerArmed[t.id] === 1 ? 'Bấm lần nữa để xem đáp án (nên thử thêm trước)' : 'Xem đáp án') + '</button></div>';
+  }
+  h += '<section class="crit crit-inline" aria-label="Tiêu chí đạt buổi 2">' + critHTML() + '</section>';
+  $('ticket').innerHTML = h;
+  $('ticket').querySelectorAll('.quiz input').forEach(inp => inp.onchange = () => {
+    state.qz = state.qz || {}; (state.qz[t.id] = state.qz[t.id] || {})[inp.dataset.q] = +inp.value; save();
+  });
+  $('ticket').querySelectorAll('.ex-run').forEach(b => b.onclick = () => { const x = L[+b.dataset.i]; runSQL(x.e, 'Ví dụ: ' + esc(x.k)); });
+  const hb = $('hintBtn'); if (hb) hb.onclick = () => { hintsShown[t.id] = shown + 1; renderTicket(); };
+  const ab = $('ansBtn'); if (ab) ab.onclick = () => { answerArmed[t.id] = (answerArmed[t.id] || 0) + 1; renderTicket(); };
+}
+function quizHTML(t){
+  const sel = (state.qz || {})[t.id] || {};
+  return '<ol class="quiz">' + t.quiz.map((q, i) => '<li><div>' + q.q + '</div><div class="opts" role="radiogroup">' +
+    q.o.map((o, j) => { const id = 'qz-' + t.id + '-' + i + '-' + j;
+      return '<label for="' + id + '"><input type="radio" id="' + id + '" name="qz-' + t.id + '-' + i + '" value="' + j + '" data-q="' + i + '"' + (sel[i] === j ? ' checked' : '') + '><span>' + esc(o) + '</span></label>'; }).join('') +
+    '</div></li>').join('') + '</ol>';
+}
+function openTicket(id){
+  state.current = id; save();
+  renderQueue(); renderTicket();
+  const t = cur(); editor.value = state.drafts[id] != null ? state.drafts[id] : t.starter; syncHL();
+  /* Sang bài mới thì khung kết quả trống; mở lại bài cũ thì thấy lại kết quả chạy và kết quả chấm gần nhất của bài đó. */
+  $('out-result').innerHTML = lastRes[id] || '<p class="msg">Viết câu SQL rồi bấm <b>Chạy</b> để xem kết quả. Bấm <b>Kiểm tra bài</b> khi đã chắc chắn.</p>';
+  const g = lastGrade[id];
+  $('out-grade').innerHTML = g ? g.html : '<p class="msg">Bấm <b>Kiểm tra bài</b> để chấm câu SQL hiện tại.</p>';
+  setBadge(g ? g.pass : null); showTab('result'); $('ticket').scrollTop = 0;
+}
+const lastRes = {}, lastGrade = {};
+
+/* ===================== Chạy SQL ===================== */
+function freshDB(){ const db = new SQL.Database(); db.run(SEED); return db; }
+const stripComments = s => s.replace(/--[^\n]*/g, '');
+function viErr(m){
+  let r = m;
+  let x;
+  if ((x = m.match(/no such column: (.+)/))) r += '\n→ Không có cột "' + x[1] + '". Xem tên cột ở tab Dữ liệu; nhớ thêm bí danh bảng nếu đã đặt (vd o.status).';
+  else if ((x = m.match(/no such table: (.+)/))) r += '\n→ Không có bảng "' + x[1] + '".';
+  else if (/syntax error/.test(m)) r += '\n→ Sai cú pháp gần vị trí được nêu. Kiểm tra dấu phẩy, nháy đơn, thứ tự SELECT … FROM … WHERE … GROUP BY … HAVING … ORDER BY.';
+  else if (/ambiguous column/.test(m)) r += '\n→ Cột này có ở nhiều bảng. Ghi rõ bảng, vd o.id hay c.id.';
+  else if (/misuse of aggregate/.test(m)) r += '\n→ Hàm gộp (SUM, COUNT…) không dùng trong WHERE. Lọc sau khi gom nhóm thì dùng HAVING.';
+  return r;
+}
+function execUser(db, sql){
+  const res = db.exec(sql);
+  return res.length ? res[res.length - 1] : null;
+}
+function tableHTML(r, limit){
+  if (!r) return '';
+  limit = limit || 300;
+  const rows = r.values.slice(0, limit);
+  return '<div class="tbl-wrap"><table class="res"><thead><tr>' + r.columns.map(c => '<th>' + esc(c) + '</th>').join('') + '</tr></thead><tbody>' +
+    rows.map(row => '<tr>' + row.map(v => v === null ? '<td class="null">NULL</td>' : typeof v === 'number' ? '<td class="num">' + v + '</td>' : '<td>' + esc(v) + '</td>').join('') + '</tr>').join('') +
+    '</tbody></table></div>' + (r.values.length > limit ? '<p class="msg">Hiện ' + limit + '/' + r.values.length + ' dòng.</p>' : '');
+}
+function run(){ runSQL(editor.value, ''); }
+function runSQL(sql, label){
+  if (!SQL) return;
+  showTab('result');
+  if (!stripComments(sql).trim()){ $('out-result').innerHTML = '<p class="msg">Chưa có câu SQL nào.</p>'; return; }
+  const pre = label ? '<p class="msg"><b>' + label + '</b> (khung soạn thảo của bạn không bị thay đổi)</p><div class="answer"><pre>' + highlight(sql) + '</pre></div>' : '';
+  const db = freshDB();
+  try {
+    const t0 = performance.now();
+    const r = execUser(db, sql);
+    const ms = Math.max(1, Math.round(performance.now() - t0));
+    const mod = db.getRowsModified();
+    let h = '';
+    if (r) h += '<p class="msg">' + r.values.length + ' dòng · ' + ms + ' ms (bảng của câu SELECT cuối cùng)</p>' + tableHTML(r);
+    else h += '<p class="msg">Đã chạy xong · ' + ms + ' ms. Câu lệnh cuối không trả về bảng' + (mod ? ' (câu cuối thay đổi ' + mod + ' dòng)' : '') + '. Thêm một câu SELECT ở cuối để xem dữ liệu.</p>';
+    $('out-result').innerHTML = pre + h;
+  } catch(e){
+    $('out-result').innerHTML = pre + '<p class="msg err">' + esc(viErr(e.message)) + '</p>';
+  } finally { db.close(); lastRes[state.current] = $('out-result').innerHTML; }
+}
+
+/* ===================== Chấm bài ===================== */
+const cell = v => v === null ? 'NULL' : typeof v === 'number' ? String(Math.round(v * 1e6) / 1e6) : String(v);
+const rowKey = row => row.map(cell).join('␟');
+function multisetDiff(a, b){
+  const m = new Map(); a.forEach(k => m.set(k, (m.get(k) || 0) + 1));
+  let extra = 0; b.forEach(k => { if (m.get(k)) m.set(k, m.get(k) - 1); else extra++; });
+  let missing = 0; m.forEach(v => missing += v);
+  return { missing, extra };
+}
+function li(ok, text){ return '<li class="' + (ok === null ? 'skip' : ok ? 'ok' : 'no') + '"><span class="ic">' + (ok === null ? '–' : ok ? '✓' : '✕') + '</span><span>' + text + '</span></li>'; }
+function setBadge(pass){
+  const b = $('gradeBadge');
+  if (pass === null){ b.hidden = true; return; }
+  b.hidden = false; b.className = 'badge ' + (pass ? 'pass' : 'fail'); b.textContent = pass ? 'Đạt' : 'Chưa đạt';
+}
+function grade(){
+  if (!SQL) return;
+  const t = cur(), sql = editor.value; showTab('grade');
+  const checks = []; let pass = true, trapMsg = null, shown = null;
+  if (t.quiz){
+    const sel = (state.qz || {})[t.id] || {};
+    t.quiz.forEach((q, i) => {
+      const s = sel[i], ok = s === q.a;
+      checks.push(li(ok, 'Câu ' + (i + 1) + ': ' + (s == null ? 'chưa chọn đáp án' : ok ? 'đúng' : 'chưa đúng. ' + esc(q.h))));
+      if (!ok) pass = false;
+    });
+  } else {
+  const clean = stripComments(sql);
+  const userDb = freshDB(), ansDb = freshDB();
+  try {
+    let ur = null, err = null;
+    try { ur = execUser(userDb, sql); } catch(e){ err = e.message; }
+    checks.push(li(!err, err ? 'Câu SQL bị lỗi: <code>' + esc(err) + '</code>' : 'Câu SQL chạy không lỗi'));
+    if (err){ pass = false; }
+    else if (t.dml){
+      const ar = execUser(ansDb, t.answer);
+      if (t.dmlNeed){
+        t.dmlNeed.forEach(k => { const has = new RegExp('\\b' + k + '\\b', 'i').test(clean);
+          checks.push(li(has, has ? 'Có câu ' + k : 'Chưa có câu ' + k)); if (!has) pass = false; });
+      } else {
+        const hasDml = /\b(insert|update)\b/i.test(clean);
+        checks.push(li(hasDml, hasDml ? 'Có câu INSERT / UPDATE' : 'Chưa có câu INSERT / UPDATE nào'));
+        if (!hasDml) pass = false;
+      }
+      if (t.mustSelect){
+        const nSel = (clean.match(/\bselect\b/gi) || []).length;
+        checks.push(li(nSel >= 2, nSel >= 2 ? 'Có ' + nSel + ' câu SELECT kiểm tra trước / sau' : 'Cần ít nhất 2 câu SELECT để kiểm tra trước và sau khi sửa'));
+        if (nSel < 2) pass = false;
+      }
+      const labels = t.afterLabels || ['Bảng vouchers sau khi chạy khớp mong đợi', 'Bảng customers sau khi chạy khớp mong đợi (chỉ hai.do bị khóa thêm)', 'Không xóa / thêm nhầm dữ liệu ở bảng khác'];
+      t.after.forEach((q, i) => {
+        const u = userDb.exec(q)[0], a = ansDb.exec(q)[0];
+        const ok = JSON.stringify(u ? u.values.map(rowKey) : []) === JSON.stringify(a ? a.values.map(rowKey) : []);
+        checks.push(li(ok, labels[i])); if (!ok) pass = false;
+        if (!ok && !shown && i < 2) shown = { title:'Dữ liệu hiện tại của bạn', r:u };
+      });
+      (t.trapsAfter || []).forEach(f => { const m = f(userDb); if (m && !trapMsg) trapMsg = m; });
+    } else {
+      const ar = execUser(ansDb, t.answer);
+      const hasFrom = /\bfrom\b/i.test(clean);
+      checks.push(li(hasFrom, hasFrom ? 'Lấy dữ liệu từ bảng (có FROM)' : 'Câu SQL cần lấy dữ liệu từ bảng. Viết thẳng kết quả thì không phải là kiểm tra'));
+      if (!hasFrom) pass = false;
+      if (!ur){ checks.push(li(false, 'Câu lệnh cuối cùng phải là một câu SELECT trả về bảng')); pass = false; }
+      else {
+        shown = { title:'Kết quả của bạn', r:ur };
+        const okCols = ur.columns.length === ar.columns.length;
+        checks.push(li(okCols, okCols ? 'Đúng số cột (' + ar.columns.length + ')' : 'Có ' + ur.columns.length + ' cột, mong đợi ' + ar.columns.length + ' cột'));
+        const okRows = ur.values.length === ar.values.length;
+        checks.push(li(okRows, okRows ? 'Đúng số dòng (' + ar.values.length + ')' : 'Có ' + ur.values.length + ' dòng, mong đợi ' + ar.values.length + ' dòng'));
+        if (!okCols || !okRows) pass = false;
+        if (okCols){
+          const uk = ur.values.map(rowKey), ak = ar.values.map(rowKey);
+          const d = multisetDiff(ak, uk);
+          const okData = d.missing === 0 && d.extra === 0;
+          checks.push(li(okData, okData ? 'Dữ liệu từng dòng khớp' : 'Dữ liệu chưa khớp: thiếu ' + d.missing + ' dòng, thừa ' + d.extra + ' dòng. Kiểm tra lại thứ tự cột và điều kiện lọc'));
+          if (!okData) pass = false;
+          if (t.ordered){
+            const okOrder = okData && JSON.stringify(uk) === JSON.stringify(ak);
+            checks.push(li(okData ? okOrder : null, okOrder ? 'Đúng thứ tự dòng' : okData ? 'Đủ dòng nhưng sai thứ tự' : 'Thứ tự dòng: kiểm tra sau khi dữ liệu khớp'));
+            if (!okOrder) pass = false;
+          }
+        } else {
+          checks.push(li(null, 'Dữ liệu từng dòng: kiểm tra sau khi đúng số cột'));
+        }
+      }
+      if (!pass) (t.traps || []).forEach(f => { const m = f(ur); if (m && !trapMsg) trapMsg = m; });
+    }
+  } finally { userDb.close(); ansDb.close(); }
+  }
+
+  let h ='<div class="verdict ' + (pass ? 'pass' : 'fail') + '">' + (pass ? 'Đạt. Xem "Góc QC" ở ticket để biết làm gì tiếp với kết quả này.' : 'Chưa đạt. Xem các mục bị đánh dấu ✕ bên dưới.') + '</div>';
+  if (trapMsg) h += '<div class="trap"><b>Bẫy thường gặp: </b>' + trapMsg + '</div>';
+  h += '<ul class="checks">' + checks.join('') + '</ul>';
+  if (shown && shown.r) h += '<p class="msg">' + shown.title + ':</p>' + tableHTML(shown.r, 50);
+  $('out-grade').innerHTML = h;
+  lastGrade[t.id] = { html: h, pass };
+  setBadge(pass);
+  if (pass){
+    if (!t.quiz){ state.sol = state.sol || {}; state.cmt = state.cmt || {}; state.sol[t.id] = sql; state.cmt[t.id] = /--\s*\S/.test(sql); }
+    state.done[t.id] = true; save(); renderQueue(); renderTicket();
+  }
+}
+
+/* ===================== Tab Dữ liệu ===================== */
+function renderData(){
+  const db = freshDB();
+  try {
+    const tables = db.exec("SELECT name FROM sqlite_master WHERE type='table' ORDER BY rowid")[0].values.map(v => v[0]);
+    let h = '<details class="dtable" open><summary><b>Sơ đồ ERD</b><span>7 bảng · khóa chính, khóa ngoại, quan hệ 1 – n</span></summary><div class="body">' + erdSVG() + '</div></details>';
+    h += '<p class="legend">Trạng thái đơn: ' + STATUS_VI.map(s => '<code>' + s[0] + '</code> = ' + s[1]).join(' · ') + '.<br>Giờ Việt Nam = giờ UTC + 7. Bấm vào tên bảng để xem toàn bộ dữ liệu.</p>';
+    tables.forEach(name => {
+      const cols = db.exec('PRAGMA table_info(' + name + ')')[0].values.map(v => v[1] + ' ' + v[2]);
+      const r = db.exec('SELECT * FROM ' + name)[0];
+      h += '<details class="dtable"><summary><b>' + name + '</b><span>' + (r ? r.values.length : 0) + ' dòng · ' + esc(TABLE_INFO[name] || '') + '</span></summary>' +
+           '<div class="cols">' + cols.map(esc).join(', ') + '</div><div class="body">' + tableHTML(r, 100) + '</div></details>';
+    });
+    $('out-data').innerHTML = h;
+  } finally { db.close(); }
+}
+
+/* ===================== Tab, nút, giao diện ===================== */
+function showTab(name){
+  document.querySelectorAll('.tab').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === name)));
+  ['result','grade','data'].forEach(n => $('out-' + n).hidden = n !== name);
+}
+document.querySelectorAll('.tab').forEach(b => b.addEventListener('click', () => showTab(b.dataset.tab)));
+$('runBtn').onclick = run;
+$('checkBtn').onclick = grade;
+$('resetBtn').onclick = () => { const t = cur(); editor.value = t.starter; delete state.drafts[t.id]; save(); syncHL(); editor.focus(); };
+$('themeBtn').onclick = () => {
+  const root = document.documentElement;
+  const dark = root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+  root.dataset.theme = dark ? 'light' : 'dark';
+  try { localStorage.setItem('sqlqc.theme', root.dataset.theme); } catch(e) {}
+};
+try { const th = localStorage.getItem('sqlqc.theme'); if (th) document.documentElement.dataset.theme = th; } catch(e) {}
+
+/* ===================== Khởi động ===================== */
+openTicket(state.current);
+['runBtn','checkBtn'].forEach(id => $(id).disabled = true);
+$('out-result').innerHTML = '<p class="loading">Đang tải SQLite…</p>';
+(typeof initSqlJs === 'function' ? initSqlJs() : Promise.reject(new Error('Không tải được thư viện SQLite (sql.js). Kiểm tra kết nối mạng rồi tải lại trang.')))
+  .then(S => {
+    SQL = S;
+    ['runBtn','checkBtn'].forEach(id => $(id).disabled = false);
+    $('out-result').innerHTML = '<p class="msg">Sẵn sàng. Viết câu SQL rồi bấm <b>Chạy</b> (Ctrl+Enter). Xem các bảng ở tab <b>Dữ liệu</b>.</p>';
+    renderData();
+  })
+  .catch(e => { $('out-result').innerHTML = '<p class="msg err">' + esc(e.message) + '</p>'; });
+</script>
+
+</html>

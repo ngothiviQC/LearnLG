@@ -1,0 +1,1214 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><script>(function(){var e=false;try{e=window.top!==window}catch(x){e=true}if(e)document.documentElement.classList.add("embedded")})()</script><style>html.embedded nav.switch{display:none!important}</style>
+<title>Luyện Selenium + TestNG</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Cùng bố cục với các bài luyện khác: danh sách bài bên trái, đề bài ở giữa, khu làm bài bên phải
+   (Locator Lab trên trang ShopDemo mô phỏng, trình soạn code có chấm theo tiêu chí, câu hỏi, bài review). */
+:root{
+  --bg:#f3f7f6; --surface:#ffffff; --sunken:#e7efed; --ink:#14201e; --muted:#566663; --line:#d6e2df;
+  --accent:#00796b; --accent-ink:#ffffff; --accent-soft:#dff2ef;
+  --pass:#1d7a46; --pass-soft:#e1f3e7; --fail:#b3261e; --fail-soft:#fbe7e5; --warn:#8a5a00; --warn-soft:#fbf0d6;
+  --code-bg:#f8fbfa; --kw:#7b1fa2; --str:#9a4b00; --num:#1f5fae; --cmt:#7d8a87; --ann:#00796b;
+  --f-display:"Be Vietnam Pro", "Segoe UI", system-ui, sans-serif;
+  --f-body:"Inter", "Segoe UI", system-ui, sans-serif;
+  --f-mono:"JetBrains Mono", Consolas, "Courier New", monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f1514; --surface:#161e1d; --sunken:#0b100f; --ink:#e4eeec; --muted:#93a6a2; --line:#283432;
+  --accent:#4db6ac; --accent-ink:#06201d; --accent-soft:#16312e;
+  --pass:#5fd08e; --pass-soft:#163322; --fail:#ff8a80; --fail-soft:#3a1a18; --warn:#f0c35a; --warn-soft:#352a12;
+  --code-bg:#121918; --kw:#ce93d8; --str:#f0b070; --num:#8db8f2; --cmt:#73827f; --ann:#4db6ac; color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0f1514; --surface:#161e1d; --sunken:#0b100f; --ink:#e4eeec; --muted:#93a6a2; --line:#283432;
+  --accent:#4db6ac; --accent-ink:#06201d; --accent-soft:#16312e;
+  --pass:#5fd08e; --pass-soft:#163322; --fail:#ff8a80; --fail-soft:#3a1a18; --warn:#f0c35a; --warn-soft:#352a12;
+  --code-bg:#121918; --kw:#ce93d8; --str:#f0b070; --num:#8db8f2; --cmt:#73827f; --ann:#4db6ac; color-scheme:dark;
+}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:14px;line-height:1.55;display:flex;flex-direction:column}
+*{box-sizing:border-box}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0}
+code,pre,textarea,input,select{font-family:var(--f-mono)}
+code{font-size:.9em;background:var(--sunken);padding:1px 5px;border-radius:4px}
+button{font:inherit;cursor:pointer;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.top{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding-block:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));border-bottom:1px solid var(--line);background:var(--surface)}
+.brand{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;min-width:0}
+.brand h1{font-size:18px;font-weight:700;letter-spacing:-.01em}
+.brand h1 span{color:var(--accent)}
+.brand p{margin:0;color:var(--muted);font-size:12.5px}
+.progress{margin-left:auto;display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--muted)}
+.bar{width:120px;height:6px;border-radius:3px;background:var(--sunken);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);width:0;transition:width .3s}
+.theme-btn{border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:6px;padding:4px 8px;font-size:12px}
+
+.app{flex:1;min-height:0;display:grid;grid-template-columns:250px minmax(0,1fr) minmax(0,1.25fr)}
+.pane{min-height:0;overflow:auto}
+.queue{border-right:1px solid var(--line);background:var(--surface);padding:12px 10px 24px}
+.phase{margin-bottom:14px}
+.phase h2{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:4px 8px 6px;display:flex;justify-content:space-between;gap:6px}
+.phase h2 span{font-family:var(--f-mono);letter-spacing:0}
+.qitem{display:grid;grid-template-columns:18px 1fr;gap:8px;align-items:start;width:100%;text-align:left;border:0;background:transparent;padding:7px 8px;border-radius:6px}
+.qitem:hover{background:var(--sunken)}
+.qitem[aria-current="true"]{background:var(--accent-soft)}
+.qitem .dot{width:14px;height:14px;margin-top:3px;border-radius:50%;border:1.5px solid var(--line)}
+.qitem.done .dot{background:var(--pass);border-color:var(--pass)}
+.qitem .k{font-family:var(--f-mono);font-size:11px;color:var(--accent);font-weight:500;display:block}
+.qitem .t{font-size:12.5px;line-height:1.35;display:block;color:var(--ink)}
+
+.ticket{padding:20px 24px 40px;border-right:1px solid var(--line)}
+.tk-head{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:8px}
+.tk-key{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.chip{font-size:11.5px;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--sunken);color:var(--muted)}
+.chip.acc{background:var(--accent-soft);color:var(--accent)}
+.chip.ok{background:var(--pass-soft);color:var(--pass)}
+.chip.cp{background:var(--warn-soft);color:var(--warn)}
+.ticket h2.title{font-size:21px;font-weight:700;line-height:1.3;margin-bottom:10px}
+.field{margin-bottom:18px;max-width:72ch}
+.field h3{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.field p,.field ul,.field ol{margin:0 0 8px}
+.field ul,.field ol{padding-left:20px}
+.field li{margin-bottom:3px}
+.expect{border:1px dashed var(--line);border-radius:8px;padding:10px 12px;background:var(--surface)}
+.lesson{display:flex;flex-direction:column;gap:8px}
+.kw{border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+.kw summary{cursor:pointer;padding:8px 12px;font-weight:600}
+.kw-body{padding:0 12px 12px;display:flex;flex-direction:column;gap:8px}
+.kw-body p{margin:0}
+.kw-body ul{margin:0;padding-left:20px}
+.tbl{border-collapse:collapse;font-size:13px;width:100%}
+.tbl th,.tbl td{border:1px solid var(--line);padding:5px 8px;text-align:left;vertical-align:top}
+.tbl th{background:var(--sunken);font-weight:600}
+pre.syn{margin:0;background:var(--code-bg);border:1px solid var(--line);border-radius:6px;padding:8px 10px;overflow-x:auto;font-size:12.5px;line-height:1.55;white-space:pre}
+.hl-k{color:var(--kw);font-weight:500}.hl-s{color:var(--str)}.hl-n{color:var(--num)}.hl-c{color:var(--cmt);font-style:italic}.hl-a{color:var(--ann)}
+.hl-t{color:var(--kw)}.hl-at{color:var(--num)}
+.hints{display:flex;flex-direction:column;gap:8px}
+.hint{background:var(--warn-soft);border-radius:8px;padding:8px 12px;font-size:13.5px}
+.hint b{color:var(--warn);font-weight:600;margin-right:4px}
+.linkbtn{border:0;background:none;color:var(--accent);font-weight:600;padding:0;font-size:13px}
+.linkbtn:disabled{color:var(--muted);cursor:default}
+.donebox{border-radius:8px;padding:10px 14px;background:var(--pass-soft);color:var(--pass);font-weight:600;max-width:72ch;margin-bottom:16px}
+
+.work{display:flex;flex-direction:column;min-height:0;overflow:auto;background:var(--surface)}
+.toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:10px 14px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--surface);z-index:2}
+.toolbar .ttl{font-weight:600;font-size:13px;margin-right:auto}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:7px;padding:6px 12px;font-weight:500;font-size:13px}
+.btn:hover{background:var(--sunken)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn:disabled{opacity:.55;cursor:default}
+.sec{padding:12px 14px;border-bottom:1px solid var(--line)}
+.sec h4{margin:0 0 8px;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.locrow{display:grid;grid-template-columns:auto auto minmax(0,1fr) auto;gap:6px;align-items:center;font-family:var(--f-mono);font-size:13px}
+.locrow select,.locrow input{border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink);font-size:13px;padding:6px 8px;min-width:0}
+.locrow .pre{color:var(--muted);white-space:nowrap}
+.locrow input{width:100%}
+.editor{display:block;width:100%;min-height:340px;resize:vertical;border:0;border-bottom:1px solid var(--line);background:var(--code-bg);color:var(--ink);font-size:13px;line-height:1.6;padding:12px 14px;tab-size:4;white-space:pre;overflow:auto}
+.editor:focus{outline:none;box-shadow:inset 0 0 0 2px var(--accent)}
+.res{display:flex;flex-direction:column;gap:6px}
+.chk{display:grid;grid-template-columns:20px 1fr;gap:6px;font-size:13.5px;align-items:start}
+.chk .ic{font-weight:700;text-align:center}
+.chk.ok .ic{color:var(--pass)}.chk.no .ic{color:var(--fail)}
+.chk .why{display:block;color:var(--muted);font-size:12.5px}
+.verdict{border-radius:8px;padding:8px 12px;font-weight:600;margin-bottom:4px}
+.verdict.ok{background:var(--pass-soft);color:var(--pass)}
+.verdict.no{background:var(--fail-soft);color:var(--fail)}
+.msg{color:var(--muted);font-size:13px;margin:0}
+.found{font-family:var(--f-mono);font-size:12.5px;background:var(--code-bg);border:1px solid var(--line);border-radius:6px;padding:8px 10px;white-space:pre-wrap;word-break:break-word}
+
+/* Trình duyệt mô phỏng */
+.browser{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}
+.bbar{display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--sunken);border-bottom:1px solid var(--line)}
+.bbar i{width:9px;height:9px;border-radius:50%;background:var(--line);display:inline-block}
+.bbar .url{flex:1;font-family:var(--f-mono);font-size:12px;color:var(--muted);background:var(--surface);border-radius:5px;padding:2px 8px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.vtabs{display:flex;gap:2px;border:1px solid var(--line);border-radius:7px;padding:2px;background:var(--bg);width:max-content;margin-bottom:8px}
+.vtabs button{border:0;background:transparent;border-radius:5px;padding:3px 10px;font-size:12.5px;color:var(--muted)}
+.vtabs button[aria-selected="true"]{background:var(--accent);color:var(--accent-ink)}
+pre.insp{margin:0;background:var(--code-bg);border:1px solid var(--line);border-radius:8px;padding:10px 12px;overflow:auto;font-size:12px;line-height:1.55;max-height:460px;white-space:pre}
+pre.insp .hit{background:rgba(255,193,7,.35);outline:1px solid #f0a500;border-radius:2px}
+
+.quiz{display:flex;flex-direction:column;gap:14px}
+.qq{border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:var(--surface)}
+.qq p.q{margin:0 0 8px;font-weight:600}
+.opt{display:grid;grid-template-columns:20px 1fr;gap:8px;align-items:start;padding:6px 8px;border-radius:7px;cursor:pointer;font-size:13.5px}
+.opt:hover{background:var(--sunken)}
+.opt input{margin-top:4px}
+.opt.right{background:var(--pass-soft)}
+.opt.wrong{background:var(--fail-soft)}
+.expl{font-size:13px;color:var(--muted);margin:6px 0 0;padding-left:10px;border-left:3px solid var(--line)}
+.rv{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font-size:13.5px}
+.rv .seg{display:flex;gap:2px;border:1px solid var(--line);border-radius:7px;padding:2px;background:var(--bg)}
+.rv .seg button{border:0;background:transparent;border-radius:5px;padding:3px 10px;font-size:12.5px;color:var(--muted)}
+.rv .seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.rv.right{border-color:var(--pass);background:var(--pass-soft)}
+.rv.wrong{border-color:var(--fail);background:var(--fail-soft)}
+.rv .ex{grid-column:1/-1;font-size:12.5px;color:var(--muted)}
+.selfck{display:grid;grid-template-columns:20px 1fr;gap:8px;align-items:start;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font-size:13.5px;cursor:pointer}
+.selfck input{margin-top:4px}
+
+@media (max-width:1100px){ .app{grid-template-columns:220px minmax(0,1fr);align-items:start;overflow:auto} .pane,.work{overflow:visible;min-height:auto} .work{grid-column:1/-1;border-top:1px solid var(--line)} .ticket{border-right:0} }
+@media (max-width:720px){ .app{grid-template-columns:1fr} .queue{border-right:0;border-bottom:1px solid var(--line)} .ticket{border-right:0} }
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<header class="top">
+  <div class="brand">
+    <h1>Luyện <span>Selenium + TestNG</span></h1>
+    <p>Giai đoạn B · Buổi 6–10 · Locator, Wait, TestNG, Page Object Model, Driver Factory và CI</p>
+  </div>
+  <div class="progress"><span id="progText">0 bài</span><div class="bar"><i id="progBar"></i></div>
+    <button class="theme-btn" id="themeBtn" type="button" aria-label="Đổi giao diện sáng/tối">Sáng/Tối</button></div>
+</header>
+
+<div class="app">
+  <nav class="pane queue" id="queue" aria-label="Danh sách bài"></nav>
+  <article class="pane ticket" id="ticket"></article>
+  <section class="work" id="work" aria-label="Khu làm bài"></section>
+</div>
+
+<script>
+/* ===================== Trang ShopDemo mô phỏng (dùng cho Locator Lab và làm tài liệu cho bài code) ===================== */
+const PAGES = {
+  login: { url:'https://qa.shopdemo.test/login', html:
+`<div class="login-wrap">
+  <div class="logo">ShopDemo</div>
+  <form id="login-form" class="form" action="/login">
+    <input id="user-name" name="user-name" class="input" data-test="username" type="text" placeholder="Tên đăng nhập">
+    <input id="password" name="password" class="input" data-test="password" type="password" placeholder="Mật khẩu">
+    <h3 class="error-message" data-test="error">Sai tên đăng nhập hoặc mật khẩu</h3>
+    <button id="ember-1482" class="btn btn-primary css-1x9k2v" data-test="login-button" type="submit">Đăng nhập</button>
+  </form>
+  <div class="hint-box">
+    <h4>Tài khoản thử</h4>
+    <p>an_user · locked_user · slow_user</p>
+    <p>Mật khẩu: Demo@123</p>
+  </div>
+  <a class="link" href="/forgot">Quên mật khẩu?</a>
+</div>` },
+  inventory: { url:'https://qa.shopdemo.test/inventory', html:
+`<header class="app-header">
+  <div class="logo">ShopDemo</div>
+  <a class="cart-link" data-test="cart" href="/cart">Giỏ hàng <span class="cart-badge">1</span></a>
+</header>
+<div class="sub-header">
+  <span class="title" data-test="page-title">Sản phẩm</span>
+  <select class="sort" data-test="sort">
+    <option value="az">Tên A–Z</option>
+    <option value="za">Tên Z–A</option>
+    <option value="lohi">Giá: thấp đến cao</option>
+    <option value="hilo">Giá: cao đến thấp</option>
+  </select>
+</div>
+<div class="inventory-list">
+  <div class="inventory-item" data-test="item">
+    <a class="item-name" id="item_1_title" href="/item/1">Áo thun basic trắng</a>
+    <div class="item-price" data-test="price">149.000 ₫</div>
+    <button class="btn btn-add" data-test="add-to-cart" type="button">Thêm vào giỏ</button>
+  </div>
+  <div class="inventory-item" data-test="item">
+    <a class="item-name" id="item_3_title" href="/item/3">Quần jeans slim</a>
+    <div class="item-price" data-test="price">459.000 ₫</div>
+    <button class="btn btn-add" data-test="add-to-cart" type="button">Thêm vào giỏ</button>
+  </div>
+  <div class="inventory-item" data-test="item">
+    <a class="item-name" id="item_4_title" href="/item/4">Giày sneaker canvas</a>
+    <div class="item-price" data-test="price">699.000 ₫</div>
+    <button class="btn btn-add" data-test="add-to-cart" type="button">Thêm vào giỏ</button>
+  </div>
+  <div class="inventory-item" data-test="item">
+    <a class="item-name" id="item_5_title" href="/item/5">Balo laptop 15 inch</a>
+    <div class="item-price" data-test="price">389.000 ₫</div>
+    <button class="btn btn-remove" data-test="remove" type="button">Xóa khỏi giỏ</button>
+  </div>
+  <div class="inventory-item" data-test="item">
+    <a class="item-name" id="item_6_title" href="/item/6">Mũ lưỡi trai</a>
+    <div class="item-price" data-test="price">99.000 ₫</div>
+    <button class="btn btn-add" data-test="add-to-cart" type="button">Thêm vào giỏ</button>
+  </div>
+  <div class="inventory-item" data-test="item">
+    <a class="item-name" id="item_7_title" href="/item/7">Sơ mi oxford</a>
+    <div class="item-price" data-test="price">329.000 ₫</div>
+    <button class="btn btn-add" data-test="add-to-cart" type="button">Thêm vào giỏ</button>
+  </div>
+</div>` },
+  play: { url:'https://qa.shopdemo.test/playground', html:
+`<h2>Trang thao tác</h2>
+<section class="box">
+  <button id="btn-confirm" type="button">Xóa giỏ hàng</button>
+  <!-- Bấm nút mở hộp thoại confirm "Xóa toàn bộ giỏ hàng?". OK -> #result = "Đã xóa giỏ hàng"; Cancel -> "Đã hủy" -->
+  <p id="result"></p>
+</section>
+<section class="box">
+  <iframe id="chat-frame" name="chat" title="Hỗ trợ trực tuyến" src="/chat"></iframe>
+  <!-- Bên trong iframe:
+       <div id="chat-log"><p class="msg">Xin chào, ShopDemo có thể giúp gì?</p></div>
+       <textarea id="chat-input"></textarea>
+       <button id="chat-send" type="button">Gửi</button>
+       Gửi xong, tin nhắn mới được thêm vào cuối #chat-log thành một <p class="msg">. -->
+</section>
+<section class="box">
+  <a id="policy-link" href="/policy" target="_blank">Chính sách đổi trả</a>
+  <!-- Mở tab mới, title của tab mới: "Chính sách đổi trả – ShopDemo" -->
+</section>
+<section class="box menu">
+  <span id="menu-account">Tài khoản</span>
+  <a id="menu-orders" class="submenu" href="/orders">Đơn hàng của tôi</a>
+  <!-- #menu-orders chỉ hiện khi rê chuột (hover) lên #menu-account -->
+</section>
+<section class="box" style="margin-top:1200px">
+  <input id="avatar-upload" type="file" accept="image/png">
+  <button id="upload-btn" type="button">Tải lên</button>
+  <p id="upload-status"></p>
+  <!-- Tải lên xong: #upload-status = "Tải lên thành công: <tên file>" -->
+</section>` },
+};
+const PAGE_CSS = `
+:host{all:initial;display:block;font:14px/1.5 "Segoe UI",system-ui,sans-serif;color:#222;background:#fff}
+*{box-sizing:border-box}
+.root{padding:16px;min-height:260px}
+.logo{font:700 22px "Segoe UI",sans-serif;color:#00796b}
+.login-wrap{max-width:320px;margin:0 auto;display:flex;flex-direction:column;gap:10px;align-items:stretch;text-align:center}
+.form{display:flex;flex-direction:column;gap:8px}
+.input{border:1px solid #ccc;border-radius:6px;padding:8px 10px;font:inherit}
+.error-message{margin:0;font:500 13px "Segoe UI",sans-serif;color:#b3261e;background:#fbe7e5;border-radius:6px;padding:6px}
+.btn{border:0;border-radius:6px;padding:8px 12px;font:600 13px "Segoe UI",sans-serif;cursor:pointer}
+.btn-primary{background:#00796b;color:#fff}
+.btn-add{background:#fff;border:1px solid #00796b;color:#00796b}
+.btn-remove{background:#fff;border:1px solid #b3261e;color:#b3261e}
+.hint-box{background:#f3f3f3;border-radius:6px;padding:6px 10px;font-size:12px;color:#555}
+.hint-box h4{margin:0 0 2px}.hint-box p{margin:0}
+.link{color:#00796b;font-size:13px}
+.app-header{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #eee;padding-bottom:8px}
+.cart-link{color:#222;text-decoration:none;font-size:13px}
+.cart-badge{background:#b3261e;color:#fff;border-radius:999px;padding:0 7px;font-size:12px;margin-left:4px}
+.sub-header{display:flex;justify-content:space-between;align-items:center;margin:10px 0}
+.title{font-weight:700;font-size:16px}
+.sort{font:inherit;font-size:12.5px;padding:3px}
+.inventory-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.inventory-item{border:1px solid #e5e5e5;border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:6px}
+.item-name{color:#004d40;font-weight:600;text-decoration:none;font-size:13.5px}
+.item-price{font-weight:600}
+.box{border:1px solid #e5e5e5;border-radius:8px;padding:10px;margin:8px 0}
+iframe{width:100%;height:60px;border:1px dashed #aaa}
+.submenu{display:none}.menu:hover .submenu{display:inline;margin-left:10px}
+.sx-hit{outline:3px solid #f0a500 !important;outline-offset:2px;background-color:rgba(255,193,7,.18) !important}
+`;
+
+/* ===================== Bài học (lý thuyết ngắn, dùng lại giữa các bài) ===================== */
+const LESSONS = {
+  arch:['Kiến trúc WebDriver (WebDriver architecture) và Selenium Manager',
+    '<p>Code test gọi thư viện Selenium (client library) → thư viện gửi lệnh qua giao thức W3C WebDriver (HTTP + JSON) → driver của trình duyệt (chromedriver, geckodriver, msedgedriver) → trình duyệt thật thực hiện thao tác.</p><p>Từ Selenium 4.6, <b>Selenium Manager</b> tự tìm hoặc tải driver đúng phiên bản trình duyệt: chỉ cần <code>new ChromeDriver()</code>, không cần <code>System.setProperty("webdriver.chrome.driver", ...)</code> hay WebDriverManager.</p>',
+    'WebDriver driver = new ChromeDriver();     // Selenium Manager tự lo chromedriver\ndriver.get("https://qa.shopdemo.test/login");\nSystem.out.println(driver.getTitle());\ndriver.quit();                              // đóng mọi cửa sổ và kết thúc phiên'],
+  locators:['8 cách tìm phần tử (locator strategies) và thứ tự ưu tiên',
+    '<table class="tbl"><tr><th>By</th><th>Ví dụ</th><th>Ghi chú</th></tr><tr><td><code>By.id</code></td><td><code>By.id("user-name")</code></td><td>Nhanh, rõ ràng — chỉ khi id ổn định (không tự sinh)</td></tr><tr><td><code>By.name</code></td><td><code>By.name("password")</code></td><td>Hay dùng cho form</td></tr><tr><td><code>By.className</code></td><td><code>By.className("item-price")</code></td><td>Chỉ một class, không được có dấu cách</td></tr><tr><td><code>By.tagName</code></td><td><code>By.tagName("iframe")</code></td><td>Thường dùng với findElements</td></tr><tr><td><code>By.linkText</code></td><td><code>By.linkText("Quên mật khẩu?")</code></td><td>Chỉ cho thẻ &lt;a&gt;, khớp toàn bộ chữ</td></tr><tr><td><code>By.partialLinkText</code></td><td><code>By.partialLinkText("Quên")</code></td><td>Khớp một phần chữ của link</td></tr><tr><td><code>By.cssSelector</code></td><td><code>By.cssSelector("[data-test=\'error\']")</code></td><td>Linh hoạt, nhanh</td></tr><tr><td><code>By.xpath</code></td><td><code>By.xpath("//a[text()=\'Mũ lưỡi trai\']")</code></td><td>Tìm theo chữ, đi ngược lên cha</td></tr></table><p><b>Thứ tự ưu tiên:</b> thuộc tính dành cho test (<code>data-test</code>, <code>data-testid</code>) hoặc id ổn định → name → CSS ngắn → XPath tương đối. <b>Tránh:</b> XPath tuyệt đối (<code>/html/body/div[2]/...</code>), id/class tự sinh (<code>ember-1482</code>, <code>css-1x9k2v</code>), chỉ số vị trí (<code>[3]</code>, <code>:nth-child(3)</code>) — chỉ cần giao diện đổi nhẹ là test hỏng.</p>', null],
+  css:['Cú pháp CSS selector',
+    '<ul><li><code>#user-name</code> — theo id; <code>.item-price</code> — theo class</li><li><code>[data-test=\'error\']</code> — theo thuộc tính; <code>input[type=\'password\']</code> — thẻ + thuộc tính</li><li><code>[id^=\'item_\']</code> bắt đầu bằng, <code>[id$=\'_title\']</code> kết thúc bằng, <code>[class*=\'btn\']</code> chứa</li><li><code>.inventory-item .item-name</code> — con cháu bất kỳ cấp; <code>form &gt; input</code> — con trực tiếp</li><li>CSS <b>không</b> tìm được theo nội dung chữ và không đi ngược lên phần tử cha — khi cần thì dùng XPath.</li></ul>', null],
+  xpath:['XPath tương đối (relative XPath)',
+    '<ul><li><code>//tag[@attr=\'v\']</code> — tìm ở mọi cấp; <code>/</code> ở đầu là đường dẫn tuyệt đối từ gốc → tránh.</li><li><code>//a[text()=\'Mũ lưỡi trai\']</code> theo chữ chính xác; <code>//h3[contains(text(),\'Sai\')]</code> chứa chữ; <code>normalize-space()</code> bỏ khoảng trắng thừa.</li><li>Trục (axis): <code>ancestor::div[@data-test=\'item\']</code> đi lên cha, <code>following-sibling::button</code> anh em phía sau.</li><li>Điều kiện lồng: <code>//div[@data-test=\'item\'][.//a[text()=\'Giày sneaker canvas\']]//button</code> — “nút nằm trong ô sản phẩm có tên Giày sneaker canvas”.</li></ul>',
+    '// Nút "Thêm vào giỏ" của đúng sản phẩm, không phụ thuộc vị trí trong danh sách\nBy addSneaker = By.xpath(\n    "//a[text()=\'Giày sneaker canvas\']/ancestor::div[@data-test=\'item\']//button");'],
+  findEls:['findElement và findElements',
+    '<p><code>findElement</code> trả về phần tử <b>đầu tiên</b> khớp, không có thì ném <code>NoSuchElementException</code>. <code>findElements</code> trả về <code>List&lt;WebElement&gt;</code>, không có thì trả danh sách rỗng — dùng để đếm hoặc kiểm tra “không còn hiển thị”.</p>',
+    'List<WebElement> prices = driver.findElements(By.cssSelector("[data-test=\'price\']"));\nAssert.assertEquals(prices.size(), 6);\nboolean noBadge = driver.findElements(By.cssSelector(".cart-badge")).isEmpty();'],
+  testng:['TestNG cơ bản: @Test, @BeforeMethod, @AfterMethod, Assert',
+    '<ul><li><code>@BeforeMethod</code> chạy <b>trước mỗi</b> @Test (mở trình duyệt); <code>@AfterMethod</code> chạy <b>sau mỗi</b> @Test (đóng trình duyệt) → test độc lập với nhau.</li><li><code>@BeforeClass</code>/<code>@AfterClass</code> chạy một lần cho cả class — nhanh hơn nhưng các test dùng chung trạng thái.</li><li><b>TestNG:</b> <code>Assert.assertEquals(actual, expected)</code> — giá trị thực tế đứng trước. (JUnit thì ngược lại.)</li><li>Mỗi @Test phải có ít nhất một assertion; test không có assertion luôn “pass” và không chứng minh gì.</li></ul>',
+    'public class LoginTest {\n    private WebDriver driver;\n\n    @BeforeMethod\n    public void setUp() {\n        driver = new ChromeDriver();\n        driver.get("https://qa.shopdemo.test/login");\n    }\n\n    @Test\n    public void hienThiOMatKhau() {\n        Assert.assertTrue(driver.findElement(By.id("password")).isDisplayed());\n    }\n\n    @AfterMethod\n    public void tearDown() {\n        if (driver != null) driver.quit();\n    }\n}'],
+  waits:['Ba kiểu chờ: Implicit, Explicit, Fluent Wait',
+    '<ul><li><b>Implicit wait</b> (<code>driver.manage().timeouts().implicitlyWait(...)</code>): áp cho mọi findElement, chỉ chờ phần tử <i>có trong DOM</i>.</li><li><b>Explicit wait</b> (<code>WebDriverWait</code> + <code>ExpectedConditions</code>): chờ một điều kiện cụ thể (hiển thị, bấm được, có alert…) — kiểu nên dùng.</li><li><b>Fluent wait</b>: explicit wait tự cấu hình tần suất kiểm tra (polling) và exception bỏ qua. <code>WebDriverWait</code> chính là một <code>FluentWait</code> dựng sẵn.</li><li><b>Không trộn</b> implicit và explicit: thời gian chờ cộng dồn khó đoán. <b>Không dùng</b> <code>Thread.sleep</code>: luôn chờ đủ thời gian (chậm) mà vẫn có thể thiếu (flaky).</li></ul>',
+    'WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));\nWebElement title = wait.until(\n    ExpectedConditions.visibilityOfElementLocated(By.cssSelector("[data-test=\'page-title\']")));\n\n// Fluent wait: kiểm tra mỗi 500 ms, bỏ qua NoSuchElementException\nWait<WebDriver> fluent = new FluentWait<>(driver)\n    .withTimeout(Duration.ofSeconds(10))\n    .pollingEvery(Duration.ofMillis(500))\n    .ignoring(NoSuchElementException.class);'],
+  ec:['ExpectedConditions hay dùng',
+    '<table class="tbl"><tr><th>Điều kiện</th><th>Dùng khi</th></tr><tr><td><code>visibilityOfElementLocated(by)</code></td><td>Chờ phần tử hiện ra để đọc chữ</td></tr><tr><td><code>elementToBeClickable(by)</code></td><td>Chờ trước khi click</td></tr><tr><td><code>invisibilityOfElementLocated(by)</code></td><td>Chờ spinner biến mất</td></tr><tr><td><code>textToBe(by, text)</code></td><td>Chờ chữ đổi thành giá trị mong đợi</td></tr><tr><td><code>urlContains(s)</code>, <code>titleIs(s)</code></td><td>Chờ chuyển trang</td></tr><tr><td><code>alertIsPresent()</code></td><td>Chờ hộp thoại alert/confirm — trả về <code>Alert</code></td></tr><tr><td><code>frameToBeAvailableAndSwitchToIt(by)</code></td><td>Chờ iframe sẵn sàng và chuyển vào</td></tr><tr><td><code>numberOfWindowsToBe(n)</code></td><td>Chờ tab/cửa sổ mới mở</td></tr></table>', null],
+  select:['Dropdown với lớp Select',
+    '<p>Chỉ dùng cho thẻ <code>&lt;select&gt;</code> thật. Dropdown tự vẽ bằng div thì click như phần tử thường.</p>',
+    'Select sort = new Select(driver.findElement(By.cssSelector("[data-test=\'sort\']")));\nsort.selectByVisibleText("Giá: thấp đến cao");   // theo chữ hiển thị\nsort.selectByValue("lohi");                       // theo thuộc tính value\nString chosen = sort.getFirstSelectedOption().getText();'],
+  alert:['Alert, confirm, prompt của trình duyệt',
+    '<p>Hộp thoại JavaScript không nằm trong DOM nên không findElement được. Chờ bằng <code>alertIsPresent()</code> rồi dùng <code>getText()</code>, <code>accept()</code> (OK), <code>dismiss()</code> (Cancel), <code>sendKeys()</code> (prompt).</p>',
+    'Alert alert = wait.until(ExpectedConditions.alertIsPresent());\n// hoặc: Alert alert = driver.switchTo().alert();\nAssert.assertEquals(alert.getText(), "Xóa toàn bộ giỏ hàng?");\nalert.accept();'],
+  frame:['Làm việc với iframe',
+    '<p>Phần tử trong iframe thuộc một tài liệu khác: phải <code>switchTo().frame(...)</code> trước khi tìm, xong việc thì <code>switchTo().defaultContent()</code> để quay về trang chính. Quên quay về → mọi findElement sau đó đều NoSuchElement.</p>',
+    'wait.until(ExpectedConditions.frameToBeAvailableAndSwitchToIt(By.id("chat-frame")));\ndriver.findElement(By.id("chat-input")).sendKeys("Xin chào");\ndriver.switchTo().defaultContent();   // về trang chính\n// switchTo().parentFrame() chỉ lùi một cấp khi có iframe lồng nhau'],
+  window:['Nhiều cửa sổ / tab',
+    '<p>Mỗi cửa sổ có một <b>handle</b>. Lưu handle gốc, chờ số cửa sổ tăng, duyệt <code>getWindowHandles()</code> để chuyển sang handle mới; xong thì <code>close()</code> tab đó và chuyển về handle gốc.</p>',
+    'String original = driver.getWindowHandle();\nlink.click();\nwait.until(ExpectedConditions.numberOfWindowsToBe(2));\nfor (String h : driver.getWindowHandles()) {\n    if (!h.equals(original)) driver.switchTo().window(h);\n}\n// ... kiểm tra tab mới ...\ndriver.close();\ndriver.switchTo().window(original);\n\n// Selenium 4: tự mở tab mới\ndriver.switchTo().newWindow(WindowType.TAB);'],
+  actions:['Actions, JavascriptExecutor và upload file',
+    '<ul><li><code>Actions</code>: hover (<code>moveToElement</code>), double click, right click (<code>contextClick</code>), kéo thả (<code>dragAndDrop</code>) — luôn kết thúc bằng <code>.perform()</code>.</li><li><code>JavascriptExecutor</code>: cuộn tới phần tử, đọc giá trị JS. Chỉ dùng khi thao tác bình thường không làm được — click bằng JS bỏ qua kiểm tra “người dùng có bấm được không”.</li><li>Upload: <code>sendKeys</code> <b>đường dẫn tuyệt đối</b> vào <code>&lt;input type="file"&gt;</code>, không click mở hộp thoại của hệ điều hành. Đường dẫn dựng từ thư mục project, không hard-code <code>C:\\Users\\...</code>.</li></ul>',
+    'new Actions(driver).moveToElement(menu).perform();\n((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", el);\nString path = Paths.get("src/test/resources/data/avatar.png").toAbsolutePath().toString();\ndriver.findElement(By.id("avatar-upload")).sendKeys(path);'],
+  shot:['Chụp màn hình khi fail và chạy headless',
+    '<ul><li>Headless: chạy trình duyệt không mở cửa sổ — cần cho CI. Chrome: <code>--headless=new</code>. Nên bật/tắt bằng tham số (<code>-Dheadless=true</code>), không sửa code.</li><li>Đặt <code>--window-size=1366,768</code> khi headless để layout giống khi chạy thường.</li><li><code>@AfterMethod</code> nhận <code>ITestResult</code>: nếu <code>getStatus() == ITestResult.FAILURE</code> thì chụp màn hình <b>trước</b> khi quit driver.</li></ul>',
+    'File src = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);\nPath dest = Paths.get("target/screenshots", result.getName() + ".png");\nFiles.createDirectories(dest.getParent());\nFiles.copy(src.toPath(), dest, StandardCopyOption.REPLACE_EXISTING);'],
+  xml:['testng.xml: suite, test, group, class, package',
+    '<p>Cấu trúc: <code>&lt;suite&gt;</code> chứa một hoặc nhiều <code>&lt;test&gt;</code>; mỗi test chọn code cần chạy bằng <code>&lt;classes&gt;</code> hoặc <code>&lt;packages&gt;</code> và lọc theo <code>&lt;groups&gt;&lt;run&gt;&lt;include/&gt;&lt;exclude/&gt;</code>.</p>',
+    '<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">\n<suite name="ShopDemo">\n    <test name="Smoke">\n        <groups>\n            <run>\n                <include name="smoke"/>\n            </run>\n        </groups>\n        <classes>\n            <class name="tests.LoginTest"/>\n        </classes>\n    </test>\n</suite>', 'xml'],
+  groups:['Group, priority, dependsOn và alwaysRun',
+    '<ul><li><code>@Test(groups = {"smoke", "regression"})</code> — một test có thể thuộc nhiều group.</li><li><code>priority</code>: số nhỏ chạy trước (mặc định 0). Chỉ để sắp thứ tự hiển thị, không dùng để “test B cần dữ liệu test A tạo”.</li><li><code>dependsOnMethods</code>: A fail thì B bị <b>SKIP</b>; test không chạy riêng được → hạn chế dùng. Mỗi test tự chuẩn bị dữ liệu (qua API, qua bước đăng nhập chung).</li><li>Chạy theo group thì <code>@BeforeMethod</code>/<code>@AfterMethod</code> không khai báo group sẽ <b>không chạy</b> → thêm <code>alwaysRun = true</code>.</li><li>Maven: <code>mvn test -Dgroups=smoke</code>.</li></ul>', null],
+  parallel:['Chạy song song và an toàn luồng (thread-safety)',
+    '<p><code>parallel="methods" thread-count="3"</code> chạy 3 test cùng lúc trên 3 luồng. Nếu driver là <code>static WebDriver driver</code> thì các luồng ghi đè driver của nhau → test click nhầm cửa sổ, fail ngẫu nhiên. Cách đúng: mỗi luồng một driver, giữ trong <code>ThreadLocal&lt;WebDriver&gt;</code> (bài C1).</p><p>Giá trị <code>parallel</code>: <code>methods</code>, <code>classes</code>, <code>tests</code>, <code>instances</code>.</p>', null],
+  listener:['Listener (ITestListener) và log',
+    '<p>Listener nhận sự kiện của TestNG: <code>onTestStart</code>, <code>onTestSuccess</code>, <code>onTestFailure</code>, <code>onTestSkipped</code>… Dùng để ghi log, chụp ảnh khi fail, đính kèm vào report mà không lặp code trong từng test. Đăng ký bằng <code>&lt;listeners&gt;</code> trong testng.xml hoặc <code>@Listeners(TestListener.class)</code> trên class.</p><p>Ghi log bằng logger (SLF4J/Log4j2) thay cho <code>System.out.println</code>: có mức (INFO, ERROR), có thời gian, ghi ra file được.</p>',
+    'public class TestListener implements ITestListener {\n    private static final Logger log = LoggerFactory.getLogger(TestListener.class);\n\n    @Override\n    public void onTestFailure(ITestResult result) {\n        log.error("FAIL: {}", result.getName(), result.getThrowable());\n    }\n}'],
+  report:['Report: Allure và ExtentReports',
+    '<ul><li><b>Allure</b>: TestNG ghi kết quả vào <code>target/allure-results</code> (thư viện <code>allure-testng</code>); xem bằng <code>allure serve target/allure-results</code> hoặc tạo HTML bằng <code>allure generate</code>. Đính ảnh: <code>Allure.addAttachment(...)</code>; chia bước: <code>@Step</code> (cần cấu hình aspectj trong surefire).</li><li><b>ExtentReports</b>: tự tạo file HTML trong code (ExtentSparkReporter), thường gọi từ listener.</li><li>Report mặc định của TestNG/Surefire nằm ở <code>target/surefire-reports</code>.</li></ul>', null],
+  pom:['Page Object Model (POM)',
+    '<ul><li>Mỗi trang (hoặc thành phần lớn) là một class: chứa <b>locator</b> (private) và <b>hành động</b> nghiệp vụ (<code>login(user, pass)</code>, <code>getErrorText()</code>).</li><li>Test chỉ gọi hành động và <b>assert</b>; page object <b>không assert</b> (trả dữ liệu cho test tự kiểm tra).</li><li>Giao diện đổi → chỉ sửa một chỗ trong page object, không sửa hàng chục test.</li><li>Hành động dẫn sang trang khác có thể trả về page object của trang đó (<code>InventoryPage</code>) — gọi là fluent page.</li></ul>',
+    'public class LoginPage {\n    private final WebDriver driver;\n    private final By username = By.id("user-name");\n\n    public LoginPage(WebDriver driver) {\n        this.driver = driver;\n    }\n\n    public void typeUsername(String user) {\n        driver.findElement(username).sendKeys(user);\n    }\n}'],
+  base:['BasePage: gom thao tác chung kèm explicit wait',
+    '<p>Lớp cha trừu tượng (abstract class) giữ <code>driver</code>, <code>wait</code> và các hàm <code>click</code>, <code>type</code>, <code>textOf</code> đã có sẵn explicit wait. Page con <code>extends BasePage</code>, gọi <code>super(driver)</code> và chỉ dùng các hàm này → không còn findElement rải rác, không cần sleep.</p>', null],
+  data:['Data-driven với @DataProvider',
+    '<p><code>@DataProvider</code> trả <code>Object[][]</code>: mỗi hàng là một lần chạy, mỗi cột là một tham số của test. Test khai báo <code>@Test(dataProvider = "tên")</code> và nhận đúng số tham số. Dữ liệu nên đọc từ file (CSV, JSON, Excel) trong <code>src/test/resources</code>.</p><p>Bẫy khi tách CSV: <code>"an_user,,".split(",")</code> chỉ trả <b>1</b> phần tử vì Java bỏ chuỗi rỗng ở cuối → dùng <code>split(",", -1)</code> hoặc thư viện CSV (OpenCSV, Commons CSV).</p>',
+    '@DataProvider(name = "loginData")\npublic Object[][] loginData() {\n    return new Object[][] {\n        { "an_user", "sai_mat_khau", "Sai tên đăng nhập hoặc mật khẩu" },\n        { "locked_user", "Demo@123", "Tài khoản đã bị khóa" },\n    };\n}\n\n@Test(dataProvider = "loginData")\npublic void dangNhapSai(String user, String pass, String expectedError) { ... }'],
+  config:['Cấu hình theo môi trường bằng file properties',
+    '<p>Mỗi môi trường một file: <code>src/test/resources/config/qa.properties</code>, <code>staging.properties</code>. Chọn file bằng <code>-Denv=staging</code>. Giá trị truyền bằng <code>-Dkey=value</code> nên được ưu tiên hơn file (để CI ghi đè, ví dụ <code>-Dheadless=true</code>). Mật khẩu thật không để trong file commit lên Git — lấy từ biến môi trường / secret của CI.</p>',
+    '# qa.properties\nbase.url=https://qa.shopdemo.test\nbrowser=chrome\nheadless=false\ntimeout.seconds=10', 'props'],
+  factory:['Driver Factory và ThreadLocal',
+    '<p><b>Driver Factory</b> là nơi duy nhất tạo driver: đọc tên trình duyệt từ config, dựng Options (headless, kích thước cửa sổ), báo lỗi rõ nếu trình duyệt không hỗ trợ. <b>ThreadLocal</b> cho mỗi luồng một bản driver riêng: <code>set()</code> khi tạo, <code>get()</code> khi dùng, <code>remove()</code> sau khi <code>quit()</code> để tránh rò bộ nhớ khi luồng được dùng lại.</p>',
+    'private static final ThreadLocal<WebDriver> DRIVER = new ThreadLocal<>();\npublic static WebDriver getDriver() { return DRIVER.get(); }'],
+  ci:['GitHub Actions: workflow chạy test',
+    '<p>File <code>.github/workflows/tests.yml</code>. <code>on</code>: sự kiện kích hoạt (push, pull_request); <code>jobs.&lt;id&gt;.runs-on</code>: máy chạy; <code>steps</code>: lấy code (<code>actions/checkout</code>), cài Java (<code>actions/setup-java</code>), chạy <code>mvn</code>, lưu report (<code>actions/upload-artifact</code>). Bước lưu report cần <code>if: always()</code> — nếu không, test fail làm job dừng và mất luôn report cần xem nhất. YAML dùng dấu cách để thụt lề, không dùng tab.</p>',
+    'on:\n  push:\n    branches: [ main ]\n  pull_request:\n\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4', 'yaml'],
+  git:['Pull request, code review và logging',
+    '<ul><li>Làm việc trên nhánh riêng (<code>feature/login-tests</code>), mở pull request vào <code>main</code>, CI phải xanh trước khi merge.</li><li>Review theo checklist: locator ổn định, không sleep, test độc lập, có assertion, không hard-code, driver được đóng, an toàn khi chạy song song…</li><li>Không commit <code>target/</code>, <code>.idea/</code>, ảnh chụp màn hình, mật khẩu.</li></ul>', null],
+};
+
+/* ===================== Danh sách bài ===================== */
+const PHASES = [
+  { k:'W', bus:6, name:'Buổi 6 · WebDriver, locator, TestNG cơ bản' },
+  { k:'T', bus:7, name:'Buổi 7 · Wait và thao tác nâng cao' },
+  { k:'N', bus:8, name:'Buổi 8 · TestNG nâng cao, listener, report' },
+  { k:'P', bus:9, name:'Buổi 9 · Page Object Model, data-driven' },
+  { k:'C', bus:10, name:'Buổi 10 · Driver Factory, CI, Checkpoint 2' },
+];
+const KIND = { loc:'Locator Lab', code:'Viết code', quiz:'Câu hỏi', review:'Review code', self:'Bài nộp' };
+// Quy tắc chấm code: { t: nhãn, re: phải khớp | not: true (không được khớp) | min: số lần tối thiểu | each: chỉ áp cho thân mỗi khối có annotation này | in: chỉ xét trong class này | fn(s): hàm tùy chỉnh, why: giải thích khi sai }
+const TICKETS = [
+/* ---------- Buổi 6 ---------- */
+{ id:'W1', ph:'W', kind:'loc', page:'login', t:'Ô tên đăng nhập bằng By.id', learn:['arch','locators'],
+  need:['Viết locator tìm <b>ô nhập tên đăng nhập</b> trên trang Login.', 'Bắt buộc dùng chiến lược <code>By.id</code>.'],
+  target:'#user-name', only:['id'], ans:[['id','user-name']], bad:[['name','user-name'],['id','username'],['css','#user-name']],
+  hints:['Mở tab <b>HTML</b> bên phải để xem thuộc tính của thẻ input đầu tiên.', 'Giá trị của By.id không có dấu <code>#</code> — dấu # chỉ dùng trong CSS.'] },
+{ id:'W2', ph:'W', kind:'loc', page:'login', t:'Nút Đăng nhập có id tự sinh', learn:['locators','css'],
+  need:['Viết locator tìm <b>nút “Đăng nhập”</b>.', 'Nút có <code>id="ember-1482"</code> và class <code>css-1x9k2v</code> do framework tự sinh — mỗi lần build có thể đổi. Không được dùng hai giá trị này.', 'Dùng <code>By.cssSelector</code> với thuộc tính dành cho test.'],
+  target:'[data-test="login-button"]', only:['css'], ans:[['css',"[data-test='login-button']"],['css','button[data-test="login-button"]']], must:[/data-test/, 'Dùng thuộc tính data-test — thuộc tính dành riêng cho test, không đổi khi đổi giao diện.'], bad:[['css','#ember-1482'],['css','.css-1x9k2v'],['id','ember-1482'],['css','button']],
+  hints:['Tìm thuộc tính bắt đầu bằng <code>data-</code> trên thẻ button.', 'Cú pháp CSS theo thuộc tính: <code>[tên=\'giá trị\']</code>.'] },
+{ id:'W3', ph:'W', kind:'loc', page:'login', t:'Thông báo lỗi đăng nhập', learn:['css','xpath'],
+  need:['Viết locator tìm <b>thông báo lỗi</b> màu đỏ (dùng để assert nội dung lỗi).', 'Chọn CSS hoặc XPath, miễn là ổn định và khớp đúng 1 phần tử.'],
+  target:'[data-test="error"]', ans:[['css',"[data-test='error']"],['css','h3.error-message'],['xpath',"//h3[@data-test='error']"],['xpath',"//*[contains(text(),'Sai tên đăng nhập')]"],['className','error-message']], forbid:{tagName:'Tên thẻ không ổn định: trang chỉ cần thêm một thẻ h3 là locator chỉ sai phần tử.'}, bad:[['xpath','/html/body/div/form/h3'],['tagName','h3'],['css','form > :nth-child(3)']],
+  hints:['Thẻ lỗi là <code>&lt;h3&gt;</code> có cả class và data-test.', 'Không dựa vào tên thẻ (<code>By.tagName("h3")</code>): hôm nay trang chỉ có một h3, mai thêm tiêu đề là locator trỏ nhầm.'] },
+{ id:'W4', ph:'W', kind:'loc', page:'inventory', t:'Link tên sản phẩm bằng linkText', learn:['locators'],
+  need:['Trên trang Sản phẩm, tìm <b>link tên sản phẩm “Quần jeans slim”</b>.', 'Dùng <code>By.linkText</code> hoặc <code>By.partialLinkText</code>.'],
+  target:'#item_3_title', only:['linkText','partialLinkText'], ans:[['linkText','Quần jeans slim'],['partialLinkText','jeans']], bad:[['linkText','Quần jeans'],['partialLinkText','a'],['id','item_3_title']],
+  hints:['linkText phải khớp <b>toàn bộ</b> chữ của link.', 'partialLinkText khớp một phần chữ — chọn phần đủ riêng để chỉ ra một link.'] },
+{ id:'W5', ph:'W', kind:'loc', page:'inventory', t:'Nút “Thêm vào giỏ” của một sản phẩm cụ thể', learn:['xpath'],
+  need:['Tìm <b>nút “Thêm vào giỏ” của sản phẩm “Giày sneaker canvas”</b>.', 'Mọi nút đều giống nhau, nên phải đi từ tên sản phẩm. Không dùng chỉ số vị trí (<code>[3]</code>, <code>:nth-child</code>) vì thứ tự đổi khi sắp xếp.', 'Dùng <code>By.xpath</code>.'],
+  target:'.inventory-item:nth-child(3) button', only:['xpath'], ans:[['xpath',"//div[@data-test='item'][.//a[text()='Giày sneaker canvas']]//button"],['xpath',"//a[text()='Giày sneaker canvas']/ancestor::div[@data-test='item']//button"],['xpath',"//a[.='Giày sneaker canvas']/following-sibling::button"]], bad:[['xpath',"(//button[@data-test='add-to-cart'])[3]"],['xpath',"//div[@class='inventory-list']/div[3]/button"],['xpath',"//button[text()='Thêm vào giỏ']"]],
+  hints:['Bắt đầu từ <code>//a[text()=\'Giày sneaker canvas\']</code>, sau đó đi lên ô sản phẩm bằng <code>ancestor::</code> rồi xuống nút.', 'Cách khác: <code>following-sibling::button</code> — nút là anh em đứng sau thẻ a trong cùng ô.'] },
+{ id:'W6', ph:'W', kind:'loc', page:'inventory', many:true, t:'Tất cả giá sản phẩm (findElements)', learn:['findEls','css'],
+  need:['Viết một locator khớp <b>đủ 6 ô giá</b> trên trang Sản phẩm (dùng với <code>findElements</code> để đếm và kiểm tra sắp xếp ở bài T3).', 'Không khớp thừa phần tử nào khác.'],
+  target:'[data-test="price"]', ans:[['css',"[data-test='price']"],['className','item-price'],['xpath',"//div[@data-test='price']"]], bad:[['css','.inventory-item *'],['css','.inventory-item'],['xpath',"//div[contains(text(),'₫')][1]"]],
+  hints:['Locator này sẽ được dùng với <code>driver.findElements(...)</code> và trả về List.', 'Thuộc tính chung của 6 ô giá là gì?'] },
+{ id:'W7', ph:'W', kind:'quiz', t:'Kiến trúc WebDriver và TestNG', learn:['arch','testng'],
+  need:['Trả lời đúng cả 4 câu.'],
+  qs:[
+    { q:'Với Selenium 4.6 trở lên, cần làm gì để chạy <code>new ChromeDriver()</code> trên máy đã cài Chrome?', o:['Tải chromedriver đúng phiên bản và khai báo System.setProperty', 'Không cần làm gì thêm — Selenium Manager tự tìm hoặc tải driver', 'Bắt buộc thêm thư viện WebDriverManager', 'Cài Selenium Server rồi kết nối bằng RemoteWebDriver'], a:1,
+      w:'Selenium Manager có sẵn trong Selenium từ 4.6, tự xử lý driver. WebDriverManager và setProperty là cách cũ; RemoteWebDriver chỉ cần khi chạy trên Grid.' },
+    { q:'Trong TestNG, câu nào kiểm tra đúng tiêu đề trang là “Sản phẩm” và báo lỗi dễ đọc?', o:['Assert.assertEquals("Sản phẩm", title);', 'Assert.assertEquals(title, "Sản phẩm");', 'Assert.assertTrue(title == "Sản phẩm");', 'if (!title.equals("Sản phẩm")) System.out.println("FAIL");'], a:1,
+      w:'TestNG: assertEquals(actual, expected). Đảo thứ tự vẫn chạy nhưng thông báo lỗi ghi ngược “expected/found”. So sánh String bằng == là sai; in ra console không làm test fail.' },
+    { q:'<code>@BeforeMethod</code> khác <code>@BeforeClass</code> thế nào?', o:['@BeforeMethod chạy trước mỗi @Test; @BeforeClass chạy một lần trước mọi test trong class', 'Hai annotation như nhau, chỉ khác tên', '@BeforeClass chạy trước mỗi @Test', '@BeforeMethod chỉ chạy khi test trước fail'], a:0,
+      w:'Mở trình duyệt trong @BeforeMethod giúp mỗi test bắt đầu sạch, không phụ thuộc test trước.' },
+    { q:'<code>driver.close()</code> khác <code>driver.quit()</code> thế nào?', o:['Không khác', 'close() đóng cửa sổ hiện tại; quit() đóng mọi cửa sổ và kết thúc phiên driver', 'quit() chỉ đóng tab hiện tại', 'close() kết thúc phiên, quit() chỉ ẩn trình duyệt'], a:1,
+      w:'Cuối test luôn gọi quit(), nếu không tiến trình chromedriver còn treo trên máy/CI. close() dùng khi đóng một tab phụ (bài T6).' },
+  ] },
+{ id:'W8', ph:'W', kind:'code', lang:'java', page:'login', t:'Bài nộp buổi 6: 3 test đăng nhập', learn:['testng','locators'],
+  need:['Viết class <code>LoginTest</code> trên trang Login của ShopDemo (<code>https://qa.shopdemo.test/login</code>) gồm 3 test:', '① đăng nhập đúng (<code>an_user</code> / <code>Demo@123</code>) → URL chứa <code>/inventory</code>;', '② sai mật khẩu → thông báo “Sai tên đăng nhập hoặc mật khẩu”;', '③ user bị khóa (<code>locked_user</code>) → thông báo chứa “bị khóa”.', 'Mở trình duyệt trong <code>@BeforeMethod</code>, đóng trong <code>@AfterMethod</code>; mỗi test có assertion; không XPath tuyệt đối, không <code>Thread.sleep</code>.'],
+  starter:'import org.openqa.selenium.By;\nimport org.openqa.selenium.WebDriver;\nimport org.openqa.selenium.chrome.ChromeDriver;\nimport org.testng.Assert;\nimport org.testng.annotations.AfterMethod;\nimport org.testng.annotations.BeforeMethod;\nimport org.testng.annotations.Test;\n\npublic class LoginTest {\n    private WebDriver driver;\n\n    // TODO: @BeforeMethod mở trình duyệt và vào trang login\n\n    // TODO: 3 test\n\n    // TODO: @AfterMethod đóng trình duyệt\n}\n',
+  rules:[
+    { t:'Có @BeforeMethod khởi tạo driver (new ChromeDriver/FirefoxDriver/EdgeDriver)', re:/@BeforeMethod[\s\S]*?new\s+(Chrome|Firefox|Edge)Driver\s*\(/ },
+    { t:'Mở trang bằng driver.get(...)', re:/\.get\s*\(\s*"https?:\/\/[^"]*shopdemo/, why:'Gọi driver.get("https://qa.shopdemo.test/login") trong @BeforeMethod.' },
+    { t:'Có ít nhất 3 @Test', re:/@Test\b/, min:3 },
+    { t:'Mỗi @Test có assertion', each:/@Test\b/, re:/Assert\.\w+\s*\(/, why:'Test không có Assert luôn pass — không chứng minh được gì.' },
+    { t:'Có test cho user bị khóa (locked_user)', re:/"locked_user"/ },
+    { t:'Đọc nội dung thông báo lỗi bằng getText()', re:/\.getText\s*\(\s*\)/ },
+    { t:'Đóng trình duyệt bằng quit() trong @AfterMethod', re:/@AfterMethod[\s\S]*?\.quit\s*\(\s*\)/, why:'close() chỉ đóng cửa sổ; quit() mới kết thúc phiên driver.' },
+    { t:'Không dùng XPath tuyệt đối', not:true, re:/By\.xpath\s*\(\s*"\/(?!\/)/ },
+    { t:'Không dùng Thread.sleep', not:true, re:/Thread\.sleep/ },
+    { t:'Không dùng id tự sinh (ember-…, css-…)', not:true, re:/ember-\d+|css-[0-9a-z]{4,}/ },
+  ],
+  answer:'import org.openqa.selenium.By;\nimport org.openqa.selenium.WebDriver;\nimport org.openqa.selenium.chrome.ChromeDriver;\nimport org.testng.Assert;\nimport org.testng.annotations.AfterMethod;\nimport org.testng.annotations.BeforeMethod;\nimport org.testng.annotations.Test;\n\npublic class LoginTest {\n    private WebDriver driver;\n\n    @BeforeMethod\n    public void setUp() {\n        driver = new ChromeDriver();\n        driver.get("https://qa.shopdemo.test/login");\n    }\n\n    private void login(String user, String pass) {\n        driver.findElement(By.id("user-name")).sendKeys(user);\n        driver.findElement(By.id("password")).sendKeys(pass);\n        driver.findElement(By.cssSelector("[data-test=\'login-button\']")).click();\n    }\n\n    @Test\n    public void dangNhapThanhCong() {\n        login("an_user", "Demo@123");\n        Assert.assertTrue(driver.getCurrentUrl().contains("/inventory"));\n    }\n\n    @Test\n    public void saiMatKhau() {\n        login("an_user", "sai_mat_khau");\n        String err = driver.findElement(By.cssSelector("[data-test=\'error\']")).getText();\n        Assert.assertEquals(err, "Sai tên đăng nhập hoặc mật khẩu");\n    }\n\n    @Test\n    public void userBiKhoa() {\n        login("locked_user", "Demo@123");\n        String err = driver.findElement(By.cssSelector("[data-test=\'error\']")).getText();\n        Assert.assertTrue(err.contains("bị khóa"));\n    }\n\n    @AfterMethod\n    public void tearDown() {\n        if (driver != null) {\n            driver.quit();\n        }\n    }\n}\n',
+  wrong:[
+    'public class LoginTest {\n    WebDriver driver;\n    @BeforeMethod\n    public void setUp() { driver = new ChromeDriver(); driver.get("https://qa.shopdemo.test/login"); }\n    @Test\n    public void a() { Assert.assertTrue(true); }\n    @Test\n    public void b() { driver.findElement(By.id("user-name")).sendKeys("locked_user"); Assert.assertEquals(driver.findElement(By.id("x")).getText(), "y"); }\n    @Test\n    public void c() { driver.findElement(By.id("user-name")).sendKeys("x"); }\n    @AfterMethod\n    public void tearDown() { driver.quit(); }\n}',
+    'public class LoginTest {\n    WebDriver driver;\n    @BeforeMethod\n    public void setUp() { driver = new ChromeDriver(); driver.get("https://qa.shopdemo.test/login"); }\n    @Test public void a() { Thread.sleep(2000); Assert.assertTrue(true); }\n    @Test public void b() { Assert.assertEquals(driver.findElement(By.id("x")).getText(), "locked_user"); }\n    @Test public void c() { Assert.assertTrue(true); }\n    @AfterMethod public void tearDown() { driver.close(); }\n}',
+    'public class LoginTest {\n    WebDriver driver;\n    @BeforeMethod\n    public void setUp() { driver = new ChromeDriver(); driver.get("https://qa.shopdemo.test/login"); }\n    @Test public void a() { driver.findElement(By.xpath("/html/body/div/form/button")).click(); Assert.assertTrue(true); }\n    @Test public void b() { Assert.assertEquals(driver.findElement(By.id("x")).getText(), "locked_user"); }\n    @Test public void c() { Assert.assertTrue(true); }\n    @AfterMethod public void tearDown() { driver.quit(); }\n}',
+  ],
+  hints:['Tách một hàm private <code>login(user, pass)</code> để 3 test không lặp 3 dòng nhập liệu.', 'URL sau khi đăng nhập: <code>driver.getCurrentUrl()</code>.', 'Kiểm tra <code>driver != null</code> trước khi quit, phòng khi @BeforeMethod lỗi giữa chừng.'] },
+
+/* ---------- Buổi 7 ---------- */
+{ id:'T1', ph:'T', kind:'quiz', t:'Implicit, Explicit, Fluent Wait', learn:['waits','ec'],
+  need:['Trả lời đúng cả 4 câu.'],
+  qs:[
+    { q:'Vì sao không dùng <code>Thread.sleep(5000)</code> để chờ trang tải?', o:['Vì Java không cho phép', 'Luôn chờ đủ 5 giây dù trang đã sẵn sàng (chậm), mà trang chậm hơn 5 giây thì vẫn fail (flaky)', 'Vì sleep làm trình duyệt đóng lại', 'Vì sleep chỉ chạy được trên Chrome'], a:1,
+      w:'Explicit wait dừng ngay khi điều kiện đạt và chờ tối đa tới timeout — vừa nhanh vừa ổn định.' },
+    { q:'Đã đặt implicit wait 10 giây, lại dùng thêm WebDriverWait 15 giây. Điều gì có thể xảy ra?', o:['Không ảnh hưởng gì', 'Thời gian chờ thực tế khó đoán (có thể cộng dồn) — tài liệu Selenium khuyên không trộn hai kiểu', 'Selenium báo lỗi biên dịch', 'Explicit wait bị vô hiệu hóa'], a:1,
+      w:'Chọn một kiểu: trong framework nên dùng explicit wait (gom vào BasePage ở buổi 9) và để implicit wait = 0.' },
+    { q:'Chờ nút “Thanh toán” bấm được rồi click — điều kiện nào phù hợp nhất?', o:['presenceOfElementLocated', 'visibilityOfElementLocated', 'elementToBeClickable', 'titleContains'], a:2,
+      w:'presence chỉ cần có trong DOM (có thể đang ẩn); visibility cần hiển thị; clickable cần hiển thị và đang enabled.' },
+    { q:'Câu nào đúng về FluentWait?', o:['FluentWait là implicit wait đặt ở mức driver', 'FluentWait cho cấu hình timeout, tần suất kiểm tra (pollingEvery) và exception được bỏ qua (ignoring); WebDriverWait là một FluentWait dựng sẵn', 'FluentWait chỉ dùng cho alert', 'FluentWait thay thế được Thread.sleep bằng cách ngủ cố định'], a:1,
+      w:'WebDriverWait mặc định polling 500 ms và bỏ qua NoSuchElementException.' },
+  ] },
+{ id:'T2', ph:'T', kind:'code', lang:'java', page:'inventory', snippet:true, t:'Sửa test flaky: thay Thread.sleep bằng explicit wait', learn:['waits','ec'],
+  need:['User <code>slow_user</code> đăng nhập rất chậm (2–8 giây). Test bên dưới lúc pass lúc fail.', 'Sửa để test <b>chờ tiêu đề “Sản phẩm”</b> (<code>[data-test=\'page-title\']</code>) hiển thị bằng <code>WebDriverWait</code> + <code>ExpectedConditions</code>, tối đa 10 giây.', 'Giả định class đã có <code>driver</code> và hàm <code>login(user, pass)</code>.'],
+  starter:'@Test\npublic void dangNhapUserCham() throws InterruptedException {\n    login("slow_user", "Demo@123");\n    Thread.sleep(5000);\n    String title = driver.findElement(By.cssSelector("[data-test=\'page-title\']")).getText();\n    Assert.assertEquals(title, "Sản phẩm");\n}\n',
+  rules:[
+    { t:'Không còn Thread.sleep', not:true, re:/Thread\.sleep/ },
+    { t:'Tạo WebDriverWait với Duration', re:/new\s+WebDriverWait\s*\(\s*driver\s*,\s*Duration\.of(Seconds|Millis)\s*\(/, why:'Selenium 4: new WebDriverWait(driver, Duration.ofSeconds(10)). Constructor nhận số giây kiểu long đã bị bỏ.' },
+    { t:'Chờ tiêu đề hiển thị bằng ExpectedConditions', re:/\.until\s*\(\s*ExpectedConditions\.(visibilityOfElementLocated|textToBe|textToBePresentInElementLocated)\s*\(/, why:'Cần chờ phần tử hiển thị (visibilityOfElementLocated) hoặc chờ chữ (textToBe). presenceOfElementLocated chưa đảm bảo phần tử đã hiện.' },
+    { t:'Vẫn kiểm tra tiêu đề “Sản phẩm”', re:/Assert\.\w+\s*\([\s\S]*"Sản phẩm"|textToBe\s*\([^;]*"Sản phẩm"[\s\S]*Assert\./ },
+    { t:'Không đặt implicit wait trong test', not:true, re:/implicitlyWait/ },
+  ],
+  answer:'@Test\npublic void dangNhapUserCham() {\n    login("slow_user", "Demo@123");\n    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));\n    WebElement title = wait.until(\n        ExpectedConditions.visibilityOfElementLocated(By.cssSelector("[data-test=\'page-title\']")));\n    Assert.assertEquals(title.getText(), "Sản phẩm");\n}\n',
+  wrong:['@Test\npublic void x() {\n    login("slow_user", "Demo@123");\n    WebDriverWait wait = new WebDriverWait(driver, 10);\n    WebElement title = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("[data-test=\'page-title\']")));\n    Assert.assertEquals(title.getText(), "Sản phẩm");\n}',
+    '@Test\npublic void x() {\n    login("slow_user", "Demo@123");\n    driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));\n    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));\n    WebElement title = wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("[data-test=\'page-title\']")));\n    Assert.assertEquals(title.getText(), "Sản phẩm");\n}'],
+  hints:['<code>wait.until(...)</code> trả về chính WebElement khi điều kiện đạt.', 'Bỏ luôn <code>throws InterruptedException</code> vì không còn sleep.'] },
+{ id:'T3', ph:'T', kind:'code', lang:'java', page:'inventory', snippet:true, t:'Dropdown sắp xếp và kiểm tra giá tăng dần', learn:['select','findEls'],
+  need:['Trên trang Sản phẩm, chọn “Giá: thấp đến cao” trong dropdown <code>[data-test=\'sort\']</code> bằng lớp <code>Select</code>.', 'Kiểm tra lựa chọn đang được chọn đúng.', 'Lấy tất cả giá (<code>findElements</code>, locator bài W6), đổi “149.000 ₫” thành số và <b>kiểm tra danh sách tăng dần</b>.'],
+  starter:'@Test\npublic void sapXepGiaTangDan() {\n    // TODO\n}\n',
+  rules:[
+    { t:'Dùng lớp Select', re:/new\s+Select\s*\(/ },
+    { t:'Chọn theo chữ hiển thị hoặc value', re:/\.selectBy(VisibleText|Value)\s*\(\s*"(Giá: thấp đến cao|lohi)"/ },
+    { t:'Kiểm tra lựa chọn hiện tại (getFirstSelectedOption)', re:/getFirstSelectedOption\s*\(\s*\)/ },
+    { t:'Lấy danh sách giá bằng findElements', re:/findElements\s*\(/ },
+    { t:'Đổi chữ giá thành số', re:/(Integer|Long|Double)\.(parseInt|parseLong|parseDouble|valueOf)\s*\(/, why:'"149.000 ₫" phải bỏ ký tự không phải số (replaceAll("[^0-9]", "")) rồi parse — so sánh chuỗi "99.000" và "149.000" sẽ sai thứ tự.' },
+    { t:'So sánh với bản đã sắp xếp hoặc duyệt từng cặp', re:/Collections\.sort|\.sorted\s*\(|\.sort\s*\(|for\s*\([^;]*;[^;]*;[^)]*\)\s*\{[\s\S]*?(<=|>=|<|>)/ },
+    { t:'Có assertion', re:/Assert\.\w+\s*\(/, min:2, why:'Cần ít nhất 2 assertion: lựa chọn của dropdown và thứ tự giá.' },
+  ],
+  answer:'@Test\npublic void sapXepGiaTangDan() {\n    Select sort = new Select(driver.findElement(By.cssSelector("[data-test=\'sort\']")));\n    sort.selectByVisibleText("Giá: thấp đến cao");\n    Assert.assertEquals(sort.getFirstSelectedOption().getText(), "Giá: thấp đến cao");\n\n    List<WebElement> prices = driver.findElements(By.cssSelector("[data-test=\'price\']"));\n    List<Integer> values = new ArrayList<>();\n    for (WebElement p : prices) {\n        values.add(Integer.parseInt(p.getText().replaceAll("[^0-9]", "")));\n    }\n    List<Integer> sorted = new ArrayList<>(values);\n    Collections.sort(sorted);\n    Assert.assertEquals(values, sorted);\n}\n',
+  wrong:['@Test\npublic void x() {\n    Select sort = new Select(driver.findElement(By.cssSelector("[data-test=\'sort\']")));\n    sort.selectByIndex(2);\n    List<WebElement> prices = driver.findElements(By.cssSelector("[data-test=\'price\']"));\n    Assert.assertEquals(prices.size(), 6);\n}',
+    '@Test\npublic void x() {\n    Select sort = new Select(driver.findElement(By.cssSelector("[data-test=\'sort\']")));\n    sort.selectByVisibleText("Giá: thấp đến cao");\n    Assert.assertEquals(sort.getFirstSelectedOption().getText(), "Giá: thấp đến cao");\n    List<WebElement> prices = driver.findElements(By.cssSelector("[data-test=\'price\']"));\n    List<String> v = new ArrayList<>();\n    for (WebElement p : prices) v.add(p.getText());\n    List<String> s = new ArrayList<>(v);\n    Collections.sort(s);\n    Assert.assertEquals(v, s);\n}'],
+  hints:['<code>selectByIndex</code> dễ vỡ khi thêm lựa chọn mới — dùng chữ hiển thị hoặc value.', 'Sắp xếp chuỗi "99.000 ₫" đứng sau "459.000 ₫" vì so từng ký tự → phải đổi sang số.'] },
+{ id:'T4', ph:'T', kind:'code', lang:'java', page:'play', snippet:true, t:'Hộp thoại confirm', learn:['alert','ec'],
+  need:['Trên Trang thao tác, bấm nút <code>#btn-confirm</code> (“Xóa giỏ hàng”).', 'Chờ hộp thoại xuất hiện, kiểm tra nội dung là “Xóa toàn bộ giỏ hàng?”, bấm <b>OK</b>.', 'Kiểm tra <code>#result</code> hiện “Đã xóa giỏ hàng”.'],
+  starter:'@Test\npublic void xacNhanXoaGioHang() {\n    // TODO\n}\n',
+  rules:[
+    { t:'Click nút #btn-confirm', re:/By\.(id\s*\(\s*"btn-confirm"|cssSelector\s*\(\s*"#btn-confirm")[\s\S]*?\.click\s*\(/ },
+    { t:'Chờ alert bằng ExpectedConditions.alertIsPresent()', re:/alertIsPresent\s*\(\s*\)/, why:'switchTo().alert() ngay sau click có thể ném NoAlertPresentException nếu hộp thoại chưa kịp mở.' },
+    { t:'Kiểm tra nội dung hộp thoại', re:/getText\s*\(\s*\)[\s\S]*"Xóa toàn bộ giỏ hàng\?"|"Xóa toàn bộ giỏ hàng\?"[\s\S]*getText/ },
+    { t:'Bấm OK bằng accept()', re:/\.accept\s*\(\s*\)/, why:'accept() = OK, dismiss() = Cancel.' },
+    { t:'Kiểm tra #result sau khi bấm OK', re:/\.accept\s*\(\s*\)[\s\S]*By\.(id\s*\(\s*"result"|cssSelector\s*\(\s*"#result")[\s\S]*"Đã xóa giỏ hàng"/ },
+  ],
+  answer:'@Test\npublic void xacNhanXoaGioHang() {\n    driver.findElement(By.id("btn-confirm")).click();\n    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));\n    Alert alert = wait.until(ExpectedConditions.alertIsPresent());\n    Assert.assertEquals(alert.getText(), "Xóa toàn bộ giỏ hàng?");\n    alert.accept();\n    Assert.assertEquals(driver.findElement(By.id("result")).getText(), "Đã xóa giỏ hàng");\n}\n',
+  wrong:['@Test\npublic void x() {\n    driver.findElement(By.id("btn-confirm")).click();\n    Alert alert = driver.switchTo().alert();\n    Assert.assertEquals(alert.getText(), "Xóa toàn bộ giỏ hàng?");\n    alert.accept();\n    Assert.assertEquals(driver.findElement(By.id("result")).getText(), "Đã xóa giỏ hàng");\n}',
+    '@Test\npublic void x() {\n    driver.findElement(By.id("btn-confirm")).click();\n    Alert alert = new WebDriverWait(driver, Duration.ofSeconds(5)).until(ExpectedConditions.alertIsPresent());\n    Assert.assertEquals(alert.getText(), "Xóa toàn bộ giỏ hàng?");\n    alert.dismiss();\n    Assert.assertEquals(driver.findElement(By.id("result")).getText(), "Đã hủy");\n}'],
+  hints:['<code>wait.until(ExpectedConditions.alertIsPresent())</code> trả về luôn đối tượng <code>Alert</code>.'] },
+{ id:'T5', ph:'T', kind:'code', lang:'java', page:'play', snippet:true, t:'Gửi tin trong iframe hỗ trợ', learn:['frame'],
+  need:['Khung chat hỗ trợ nằm trong iframe <code>#chat-frame</code> (xem chú thích trong HTML để biết phần tử bên trong).', 'Chuyển vào iframe, nhập “Tôi muốn đổi size” vào <code>#chat-input</code>, bấm <code>#chat-send</code>, kiểm tra tin cuối trong <code>#chat-log</code> đúng nội dung vừa gửi.', 'Quay về trang chính và kiểm tra nút <code>#btn-confirm</code> vẫn hiển thị.'],
+  starter:'@Test\npublic void guiTinNhanHoTro() {\n    // TODO\n}\n',
+  rules:[
+    { t:'Chuyển vào iframe', re:/frameToBeAvailableAndSwitchToIt\s*\(|switchTo\s*\(\s*\)\s*\.frame\s*\(/ },
+    { t:'Nhập tin vào #chat-input bằng sendKeys', re:/chat-input[\s\S]*?\.sendKeys\s*\(\s*"Tôi muốn đổi size"/ },
+    { t:'Bấm gửi #chat-send', re:/chat-send[\s\S]*?\.click\s*\(/ },
+    { t:'Kiểm tra tin cuối trong #chat-log (khi vẫn ở trong iframe)', fn:s => { const a = s.search(/chat-log/), d = s.search(/defaultContent|parentFrame/); return a >= 0 && (d < 0 || a < d) && /Assert\.\w+\s*\(/.test(s.slice(a, d < 0 ? undefined : d)); }, why:'#chat-log nằm trong iframe: đọc và assert trước khi quay ra trang chính.' },
+    { t:'Quay về trang chính bằng switchTo().defaultContent()', fn:s => { const f = s.search(/frameToBeAvailableAndSwitchToIt|switchTo\s*\(\s*\)\s*\.frame/), d = s.search(/switchTo\s*\(\s*\)\s*\.defaultContent\s*\(\s*\)/); return f >= 0 && d > f; } },
+    { t:'Kiểm tra #btn-confirm ở trang chính sau khi quay về', fn:s => { const d = s.search(/defaultContent/); return d >= 0 && /btn-confirm[\s\S]*?isDisplayed|Assert[\s\S]*btn-confirm/.test(s.slice(d)); } },
+  ],
+  answer:'@Test\npublic void guiTinNhanHoTro() {\n    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));\n    wait.until(ExpectedConditions.frameToBeAvailableAndSwitchToIt(By.id("chat-frame")));\n    driver.findElement(By.id("chat-input")).sendKeys("Tôi muốn đổi size");\n    driver.findElement(By.id("chat-send")).click();\n    String last = driver.findElement(By.cssSelector("#chat-log .msg:last-child")).getText();\n    Assert.assertEquals(last, "Tôi muốn đổi size");\n\n    driver.switchTo().defaultContent();\n    Assert.assertTrue(driver.findElement(By.id("btn-confirm")).isDisplayed());\n}\n',
+  wrong:['@Test\npublic void x() {\n    driver.switchTo().frame("chat-frame");\n    driver.findElement(By.id("chat-input")).sendKeys("Tôi muốn đổi size");\n    driver.findElement(By.id("chat-send")).click();\n    Assert.assertEquals(driver.findElement(By.cssSelector("#chat-log .msg:last-child")).getText(), "Tôi muốn đổi size");\n    Assert.assertTrue(driver.findElement(By.id("btn-confirm")).isDisplayed());\n}',
+    '@Test\npublic void x() {\n    driver.switchTo().frame("chat-frame");\n    driver.findElement(By.id("chat-input")).sendKeys("Tôi muốn đổi size");\n    driver.findElement(By.id("chat-send")).click();\n    driver.switchTo().defaultContent();\n    Assert.assertEquals(driver.findElement(By.cssSelector("#chat-log .msg:last-child")).getText(), "Tôi muốn đổi size");\n    Assert.assertTrue(driver.findElement(By.id("btn-confirm")).isDisplayed());\n}'],
+  hints:['<code>switchTo().frame(...)</code> nhận id/name, chỉ số, hoặc WebElement của iframe.', 'CSS <code>#chat-log .msg:last-child</code> lấy tin cuối cùng (ở đây chỉ số vị trí là đúng ý nghĩa nghiệp vụ: “tin mới nhất”).'] },
+{ id:'T6', ph:'T', kind:'code', lang:'java', page:'play', snippet:true, t:'Link mở tab mới', learn:['window'],
+  need:['Bấm link <code>#policy-link</code> (mở tab mới).', 'Chờ đủ 2 cửa sổ, chuyển sang tab mới, kiểm tra title là “Chính sách đổi trả – ShopDemo”.', 'Đóng tab mới và quay về tab ban đầu.'],
+  starter:'@Test\npublic void moChinhSachDoiTra() {\n    // TODO\n}\n',
+  rules:[
+    { t:'Lưu handle của tab gốc trước khi click', fn:s => { const h = s.search(/getWindowHandle\s*\(\s*\)/), c = s.search(/policy-link/); return h >= 0 && c >= 0 && h < c; } },
+    { t:'Chờ tab mới: numberOfWindowsToBe(2)', re:/numberOfWindowsToBe\s*\(\s*2\s*\)/ },
+    { t:'Duyệt getWindowHandles() để chuyển sang tab mới', re:/getWindowHandles\s*\(\s*\)/ },
+    { t:'Kiểm tra title của tab mới', re:/getTitle\s*\(\s*\)[\s\S]*"Chính sách đổi trả – ShopDemo"|"Chính sách đổi trả – ShopDemo"[\s\S]*getTitle/ },
+    { t:'Đóng tab mới bằng close() (không phải quit())', re:/driver\.close\s*\(\s*\)/, why:'quit() đóng cả phiên, @AfterMethod sẽ lỗi; close() chỉ đóng tab hiện tại.' },
+    { t:'Chuyển về tab gốc sau khi đóng', fn:s => { const c = s.search(/driver\.close\s*\(\s*\)/); return c >= 0 && /switchTo\s*\(\s*\)\s*\.window\s*\(/.test(s.slice(c)); } },
+  ],
+  answer:'@Test\npublic void moChinhSachDoiTra() {\n    String original = driver.getWindowHandle();\n    driver.findElement(By.id("policy-link")).click();\n    new WebDriverWait(driver, Duration.ofSeconds(5)).until(ExpectedConditions.numberOfWindowsToBe(2));\n    for (String handle : driver.getWindowHandles()) {\n        if (!handle.equals(original)) {\n            driver.switchTo().window(handle);\n        }\n    }\n    Assert.assertEquals(driver.getTitle(), "Chính sách đổi trả – ShopDemo");\n    driver.close();\n    driver.switchTo().window(original);\n}\n',
+  wrong:['@Test\npublic void x() {\n    driver.findElement(By.id("policy-link")).click();\n    String original = driver.getWindowHandle();\n    for (String h : driver.getWindowHandles()) driver.switchTo().window(h);\n    Assert.assertEquals(driver.getTitle(), "Chính sách đổi trả – ShopDemo");\n    driver.close();\n    driver.switchTo().window(original);\n}',
+    '@Test\npublic void x() {\n    String original = driver.getWindowHandle();\n    driver.findElement(By.id("policy-link")).click();\n    new WebDriverWait(driver, Duration.ofSeconds(5)).until(ExpectedConditions.numberOfWindowsToBe(2));\n    for (String h : driver.getWindowHandles()) if (!h.equals(original)) driver.switchTo().window(h);\n    Assert.assertEquals(driver.getTitle(), "Chính sách đổi trả – ShopDemo");\n    driver.quit();\n}'],
+  hints:['Lấy handle gốc <b>trước</b> khi click — sau khi click, tab đang được điều khiển vẫn là tab gốc nhưng lấy trước cho chắc và dễ đọc.'] },
+{ id:'T7', ph:'T', kind:'code', lang:'java', page:'play', snippet:true, t:'Hover menu, cuộn trang và upload file', learn:['actions'],
+  need:['Rê chuột lên <code>#menu-account</code> bằng <code>Actions</code>, chờ <code>#menu-orders</code> hiển thị và kiểm tra.', 'Ô upload <code>#avatar-upload</code> nằm cuối trang: cuộn tới bằng <code>JavascriptExecutor</code>.', 'Upload file <code>src/test/resources/data/avatar.png</code> của project (dựng đường dẫn tuyệt đối từ đường dẫn tương đối), bấm <code>#upload-btn</code>, kiểm tra <code>#upload-status</code> = “Tải lên thành công: avatar.png”.'],
+  starter:'@Test\npublic void hoverVaTaiAnhDaiDien() {\n    // TODO\n}\n',
+  rules:[
+    { t:'Hover bằng new Actions(driver).moveToElement(...).perform()', re:/new\s+Actions\s*\(\s*driver\s*\)[\s\S]*?\.moveToElement\s*\([^;]*\.perform\s*\(\s*\)/, why:'Thiếu .perform() thì chuỗi Actions không được thực hiện.' },
+    { t:'Chờ #menu-orders hiển thị rồi kiểm tra', re:/visibilityOf(ElementLocated)?\s*\([\s\S]*?menu-orders|menu-orders[\s\S]*?visibilityOf/ },
+    { t:'Cuộn bằng JavascriptExecutor (scrollIntoView)', re:/\(\s*\(\s*JavascriptExecutor\s*\)\s*driver\s*\)\s*\.executeScript\s*\(\s*"[^"]*scrollIntoView/ },
+    { t:'Upload bằng sendKeys vào input file (không click mở hộp thoại)', re:/avatar-upload[\s\S]*?\.sendKeys\s*\(/ },
+    { t:'Dựng đường dẫn tuyệt đối từ thư mục project', re:/(Paths\.get|Path\.of|new\s+File)\s*\(\s*"src\/test\/resources\/data\/avatar\.png"\s*\)[\s\S]*?(toAbsolutePath|getAbsolutePath)/ },
+    { t:'Không hard-code đường dẫn của máy (C:\\…, /Users/…, /home/…)', not:true, re:/"[A-Za-z]:\\\\|"\/(Users|home)\// },
+    { t:'Kiểm tra #upload-status', re:/upload-status[\s\S]*"Tải lên thành công: avatar\.png"|"Tải lên thành công: avatar\.png"[\s\S]*upload-status/ },
+  ],
+  answer:'@Test\npublic void hoverVaTaiAnhDaiDien() {\n    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));\n    WebElement account = driver.findElement(By.id("menu-account"));\n    new Actions(driver).moveToElement(account).perform();\n    WebElement orders = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("menu-orders")));\n    Assert.assertTrue(orders.isDisplayed());\n\n    WebElement upload = driver.findElement(By.id("avatar-upload"));\n    ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", upload);\n    String path = Paths.get("src/test/resources/data/avatar.png").toAbsolutePath().toString();\n    upload.sendKeys(path);\n    driver.findElement(By.id("upload-btn")).click();\n    Assert.assertEquals(driver.findElement(By.id("upload-status")).getText(), "Tải lên thành công: avatar.png");\n}\n',
+  wrong:['@Test\npublic void x() {\n    new Actions(driver).moveToElement(driver.findElement(By.id("menu-account")));\n    WebElement orders = new WebDriverWait(driver, Duration.ofSeconds(5)).until(ExpectedConditions.visibilityOfElementLocated(By.id("menu-orders")));\n    Assert.assertTrue(orders.isDisplayed());\n    WebElement upload = driver.findElement(By.id("avatar-upload"));\n    ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", upload);\n    upload.sendKeys(Paths.get("src/test/resources/data/avatar.png").toAbsolutePath().toString());\n    driver.findElement(By.id("upload-btn")).click();\n    Assert.assertEquals(driver.findElement(By.id("upload-status")).getText(), "Tải lên thành công: avatar.png");\n}',
+    '@Test\npublic void x() {\n    new Actions(driver).moveToElement(driver.findElement(By.id("menu-account"))).perform();\n    WebElement orders = new WebDriverWait(driver, Duration.ofSeconds(5)).until(ExpectedConditions.visibilityOfElementLocated(By.id("menu-orders")));\n    Assert.assertTrue(orders.isDisplayed());\n    WebElement upload = driver.findElement(By.id("avatar-upload"));\n    ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", upload);\n    upload.sendKeys("C:\\\\Users\\\\an\\\\avatar.png");\n    driver.findElement(By.id("upload-btn")).click();\n    Assert.assertEquals(driver.findElement(By.id("upload-status")).getText(), "Tải lên thành công: avatar.png");\n}'],
+  hints:['Đường dẫn tương đối tính từ thư mục chạy Maven (thư mục project) → <code>Paths.get("src/test/resources/data/avatar.png").toAbsolutePath().toString()</code>.'] },
+{ id:'T8', ph:'T', kind:'code', lang:'java', snippet:true, t:'Bài nộp buổi 7: headless và chụp màn hình khi fail', learn:['shot'],
+  need:['Viết lại <code>setUp</code> và <code>tearDown</code> của class test:', '① Tạo <code>ChromeOptions</code>; bật headless (<code>--headless=new</code>) <b>chỉ khi</b> chạy với <code>-Dheadless=true</code>; đặt kích thước cửa sổ.', '② Trong <code>@AfterMethod</code> nhận <code>ITestResult</code>; nếu test fail thì chụp màn hình, lưu vào <code>target/screenshots/&lt;tên test&gt;.png</code>, <b>sau đó</b> mới quit driver.'],
+  starter:'@BeforeMethod\npublic void setUp() {\n    driver = new ChromeDriver();\n}\n\n@AfterMethod\npublic void tearDown() {\n    driver.quit();\n}\n',
+  rules:[
+    { t:'Dùng ChromeOptions và truyền vào ChromeDriver', re:/new\s+ChromeOptions\s*\(\s*\)[\s\S]*new\s+ChromeDriver\s*\(\s*\w+\s*\)/ },
+    { t:'Headless bật theo tham số hệ thống, không cố định', re:/System\.(getProperty|getenv)\s*\(\s*"headless"/, why:'Đọc System.getProperty("headless", "false") để chạy thường trên máy và headless trên CI mà không sửa code.' },
+    { t:'Dùng cờ --headless=new', re:/"--headless(=new)?"/ },
+    { t:'Đặt kích thước cửa sổ', re:/--window-size=\d+,\d+|\.setSize\s*\(|\.maximize\s*\(/ },
+    { t:'@AfterMethod nhận ITestResult', re:/@AfterMethod[\s\S]*?\(\s*ITestResult\s+\w+\s*\)/ },
+    { t:'Chỉ chụp khi FAILURE', re:/getStatus\s*\(\s*\)\s*==\s*ITestResult\.FAILURE|ITestResult\.FAILURE\s*==\s*\w+\.getStatus\s*\(\s*\)|!\s*\w+\.isSuccess\s*\(\s*\)/ },
+    { t:'Chụp bằng TakesScreenshot.getScreenshotAs', re:/\(\s*\(\s*TakesScreenshot\s*\)\s*driver\s*\)\s*\.getScreenshotAs\s*\(\s*OutputType\.(FILE|BYTES)\s*\)/ },
+    { t:'Tên file ảnh theo tên test, trong target/screenshots', re:/target\/screenshots[\s\S]*getName\s*\(\s*\)|getName\s*\(\s*\)[\s\S]*target\/screenshots/ },
+    { t:'quit() sau khi chụp', fn:s => { const a = s.search(/getScreenshotAs/), q = s.lastIndexOf('.quit('); return a >= 0 && q > a; }, why:'Quit trước thì không còn trình duyệt để chụp.' },
+  ],
+  answer:'@BeforeMethod\npublic void setUp() {\n    ChromeOptions options = new ChromeOptions();\n    if (Boolean.parseBoolean(System.getProperty("headless", "false"))) {\n        options.addArguments("--headless=new");\n    }\n    options.addArguments("--window-size=1366,768");\n    driver = new ChromeDriver(options);\n}\n\n@AfterMethod\npublic void tearDown(ITestResult result) throws IOException {\n    if (result.getStatus() == ITestResult.FAILURE) {\n        File src = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);\n        Path dest = Paths.get("target/screenshots", result.getName() + ".png");\n        Files.createDirectories(dest.getParent());\n        Files.copy(src.toPath(), dest, StandardCopyOption.REPLACE_EXISTING);\n    }\n    driver.quit();\n}\n',
+  wrong:['@BeforeMethod\npublic void setUp() {\n    ChromeOptions options = new ChromeOptions();\n    options.addArguments("--headless=new");\n    options.addArguments("--window-size=1366,768");\n    driver = new ChromeDriver(options);\n}\n@AfterMethod\npublic void tearDown(ITestResult result) throws IOException {\n    if (result.getStatus() == ITestResult.FAILURE) {\n        File src = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);\n        Files.copy(src.toPath(), Paths.get("target/screenshots", result.getName() + ".png"));\n    }\n    driver.quit();\n}',
+    '@BeforeMethod\npublic void setUp() {\n    ChromeOptions options = new ChromeOptions();\n    if (Boolean.parseBoolean(System.getProperty("headless", "false"))) options.addArguments("--headless=new");\n    options.addArguments("--window-size=1366,768");\n    driver = new ChromeDriver(options);\n}\n@AfterMethod\npublic void tearDown(ITestResult result) throws IOException {\n    driver.quit();\n    if (result.getStatus() == ITestResult.FAILURE) {\n        File src = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);\n        Files.copy(src.toPath(), Paths.get("target/screenshots", result.getName() + ".png"));\n    }\n}'],
+  hints:['<code>Boolean.parseBoolean(System.getProperty("headless", "false"))</code> — giá trị mặc định "false" khi không truyền -D.', '<code>Files.createDirectories</code> tạo thư mục nếu chưa có, tránh NoSuchFileException.'] },
+
+/* ---------- Buổi 8 ---------- */
+{ id:'N1', ph:'N', kind:'code', lang:'xml', t:'testng.xml chỉ chạy group smoke', learn:['xml','groups'],
+  need:['Viết <code>testng-smoke.xml</code>: suite tên “ShopDemo Smoke”, một <code>&lt;test&gt;</code> chỉ chạy các test thuộc group <code>smoke</code>.', 'Lấy test từ 2 class <code>tests.LoginTest</code> và <code>tests.CartTest</code>.'],
+  starter:'<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">\n<suite name="ShopDemo Smoke">\n\n</suite>\n',
+  rules:[
+    { t:'Có <suite name="…">', re:/<suite\s+[^>]*name\s*=\s*"[^"]+"/ },
+    { t:'Có <test name="…"> bên trong suite', re:/<suite[\s\S]*<test\s+[^>]*name\s*=\s*"[^"]+"[\s\S]*<\/suite>/ },
+    { t:'Lọc group: <groups><run><include name="smoke"/>', re:/<groups>\s*<run>[\s\S]*?<include\s+name\s*=\s*"smoke"\s*\/>[\s\S]*?<\/run>\s*<\/groups>/ },
+    { t:'Khai báo class tests.LoginTest', re:/<class\s+name\s*=\s*"tests\.LoginTest"\s*\/>/ },
+    { t:'Khai báo class tests.CartTest', re:/<class\s+name\s*=\s*"tests\.CartTest"\s*\/>/ },
+    { t:'Các <class> nằm trong <classes>', re:/<classes>[\s\S]*<class\s[\s\S]*<\/classes>/ },
+  ],
+  answer:'<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">\n<suite name="ShopDemo Smoke">\n    <test name="Smoke">\n        <groups>\n            <run>\n                <include name="smoke"/>\n            </run>\n        </groups>\n        <classes>\n            <class name="tests.LoginTest"/>\n            <class name="tests.CartTest"/>\n        </classes>\n    </test>\n</suite>\n',
+  wrong:['<suite name="ShopDemo Smoke">\n    <test name="Smoke">\n        <groups>\n            <include name="smoke"/>\n        </groups>\n        <classes>\n            <class name="tests.LoginTest"/>\n            <class name="tests.CartTest"/>\n        </classes>\n    </test>\n</suite>',
+    '<suite name="ShopDemo Smoke">\n    <test name="Smoke">\n        <groups><run><include name="smoke"/></run></groups>\n        <classes>\n            <class name="tests.LoginTest"/>\n            <class name="tests.CartTest">\n        </classes>\n    </test>\n</suite>'],
+  hints:['Thứ tự lồng: <code>suite › test › groups › run › include</code> và <code>suite › test › classes › class</code>.', 'Thẻ rỗng phải tự đóng: <code>&lt;class name="..."/&gt;</code>.'] },
+{ id:'N2', ph:'N', kind:'code', lang:'xml', t:'Suite regression chạy song song', learn:['xml','parallel','listener'],
+  need:['Viết <code>testng-regression.xml</code>: chạy <b>song song theo method</b> với <b>3 luồng</b>.', 'Chạy mọi class trong package <code>tests</code>, lấy group <code>regression</code> nhưng <b>bỏ</b> group <code>broken</code> (test đang chờ sửa).', 'Đăng ký listener <code>listeners.TestListener</code> ở mức suite.'],
+  starter:'<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">\n<suite name="ShopDemo Regression">\n\n</suite>\n',
+  rules:[
+    { t:'Suite có parallel="methods"', re:/<suite\s[^>]*parallel\s*=\s*"methods"/ },
+    { t:'Suite có thread-count="3"', re:/<suite\s[^>]*thread-count\s*=\s*"3"/ },
+    { t:'Đăng ký <listeners><listener class-name="listeners.TestListener"/>', re:/<listeners>\s*<listener\s+class-name\s*=\s*"listeners\.TestListener"\s*\/>\s*<\/listeners>/ },
+    { t:'Lấy group regression', re:/<run>[\s\S]*?<include\s+name\s*=\s*"regression"\s*\/>[\s\S]*?<\/run>/ },
+    { t:'Loại group broken', re:/<run>[\s\S]*?<exclude\s+name\s*=\s*"broken"\s*\/>[\s\S]*?<\/run>/ },
+    { t:'Chạy cả package tests: <packages><package name="tests"/>', re:/<packages>\s*<package\s+name\s*=\s*"tests"\s*\/>\s*<\/packages>/ },
+  ],
+  answer:'<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">\n<suite name="ShopDemo Regression" parallel="methods" thread-count="3">\n    <listeners>\n        <listener class-name="listeners.TestListener"/>\n    </listeners>\n    <test name="Regression">\n        <groups>\n            <run>\n                <include name="regression"/>\n                <exclude name="broken"/>\n            </run>\n        </groups>\n        <packages>\n            <package name="tests"/>\n        </packages>\n    </test>\n</suite>\n',
+  wrong:['<suite name="ShopDemo Regression" parallel="true" thread-count="3">\n    <listeners><listener class-name="listeners.TestListener"/></listeners>\n    <test name="Regression">\n        <groups><run><include name="regression"/><exclude name="broken"/></run></groups>\n        <packages><package name="tests"/></packages>\n    </test>\n</suite>',
+    '<suite name="ShopDemo Regression" parallel="methods" thread-count=3>\n    <listeners><listener class-name="listeners.TestListener"/></listeners>\n    <test name="Regression">\n        <groups><run><include name="regression"/><exclude name="broken"/></run></groups>\n        <packages><package name="tests"/></packages>\n    </test>\n</suite>'],
+  hints:['<code>parallel</code> và <code>thread-count</code> là thuộc tính của thẻ <code>&lt;suite&gt;</code> (cũng đặt được ở <code>&lt;test&gt;</code>).', 'Giá trị thuộc tính XML luôn nằm trong dấu nháy.'] },
+{ id:'N3', ph:'N', kind:'code', lang:'java', t:'Gắn group và bỏ dependsOn', learn:['groups'],
+  need:['Class <code>CartTest</code> bên dưới dùng <code>dependsOnMethods</code>: test 2 và 3 cần giỏ hàng do test 1 tạo — chạy riêng một test là fail/skip.', 'Sửa để <b>mỗi test tự chuẩn bị dữ liệu</b> (dùng các hàm có sẵn trong <code>BaseTest</code>: <code>loginAs(user)</code>, <code>addToCart(tên sản phẩm)</code>).', 'Gắn group: test thêm vào giỏ thuộc <code>smoke</code> và <code>regression</code>; hai test còn lại thuộc <code>regression</code>.'],
+  starter:'public class CartTest extends BaseTest {\n\n    @Test(priority = 1)\n    public void themSanPhamVaoGio() {\n        loginAs("an_user");\n        addToCart("Mũ lưỡi trai");\n        Assert.assertEquals(driver.findElement(By.cssSelector(".cart-badge")).getText(), "1");\n    }\n\n    @Test(priority = 2, dependsOnMethods = "themSanPhamVaoGio")\n    public void badgeDemDungSoLuong() {\n        addToCart("Balo laptop 15 inch");\n        Assert.assertEquals(driver.findElement(By.cssSelector(".cart-badge")).getText(), "2");\n    }\n\n    @Test(priority = 3, dependsOnMethods = "badgeDemDungSoLuong")\n    public void xoaSanPhamKhoiGio() {\n        driver.findElement(By.cssSelector("[data-test=\'remove\']")).click();\n        Assert.assertEquals(driver.findElement(By.cssSelector(".cart-badge")).getText(), "1");\n    }\n}\n',
+  rules:[
+    { t:'Không còn dependsOnMethods', not:true, re:/dependsOnMethods/ },
+    { t:'Có 3 @Test đều khai báo groups', re:/@Test\s*\(\s*[^)]*groups\s*=/, min:3 },
+    { t:'Một test thuộc cả smoke và regression', re:/groups\s*=\s*\{\s*("smoke"\s*,\s*"regression"|"regression"\s*,\s*"smoke")\s*\}/ },
+    { t:'Mỗi test tự đăng nhập (loginAs)', each:/@Test\b/, re:/loginAs\s*\(/, why:'Mỗi test chạy trên trình duyệt mới (BeforeMethod) nên phải tự đăng nhập.' },
+    { t:'Mỗi test tự thêm sản phẩm cần thiết (addToCart)', each:/@Test\b/, re:/addToCart\s*\(/ },
+    { t:'Mỗi @Test có assertion', each:/@Test\b/, re:/Assert\.\w+\s*\(/ },
+    { t:'Không dùng priority để sắp thứ tự phụ thuộc', not:true, re:/priority\s*=/, why:'Test đã độc lập thì không cần priority; giữ lại dễ khiến người sau tưởng thứ tự là quan trọng.' },
+  ],
+  answer:'public class CartTest extends BaseTest {\n\n    @Test(groups = {"smoke", "regression"})\n    public void themSanPhamVaoGio() {\n        loginAs("an_user");\n        addToCart("Mũ lưỡi trai");\n        Assert.assertEquals(driver.findElement(By.cssSelector(".cart-badge")).getText(), "1");\n    }\n\n    @Test(groups = {"regression"})\n    public void badgeDemDungSoLuong() {\n        loginAs("an_user");\n        addToCart("Mũ lưỡi trai");\n        addToCart("Balo laptop 15 inch");\n        Assert.assertEquals(driver.findElement(By.cssSelector(".cart-badge")).getText(), "2");\n    }\n\n    @Test(groups = {"regression"})\n    public void xoaSanPhamKhoiGio() {\n        loginAs("an_user");\n        addToCart("Mũ lưỡi trai");\n        driver.findElement(By.cssSelector("[data-test=\'remove\']")).click();\n        Assert.assertTrue(driver.findElements(By.cssSelector(".cart-badge")).isEmpty());\n    }\n}\n',
+  wrong:['public class CartTest extends BaseTest {\n    @Test(groups = {"smoke", "regression"})\n    public void a() { loginAs("an_user"); addToCart("Mũ lưỡi trai"); Assert.assertEquals(1, 1); }\n    @Test(groups = {"regression"}, dependsOnMethods = "a")\n    public void b() { loginAs("an_user"); addToCart("x"); Assert.assertEquals(1, 1); }\n    @Test(groups = {"regression"})\n    public void c() { loginAs("an_user"); addToCart("x"); Assert.assertEquals(1, 1); }\n}',
+    'public class CartTest extends BaseTest {\n    @Test(groups = {"smoke", "regression"})\n    public void a() { loginAs("an_user"); addToCart("Mũ lưỡi trai"); Assert.assertEquals(1, 1); }\n    @Test(groups = {"regression"})\n    public void b() { addToCart("x"); Assert.assertEquals(1, 1); }\n    @Test(groups = {"regression"})\n    public void c() { loginAs("an_user"); addToCart("x"); Assert.assertEquals(1, 1); }\n}'],
+  hints:['Test xóa: sau khi xóa sản phẩm duy nhất, badge biến mất → dùng <code>findElements(...).isEmpty()</code>.'] },
+{ id:'N4', ph:'N', kind:'quiz', t:'Group, song song, dependsOn, alwaysRun', learn:['groups','parallel'],
+  need:['Trả lời đúng cả 5 câu.'],
+  qs:[
+    { q:'Lệnh Maven nào chỉ chạy các test thuộc group <code>smoke</code> (dùng Surefire, không cần sửa testng.xml)?', o:['mvn smoke', 'mvn test -Dgroups=smoke', 'mvn test --group smoke', 'mvn install -Psmoke'], a:1,
+      w:'Surefire nhận tham số groups và chuyển cho TestNG. Cũng có thể chạy file riêng: mvn test -Dsurefire.suiteXmlFiles=testng-smoke.xml (nếu pom cấu hình theo biến).' },
+    { q:'Chạy <code>-Dgroups=smoke</code> thì mọi test báo NullPointerException ở <code>driver</code>. Nguyên nhân hay gặp nhất?', o:['Group smoke chưa có test nào', '@BeforeMethod không thuộc group smoke nên không chạy — cần @BeforeMethod(alwaysRun = true)', 'Chrome chưa được cài', 'Phải chạy song song mới có driver'], a:1,
+      w:'Khi lọc theo group, TestNG cũng lọc cả các hàm cấu hình (Before/After). alwaysRun = true giúp chúng luôn chạy.' },
+    { q:'Framework có <code>static WebDriver driver</code>, chạy <code>parallel="methods" thread-count="3"</code>. Hiện tượng nào sẽ gặp?', o:['Chạy nhanh gấp 3 và ổn định', 'Các luồng ghi đè driver của nhau: test thao tác nhầm cửa sổ, fail ngẫu nhiên, có cửa sổ không được đóng', 'TestNG tự tạo 3 driver riêng', 'Lỗi biên dịch'], a:1,
+      w:'Cần một driver cho mỗi luồng: ThreadLocal<WebDriver> trong Driver Factory (bài C1).' },
+    { q:'Test B có <code>dependsOnMethods = "A"</code>. A fail thì B thế nào?', o:['B vẫn chạy bình thường', 'B bị đánh dấu SKIP', 'B tự động pass', 'Cả suite dừng lại'], a:1,
+      w:'Báo cáo có nhiều SKIP che mất lỗi thật, và B không chạy riêng được → hạn chế dependsOn.' },
+    { q:'Câu nào đúng về <code>priority</code>?', o:['Số lớn chạy trước', 'Số nhỏ chạy trước, mặc định 0; không nên dùng để tạo phụ thuộc dữ liệu giữa các test', 'priority bắt buộc cho mọi @Test', 'priority làm test chạy song song'], a:1,
+      w:'Khi chạy song song hoặc chạy lại một test lẻ, thứ tự không được đảm bảo.' },
+  ] },
+{ id:'N5', ph:'N', kind:'code', lang:'java', t:'Listener: log và đính ảnh khi fail', learn:['listener','report'],
+  need:['Viết class <code>TestListener</code> cài <code>ITestListener</code>:', '• <code>onTestStart</code> ghi log tên test (mức INFO);', '• <code>onTestFailure</code> ghi log mức ERROR kèm thông điệp lỗi (<code>getThrowable()</code>), chụp màn hình và đính vào report Allure.', 'Lấy driver qua <code>((BaseTest) result.getInstance()).getDriver()</code>. Dùng logger SLF4J, không dùng <code>System.out.println</code>.'],
+  starter:'public class TestListener implements ITestListener {\n\n}\n',
+  rules:[
+    { t:'Cài interface ITestListener', re:/class\s+TestListener\s+implements\s+ITestListener/ },
+    { t:'Có logger (LoggerFactory.getLogger / LogManager.getLogger)', re:/(LoggerFactory|LogManager)\.getLogger\s*\(/ },
+    { t:'onTestStart ghi log INFO', re:/void\s+onTestStart\s*\(\s*ITestResult\s+\w+\s*\)\s*\{[^}]*\.info\s*\(/ },
+    { t:'onTestFailure ghi log ERROR', re:/void\s+onTestFailure\s*\(\s*ITestResult\s+\w+\s*\)\s*\{[\s\S]*?\.error\s*\(/ },
+    { t:'Log kèm lỗi từ getThrowable()', re:/getThrowable\s*\(\s*\)/ },
+    { t:'Lấy driver từ instance của test', re:/\(\s*\(\s*BaseTest\s*\)\s*\w+\.getInstance\s*\(\s*\)\s*\)\s*\.getDriver\s*\(\s*\)/ },
+    { t:'Chụp màn hình (TakesScreenshot)', re:/\(\s*\(\s*TakesScreenshot\s*\)\s*\w+\s*\)\s*\.getScreenshotAs\s*\(/ },
+    { t:'Đính ảnh vào Allure', re:/Allure\.addAttachment\s*\(/ },
+    { t:'Không dùng System.out.println', not:true, re:/System\.out\.print/ },
+    { t:'Dùng @Override cho các hàm của interface', re:/@Override/, min:2 },
+  ],
+  answer:'public class TestListener implements ITestListener {\n    private static final Logger log = LoggerFactory.getLogger(TestListener.class);\n\n    @Override\n    public void onTestStart(ITestResult result) {\n        log.info("BẮT ĐẦU: {}", result.getName());\n    }\n\n    @Override\n    public void onTestSuccess(ITestResult result) {\n        log.info("PASS: {}", result.getName());\n    }\n\n    @Override\n    public void onTestFailure(ITestResult result) {\n        log.error("FAIL: {} - {}", result.getName(), result.getThrowable().getMessage());\n        WebDriver driver = ((BaseTest) result.getInstance()).getDriver();\n        if (driver != null) {\n            byte[] png = ((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES);\n            Allure.addAttachment(result.getName(), new ByteArrayInputStream(png));\n        }\n    }\n}\n',
+  wrong:['public class TestListener implements ITestListener {\n    @Override\n    public void onTestStart(ITestResult result) { System.out.println("START " + result.getName()); }\n    @Override\n    public void onTestFailure(ITestResult result) {\n        System.out.println("FAIL " + result.getThrowable());\n        WebDriver driver = ((BaseTest) result.getInstance()).getDriver();\n        byte[] png = ((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES);\n        Allure.addAttachment(result.getName(), new ByteArrayInputStream(png));\n    }\n}'],
+  hints:['SLF4J: <code>private static final Logger log = LoggerFactory.getLogger(TestListener.class);</code>, ghi bằng <code>log.info("... {}", x)</code>.', '<code>Allure.addAttachment(tên, InputStream)</code> — bọc mảng byte bằng <code>new ByteArrayInputStream(png)</code>.'] },
+{ id:'N6', ph:'N', kind:'quiz', t:'Bài nộp buổi 8: report và cách chạy', learn:['report','xml'],
+  need:['Trả lời đúng cả 3 câu. Sau đó tự làm trên repository: suite có ≥ 2 group, chạy bằng <code>mvn test</code>, có report HTML hiển thị ảnh của test fail.'],
+  qs:[
+    { q:'Dùng allure-testng, sau khi <code>mvn test</code> kết quả thô nằm ở đâu và xem thế nào?', o:['target/allure-results; xem bằng allure serve target/allure-results', 'src/test/resources; mở file .xml bằng trình duyệt', 'Chỉ hiện trên console', 'target/classes; mở bằng IntelliJ'], a:0,
+      w:'allure-results là JSON thô; allure generate tạo thư mục HTML (allure-report) để lưu làm artifact trên CI.' },
+    { q:'Làm sao để Maven chạy đúng file testng.xml mong muốn?', o:['Đổi tên file thành pom.xml', 'Khai báo trong maven-surefire-plugin: <suiteXmlFiles><suiteXmlFile>testng.xml</suiteXmlFile></suiteXmlFiles>', 'Đặt file trong thư mục target', 'Không thể, chỉ chạy được trong IntelliJ'], a:1,
+      w:'Có thể dùng biến: <suiteXmlFile>${suite}</suiteXmlFile> rồi chạy mvn test -Dsuite=testng-smoke.xml.' },
+    { q:'Vì sao chụp màn hình nên đặt trong listener (hoặc @AfterMethod chung) thay vì try/catch trong từng test?', o:['Vì try/catch làm test chạy chậm', 'Một chỗ xử lý cho mọi test, không lặp code; test giữ gọn chỉ còn bước và assertion', 'Vì TestNG cấm try/catch', 'Vì listener chạy trước test'], a:1,
+      w:'Nếu bắt exception trong test mà quên ném lại, test còn bị báo pass sai.' },
+  ] },
+
+/* ---------- Buổi 9 ---------- */
+{ id:'P1', ph:'P', kind:'code', lang:'java', page:'login', t:'Page Object cho trang Login', learn:['pom'],
+  need:['Viết class <code>LoginPage</code>:', '• locator là field <code>private final By</code> (tên đăng nhập, mật khẩu, nút đăng nhập, thông báo lỗi);', '• constructor nhận <code>WebDriver</code>;', '• hàm <code>open()</code> vào trang login, <code>login(String user, String pass)</code>, <code>getErrorText()</code> trả về chữ của thông báo lỗi.', 'Page object không chứa assertion và không chứa @Test.'],
+  starter:'public class LoginPage {\n\n}\n',
+  rules:[
+    { t:'Có class LoginPage', re:/class\s+LoginPage\b/ },
+    { t:'Ít nhất 4 locator dạng private (final) By', re:/private\s+(final\s+)?(static\s+)?(final\s+)?By\s+\w+\s*=/, min:4 },
+    { t:'Không có locator public', not:true, re:/public\s+(static\s+)?(final\s+)?By\s+\w+/ },
+    { t:'Constructor nhận WebDriver', re:/public\s+LoginPage\s*\(\s*WebDriver\s+\w+\s*\)/ },
+    { t:'Có hàm open()', re:/public\s+\w+\s+open\s*\(\s*\)/ },
+    { t:'Có hàm login(String, String)', re:/public\s+\w+\s+login\s*\(\s*String\s+\w+\s*,\s*String\s+\w+\s*\)/ },
+    { t:'getErrorText() trả về String', re:/public\s+String\s+getErrorText\s*\(\s*\)/ },
+    { t:'Không có Assert trong page object', not:true, re:/Assert\./, why:'Page object trả dữ liệu, test mới là nơi quyết định đúng/sai.' },
+    { t:'Không có @Test', not:true, re:/@Test/ },
+    { t:'Không dùng id tự sinh (ember-…)', not:true, re:/ember-\d+|css-[0-9a-z]{4,}/ },
+  ],
+  answer:'public class LoginPage {\n    private static final String URL = "https://qa.shopdemo.test/login";\n    private final WebDriver driver;\n    private final By username = By.id("user-name");\n    private final By password = By.id("password");\n    private final By loginButton = By.cssSelector("[data-test=\'login-button\']");\n    private final By errorMessage = By.cssSelector("[data-test=\'error\']");\n\n    public LoginPage(WebDriver driver) {\n        this.driver = driver;\n    }\n\n    public void open() {\n        driver.get(URL);\n    }\n\n    public void login(String user, String pass) {\n        driver.findElement(username).sendKeys(user);\n        driver.findElement(password).sendKeys(pass);\n        driver.findElement(loginButton).click();\n    }\n\n    public String getErrorText() {\n        return driver.findElement(errorMessage).getText();\n    }\n}\n',
+  wrong:['public class LoginPage {\n    private final WebDriver driver;\n    public By username = By.id("user-name");\n    private By password = By.id("password");\n    private By loginButton = By.cssSelector("[data-test=\'login-button\']");\n    private By errorMessage = By.cssSelector("[data-test=\'error\']");\n    private By x = By.id("x");\n    public LoginPage(WebDriver driver) { this.driver = driver; }\n    public void open() { driver.get("u"); }\n    public void login(String user, String pass) { driver.findElement(username).sendKeys(user); }\n    public String getErrorText() { return driver.findElement(errorMessage).getText(); }\n}',
+    'public class LoginPage {\n    private final WebDriver driver;\n    private By username = By.id("user-name");\n    private By password = By.id("password");\n    private By loginButton = By.cssSelector("[data-test=\'login-button\']");\n    private By errorMessage = By.cssSelector("[data-test=\'error\']");\n    public LoginPage(WebDriver driver) { this.driver = driver; }\n    public void open() { driver.get("u"); }\n    public void login(String user, String pass) { driver.findElement(username).sendKeys(user); }\n    public String getErrorText() { return driver.findElement(errorMessage).getText(); }\n    public void verifyError(String e) { Assert.assertEquals(getErrorText(), e); }\n}'],
+  hints:['URL tạm để hằng số trong page; bài P5 sẽ chuyển sang file cấu hình.'] },
+{ id:'P2', ph:'P', kind:'code', lang:'java', t:'Refactor test dùng LoginPage', learn:['pom'],
+  need:['Viết lại test <code>saiMatKhau</code> dùng <code>LoginPage</code> của bài P1.', 'Test không còn locator (<code>By.…</code>), không gọi <code>findElement</code>, không hard-code URL.'],
+  starter:'public class LoginTest extends BaseTest {\n\n    @Test\n    public void saiMatKhau() {\n        driver.get("https://qa.shopdemo.test/login");\n        driver.findElement(By.id("user-name")).sendKeys("an_user");\n        driver.findElement(By.id("password")).sendKeys("sai_mat_khau");\n        driver.findElement(By.cssSelector("[data-test=\'login-button\']")).click();\n        String err = driver.findElement(By.cssSelector("[data-test=\'error\']")).getText();\n        Assert.assertEquals(err, "Sai tên đăng nhập hoặc mật khẩu");\n    }\n}\n',
+  rules:[
+    { t:'Tạo LoginPage với driver', re:/new\s+LoginPage\s*\(\s*(driver|getDriver\s*\(\s*\))\s*\)/ },
+    { t:'Gọi open(), login(...) của page', re:/\.open\s*\(\s*\)[\s\S]*\.login\s*\(/ },
+    { t:'Assert dựa trên getErrorText()', re:/Assert\.\w+\s*\([^;]*getErrorText\s*\(\s*\)/ },
+    { t:'Test không chứa locator By.…', not:true, re:/By\.\w+\s*\(/ },
+    { t:'Test không gọi findElement', not:true, re:/findElements?\s*\(/ },
+    { t:'Không hard-code URL', not:true, re:/"https?:\/\// },
+  ],
+  answer:'public class LoginTest extends BaseTest {\n\n    @Test\n    public void saiMatKhau() {\n        LoginPage loginPage = new LoginPage(driver);\n        loginPage.open();\n        loginPage.login("an_user", "sai_mat_khau");\n        Assert.assertEquals(loginPage.getErrorText(), "Sai tên đăng nhập hoặc mật khẩu");\n    }\n}\n',
+  wrong:['public class LoginTest extends BaseTest {\n    @Test\n    public void saiMatKhau() {\n        LoginPage loginPage = new LoginPage(driver);\n        driver.get("https://qa.shopdemo.test/login");\n        loginPage.open();\n        loginPage.login("an_user", "sai_mat_khau");\n        Assert.assertEquals(loginPage.getErrorText(), "Sai tên đăng nhập hoặc mật khẩu");\n    }\n}',
+    'public class LoginTest extends BaseTest {\n    @Test\n    public void saiMatKhau() {\n        LoginPage loginPage = new LoginPage(driver);\n        loginPage.open();\n        loginPage.login("an_user", "sai_mat_khau");\n        Assert.assertEquals(driver.findElement(By.cssSelector("[data-test=\'error\']")).getText(), "Sai tên đăng nhập hoặc mật khẩu");\n    }\n}'],
+  hints:['Sau khi refactor, test chỉ còn 4 dòng đọc như kịch bản nghiệp vụ.'] },
+{ id:'P3', ph:'P', kind:'code', lang:'java', t:'BasePage với explicit wait', learn:['base','waits'],
+  need:['Viết <code>abstract class BasePage</code> giữ <code>protected WebDriver driver</code> và <code>WebDriverWait wait</code> (10 giây), cùng các hàm:', '• <code>click(By)</code> — chờ <code>elementToBeClickable</code> rồi click;', '• <code>type(By, String)</code> — chờ hiển thị, xóa nội dung cũ, nhập;', '• <code>textOf(By)</code> — chờ hiển thị rồi trả chữ.', 'Viết lại <code>LoginPage extends BasePage</code>, chỉ dùng các hàm trên (không gọi <code>driver.findElement</code> trực tiếp).'],
+  starter:'public abstract class BasePage {\n\n}\n\npublic class LoginPage extends BasePage {\n\n}\n',
+  rules:[
+    { t:'abstract class BasePage', re:/abstract\s+class\s+BasePage\b/ },
+    { t:'BasePage có protected WebDriver', in:'BasePage', re:/protected\s+(final\s+)?WebDriver\s+\w+/ },
+    { t:'BasePage tạo WebDriverWait với Duration', in:'BasePage', re:/new\s+WebDriverWait\s*\(\s*\w+\s*,\s*Duration\.ofSeconds\s*\(/ },
+    { t:'click(By) chờ elementToBeClickable', in:'BasePage', re:/void\s+click\s*\(\s*By\s+\w+\s*\)\s*\{[\s\S]*?elementToBeClickable/ },
+    { t:'type(By, String) chờ hiển thị, clear rồi sendKeys', in:'BasePage', re:/void\s+type\s*\(\s*By\s+\w+\s*,\s*String\s+\w+\s*\)\s*\{[\s\S]*?\.clear\s*\(\s*\)[\s\S]*?\.sendKeys\s*\(/ },
+    { t:'textOf(By) trả String', in:'BasePage', re:/String\s+textOf\s*\(\s*By\s+\w+\s*\)/ },
+    { t:'LoginPage extends BasePage', re:/class\s+LoginPage\s+extends\s+BasePage/ },
+    { t:'Constructor LoginPage gọi super(driver)', in:'LoginPage', re:/super\s*\(\s*\w+\s*\)/ },
+    { t:'LoginPage không gọi driver.findElement trực tiếp', in:'LoginPage', not:true, re:/findElement/ },
+    { t:'LoginPage dùng type/click/textOf', in:'LoginPage', fn:s => /\btype\s*\(/.test(s) && /\bclick\s*\(/.test(s) && /\btextOf\s*\(/.test(s) },
+  ],
+  answer:'public abstract class BasePage {\n    protected final WebDriver driver;\n    protected final WebDriverWait wait;\n\n    protected BasePage(WebDriver driver) {\n        this.driver = driver;\n        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));\n    }\n\n    protected WebElement waitVisible(By locator) {\n        return wait.until(ExpectedConditions.visibilityOfElementLocated(locator));\n    }\n\n    protected void click(By locator) {\n        wait.until(ExpectedConditions.elementToBeClickable(locator)).click();\n    }\n\n    protected void type(By locator, String text) {\n        WebElement el = waitVisible(locator);\n        el.clear();\n        el.sendKeys(text);\n    }\n\n    protected String textOf(By locator) {\n        return waitVisible(locator).getText();\n    }\n}\n\npublic class LoginPage extends BasePage {\n    private final By username = By.id("user-name");\n    private final By password = By.id("password");\n    private final By loginButton = By.cssSelector("[data-test=\'login-button\']");\n    private final By errorMessage = By.cssSelector("[data-test=\'error\']");\n\n    public LoginPage(WebDriver driver) {\n        super(driver);\n    }\n\n    public void login(String user, String pass) {\n        type(username, user);\n        type(password, pass);\n        click(loginButton);\n    }\n\n    public String getErrorText() {\n        return textOf(errorMessage);\n    }\n}\n',
+  wrong:['public abstract class BasePage {\n    protected WebDriver driver;\n    protected WebDriverWait wait;\n    protected BasePage(WebDriver driver) { this.driver = driver; this.wait = new WebDriverWait(driver, Duration.ofSeconds(10)); }\n    protected void click(By l) { wait.until(ExpectedConditions.elementToBeClickable(l)).click(); }\n    protected void type(By l, String t) { WebElement e = wait.until(ExpectedConditions.visibilityOfElementLocated(l)); e.clear(); e.sendKeys(t); }\n    protected String textOf(By l) { return wait.until(ExpectedConditions.visibilityOfElementLocated(l)).getText(); }\n}\npublic class LoginPage extends BasePage {\n    private final By u = By.id("user-name");\n    public LoginPage(WebDriver driver) { super(driver); }\n    public void login(String a, String b) { type(u, a); click(u); driver.findElement(u).click(); }\n    public String getErrorText() { return textOf(u); }\n}'],
+  hints:['Hàm helper để <code>protected</code>: page con dùng được, test thì không gọi trực tiếp.'] },
+{ id:'P4', ph:'P', kind:'code', lang:'java', t:'Data-driven: đọc dữ liệu đăng nhập từ CSV', learn:['data'],
+  need:['File <code>src/test/resources/data/login.csv</code>:<pre class="syn">username,password,expected_error\nan_user,sai_mat_khau,Sai tên đăng nhập hoặc mật khẩu\n,Demo@123,Vui lòng nhập tên đăng nhập\nan_user,,Vui lòng nhập mật khẩu\nlocked_user,Demo@123,Tài khoản đã bị khóa</pre>', 'Viết <code>@DataProvider</code> đọc file này (bỏ dòng tiêu đề) và một test nhận 3 tham số, dùng <code>LoginPage</code> để kiểm tra thông báo lỗi.', 'Chú ý các ô trống ở dòng 3 và 4.'],
+  starter:'public class LoginDataTest extends BaseTest {\n\n}\n',
+  rules:[
+    { t:'@DataProvider có name', re:/@DataProvider\s*\(\s*name\s*=\s*"\w+"/ },
+    { t:'@Test dùng đúng tên DataProvider', fn:s => { const m = s.match(/@DataProvider\s*\(\s*name\s*=\s*"(\w+)"/); return !!m && new RegExp('@Test\\s*\\([^)]*dataProvider\\s*=\\s*"' + m[1] + '"').test(s); } },
+    { t:'DataProvider trả Object[][]', re:/public\s+(static\s+)?Object\s*\[\s*\]\s*\[\s*\]\s+\w+\s*\(/ },
+    { t:'Đọc từ file login.csv', re:/"src\/test\/resources\/data\/login\.csv"/ },
+    { t:'Đọc file (Files.readAllLines / BufferedReader / thư viện CSV)', re:/Files\.(readAllLines|lines|newBufferedReader)\s*\(|new\s+BufferedReader\s*\(|CSVReader|CSVParser|CSVFormat/ },
+    { t:'Bỏ dòng tiêu đề', re:/for\s*\(\s*int\s+\w+\s*=\s*1\s*;|\.skip\s*\(\s*1\s*\)|subList\s*\(\s*1\s*,|withSkipLines\s*\(\s*1\s*\)|setSkipHeaderRecord\s*\(\s*true|readLine\s*\(\s*\)\s*;\s*\/\/|readLine\s*\(\s*\)\s*;[\s\S]*while\s*\(/ },
+    { t:'Tách cột giữ được ô trống cuối dòng', fn:s => /split\s*\(\s*","\s*,\s*-1\s*\)/.test(s) || /CSVReader|CSVParser|CSVFormat/.test(s), why:'"an_user,,".split(",") chỉ trả 1 phần tử → ArrayIndexOutOfBoundsException ở dòng 4. Dùng split(",", -1).' },
+    { t:'Test nhận 3 tham số String', re:/@Test\s*\([^)]*dataProvider[^)]*\)\s*public\s+void\s+\w+\s*\(\s*String\s+\w+\s*,\s*String\s+\w+\s*,\s*String\s+\w+\s*\)/ },
+    { t:'Test dùng LoginPage và assert thông báo lỗi', re:/new\s+LoginPage\s*\([\s\S]*Assert\.\w+\s*\([^;]*getErrorText/ },
+  ],
+  answer:'public class LoginDataTest extends BaseTest {\n\n    @DataProvider(name = "loginData")\n    public Object[][] loginData() throws IOException {\n        List<String> lines = Files.readAllLines(Paths.get("src/test/resources/data/login.csv"));\n        Object[][] data = new Object[lines.size() - 1][];\n        for (int i = 1; i < lines.size(); i++) {\n            String[] cols = lines.get(i).split(",", -1);\n            data[i - 1] = new Object[] { cols[0], cols[1], cols[2] };\n        }\n        return data;\n    }\n\n    @Test(dataProvider = "loginData")\n    public void dangNhapSai(String user, String pass, String expectedError) {\n        LoginPage loginPage = new LoginPage(driver);\n        loginPage.open();\n        loginPage.login(user, pass);\n        Assert.assertEquals(loginPage.getErrorText(), expectedError);\n    }\n}\n',
+  wrong:['public class LoginDataTest extends BaseTest {\n    @DataProvider(name = "loginData")\n    public Object[][] loginData() throws IOException {\n        List<String> lines = Files.readAllLines(Paths.get("src/test/resources/data/login.csv"));\n        Object[][] data = new Object[lines.size() - 1][];\n        for (int i = 1; i < lines.size(); i++) {\n            String[] c = lines.get(i).split(",");\n            data[i - 1] = new Object[] { c[0], c[1], c[2] };\n        }\n        return data;\n    }\n    @Test(dataProvider = "loginData")\n    public void x(String u, String p, String e) { LoginPage l = new LoginPage(driver); l.open(); l.login(u, p); Assert.assertEquals(l.getErrorText(), e); }\n}',
+    'public class LoginDataTest extends BaseTest {\n    @DataProvider(name = "loginData")\n    public Object[][] loginData() throws IOException {\n        List<String> lines = Files.readAllLines(Paths.get("src/test/resources/data/login.csv"));\n        Object[][] data = new Object[lines.size()][];\n        for (int i = 0; i < lines.size(); i++) {\n            String[] c = lines.get(i).split(",", -1);\n            data[i] = new Object[] { c[0], c[1], c[2] };\n        }\n        return data;\n    }\n    @Test(dataProvider = "data")\n    public void x(String u, String p, String e) { LoginPage l = new LoginPage(driver); l.open(); l.login(u, p); Assert.assertEquals(l.getErrorText(), e); }\n}'],
+  hints:['Vòng lặp bắt đầu từ <code>i = 1</code> để bỏ dòng tiêu đề; mảng kết quả có <code>lines.size() - 1</code> hàng.', 'Thử trong đầu: <code>"an_user,,Vui lòng nhập mật khẩu".split(",")</code> → 3 phần tử (ô trống ở giữa được giữ). Nhưng nếu ô cuối trống thì sao?'] },
+{ id:'P5', ph:'P', kind:'code', lang:'java', t:'Đọc cấu hình theo môi trường', learn:['config'],
+  need:['Viết <code>ConfigReader</code>:', '• chọn file <code>src/test/resources/config/&lt;env&gt;.properties</code> theo <code>-Denv</code>, mặc định <code>qa</code>;', '• đọc bằng <code>Properties</code>, đóng file sau khi đọc (try-with-resources);', '• <code>public static String get(String key)</code>: ưu tiên giá trị truyền bằng <code>-Dkey=...</code>, sau đó tới file; thiếu khóa thì ném exception có thông báo rõ.', 'Không có URL nào nằm trong code.'],
+  starter:'public final class ConfigReader {\n\n}\n',
+  rules:[
+    { t:'Dùng java.util.Properties', re:/new\s+Properties\s*\(\s*\)/ },
+    { t:'Chọn môi trường bằng System.getProperty("env", "qa")', re:/System\.getProperty\s*\(\s*"env"\s*,\s*"qa"\s*\)/ },
+    { t:'Đường dẫn file theo môi trường', re:/"src\/test\/resources\/config\/"\s*\+\s*\w+\s*\+\s*"\.properties"/ },
+    { t:'Đọc file bằng try-with-resources', re:/try\s*\(\s*(InputStream|FileInputStream|Reader|BufferedReader|var)\s+\w+\s*=/, why:'try (InputStream in = new FileInputStream(path)) { props.load(in); } — file tự đóng kể cả khi lỗi.' },
+    { t:'Gọi load(...)', re:/\.load\s*\(/ },
+    { t:'Có public static String get(String key)', re:/public\s+static\s+String\s+get\s*\(\s*String\s+\w+\s*\)/ },
+    { t:'Ưu tiên giá trị -Dkey trước file', re:/System\.getProperty\s*\(\s*key\b/ },
+    { t:'Thiếu khóa thì ném exception có thông báo', re:/throw\s+new\s+\w*(Exception|Error)\s*\(\s*"[^"]+/ },
+    { t:'Không có URL trong code', not:true, re:/"https?:\/\// },
+  ],
+  answer:'public final class ConfigReader {\n    private static final Properties PROPS = new Properties();\n\n    static {\n        String env = System.getProperty("env", "qa");\n        String path = "src/test/resources/config/" + env + ".properties";\n        try (InputStream in = new FileInputStream(path)) {\n            PROPS.load(in);\n        } catch (IOException e) {\n            throw new IllegalStateException("Không đọc được file cấu hình: " + path, e);\n        }\n    }\n\n    private ConfigReader() {}\n\n    public static String get(String key) {\n        String value = System.getProperty(key, PROPS.getProperty(key));\n        if (value == null) {\n            throw new IllegalArgumentException("Thiếu khóa cấu hình: " + key);\n        }\n        return value;\n    }\n}\n',
+  wrong:['public final class ConfigReader {\n    private static final Properties PROPS = new Properties();\n    static {\n        String env = System.getProperty("env", "qa");\n        String path = "src/test/resources/config/" + env + ".properties";\n        try {\n            PROPS.load(new FileInputStream(path));\n        } catch (IOException e) {\n            throw new IllegalStateException("Không đọc được: " + path, e);\n        }\n    }\n    public static String get(String key) {\n        String v = System.getProperty(key, PROPS.getProperty(key));\n        if (v == null) throw new IllegalArgumentException("Thiếu khóa: " + key);\n        return v;\n    }\n}',
+    'public final class ConfigReader {\n    private static final Properties PROPS = new Properties();\n    static {\n        String env = System.getProperty("env", "qa");\n        String path = "src/test/resources/config/" + env + ".properties";\n        try (InputStream in = new FileInputStream(path)) { PROPS.load(in); } catch (IOException e) { throw new IllegalStateException("Lỗi: " + path, e); }\n    }\n    public static String get(String key) {\n        return PROPS.getProperty(key, "https://qa.shopdemo.test");\n    }\n}'],
+  hints:['Khối <code>static { ... }</code> chạy một lần khi class được dùng lần đầu — hợp để nạp file cấu hình.', '<code>System.getProperty(key, PROPS.getProperty(key))</code>: có -D thì lấy -D, không thì lấy từ file.'] },
+{ id:'P6', ph:'P', kind:'quiz', t:'Bài nộp buổi 9: nguyên tắc POM và data-driven', learn:['pom','data','config'],
+  need:['Trả lời đúng cả 4 câu. Sau đó tổ chức repository: thư mục <code>pages</code>, <code>tests</code>, <code>src/test/resources/data</code>, <code>src/test/resources/config</code>; ít nhất 1 test chạy nhiều bộ dữ liệu từ file.'],
+  qs:[
+    { q:'Assertion nên đặt ở đâu?', o:['Trong page object, để test gọn hơn', 'Trong test; page object trả dữ liệu (chữ, trạng thái) cho test kiểm tra', 'Trong BasePage', 'Trong testng.xml'], a:1,
+      w:'Cùng một hàm getErrorText() phục vụ được nhiều test với kỳ vọng khác nhau.' },
+    { q:'Nút “Đăng nhập” đổi data-test thành <code>submit-login</code>. Framework POM đúng chuẩn phải sửa ở đâu?', o:['Mọi test có bước đăng nhập', 'Chỉ một dòng locator trong LoginPage', 'testng.xml', 'File login.csv'], a:1,
+      w:'Đây là lợi ích chính của POM: thay đổi giao diện chỉ sửa một chỗ.' },
+    { q:'Hàm <code>login()</code> của LoginPage nên trả về gì khi đăng nhập thành công dẫn sang trang Sản phẩm?', o:['boolean luôn là true', 'Có thể trả về InventoryPage để test viết tiếp theo chuỗi (fluent page)', 'WebElement của nút đăng nhập', 'Bắt buộc là void'], a:1,
+      w:'Cả void và trả page object đều dùng được; trả page object giúp test đọc liền mạch: new LoginPage(d).login(u, p).addToCart(...).' },
+    { q:'Mật khẩu tài khoản test trên môi trường staging nên để ở đâu?', o:['Hard-code trong test', 'Trong file properties commit lên GitHub', 'Biến môi trường / GitHub Secrets, đọc khi chạy', 'Trong tên của test'], a:2,
+      w:'File properties chỉ chứa cấu hình không bí mật (URL, browser, timeout).' },
+  ] },
+
+/* ---------- Buổi 10 ---------- */
+{ id:'C1', ph:'C', kind:'code', lang:'java', t:'Driver Factory với ThreadLocal', learn:['factory','parallel'],
+  need:['Viết <code>DriverFactory</code>:', '• giữ driver trong <code>ThreadLocal&lt;WebDriver&gt;</code> (không dùng <code>static WebDriver</code>);', '• <code>initDriver(String browser)</code> hỗ trợ <code>chrome</code>, <code>firefox</code>, <code>edge</code>; tên khác thì ném <code>IllegalArgumentException</code>; bật headless khi <code>ConfigReader.get("headless")</code> là true;', '• <code>getDriver()</code>; <code>quitDriver()</code> quit rồi <code>remove()</code>.'],
+  starter:'public final class DriverFactory {\n\n}\n',
+  rules:[
+    { t:'Dùng ThreadLocal<WebDriver>', re:/ThreadLocal\s*<\s*WebDriver\s*>/ },
+    { t:'Không có field static WebDriver dùng chung', not:true, re:/static\s+(final\s+)?WebDriver\s+\w+\s*[;=]/ },
+    { t:'Hỗ trợ chrome, firefox, edge', fn:s => /"chrome"/.test(s) && /"firefox"/.test(s) && /"edge"/.test(s) && /new\s+ChromeDriver/.test(s) && /new\s+FirefoxDriver/.test(s) && /new\s+EdgeDriver/.test(s) },
+    { t:'Trình duyệt không hỗ trợ → IllegalArgumentException', re:/throw\s+new\s+IllegalArgumentException\s*\(/ },
+    { t:'Headless lấy từ ConfigReader', re:/ConfigReader\.get\s*\(\s*"headless"\s*\)/ },
+    { t:'Lưu driver bằng set()', re:/\w+\.set\s*\(\s*\w+\s*\)/ },
+    { t:'getDriver() trả từ ThreadLocal', re:/public\s+static\s+WebDriver\s+getDriver\s*\(\s*\)\s*\{\s*return\s+\w+\.get\s*\(\s*\)/ },
+    { t:'quitDriver(): quit() rồi remove()', re:/void\s+quitDriver\s*\(\s*\)\s*\{[\s\S]*?\.quit\s*\(\s*\)[\s\S]*?\.remove\s*\(\s*\)/, why:'Không remove() thì luồng được tái sử dụng (thread pool) vẫn giữ driver đã chết.' },
+    { t:'Không so sánh chuỗi bằng ==', not:true, re:/==\s*"|"\s*==/ },
+  ],
+  answer:'public final class DriverFactory {\n    private static final ThreadLocal<WebDriver> DRIVER = new ThreadLocal<>();\n\n    private DriverFactory() {}\n\n    public static void initDriver(String browser) {\n        boolean headless = Boolean.parseBoolean(ConfigReader.get("headless"));\n        WebDriver driver;\n        switch (browser.toLowerCase()) {\n            case "chrome":\n                ChromeOptions chrome = new ChromeOptions();\n                if (headless) chrome.addArguments("--headless=new");\n                driver = new ChromeDriver(chrome);\n                break;\n            case "firefox":\n                FirefoxOptions firefox = new FirefoxOptions();\n                if (headless) firefox.addArguments("-headless");\n                driver = new FirefoxDriver(firefox);\n                break;\n            case "edge":\n                EdgeOptions edge = new EdgeOptions();\n                if (headless) edge.addArguments("--headless=new");\n                driver = new EdgeDriver(edge);\n                break;\n            default:\n                throw new IllegalArgumentException("Trình duyệt không hỗ trợ: " + browser);\n        }\n        DRIVER.set(driver);\n    }\n\n    public static WebDriver getDriver() {\n        return DRIVER.get();\n    }\n\n    public static void quitDriver() {\n        WebDriver driver = DRIVER.get();\n        if (driver != null) {\n            driver.quit();\n            DRIVER.remove();\n        }\n    }\n}\n',
+  wrong:['public final class DriverFactory {\n    private static WebDriver driver;\n    public static void initDriver(String browser) {\n        boolean headless = Boolean.parseBoolean(ConfigReader.get("headless"));\n        if (browser.equals("chrome")) driver = new ChromeDriver();\n        else if (browser.equals("firefox")) driver = new FirefoxDriver();\n        else if (browser.equals("edge")) driver = new EdgeDriver();\n        else throw new IllegalArgumentException("x");\n    }\n    public static WebDriver getDriver() { return driver; }\n    public static void quitDriver() { driver.quit(); }\n}',
+    'public final class DriverFactory {\n    private static final ThreadLocal<WebDriver> DRIVER = new ThreadLocal<>();\n    public static void initDriver(String browser) {\n        boolean headless = Boolean.parseBoolean(ConfigReader.get("headless"));\n        WebDriver d;\n        if (browser == "chrome") d = new ChromeDriver();\n        else if (browser.equals("firefox")) d = new FirefoxDriver();\n        else if (browser.equals("edge")) d = new EdgeDriver();\n        else throw new IllegalArgumentException("x");\n        DRIVER.set(d);\n    }\n    public static WebDriver getDriver() { return DRIVER.get(); }\n    public static void quitDriver() { DRIVER.get().quit(); }\n}'],
+  hints:['<code>switch</code> trên String so sánh bằng equals bên trong — an toàn; <code>browser == "chrome"</code> thì không.', '<code>browser.toLowerCase()</code> để “Chrome”, “CHROME” trong config vẫn chạy.'] },
+{ id:'C2', ph:'C', kind:'code', lang:'yaml', t:'Workflow GitHub Actions chạy test', learn:['ci'],
+  need:['Viết <code>.github/workflows/ui-tests.yml</code>:', '• chạy khi <b>push lên main</b> và khi có <b>pull request</b>;', '• máy <code>ubuntu-latest</code>; lấy code; cài Java 17 (temurin) có cache Maven;', '• chạy <code>mvn -B test</code> ở chế độ headless (<code>-Dheadless=true</code>);', '• <b>luôn</b> lưu thư mục <code>target/surefire-reports</code> làm artifact, kể cả khi test fail.'],
+  starter:'name: UI tests\n\n',
+  rules:[
+    { t:'Không dùng tab để thụt lề', not:true, re:/\t/, why:'YAML chỉ chấp nhận dấu cách.' },
+    { t:'Kích hoạt khi push lên main', re:/^on:\s*\n(\s+)push:\s*\n\s+branches:\s*\[?\s*-?\s*["']?main["']?/m },
+    { t:'Kích hoạt khi pull_request', re:/^\s+pull_request:/m },
+    { t:'runs-on: ubuntu-latest', re:/runs-on:\s*ubuntu-latest/ },
+    { t:'Lấy code bằng actions/checkout', re:/uses:\s*actions\/checkout@v\d+/ },
+    { t:'Cài Java 17 bằng actions/setup-java (distribution + java-version)', re:/uses:\s*actions\/setup-java@v\d+[\s\S]*?distribution:\s*['"]?\w+['"]?[\s\S]*?java-version:\s*['"]?17['"]?|uses:\s*actions\/setup-java@v\d+[\s\S]*?java-version:\s*['"]?17['"]?[\s\S]*?distribution:\s*['"]?\w+/ },
+    { t:'Cache Maven', re:/cache:\s*['"]?maven/ },
+    { t:'Chạy mvn test headless', re:/run:\s*mvn\s[^\n]*\btest\b[^\n]*-Dheadless=true|run:\s*mvn\s[^\n]*-Dheadless=true[^\n]*\btest\b/ },
+    { t:'Lưu report bằng actions/upload-artifact', re:/uses:\s*actions\/upload-artifact@v\d+/ },
+    { t:'Bước lưu report có if: always()', fn:s => { const steps = s.split(/\n\s*- /); return steps.some(x => /upload-artifact/.test(x) && /if:\s*\$?\{?\{?\s*always\(\)/.test(x)); }, why:'Không có if: always() thì khi test fail, các bước sau bị bỏ qua → mất report đúng lúc cần nhất.' },
+    { t:'Đường dẫn report target/surefire-reports', re:/path:\s*['"]?target\/surefire-reports/ },
+  ],
+  answer:'name: UI tests\n\non:\n  push:\n    branches: [ main ]\n  pull_request:\n\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n\n      - uses: actions/setup-java@v4\n        with:\n          distribution: temurin\n          java-version: \'17\'\n          cache: maven\n\n      - name: Chạy test\n        run: mvn -B test -Dheadless=true -Denv=qa\n\n      - name: Lưu report\n        if: always()\n        uses: actions/upload-artifact@v4\n        with:\n          name: test-report\n          path: target/surefire-reports\n',
+  wrong:['name: UI tests\non:\n  push:\n    branches: [ main ]\n  pull_request:\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-java@v4\n        with:\n          distribution: temurin\n          java-version: \'17\'\n          cache: maven\n      - run: mvn -B test -Dheadless=true\n      - uses: actions/upload-artifact@v4\n        with:\n          name: test-report\n          path: target/surefire-reports\n',
+    'name: UI tests\non:\n  push:\n    branches: [ main ]\n  pull_request:\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-java@v4\n        with:\n          distribution: temurin\n          java-version: \'17\'\n          cache: maven\n      - run: mvn -B test\n      - if: always()\n        uses: actions/upload-artifact@v4\n        with:\n          name: test-report\n          path: target/surefire-reports\n'],
+  hints:['<code>-B</code> (batch mode) giúp log Maven gọn, không hỏi tương tác.', 'Thụt lề YAML: mỗi cấp 2 dấu cách; phần tử danh sách bắt đầu bằng <code>- </code>.'] },
+{ id:'C3', ph:'C', kind:'quiz', t:'Git, pull request và log', learn:['git','listener'],
+  need:['Trả lời đúng cả 3 câu.'],
+  qs:[
+    { q:'Cách làm việc nào phù hợp khi thêm test mới vào repository chung?', o:['Commit thẳng lên main cho nhanh', 'Tạo nhánh riêng, push, mở pull request; CI xanh và có người review mới merge', 'Gửi file .java qua chat cho trưởng nhóm', 'Sửa trực tiếp trên GitHub web, không cần chạy thử'], a:1,
+      w:'Workflow ở bài C2 chạy trên pull_request chính là để chặn code làm hỏng suite trước khi merge.' },
+    { q:'File nào <b>không</b> nên commit?', o:['pom.xml', 'src/test/resources/config/qa.properties (không có mật khẩu)', 'target/ và ảnh chụp màn hình khi fail', '.github/workflows/ui-tests.yml'], a:2,
+      w:'target/ là kết quả build — thêm vào .gitignore. Ảnh fail được lưu qua artifact của CI.' },
+    { q:'Vì sao dùng logger thay vì System.out.println trong framework?', o:['Logger chạy nhanh hơn gấp 10 lần', 'Có mức log (INFO/ERROR), thời gian, tên luồng; cấu hình ghi ra file và lọc được, phân biệt được log của từng test khi chạy song song', 'System.out.println không chạy trên CI', 'Không có khác biệt'], a:1,
+      w:'Khi 3 luồng chạy cùng lúc, tên luồng trong log giúp tách dòng nào của test nào.' },
+  ] },
+{ id:'C4', ph:'C', kind:'review', cp:'Checkpoint 2', t:'Checkpoint 2: review framework theo checklist 9 mục', learn:['git'],
+  need:['Đọc code bên phải (đây là pull request của một bạn trong nhóm) và đánh giá từng mục của checklist: <b>Đạt</b> hay <b>Vi phạm</b>.', 'Đạt bài khi đánh giá đúng cả 9 mục. Mỗi mục sai sẽ có giải thích.'],
+  code:'public abstract class BaseTest {\n    @BeforeMethod(alwaysRun = true)\n    public void setUp() {\n        DriverFactory.initDriver(ConfigReader.get("browser"));\n    }\n\n    @AfterMethod(alwaysRun = true)\n    public void tearDown() {\n        DriverFactory.quitDriver();\n    }\n\n    protected WebDriver getDriver() {\n        return DriverFactory.getDriver();\n    }\n}\n\npublic class CheckoutTest extends BaseTest {\n\n    @Test(groups = "regression")\n    public void datHangThanhCong() throws InterruptedException {\n        LoginPage login = new LoginPage(getDriver());\n        login.open();\n        login.login("an_user", "Demo@123");\n\n        getDriver().findElement(By.xpath("/html/body/div[2]/div[3]/div[1]/button")).click();\n        getDriver().get("https://qa.shopdemo.test/checkout");\n        Thread.sleep(3000);\n\n        CheckoutPage checkout = new CheckoutPage(getDriver());\n        checkout.fillInfo("An", "Nguyễn", "700000");\n        checkout.finish();\n        Assert.assertEquals(checkout.getMessage(), "Cảm ơn bạn đã đặt hàng!");\n    }\n\n    @Test(groups = "regression", dependsOnMethods = "datHangThanhCong")\n    public void lichSuCoDonVuaDat() {\n        OrdersPage orders = new OrdersPage(getDriver());\n        orders.open();\n        Assert.assertEquals(orders.countOrders(), 1);\n    }\n}\n',
+  items:[
+    ['Locator ổn định (không XPath tuyệt đối, không id tự sinh, không chỉ số vị trí)', 1, 'Vi phạm: <code>/html/body/div[2]/div[3]/div[1]/button</code> là XPath tuyệt đối theo vị trí — thêm một banner là hỏng.'],
+    ['Không dùng Thread.sleep; chờ bằng explicit wait', 1, 'Vi phạm: <code>Thread.sleep(3000)</code>. Trang checkout nên được chờ trong page object (BasePage).'],
+    ['Mỗi test có ít nhất một assertion có ý nghĩa', 0, 'Đạt: cả hai test đều có assertEquals với giá trị cụ thể.'],
+    ['Test không chứa locator/findElement (đi qua page object)', 1, 'Vi phạm: test gọi <code>getDriver().findElement(By.xpath(...))</code> trực tiếp — bước thêm vào giỏ phải là hàm của InventoryPage.'],
+    ['Không hard-code URL/cấu hình môi trường', 1, 'Vi phạm: <code>"https://qa.shopdemo.test/checkout"</code> — đổi sang staging là phải sửa test. Dùng ConfigReader hoặc hàm open() của page.'],
+    ['Driver luôn được đóng sau mỗi test', 0, 'Đạt: <code>@AfterMethod(alwaysRun = true)</code> gọi <code>DriverFactory.quitDriver()</code>.'],
+    ['Các test độc lập, chạy riêng lẻ được, không phụ thuộc thứ tự', 1, 'Vi phạm: <code>dependsOnMethods</code> và test 2 cần đơn hàng test 1 tạo. Thêm nữa, test 2 chạy trên trình duyệt mới chưa đăng nhập. Test 2 phải tự đăng nhập và tự tạo đơn (tốt nhất qua API).'],
+    ['An toàn khi chạy song song (mỗi luồng một driver)', 0, 'Đạt: driver lấy từ DriverFactory dùng ThreadLocal, không có static WebDriver.'],
+    ['Phân loại được để chạy theo group, tên test rõ nghĩa', 0, 'Đạt: có <code>groups = "regression"</code>, tên test mô tả kết quả mong đợi.'],
+  ] },
+{ id:'C5', ph:'C', kind:'self', t:'Bài nộp buổi 10: repository có CI chạy xanh', learn:['ci','git'],
+  need:['Tự kiểm tra repository của bạn và đánh dấu từng mục. Đánh dấu đủ thì bài được tính hoàn thành.', 'Nếu muốn được góp ý, gửi link repository cho Claude trong tab Code và nhờ review theo checklist 9 mục.'],
+  items:['Driver Factory chọn trình duyệt qua config, dùng ThreadLocal', 'Workflow GitHub Actions chạy khi push và pull request', 'Lần chạy gần nhất trên GitHub Actions màu xanh', 'Report tải về được từ mục Artifacts của lần chạy', 'README có hướng dẫn cài đặt và lệnh chạy (mvn test, -Dgroups, -Denv, -Dheadless)', 'Đã tự review framework theo checklist 9 mục (bài C4) và đạt ít nhất 7/9'] },
+];
+
+/* ===================== Chấm Locator ===================== */
+const STRATS = [['id','By.id'],['name','By.name'],['className','By.className'],['tagName','By.tagName'],['linkText','By.linkText'],['partialLinkText','By.partialLinkText'],['css','By.cssSelector'],['xpath','By.xpath']];
+const stratName = k => (STRATS.find(x => x[0] === k) || [k, k])[1];
+const docCache = {};
+function pageDoc(key){
+  if (!docCache[key]){
+    const d = new DOMParser().parseFromString('<!doctype html><html><head><title>ShopDemo</title></head><body>' + PAGES[key].html + '</body></html>', 'text/html');
+    let i = 0; d.body.querySelectorAll('*').forEach(el => el.setAttribute('data-sx', String(i++)));
+    docCache[key] = d;
+  }
+  return docCache[key];
+}
+const norm = s => s.replace(/\s+/g, ' ').trim();
+function findBy(doc, strat, v){
+  if (!v.trim()) return { err:'Giá trị locator đang trống.' };
+  const inBody = e => doc.body.contains(e);
+  try {
+    switch (strat){
+      case 'id': return { els:[...doc.querySelectorAll('[id]')].filter(e => e.id === v) };
+      case 'name': return { els:[...doc.querySelectorAll('[name]')].filter(e => e.getAttribute('name') === v) };
+      case 'className':
+        if (/\s/.test(v.trim())) return { err:'InvalidSelectorException: Compound class names not permitted — By.className chỉ nhận MỘT class, không có dấu cách.' };
+        if (/^\./.test(v)) return { err:'InvalidSelectorException: By.className nhận tên class, không có dấu chấm (dấu chấm là cú pháp CSS).' };
+        return { els:[...doc.body.getElementsByClassName(v.trim())] };
+      case 'tagName': return { els:[...doc.body.getElementsByTagName(v.trim())] };
+      case 'linkText': return { els:[...doc.querySelectorAll('a')].filter(a => norm(a.textContent) === v) };
+      case 'partialLinkText': return { els:[...doc.querySelectorAll('a')].filter(a => norm(a.textContent).includes(v)) };
+      case 'css': return { els:[...doc.querySelectorAll(v)].filter(inBody) };
+      case 'xpath': {
+        const r = doc.evaluate(v, doc, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null), els = [];
+        for (let i = 0; i < r.snapshotLength; i++){
+          const n = r.snapshotItem(i);
+          if (n.nodeType !== 1) return { err:'InvalidSelectorException: XPath phải trả về phần tử (element), không phải chữ hay thuộc tính — bỏ /text() hoặc /@... ở cuối.' };
+          els.push(n);
+        }
+        return { els };
+      }
+    }
+  } catch(e){ return { err:'InvalidSelectorException: ' + (strat === 'xpath' ? 'XPath' : 'CSS selector') + ' không hợp lệ — kiểm tra dấu ngoặc và dấu nháy.' }; }
+  return { err:'Chiến lược không hỗ trợ.' };
+}
+function gradeLoc(t, strat, v){
+  const doc = pageDoc(t.page), r = findBy(doc, strat, v), checks = [];
+  checks.push({ t:'Locator hợp lệ', ok:!r.err, why:r.err });
+  if (r.err) return { pass:false, checks, els:[] };
+  const els = r.els, target = [...doc.querySelectorAll(t.target)].filter(e => doc.body.contains(e));
+  if (t.many) checks.push({ t:'Khớp đủ ' + target.length + ' phần tử', ok:els.length === target.length, why:'Đang khớp ' + els.length + ' phần tử.' });
+  else checks.push({ t:'Khớp duy nhất 1 phần tử', ok:els.length === 1, why:els.length ? 'Đang khớp ' + els.length + ' phần tử — findElement sẽ lấy phần tử đầu tiên, dễ trỏ nhầm.' : 'Không khớp phần tử nào → NoSuchElementException.' });
+  const same = els.length > 0 && els.length === target.length && els.every(e => target.includes(e));
+  checks.push({ t:t.many ? 'Đúng các phần tử cần tìm' : 'Đúng phần tử cần tìm', ok:same, why:'Phần tử khớp (tô vàng trên trang) không phải phần tử đề bài yêu cầu.' });
+  if (t.only) checks.push({ t:'Dùng ' + t.only.map(stratName).join(' hoặc '), ok:t.only.includes(strat), why:'Đề bài yêu cầu chiến lược này.' });
+  if (t.forbid && t.forbid[strat]) checks.push({ t:'Không dùng ' + stratName(strat), ok:false, why:t.forbid[strat] });
+  if (t.must) checks.push({ t:t.must[1], ok:t.must[0].test(v) });
+  if (strat === 'xpath') checks.push({ t:'Không dùng XPath tuyệt đối', ok:!/^\s*\(?\s*\/(?!\/)/.test(v), why:'Bắt đầu bằng một dấu / là đi từ gốc trang — thêm một thẻ bất kỳ là hỏng.' });
+  if (strat === 'xpath' || strat === 'css') checks.push({ t:'Không dựa vào chỉ số vị trí', ok:!(strat === 'xpath' ? /\[\s*\d+\s*\]/.test(v) : /:nth-(child|of-type)|:(first|last)-(child|of-type)/.test(v)), why:'[3] hay :nth-child(3) đổi nghĩa khi danh sách được sắp xếp lại hoặc thêm phần tử.' });
+  checks.push({ t:'Không dùng id/class tự sinh', ok:!/ember-\d+|css-[0-9a-z]{4,}/i.test(v), why:'ember-1482, css-1x9k2v do framework sinh ra, đổi sau mỗi lần build.' });
+  return { pass:checks.every(c => c.ok), checks, els };
+}
+
+/* ===================== Chấm code (Java / XML / YAML) ===================== */
+function stripJava(src){
+  let out = '', i = 0; const n = src.length;
+  while (i < n){
+    const c = src[i], d = src[i + 1];
+    if (c === '/' && d === '/'){ while (i < n && src[i] !== '\n') i++; continue; }
+    if (c === '/' && d === '*'){ i += 2; while (i < n && !(src[i] === '*' && src[i + 1] === '/')){ if (src[i] === '\n') out += '\n'; i++; } i += 2; out += ' '; continue; }
+    if (c === '"' || c === "'"){ out += c; i++; while (i < n && src[i] !== c && src[i] !== '\n'){ if (src[i] === '\\'){ out += src[i] + (src[i + 1] || ''); i += 2; continue; } out += src[i++]; } if (i < n && src[i] === c) out += src[i++]; continue; }
+    out += c; i++;
+  }
+  return out;
+}
+// Giữ nguyên độ dài, thay nội dung chuỗi bằng dấu cách để đếm ngoặc không bị chuỗi làm sai.
+const maskStr = s => s.replace(/"(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)*'/g, m => m[0] + ' '.repeat(m.length - 2) + m[0]);
+function balanceJava(s){
+  const m = maskStr(s), st = [], pair = { ')':'(', ']':'[', '}':'{' }; let line = 1;
+  for (const ch of m){
+    if (ch === '\n') line++;
+    if ('([{'.includes(ch)) st.push([ch, line]);
+    else if (pair[ch]){ if (!st.length || st[st.length - 1][0] !== pair[ch]) return 'Dấu ' + ch + ' ở dòng ' + line + ' không khớp với dấu mở nào.'; st.pop(); }
+  }
+  if (/"/.test(s.replace(/"(?:[^"\\\n]|\\.)*"/g, ''))) return 'Có chuỗi chưa đóng dấu nháy kép.';
+  return st.length ? 'Thiếu dấu đóng cho “' + st[st.length - 1][0] + '” mở ở dòng ' + st[st.length - 1][1] + '.' : '';
+}
+function matchBrace(m, open){ let d = 0; for (let i = open; i < m.length; i++){ if (m[i] === '{') d++; else if (m[i] === '}'){ d--; if (!d) return i; } } return -1; }
+function bodyFrom(s, m, from){
+  let i = from;
+  while (i < m.length && /\s/.test(m[i])) i++;
+  if (m[i] === '('){ let d = 0; for (; i < m.length; i++){ if (m[i] === '(') d++; else if (m[i] === ')'){ d--; if (!d){ i++; break; } } } }
+  const o = m.indexOf('{', i); if (o < 0) return null;
+  const c = matchBrace(m, o); return c < 0 ? null : s.slice(o, c + 1);
+}
+function annotatedBodies(s, re){
+  const m = maskStr(s), g = new RegExp(re.source, 'g'), out = []; let x;
+  while ((x = g.exec(m))){ const b = bodyFrom(s, m, x.index + x[0].length); if (b != null) out.push(b); }
+  return out;
+}
+function classBody(s, name){
+  const m = maskStr(s), x = new RegExp('class\\s+' + name + '\\b').exec(m); if (!x) return null;
+  const o = m.indexOf('{', x.index); if (o < 0) return null;
+  const c = matchBrace(m, o); return c < 0 ? null : s.slice(o, c + 1);
+}
+function xmlCheck(src){
+  const s = src.replace(/<!--[\s\S]*?-->/g, '').replace(/<\?[\s\S]*?\?>/g, '').replace(/<!DOCTYPE[^>]*>/i, '');
+  const re = /<(\/?)([A-Za-z][\w.:-]*)([^>]*?)(\/?)>/g, st = []; let m;
+  while ((m = re.exec(s))){
+    const [, close, name, attrs, self] = m;
+    if (/=\s*[^"'\s]/.test(attrs)) return 'Giá trị thuộc tính trong <' + name + '> phải nằm trong dấu nháy kép.';
+    if (close){ if (!st.length || st[st.length - 1] !== name) return 'Thẻ đóng </' + name + '> không khớp' + (st.length ? ' — đang mở <' + st[st.length - 1] + '>.' : '.'); st.pop(); }
+    else if (!self) st.push(name);
+  }
+  if (/<[^>]*$/.test(s)) return 'Có thẻ chưa đóng dấu >.';
+  return st.length ? 'Thẻ <' + st[st.length - 1] + '> chưa được đóng.' : '';
+}
+function yamlCheck(src){
+  const lines = src.split('\n');
+  for (let i = 0; i < lines.length; i++){
+    if (/\t/.test(lines[i])) return 'Dòng ' + (i + 1) + ' có ký tự tab — YAML chỉ thụt lề bằng dấu cách.';
+    const ind = lines[i].match(/^( *)\S/); if (ind && ind[1].length % 2) return 'Dòng ' + (i + 1) + ' thụt lề ' + ind[1].length + ' dấu cách — dùng bội số của 2 cho thẳng hàng.';
+  }
+  return '';
+}
+function stripCode(src, lang){
+  if (lang === 'xml') return src.replace(/<!--[\s\S]*?-->/g, ' ');
+  if (lang === 'yaml') return src.split('\n').map(l => l.replace(/(^|\s)#.*$/, '')).join('\n');
+  return stripJava(src);
+}
+function evalRule(r, s){
+  let scope = s;
+  if (r.in){ scope = classBody(s, r.in); if (scope == null) return false; }
+  if (r.each){ const bodies = annotatedBodies(scope, r.each); return bodies.length > 0 && bodies.every(b => r.re.test(b)); }
+  if (r.fn){ const ok = !!r.fn(scope); return r.not ? !ok : ok; }
+  if (r.min){ const g = new RegExp(r.re.source, r.re.flags.includes('g') ? r.re.flags : r.re.flags + 'g'); return (scope.match(g) || []).length >= r.min; }
+  const hit = r.re.test(scope);
+  return r.not ? !hit : hit;
+}
+function gradeCode(t, src){
+  const s = stripCode(src, t.lang), checks = [];
+  const syn = t.lang === 'xml' ? xmlCheck(src) : t.lang === 'yaml' ? yamlCheck(src) : balanceJava(s);
+  checks.push({ t:t.lang === 'xml' ? 'XML đúng cú pháp (thẻ đóng mở khớp nhau)' : t.lang === 'yaml' ? 'YAML thụt lề hợp lệ' : 'Cú pháp: ngoặc và dấu nháy cân bằng', ok:!syn, why:syn });
+  t.rules.forEach(r => { let ok; try { ok = evalRule(r, s); } catch(e){ ok = false; } checks.push({ t:r.t, ok, why:r.why }); });
+  return { pass:checks.every(c => c.ok), checks };
+}
+
+/* ===================== Trạng thái ===================== */
+const STORE = 'selqc.v1';
+let S = { done:{}, current:'W1', code:{}, loc:{}, quiz:{}, rev:{}, self:{}, tries:{} };
+try { const s = JSON.parse(localStorage.getItem(STORE) || 'null'); if (s) S = Object.assign(S, s); } catch(e) {}
+const save = () => { try { localStorage.setItem(STORE, JSON.stringify(S)); } catch(e) {} };
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
+const cur = () => TICKETS.find(t => t.id === S.current) || TICKETS[0];
+const phaseOf = t => PHASES.find(p => p.k === t.ph);
+const hintsShown = {}, lastRes = {};
+
+/* ===================== Tô màu ===================== */
+const JKW = new Set('abstract boolean break case catch class default do double else extends final finally for if implements import int interface long new null package private protected public return static super switch this throw throws true false try void while var byte char float short'.split(' '));
+function hlJava(src){
+  let out = '', i = 0; const n = src.length, span = (c, s) => '<span class="hl-' + c + '">' + esc(s) + '</span>';
+  while (i < n){
+    const c = src[i];
+    if (c === '/' && src[i + 1] === '/'){ let j = src.indexOf('\n', i); if (j < 0) j = n; out += span('c', src.slice(i, j)); i = j; continue; }
+    if (c === '/' && src[i + 1] === '*'){ let j = src.indexOf('*/', i + 2); j = j < 0 ? n : j + 2; out += span('c', src.slice(i, j)); i = j; continue; }
+    if (c === '"' || c === "'"){ let j = i + 1; while (j < n && src[j] !== c && src[j] !== '\n'){ if (src[j] === '\\') j++; j++; } out += span('s', src.slice(i, Math.min(j + 1, n))); i = j + 1; continue; }
+    if (c === '@' && /[A-Za-z]/.test(src[i + 1] || '')){ let j = i + 1; while (j < n && /\w/.test(src[j])) j++; out += span('a', src.slice(i, j)); i = j; continue; }
+    if (/[0-9]/.test(c) && !/[\w$]/.test(src[i - 1] || '')){ let j = i; while (j < n && /[0-9._]/.test(src[j])) j++; out += span('n', src.slice(i, j)); i = j; continue; }
+    if (/[A-Za-z_$]/.test(c)){ let j = i; while (j < n && /[\w$]/.test(src[j])) j++; const w = src.slice(i, j); out += JKW.has(w) ? span('k', w) : esc(w); i = j; continue; }
+    out += esc(c); i++;
+  }
+  return out;
+}
+function hlXml(src){
+  const e = String(src).replace(/[&<>]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[c]));
+  return e.replace(/(&lt;!--[\s\S]*?--&gt;)|(&lt;\/?)([A-Za-z!][\w.:-]*)|([\w-]+)(=)("[^"]*")/g, (m, cm, lt, tag, an, eq, av) =>
+    cm ? '<span class="hl-c">' + cm + '</span>' : lt ? lt + '<span class="hl-t">' + tag + '</span>' : '<span class="hl-at">' + an + '</span>=<span class="hl-s">' + av + '</span>');
+}
+function hlYaml(src){
+  return src.split('\n').map(l => {
+    const ci = l.search(/(^|\s)#/), code = ci >= 0 ? l.slice(0, ci) : l, cm = ci >= 0 ? l.slice(ci) : '';
+    const c = esc(code).replace(/^(\s*-?\s*)([\w.\/-]+)(:)/, '$1<span class="hl-at">$2</span>$3').replace(/('[^']*')/g, '<span class="hl-s">$1</span>');
+    return c + (cm ? '<span class="hl-c">' + esc(cm) + '</span>' : '');
+  }).join('\n');
+}
+function hlProps(src){ return src.split('\n').map(l => /^\s*#/.test(l) ? '<span class="hl-c">' + esc(l) + '</span>' : esc(l).replace(/^([^=]+)=/, '<span class="hl-at">$1</span>=')).join('\n'); }
+const hl = (src, lang) => lang === 'xml' ? hlXml(src) : lang === 'yaml' ? hlYaml(src) : lang === 'props' ? hlProps(src) : hlJava(src);
+
+/* ===================== Danh sách bài ===================== */
+function renderQueue(){
+  $('queue').innerHTML = PHASES.map(p => {
+    const ts = TICKETS.filter(t => t.ph === p.k), d = ts.filter(t => S.done[t.id]).length;
+    return '<div class="phase"><h2>' + esc(p.name) + '<span>' + d + '/' + ts.length + '</span></h2>' + ts.map(t =>
+      '<button type="button" class="qitem' + (S.done[t.id] ? ' done' : '') + '" data-id="' + t.id + '"' + (t.id === S.current ? ' aria-current="true"' : '') + '><span class="dot"></span><span><span class="k">' + t.id + ' · ' + KIND[t.kind] + '</span><span class="t">' + esc(t.t) + '</span></span></button>').join('') + '</div>';
+  }).join('');
+  $('queue').querySelectorAll('.qitem').forEach(b => b.onclick = () => openTicket(b.dataset.id));
+  const n = TICKETS.filter(t => S.done[t.id]).length;
+  $('progText').textContent = n + '/' + TICKETS.length + ' bài';
+  $('progBar').style.width = (n / TICKETS.length * 100) + '%';
+}
+
+/* ===================== Đề bài ===================== */
+function renderTicket(){
+  const t = cur(), p = phaseOf(t), idx = TICKETS.indexOf(t), sh = hintsShown[t.id] || 0;
+  let h = '<div class="tk-head"><span class="tk-key">' + t.id + '</span><span class="chip acc">' + KIND[t.kind] + '</span><span class="chip">Buổi ' + p.bus + '</span>' +
+    (t.cp ? '<span class="chip cp">' + esc(t.cp) + '</span>' : '') + (S.done[t.id] ? '<span class="chip ok">Đã xong</span>' : '') + '</div>' +
+    '<h2 class="title">' + esc(t.t) + '</h2>' +
+    (S.done[t.id] ? '<div class="donebox">✓ Bạn đã hoàn thành bài này. Có thể làm lại để ôn.</div>' : '') +
+    '<div class="field"><h3>Yêu cầu</h3><div class="expect"><ul>' + t.need.map(x => '<li>' + x + '</li>').join('') + '</ul></div></div>';
+  if (t.learn && t.learn.length){
+    h += '<div class="field"><h3>Kiến thức cần dùng</h3><div class="lesson">' + t.learn.map((k, i) => { const L = LESSONS[k];
+      return '<details class="kw"' + (i === 0 && !S.done[t.id] ? ' open' : '') + '><summary>' + esc(L[0]) + '</summary><div class="kw-body">' + L[1] + (L[2] ? '<pre class="syn">' + hl(L[2], L[3]) + '</pre>' : '') + '</div></details>'; }).join('') + '</div></div>';
+  }
+  if (t.hints && t.hints.length){
+    h += '<div class="field"><h3>Gợi ý</h3><div class="hints">' + t.hints.slice(0, sh).map((x, i) => '<div class="hint"><b>Gợi ý ' + (i + 1) + '</b>' + x + '</div>').join('') + '</div>' +
+      (sh < t.hints.length ? '<button type="button" class="linkbtn" id="moreHint">Xem gợi ý ' + (sh + 1) + '/' + t.hints.length + '</button>' : '') + '</div>';
+  }
+  h += '<div class="field" style="display:flex;gap:8px">' + (idx > 0 ? '<button type="button" class="btn" id="prevT">← ' + TICKETS[idx - 1].id + '</button>' : '') + (idx < TICKETS.length - 1 ? '<button type="button" class="btn" id="nextT">' + TICKETS[idx + 1].id + ' →</button>' : '') + '</div>';
+  $('ticket').innerHTML = h;
+  if ($('moreHint')) $('moreHint').onclick = () => { hintsShown[t.id] = sh + 1; renderTicket(); };
+  if ($('prevT')) $('prevT').onclick = () => openTicket(TICKETS[idx - 1].id);
+  if ($('nextT')) $('nextT').onclick = () => openTicket(TICKETS[idx + 1].id);
+}
+function markDone(t){
+  if (!S.done[t.id]){ S.done[t.id] = true; save(); renderQueue(); renderTicket(); }
+}
+const nextBtn = t => { const i = TICKETS.indexOf(t); return i < TICKETS.length - 1 ? ' <button type="button" class="btn" data-next="' + TICKETS[i + 1].id + '">Bài tiếp theo: ' + TICKETS[i + 1].id + ' →</button>' : ''; };
+function checksHtml(g, okMsg){
+  return '<div class="res"><div class="verdict ' + (g.pass ? 'ok' : 'no') + '">' + (g.pass ? okMsg : 'Chưa đạt: ' + g.checks.filter(c => !c.ok).length + ' tiêu chí cần sửa') + '</div>' +
+    g.checks.map(c => '<div class="chk ' + (c.ok ? 'ok' : 'no') + '"><span class="ic">' + (c.ok ? '✓' : '✗') + '</span><span>' + esc(c.t) + (!c.ok && c.why ? '<span class="why">' + esc(c.why) + '</span>' : '') + '</span></div>').join('') + '</div>';
+}
+function wireNext(root){ root.querySelectorAll('[data-next]').forEach(b => b.onclick = () => openTicket(b.dataset.next)); }
+
+/* ===================== Khu làm bài ===================== */
+function inspector(key){ return '<pre class="insp">' + hlXml(PAGES[key].html) + '</pre>'; }
+const PAGE_LABEL = { login:'Login', inventory:'Sản phẩm', play:'Trang thao tác' };
+let locView = 'page';
+function renderWork(){
+  const t = cur(), w = $('work');
+  ({ loc:workLoc, code:workCode, quiz:workQuiz, review:workReview, self:workSelf })[t.kind](t, w);
+  wireNext(w);
+}
+function workLoc(t, w){
+  const st = S.loc[t.id] || { s:(t.only || ['css'])[0], v:'' }, fn = t.many ? 'findElements' : 'findElement';
+  w.innerHTML = '<div class="toolbar"><span class="ttl">Locator Lab · trang ' + PAGE_LABEL[t.page] + '</span><button type="button" class="btn primary" id="findBtn">' + fn + ' (Enter)</button></div>' +
+    '<div class="sec"><h4>Locator</h4><div class="locrow"><span class="pre">driver.' + fn + '(</span><select id="strat" aria-label="Chiến lược tìm">' + STRATS.map(s => '<option value="' + s[0] + '"' + (s[0] === st.s ? ' selected' : '') + '>' + s[1] + '</option>').join('') + '</select><input id="locv" aria-label="Giá trị locator" placeholder="giá trị locator" value="' + esc(st.v) + '" spellcheck="false" autocomplete="off"><span class="pre">)</span></div></div>' +
+    '<div class="sec" id="locres"><p class="msg">Nhập locator rồi bấm <b>' + fn + '</b>. Phần tử khớp sẽ được tô vàng trên trang.</p></div>' +
+    '<div class="sec"><div class="vtabs" role="tablist"><button type="button" role="tab" data-v="page" aria-selected="' + (locView === 'page') + '">Trang</button><button type="button" role="tab" data-v="html" aria-selected="' + (locView === 'html') + '">HTML (Inspector)</button></div>' +
+    '<div id="vPage"' + (locView === 'page' ? '' : ' hidden') + '><div class="browser"><div class="bbar"><i></i><i></i><i></i><span class="url">' + PAGES[t.page].url + '</span></div><div id="host"></div></div></div>' +
+    '<div id="vHtml"' + (locView === 'html' ? '' : ' hidden') + '>' + inspector(t.page) + '</div></div>';
+  const root = $('host').attachShadow({ mode:'open' });
+  root.innerHTML = '<style>' + PAGE_CSS + '</style><div class="root">' + pageDoc(t.page).body.innerHTML + '</div>';
+  root.addEventListener('click', e => { if (e.target.closest('a,button')) e.preventDefault(); });
+  root.addEventListener('submit', e => e.preventDefault());
+  w.querySelectorAll('.vtabs button').forEach(b => b.onclick = () => { locView = b.dataset.v; w.querySelectorAll('.vtabs button').forEach(x => x.setAttribute('aria-selected', String(x === b))); $('vPage').hidden = locView !== 'page'; $('vHtml').hidden = locView !== 'html'; });
+  const run = () => {
+    const s = $('strat').value, v = $('locv').value; S.loc[t.id] = { s, v, ran:true }; save();
+    const g = gradeLoc(t, s, v);
+    root.querySelectorAll('.sx-hit').forEach(e => e.classList.remove('sx-hit'));
+    g.els.forEach(e => { const x = root.querySelector('[data-sx="' + e.getAttribute('data-sx') + '"]'); if (x) x.classList.add('sx-hit'); });
+    const tags = g.els.slice(0, 8).map(e => { const c = e.cloneNode(false); c.removeAttribute('data-sx'); const tx = norm(e.textContent); return c.outerHTML.replace(/<\/[\w-]+>$/, '') + (tx ? '  ' + tx.slice(0, 40) : ''); });
+    const code = 'driver.' + fn + '(' + stratName(s) + '("' + v.replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '"))';
+    $('locres').innerHTML = '<p class="found">' + esc(code) + '</p>' + (g.els.length ? '<p class="msg" style="margin:6px 0">Khớp ' + g.els.length + ' phần tử:</p><div class="found">' + tags.map(esc).join('\n') + (g.els.length > 8 ? '\n…' : '') + '</div>' : '') +
+      '<div style="margin-top:8px">' + checksHtml(g, 'Đạt — locator ổn định và trỏ đúng phần tử.' + nextBtn(t)) + '</div>';
+    wireNext($('locres'));
+    if (g.pass) markDone(t);
+  };
+  $('findBtn').onclick = run;
+  $('locv').addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); run(); } });
+  if (st.ran) run();
+}
+const FILE = { java:'Java', xml:'XML', yaml:'YAML' };
+function workCode(t, w){
+  const src = S.code[t.id] != null ? S.code[t.id] : t.starter, tries = S.tries[t.id] || 0;
+  w.innerHTML = '<div class="toolbar"><span class="ttl">' + FILE[t.lang] + (t.snippet ? ' · đoạn code trong class test' : '') + '</span><button type="button" class="btn" id="resetBtn">Đặt lại</button><button type="button" class="btn" id="ansBtn"' + (tries || S.done[t.id] ? '' : ' disabled title="Mở sau lần chấm đầu tiên"') + '>Đáp án mẫu</button><button type="button" class="btn primary" id="gradeBtn">Chấm bài (Ctrl+Enter)</button></div>' +
+    '<textarea class="editor" id="ed" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="Trình soạn code"></textarea>' +
+    '<div class="sec" id="coderes">' + (lastRes[t.id] || '<p class="msg">Viết code rồi bấm <b>Chấm bài</b>. Bài được chấm theo tiêu chí của buổi học bằng cách đọc cấu trúc code (không chạy trình duyệt thật).</p>') + '</div>' +
+    '<div class="sec" id="ansBox" hidden></div>' +
+    (t.page ? '<div class="sec"><details><summary style="cursor:pointer;font-weight:600;font-size:13px">HTML trang ' + PAGE_LABEL[t.page] + ' (' + PAGES[t.page].url + ')</summary><div style="margin-top:8px">' + inspector(t.page) + '</div></details></div>' : '');
+  const ed = $('ed'); ed.value = src;
+  let tm; ed.addEventListener('input', () => { clearTimeout(tm); tm = setTimeout(() => { S.code[t.id] = ed.value; save(); }, 300); });
+  const grade = () => {
+    S.code[t.id] = ed.value; S.tries[t.id] = (S.tries[t.id] || 0) + 1; save();
+    const g = gradeCode(t, ed.value);
+    const html = checksHtml(g, 'Đạt tất cả tiêu chí.' + nextBtn(t));
+    lastRes[t.id] = html; $('coderes').innerHTML = html; wireNext($('coderes'));
+    $('ansBtn').disabled = false; $('ansBtn').removeAttribute('title');
+    if (g.pass) markDone(t);
+  };
+  ed.addEventListener('keydown', e => {
+    if (e.key === 'Tab' && !e.shiftKey){ e.preventDefault(); ed.setRangeText(t.lang === 'yaml' ? '  ' : '    ', ed.selectionStart, ed.selectionEnd, 'end'); ed.dispatchEvent(new Event('input')); }
+    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)){ e.preventDefault(); grade(); }
+  });
+  $('gradeBtn').onclick = grade;
+  $('resetBtn').onclick = () => { if (ed.value !== t.starter && !confirm('Xóa code đang viết và quay về code ban đầu?')) return; ed.value = t.starter; S.code[t.id] = t.starter; save(); };
+  $('ansBtn').onclick = () => { const b = $('ansBox'); b.hidden = !b.hidden; b.innerHTML = '<h4>Đáp án mẫu — đọc, so sánh, rồi tự gõ lại theo cách hiểu của bạn</h4><pre class="syn">' + hl(t.answer, t.lang) + '</pre>'; };
+}
+function workQuiz(t, w){
+  const ans = S.quiz[t.id] || {}, sub = ans.sub;
+  w.innerHTML = '<div class="toolbar"><span class="ttl">' + t.qs.length + ' câu hỏi</span><button type="button" class="btn primary" id="qSubmit">Nộp bài</button></div><div class="sec quiz">' +
+    t.qs.map((q, i) => '<div class="qq"><p class="q">Câu ' + (i + 1) + '. ' + q.q + '</p>' + q.o.map((o, j) => {
+      const sel = ans.a && ans.a[i] === j, cls = sub ? (j === q.a && sel ? ' right' : sel ? ' wrong' : '') : '';
+      return '<label class="opt' + cls + '"><input type="radio" name="q' + i + '" value="' + j + '"' + (sel ? ' checked' : '') + '><span>' + esc(o) + '</span></label>'; }).join('') +
+      (sub ? '<p class="expl">' + (ans.a && ans.a[i] === q.a ? '✓ Đúng. ' : '✗ Chưa đúng. ') + esc(q.w) + '</p>' : '') + '</div>').join('') +
+    '<div id="qRes"></div></div>';
+  w.querySelectorAll('input[type=radio]').forEach(r => r.onchange = () => { const a = (S.quiz[t.id] && S.quiz[t.id].a) || []; a[+r.name.slice(1)] = +r.value; S.quiz[t.id] = { a, sub:false }; save(); });
+  if (sub){ const right = t.qs.filter((q, i) => ans.a[i] === q.a).length; showQuizRes(t, right); }
+  $('qSubmit').onclick = () => {
+    const a = (S.quiz[t.id] && S.quiz[t.id].a) || [];
+    if (t.qs.some((q, i) => a[i] == null)){ $('qRes').innerHTML = '<p class="msg">Còn câu chưa chọn đáp án.</p>'; return; }
+    S.quiz[t.id] = { a, sub:true }; save();
+    if (t.qs.every((q, i) => a[i] === q.a)) markDone(t);
+    workQuiz(t, w);
+  };
+}
+function showQuizRes(t, right){
+  const ok = right === t.qs.length;
+  $('qRes').innerHTML = '<div class="verdict ' + (ok ? 'ok' : 'no') + '">' + right + '/' + t.qs.length + ' câu đúng' + (ok ? ' — đạt.' + nextBtn(t) : ' — đọc giải thích ở câu tô đỏ, chọn lại rồi nộp lần nữa.') + '</div>';
+  wireNext($('qRes'));
+}
+function workReview(t, w){
+  const st = S.rev[t.id] || { a:[], sub:false };
+  w.innerHTML = '<div class="toolbar"><span class="ttl">Pull request: BaseTest.java, CheckoutTest.java</span><button type="button" class="btn primary" id="rvSubmit">Nộp đánh giá</button></div>' +
+    '<div class="sec"><pre class="syn">' + hlJava(t.code) + '</pre></div><div class="sec"><h4>Checklist 9 mục</h4><div class="res">' +
+    t.items.map((it, i) => { const v = st.a[i], cls = st.sub ? (v === it[1] ? ' right' : ' wrong') : '';
+      return '<div class="rv' + cls + '"><span>' + (i + 1) + '. ' + esc(it[0]) + '</span><span class="seg"><button type="button" data-i="' + i + '" data-v="0" aria-pressed="' + (v === 0) + '">Đạt</button><button type="button" data-i="' + i + '" data-v="1" aria-pressed="' + (v === 1) + '">Vi phạm</button></span>' +
+        (st.sub && (v !== it[1] || st.all) ? '<span class="ex">' + it[2] + '</span>' : '') + '</div>'; }).join('') + '</div><div id="rvRes" style="margin-top:10px"></div></div>';
+  w.querySelectorAll('.seg button').forEach(b => b.onclick = () => { st.a[+b.dataset.i] = +b.dataset.v; st.sub = false; S.rev[t.id] = st; save(); workReview(t, w); });
+  if (st.sub){ const right = t.items.filter((it, i) => st.a[i] === it[1]).length;
+    $('rvRes').innerHTML = '<div class="verdict ' + (st.all ? 'ok' : 'no') + '">' + right + '/9 mục đánh giá đúng' + (st.all ? ' — đạt phần review của Checkpoint 2.' + nextBtn(t) : ' — đọc giải thích ở các mục tô đỏ rồi đánh giá lại.') + '</div>'; wireNext($('rvRes')); }
+  $('rvSubmit').onclick = () => {
+    if (t.items.some((it, i) => st.a[i] == null)){ $('rvRes').innerHTML = '<p class="msg">Còn mục chưa đánh giá.</p>'; return; }
+    st.sub = true; st.all = t.items.every((it, i) => st.a[i] === it[1]); S.rev[t.id] = st; save();
+    if (st.all) markDone(t);
+    workReview(t, w);
+  };
+}
+function workSelf(t, w){
+  const st = S.self[t.id] || [];
+  w.innerHTML = '<div class="toolbar"><span class="ttl">Tự kiểm tra bài nộp</span></div><div class="sec res">' +
+    t.items.map((x, i) => '<label class="selfck"><input type="checkbox" data-i="' + i + '"' + (st[i] ? ' checked' : '') + '><span>' + esc(x) + '</span></label>').join('') + '<div id="selfRes"></div></div>';
+  const upd = () => { const all = t.items.every((x, i) => st[i]);
+    $('selfRes').innerHTML = all ? '<div class="verdict ok">Đã đủ các mục của bài nộp buổi 10.' + nextBtn(t) + '</div>' : '<p class="msg">' + t.items.filter((x, i) => st[i]).length + '/' + t.items.length + ' mục đã xong.</p>';
+    wireNext($('selfRes'));
+    if (all) markDone(t); else if (S.done[t.id]){ delete S.done[t.id]; save(); renderQueue(); renderTicket(); } };
+  w.querySelectorAll('input[type=checkbox]').forEach(c => c.onchange = () => { st[+c.dataset.i] = c.checked; S.self[t.id] = st; save(); upd(); });
+  upd();
+}
+
+/* ===================== Tự kiểm tra dữ liệu bài (gọi selSelfTest() trong console) ===================== */
+function selSelfTest(){
+  const bad = [];
+  TICKETS.forEach(t => {
+    if (t.kind === 'loc'){
+      if (pageDoc(t.page).querySelectorAll(t.target).length < 1) bad.push(t.id + ': target không tồn tại');
+      (t.ans || []).forEach(a => { const g = gradeLoc(t, a[0], a[1]); if (!g.pass) bad.push(t.id + ' ans ' + a.join(' ') + ' → ' + g.checks.filter(c => !c.ok).map(c => c.t).join('; ')); });
+      (t.bad || []).forEach(a => { if (gradeLoc(t, a[0], a[1]).pass) bad.push(t.id + ' bad passes: ' + a.join(' ')); });
+    }
+    if (t.kind === 'code'){
+      const g = gradeCode(t, t.answer); if (!g.pass) bad.push(t.id + ' answer fails: ' + g.checks.filter(c => !c.ok).map(c => c.t + (c.why ? ' (' + c.why + ')' : '')).join('; '));
+      if (gradeCode(t, t.starter).pass) bad.push(t.id + ' starter passes');
+      (t.wrong || []).forEach((x, i) => { if (gradeCode(t, x).pass) bad.push(t.id + ' wrong#' + i + ' passes'); });
+    }
+    if (t.kind === 'quiz') t.qs.forEach((q, i) => { if (q.a == null || q.a >= q.o.length) bad.push(t.id + ' q' + i + ' đáp án sai chỉ số'); });
+    (t.learn || []).forEach(k => { if (!LESSONS[k]) bad.push(t.id + ': thiếu bài học ' + k); });
+  });
+  return bad.length ? bad : 'all ok (' + TICKETS.length + ' bài)';
+}
+
+/* ===================== Điều khiển chung ===================== */
+function openTicket(id){
+  if (!TICKETS.some(t => t.id === id)) id = TICKETS[0].id;
+  S.current = id; save();
+  renderQueue(); renderTicket(); renderWork();
+  $('ticket').scrollTop = 0; $('work').scrollTop = 0;
+  try { if (location.hash.slice(1) !== id) history.replaceState(null, '', '#' + id); } catch(e) {}
+}
+window.addEventListener('hashchange', () => { const h = location.hash.slice(1); if (TICKETS.some(t => t.id === h) && h !== S.current) openTicket(h); });
+$('themeBtn').onclick = () => {
+  const root = document.documentElement;
+  const dark = root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+  root.dataset.theme = dark ? 'light' : 'dark';
+  try { localStorage.setItem('selqc.theme', root.dataset.theme); } catch(e) {}
+};
+try { const th = localStorage.getItem('selqc.theme'); if (th) document.documentElement.dataset.theme = th; } catch(e) {}
+openTicket(TICKETS.some(t => t.id === location.hash.slice(1)) ? location.hash.slice(1) : S.current);
+</script>
+
+</html>

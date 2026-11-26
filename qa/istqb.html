@@ -1,0 +1,1247 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><script>(function(){var e=false;try{e=window.top!==window}catch(x){e=true}if(e)document.documentElement.classList.add("embedded")})()</script><style>html.embedded nav.switch{display:none!important}</style>
+<title>Luyện ISTQB CTFL 4.0</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: cùng bộ với "Luyện SQL qua ticket QC" — mục lục chương bên trái, nội dung học / làm bài ở giữa, cột đọc ~70 ký tự. */
+:root{
+  --bg:#f8f4f6; --surface:#ffffff; --sunken:#f1e9ed; --ink:#22161c; --muted:#6b5a63; --line:#e6d9df;
+  --accent:#c2185b; --accent-ink:#ffffff; --accent-soft:#fce4ec;
+  --pass:#1d7a46; --pass-soft:#e1f3e7; --fail:#b3261e; --fail-soft:#fbe7e5; --warn:#8a5a00; --warn-soft:#fbf0d6;
+  --code-bg:#fbf8f9; --kw:#ad1457; --str:#9a4b00; --num:#1d7a46; --cmt:#7c8296;
+  --f-display:"Be Vietnam Pro", "Segoe UI", system-ui, sans-serif;
+  --f-body:"Inter", "Segoe UI", system-ui, sans-serif;
+  --f-mono:"JetBrains Mono", Consolas, "Courier New", monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#151013; --surface:#1d161a; --sunken:#100c0e; --ink:#efe6ea; --muted:#ab99a2; --line:#352a30;
+  --accent:#f48fb1; --accent-ink:#2a0a17; --accent-soft:#3d1a29;
+  --pass:#5fd08e; --pass-soft:#163322; --fail:#ff8a80; --fail-soft:#3a1a18; --warn:#f0c35a; --warn-soft:#352a12;
+  --code-bg:#171114; --kw:#f8a5c2; --str:#f0b070; --num:#5fd08e; --cmt:#767d8f; color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#151013; --surface:#1d161a; --sunken:#100c0e; --ink:#efe6ea; --muted:#ab99a2; --line:#352a30;
+  --accent:#f48fb1; --accent-ink:#2a0a17; --accent-soft:#3d1a29;
+  --pass:#5fd08e; --pass-soft:#163322; --fail:#ff8a80; --fail-soft:#3a1a18; --warn:#f0c35a; --warn-soft:#352a12;
+  --code-bg:#171114; --kw:#f8a5c2; --str:#f0b070; --num:#5fd08e; --cmt:#767d8f; color-scheme:dark;
+}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:14.5px;line-height:1.6;display:flex;flex-direction:column}
+*{box-sizing:border-box}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0}
+code,pre{font-family:var(--f-mono)}
+code{font-size:.9em;background:var(--sunken);padding:1px 5px;border-radius:4px}
+button{font:inherit;cursor:pointer;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+a{color:var(--accent)}
+
+.top{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding-block:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));border-bottom:1px solid var(--line);background:var(--surface)}
+.brand{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;min-width:0}
+.brand h1{font-size:18px;font-weight:700;letter-spacing:-.01em}
+.brand h1 span{color:var(--accent)}
+.brand p{margin:0;color:var(--muted);font-size:12.5px}
+.progress{margin-left:auto;display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--muted)}
+.bar{width:120px;height:6px;border-radius:3px;background:var(--sunken);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);width:0;transition:width .3s}
+.switch{display:flex;gap:2px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:2px;background:var(--bg)}
+.sw{padding:4px 12px;border-radius:6px;font-size:12.5px;font-weight:500;text-decoration:none;color:var(--muted);white-space:nowrap}
+a.sw:hover{background:var(--sunken);color:var(--ink)}
+.sw.cur{background:var(--accent);color:var(--accent-ink)}
+.theme-btn{border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:6px;padding:4px 8px;font-size:12px}
+
+.app{flex:1;min-height:0;display:grid;grid-template-columns:270px minmax(0,1fr)}
+.pane{min-height:0;overflow:auto}
+.nav{border-right:1px solid var(--line);background:var(--surface);padding:12px 10px 24px;display:flex;flex-direction:column;gap:2px}
+.nav h2{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:10px 8px 4px}
+.nitem{display:grid;grid-template-columns:28px 1fr auto;gap:8px;align-items:center;width:100%;text-align:left;border:0;background:transparent;padding:8px;border-radius:6px}
+.nitem:hover{background:var(--sunken)}
+.nitem[aria-current="true"]{background:var(--accent-soft)}
+.nitem .no{font-family:var(--f-mono);font-size:12px;color:var(--muted);text-align:center}
+.nitem .nm{font-size:13.5px;line-height:1.35}
+.nitem .nm small{display:block;color:var(--muted);font-size:11.5px}
+.nitem .cnt{font-family:var(--f-mono);font-size:11px;color:var(--muted);white-space:nowrap}
+.nitem .cnt.full{color:var(--pass)}
+
+.main{padding-block:22px 48px;padding-left:max(24px,env(safe-area-inset-left,0px));padding-right:max(24px,env(safe-area-inset-right,0px))}
+.wrap{max-width:780px;margin:0 auto}
+.eyebrow{font-family:var(--f-mono);font-size:12px;color:var(--muted);margin-bottom:4px}
+.h-title{font-size:24px;font-weight:700;line-height:1.3;margin-bottom:4px}
+.h-sub{color:var(--muted);margin:0 0 16px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.chip{font-size:12px;font-weight:500;padding:2px 9px;border-radius:999px;background:var(--sunken);color:var(--muted)}
+.chip.acc{background:var(--accent-soft);color:var(--accent)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;margin-bottom:18px;background:var(--surface)}
+.seg button{border:0;background:transparent;padding:7px 16px;font-weight:500;font-size:13.5px;color:var(--muted)}
+.seg button[aria-selected="true"]{background:var(--accent);color:var(--accent-ink)}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px 18px}
+.stack{display:flex;flex-direction:column;gap:10px}
+.th{border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.th summary{cursor:pointer;padding:12px 16px;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;list-style:none}
+.th summary::-webkit-details-marker{display:none}
+.th summary::before{content:"▸";color:var(--muted);font-size:12px;transition:transform .15s}
+.th[open] summary::before{transform:rotate(90deg)}
+.th summary b{font-family:var(--f-display);font-weight:600;font-size:15px}
+.th summary i{font-style:normal;color:var(--muted);font-size:12.5px}
+.th summary .lo{margin-left:auto;font-family:var(--f-mono);font-size:11px;color:var(--muted)}
+.th-body{padding:0 16px 14px 34px;display:flex;flex-direction:column;gap:10px}
+.th-body p,.th-body ul,.th-body ol{margin:0}
+.th-body ul,.th-body ol{padding-left:20px;display:flex;flex-direction:column;gap:3px}
+.box{border-radius:8px;padding:9px 12px;font-size:13.5px}
+.box b.lbl{display:block;font-size:11px;letter-spacing:.07em;text-transform:uppercase;margin-bottom:2px}
+.box.ex{background:var(--accent-soft)} .box.ex b.lbl{color:var(--accent)}
+.box.trap{background:var(--warn-soft)} .box.trap b.lbl{color:var(--warn)}
+
+.term-search input{width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);font:inherit;margin-bottom:12px}
+.terms{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px}
+.term{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.term-h{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline}
+.term-h b{font-family:var(--f-display);font-weight:600;font-size:15px}
+.term-h i{font-style:normal;color:var(--accent);font-size:13px;font-weight:500}
+.term-h .chip{margin-left:auto}
+.term p{margin:0;font-size:13.5px}
+.term-ex{color:var(--muted)}
+.term .term-src{font-size:12px;color:var(--accent)}
+.term-ex b{color:var(--ink);font-weight:600}
+.qnav{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.qdot{width:32px;height:32px;border-radius:7px;border:1px solid var(--line);background:var(--surface);font-family:var(--f-mono);font-size:12px;display:grid;place-items:center}
+.qdot.ok{background:var(--pass-soft);border-color:var(--pass);color:var(--pass)}
+.qdot.no{background:var(--fail-soft);border-color:var(--fail);color:var(--fail)}
+.qdot.ans{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.qdot.flag{box-shadow:inset 0 -3px 0 var(--warn)}
+.qdot[aria-current="true"]{outline:2px solid var(--ink);outline-offset:1px}
+.qmeta{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.qtext{font-size:15.5px;line-height:1.6;margin-bottom:14px}
+.qtext .tbl-wrap{margin:8px 0}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{display:grid;grid-template-columns:28px 1fr;gap:10px;align-items:start;text-align:left;width:100%;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:10px 12px}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt .L{width:24px;height:24px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;font-weight:600;font-size:12px;font-family:var(--f-mono)}
+.opt.sel{border-color:var(--accent);background:var(--accent-soft)}
+.opt.sel .L{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.opt.right{border-color:var(--pass);background:var(--pass-soft)}
+.opt.right .L{background:var(--pass);border-color:var(--pass);color:var(--surface)}
+.opt.wrong{border-color:var(--fail);background:var(--fail-soft)}
+.opt.wrong .L{background:var(--fail);border-color:var(--fail);color:var(--surface)}
+.opt:disabled{cursor:default}
+.opt .why{display:block;font-size:13px;color:var(--muted);margin-top:4px}
+.opt.right .why,.opt.wrong .why{color:var(--ink)}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px;align-items:center}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:7px;padding:7px 14px;font-weight:500;font-size:13.5px}
+.btn:hover{background:var(--sunken)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn:disabled{opacity:.5;cursor:default}
+.spacer{flex:1}
+.verdict{border-radius:8px;padding:10px 14px;margin-top:14px;font-weight:600}
+.verdict.ok{background:var(--pass-soft);color:var(--pass)}
+.verdict.no{background:var(--fail-soft);color:var(--fail)}
+.reflink{font-size:13px;color:var(--muted);margin-top:8px}
+.linkbtn{border:0;background:none;color:var(--accent);font-weight:600;padding:0;font-size:13px}
+
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:8px;max-width:100%}
+table.res{border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums;min-width:100%}
+table.res th,table.res td{padding:6px 10px;border-bottom:1px solid var(--line);text-align:left}
+table.res th{background:var(--sunken);font-weight:600;font-size:12.5px}
+table.res tr:last-child td{border-bottom:0}
+table.res td.num{text-align:right;font-family:var(--f-mono)}
+pre.syn{margin:8px 0;background:var(--code-bg);border:1px solid var(--line);border-radius:6px;padding:8px 10px;overflow-x:auto;font-size:13px;line-height:1.55;white-space:pre}
+
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.stat b{display:block;font-family:var(--f-display);font-size:22px;font-variant-numeric:tabular-nums}
+.stat span{color:var(--muted);font-size:12.5px}
+.sec{margin-top:22px}
+.sets{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (min-width:1100px){.sets{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.setcard{text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:2px}
+.setcard:hover{border-color:var(--accent);background:var(--accent-soft)}
+.setcard b{font-family:var(--f-display);font-size:15px}
+.setcard span{color:var(--muted);font-size:12.5px}
+.setcard .best{color:var(--pass);font-weight:600}
+.sec h3{font-size:15px;margin-bottom:8px}
+.doclist{display:flex;flex-direction:column;gap:8px}
+.doc{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.doc a{font-weight:600}
+.doc span{color:var(--muted);font-size:13px}
+.note{color:var(--muted);font-size:13px}
+.timer{font-family:var(--f-mono);font-size:15px;font-weight:500;padding:4px 10px;border-radius:7px;background:var(--sunken)}
+.timer.low{background:var(--fail-soft);color:var(--fail)}
+.result-big{font-family:var(--f-display);font-size:34px;font-weight:700;font-variant-numeric:tabular-nums}
+.pass-tag{display:inline-block;padding:3px 12px;border-radius:999px;font-weight:600;font-size:13px}
+.pass-tag.ok{background:var(--pass-soft);color:var(--pass)} .pass-tag.no{background:var(--fail-soft);color:var(--fail)}
+.meter{height:8px;border-radius:4px;background:var(--sunken);overflow:hidden;min-width:80px}
+.meter i{display:block;height:100%;background:var(--accent)}
+.rv{border:1px solid var(--line);border-radius:10px;background:var(--surface);padding:12px 14px}
+.rv .qtext{font-size:14.5px;margin-bottom:8px}
+.rv-ans{font-size:13.5px;display:flex;flex-direction:column;gap:3px}
+.rv-ans .u{color:var(--fail)} .rv-ans .c{color:var(--pass)}
+.confirm{display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--warn-soft);border-radius:8px;padding:8px 12px;font-size:13.5px}
+
+@media (max-width:860px){
+  html,body{height:auto}
+  .app{display:block}
+  .pane{overflow:visible}
+  .nav{border-right:0;border-bottom:1px solid var(--line);flex-direction:row;overflow-x:auto;padding:8px 10px;position:sticky;top:env(safe-area-inset-top,0px);z-index:5}
+  .nav h2{display:none}
+  .nitem{flex:0 0 auto;width:auto;grid-template-columns:auto auto;padding:6px 10px}
+  .nitem .nm small,.nitem .cnt{display:none}
+  .nitem .no{text-align:left}
+  .main{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+  .th-body{padding-left:16px}
+  .bar{width:70px}
+  .h-title{font-size:21px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<header class="top">
+  <div class="brand">
+    <h1>Luyện <span>ISTQB CTFL 4.0</span></h1>
+    <p>Bài 14/11/2026 · Lý thuyết · Thuật ngữ · Câu hỏi có giải thích · Thi thử 40 câu</p>
+  </div>
+  <nav class="switch" aria-label="Chuyển bài luyện">
+    <a class="sw" href="https://claude.ai/artifact/JaoKpmEcfkpAuEXorgS3pS" target="_blank" rel="noopener">Trang chủ</a>
+    <a class="sw" href="https://claude.ai/artifact/2kvvuqBZQFg8RipuUKwpPe" target="_blank" rel="noopener">Luyện SQL</a>
+    <a class="sw" href="https://claude.ai/artifact/UEyyLXfD54P1DxKUjVyGEN" target="_blank" rel="noopener">Luyện Java</a>
+    <a class="sw cur" aria-current="page">Luyện ISTQB</a>
+    <a class="sw" href="https://claude.ai/artifact/SjkaU5hz7dHfEJrDGLyfAw" target="_blank" rel="noopener">Luyện test API</a>
+  </nav>
+  <div class="progress"><span id="progText">0 câu đúng</span><div class="bar"><i id="progBar"></i></div>
+    <button class="theme-btn" id="themeBtn" type="button" aria-label="Đổi giao diện sáng/tối">Sáng/Tối</button></div>
+</header>
+
+<div class="app">
+  <nav class="pane nav" id="nav" aria-label="Mục lục"></nav>
+  <main class="pane main" id="main"><div class="wrap" id="view"></div></main>
+</div>
+
+<script>
+/* ===================== Lý thuyết theo chương (viết lại theo syllabus CTFL 4.0) ===================== */
+const CHAPTERS = [
+{ ch:1, name:'Nền tảng kiểm thử', en:'Fundamentals of Testing', exam:8, time:'180 phút',
+  theory:[
+  { k:'Mục tiêu kiểm thử', en:'Test objectives', lo:'FL-1.1.1',
+    d:`<p>Kiểm thử không chỉ để "tìm bug". Các mục tiêu điển hình:</p><ul><li>Đánh giá sản phẩm công việc: yêu cầu, user story, thiết kế, code.</li><li>Phát hiện các sự cố (failure) và tìm lỗi (defect).</li><li>Đạt độ bao phủ cần thiết của đối tượng kiểm thử.</li><li>Giảm rủi ro chất lượng kém.</li><li>Kiểm tra yêu cầu đã được đáp ứng; kiểm tra tuân thủ hợp đồng, pháp lý, quy định.</li><li>Cung cấp thông tin để các bên liên quan ra quyết định.</li><li>Xây dựng niềm tin vào chất lượng.</li><li>Thẩm định (validate) đối tượng hoàn chỉnh và chạy đúng như các bên mong đợi.</li></ul>`,
+    ex:'Trước khi release, báo cáo "đã chạy 320/320 case, còn 2 bug Medium" là đang phục vụ mục tiêu cung cấp thông tin để PO quyết định có release hay không.',
+    trap:'Đáp án "chứng minh phần mềm không còn lỗi" luôn sai, vì kiểm thử chỉ chứng minh được là có lỗi (nguyên tắc 1).' },
+  { k:'Kiểm thử và gỡ lỗi', en:'Testing vs Debugging', lo:'FL-1.1.2',
+    d:`<p><b>Kiểm thử</b> làm lộ ra sự cố (kiểm thử động) hoặc tìm thẳng lỗi (kiểm thử tĩnh).</p><p><b>Gỡ lỗi (debugging)</b> là việc của dev: tái hiện sự cố → chẩn đoán, tìm nguyên nhân → sửa.</p><p>Sau khi sửa, tester chạy <b>kiểm thử xác nhận</b> (confirmation testing), thường kèm <b>kiểm thử hồi quy</b> (regression testing).</p>`,
+    ex:'QC báo "bấm Thanh toán ra lỗi 500" là kiểm thử. Dev đọc log, tìm ra null pointer và sửa là gỡ lỗi. QC chạy lại case đó là kiểm thử xác nhận.',
+    trap:'Kiểm thử tĩnh (rà soát) tìm thẳng ra lỗi mà không cần gỡ lỗi để chẩn đoán.' },
+  { k:'Sai sót, Lỗi, Sự cố, và Nguyên nhân gốc rễ', en:'Error, Defect, Failure, Root cause', lo:'FL-1.2.3',
+    d:`<p>Con người mắc <b>sai sót (error / mistake)</b> → tạo ra <b>lỗi (defect / fault / bug)</b> trong code hoặc tài liệu → khi chạy, lỗi có thể gây ra <b>sự cố (failure)</b>: hệ thống làm sai điều cần làm.</p><p><b>Nguyên nhân gốc rễ (root cause)</b> là lý do cơ bản khiến vấn đề xảy ra, ví dụ spec mơ hồ hoặc thiếu đào tạo. Sửa nguyên nhân gốc rễ giúp tránh các lỗi tương tự về sau.</p><p>Sự cố cũng có thể đến từ điều kiện môi trường (bức xạ, từ trường), không chỉ từ lỗi.</p>`,
+    ex:'Dev hiểu nhầm quy tắc làm tròn (sai sót) → viết sai hàm làm tròn (lỗi) → khách thấy tổng tiền lệch 100đ (sự cố). Nguyên nhân gốc rễ: spec không ghi quy tắc làm tròn.',
+    trap:'Không phải lỗi nào cũng gây sự cố: đoạn code sai nằm trong nhánh không bao giờ chạy tới thì không gây sự cố.' },
+  { k:'Kiểm thử và đảm bảo chất lượng', en:'Testing vs QA', lo:'FL-1.2.2',
+    d:`<p><b>Kiểm thử</b> là một dạng <b>kiểm soát chất lượng (QC)</b>: hướng vào <b>sản phẩm</b>, mang tính <b>khắc phục</b> (tìm ra để sửa).</p><p><b>Đảm bảo chất lượng (QA)</b> hướng vào <b>quy trình</b>, mang tính <b>phòng ngừa</b>: quy trình tốt thì sản phẩm tốt. QA là trách nhiệm của mọi người trong dự án.</p><p>Kết quả kiểm thử được dùng cho cả hai: QC dùng để sửa lỗi, QA dùng để biết quy trình có hiệu quả không.</p>`,
+    ex:'Viết thêm case cho module thanh toán là QC. Đưa quy định "mọi spec phải được rà soát trước khi code" vào quy trình là QA.',
+    trap:'QA không phải "tên khác của tester". Đề thi hay gài đáp án coi QA và kiểm thử là một.' },
+  { k:'Bảy nguyên tắc kiểm thử', en:'Seven testing principles', lo:'FL-1.3.1',
+    d:`<ol><li><b>Kiểm thử cho thấy sự tồn tại của lỗi, chứ không phải sự vắng mặt của lỗi.</b></li><li><b>Kiểm thử vét cạn là không thể</b> (exhaustive testing): phải chọn lọc bằng kỹ thuật, ưu tiên, rủi ro.</li><li><b>Kiểm thử sớm giúp tiết kiệm thời gian và chi phí</b> (shift left).</li><li><b>Lỗi có xu hướng tập trung</b>: số ít module chứa phần lớn lỗi (nguyên lý Pareto).</li><li><b>Test case giảm hiệu quả theo thời gian</b> (tests wear out): lặp lại mãi một bộ test thì ngày càng ít tìm được lỗi mới.</li><li><b>Kiểm thử phụ thuộc vào ngữ cảnh</b>: app y tế khác app game.</li><li><b>Ngộ nhận về việc không có lỗi</b> (absence-of-defects fallacy): hết lỗi nhưng không đáp ứng nhu cầu người dùng thì vẫn thất bại.</li></ol>`,
+    ex:'Bộ regression 6 tháng không bắt được lỗi mới nào trong khi khách vẫn báo bug: đó là nguyên tắc 5, cần cập nhật và bổ sung test.',
+    trap:'Phân biệt 5 và 4: "test cũ không còn tìm ra lỗi" là nguyên tắc 5; "lỗi dồn vào một chỗ" là nguyên tắc 4.' },
+  { k:'Các hoạt động kiểm thử', en:'Test activities', lo:'FL-1.4.1',
+    d:`<ul><li><b>Lập kế hoạch</b> (planning): mục tiêu, cách tiếp cận.</li><li><b>Giám sát kiểm thử và kiểm soát kiểm thử</b> (monitoring &amp; control): so tiến độ với kế hoạch, điều chỉnh khi lệch.</li><li><b>Phân tích</b> (analysis): xác định <b>cần test cái gì</b>, tức khía cạnh kiểm thử (test conditions), từ cơ sở kiểm thử; tìm lỗi trong cơ sở kiểm thử.</li><li><b>Thiết kế</b> (design): xác định <b>test như thế nào</b>: test case, hạng mục bao phủ, dữ liệu test, môi trường.</li><li><b>Triển khai</b> (implementation): tạo sản phẩm kiểm thử cho thực thi: trình tự thực hiện kiểm thử, bộ test case, lịch thực thi, dữ liệu, môi trường.</li><li><b>Thực thi</b> (execution): chạy test, so kết quả thực tế với mong đợi, báo cáo lỗi.</li><li><b>Hoàn tất</b> (completion): lưu trữ sản phẩm kiểm thử, đóng môi trường, rút kinh nghiệm, viết báo cáo hoàn tất kiểm thử.</li></ul>`,
+    ex:'"Kiểm tra luồng hoàn tiền" là khía cạnh kiểm thử (phân tích). "Hủy đơn đã trả 447.000đ → hoàn đúng 447.000đ" là test case (thiết kế). Gom các case thành bộ "Regression thanh toán" và xếp lịch chạy tối thứ Sáu là triển khai.',
+    trap:'Câu hỏi "cần test cái gì" là phân tích; "test như thế nào" là thiết kế; "chuẩn bị mọi thứ để chạy" là triển khai.' },
+  { k:'Sản phẩm kiểm thử và khả năng truy vết', en:'Testware & Traceability', lo:'FL-1.4.3, FL-1.4.4',
+    d:`<p><b>Sản phẩm kiểm thử (sản phẩm kiểm thử)</b> là mọi sản phẩm của các hoạt động kiểm thử: kế hoạch, khía cạnh kiểm thử, test case, dữ liệu, script, báo cáo lỗi, báo cáo hoàn tất kiểm thử…</p><p><b>Khả năng truy vết (traceability)</b> là liên kết giữa cơ sở kiểm thử và sản phẩm kiểm thử (yêu cầu ↔ test case ↔ kết quả ↔ lỗi). Truy vết giúp đánh giá độ bao phủ, phân tích ảnh hưởng khi yêu cầu thay đổi, phục vụ kiểm toán và làm báo cáo dễ hiểu cho bên liên quan.</p>`,
+    ex:'Cột "Requirement ID" trong file testcase giúp trả lời ngay "spec REQ-12 vừa đổi thì phải chạy lại những case nào".',
+    trap:'Khả năng truy vết không làm tăng số lỗi tìm được; nó phục vụ đánh giá bao phủ và phân tích ảnh hưởng.' },
+  { k:'Cách tiếp cận toàn đội ngũ', en:'Whole team approach', lo:'FL-1.5.2',
+    d:'<p>Mọi thành viên có kỹ năng phù hợp đều có thể làm bất kỳ việc gì, và <b>cả nhóm cùng chịu trách nhiệm về chất lượng</b>. Tester làm việc cùng business để viết acceptance test, cùng dev thống nhất chiến lược và cách tự động hóa.</p>',
+    ex:'Trong buổi refinement, QC cùng PO viết tiêu chí chấp nhận; dev cùng QC quyết định case nào tự động ở mức API.',
+    trap:'Cách này không phù hợp mọi ngữ cảnh: hệ thống an toàn cao (safety-critical) vẫn cần mức độ độc lập kiểm thử cao.' },
+  { k:'Tính độc lập của kiểm thử', en:'Independence of testing', lo:'FL-1.5.3',
+    d:`<p>Các mức độc lập tăng dần: tác giả tự test → đồng nghiệp cùng team → tester ngoài team nhưng trong tổ chức → tester ngoài tổ chức.</p><p><b>Lợi ích</b>: tester độc lập có góc nhìn và thiên kiến khác tác giả nên tìm được loại lỗi khác; dám kiểm chứng và phản biện giả định của stakeholder.</p><p><b>Bất lợi</b>: bị tách khỏi team, thiếu hợp tác, giao tiếp kém; dev có thể giảm ý thức trách nhiệm về chất lượng; tester có thể bị coi là "nút thắt cổ chai" hoặc bị đổ lỗi.</p>`,
+    ex:'Một công ty thuê đơn vị ngoài test bảo mật app ngân hàng: độc lập cao, nhưng đơn vị ngoài cần thời gian để hiểu nghiệp vụ.',
+    trap:'Đề hay cho 4 phát biểu và hỏi "đâu là bất lợi". Câu "tìm được loại lỗi khác" là lợi ích, không phải bất lợi.' },
+  ]},
+{ ch:2, name:'Kiểm thử trong suốt vòng đời phát triển phần mềm', en:'Testing Throughout the SDLC', exam:6, time:'130 phút',
+  theory:[
+  { k:'Thực hành tốt cho mọi SDLC', en:'Good testing practices', lo:'FL-2.1.2',
+    d:`<ul><li>Mỗi hoạt động phát triển có một hoạt động kiểm thử tương ứng.</li><li>Mỗi mức kiểm thử có mục tiêu riêng, tránh trùng lặp.</li><li>Phân tích và thiết kế test case cho một mức bắt đầu ngay trong giai đoạn phát triển tương ứng (kiểm thử sớm).</li><li>Tester tham gia rà soát sản phẩm công việc ngay từ bản nháp.</li></ul>`,
+    ex:'Khi BA viết spec màn đặt hàng, QC đã bắt đầu viết khía cạnh kiểm thử và gửi câu hỏi Q&A thay vì chờ có build.',
+    trap:'Đáp án "thiết kế test chỉ bắt đầu khi code đã xong" luôn là đáp án sai.' },
+  { k:'Phát triển hướng kiểm thử: TDD, ATDD, BDD', en:'Test-first approaches', lo:'FL-2.1.3',
+    d:`<ul><li><b>TDD</b>: dev viết unit test trước → chạy thấy fail → viết code cho pass → refactor. Định hướng code, mức component.</li><li><b>ATDD</b>: viết acceptance test từ acceptance criteria trước khi phát triển, do cả nhóm (business, dev, tester) cùng làm.</li><li><b>BDD</b>: mô tả hành vi mong muốn bằng ngôn ngữ tự nhiên, dạng <code>Given / When / Then</code>, để mọi người đều hiểu; sau đó có thể chuyển thành test tự động.</li></ul>`,
+    ex:'Kịch bản "Given giỏ hàng 600.000đ, When áp mã SALE10, Then tổng còn 540.000đ" là BDD.',
+    trap:'Cả ba đều là test-first. Phân biệt bằng: ai viết, mức nào, và có dùng Given/When/Then hay không.' },
+  { k:'DevOps và shift left', en:'DevOps & Shift-left', lo:'FL-2.1.4, FL-2.1.5',
+    d:`<p><b>DevOps</b>: CI/CD giúp phản hồi nhanh về chất lượng, khuyến khích test tự động, giảm rủi ro hồi quy. Nhưng phải đầu tư xây pipeline và bảo trì test tự động; vẫn cần test thủ công từ góc nhìn người dùng.</p><p><b>Shift left (kiểm thử sớm)</b>: kiểm thử sớm hơn trong SDLC, ví dụ: rà soát spec từ góc nhìn kiểm thử; viết test case trước khi code; dùng CI; chạy phân tích tĩnh trước kiểm thử động; làm kiểm thử phi chức năng sớm ở mức component.</p>`,
+    ex:'Mỗi lần merge code, pipeline chạy unit test và quét SonarQube trong 5 phút: lỗi bị chặn trước khi tới tay QC.',
+    trap:'Shift left có thể tốn thêm công sức và chi phí đào tạo lúc đầu, nhưng tiết kiệm về sau.' },
+  { k:'Retrospective (họp rút kinh nghiệm)', en:'Retrospectives', lo:'FL-2.1.6',
+    d:'<p>Thường diễn ra cuối iteration hoặc dự án: điều gì làm tốt, điều gì chưa, cải thiện thế nào. Lợi ích cho kiểm thử: tăng hiệu quả, chất lượng sản phẩm kiểm thử, gắn kết nhóm, cải thiện cơ sở kiểm thử, hợp tác dev–test tốt hơn.</p>',
+    ex:'Retro phát hiện "spec thường thiếu quy tắc làm tròn" → thêm mục đó vào checklist rà soát spec.',
+    trap:'Retro là để cải tiến quy trình, không phải để tìm người có lỗi.' },
+  { k:'Các mức kiểm thử', en:'Test levels', lo:'FL-2.2.1',
+    d:`<ul><li><b>Kiểm thử thành phần</b> (component / unit): từng thành phần riêng lẻ, thường do dev làm, có thể cần mô-đun giả (stub) / thành phần điều khiển kiểm thử (driver).</li><li><b>Kiểm thử tích hợp thành phần</b> (component integration): giao tiếp giữa các thành phần trong hệ thống.</li><li><b>Kiểm thử hệ thống</b> (system): hành vi tổng thể end-to-end, cả chức năng và phi chức năng.</li><li><b>Kiểm thử tích hợp hệ thống</b> (system integration): giao tiếp với hệ thống khác, dịch vụ bên ngoài.</li><li><b>Kiểm thử chấp nhận</b> (acceptance): xác nhận sẵn sàng triển khai và đáp ứng nhu cầu. Gồm: UAT; chấp nhận vận hành (OAT: sao lưu, khôi phục, cài đặt); theo hợp đồng / quy định; alpha (tại nơi phát triển); beta (tại nơi của người dùng). <i>Syllabus v4.0 chỉ liệt kê tên các hình thức này; phần mô tả trong ngoặc lấy từ syllabus v3.1.</i></li></ul>`,
+    ex:'Test ShopDemo gọi cổng Momo nhận callback đúng là tích hợp hệ thống. Test hàm tinh_giam_gia() với stub DB là kiểm thử thành phần.',
+    trap:'"Tích hợp" giữa các module nội bộ là tích hợp thành phần; với hệ thống bên ngoài là tích hợp hệ thống.' },
+  { k:'Các loại kiểm thử', en:'Test types', lo:'FL-2.2.2',
+    d:`<ul><li><b>Chức năng</b> (functional): hệ thống làm <b>gì</b>.</li><li><b>Phi chức năng</b> (non-functional): hệ thống làm <b>tốt đến đâu</b>, theo ISO 25010: hiệu năng hoạt động, khả năng tương thích, tính khả dụng, độ tin cậy, khả năng bảo trì, tính di động, tính an toàn.</li><li><b>Hộp đen</b> (black-box): dựa trên đặc tả, không nhìn vào cấu trúc bên trong.</li><li><b>Hộp trắng</b> (white-box): dựa trên cấu trúc bên trong (code, kiến trúc, luồng).</li></ul><p>Mọi loại kiểm thử đều áp dụng được ở mọi mức kiểm thử.</p>`,
+    ex:'"API đặt hàng phản hồi dưới 2 giây với 500 người dùng đồng thời" là kiểm thử phi chức năng (hiệu năng).',
+    trap:'Kiểm thử phi chức năng nên làm sớm, không phải đợi đến cuối dự án.' },
+  { k:'Kiểm thử xác nhận và kiểm thử hồi quy', en:'Confirmation & Regression testing', lo:'FL-2.2.3',
+    d:`<p><b>Kiểm thử xác nhận</b>: chạy lại case từng fail để xác nhận lỗi đã được sửa.</p><p><b>Kiểm thử hồi quy</b>: xác nhận thay đổi (kể cả bản sửa lỗi) không gây ảnh hưởng xấu tới phần khác. Nên làm phân tích ảnh hưởng (impact analysis) để chọn phạm vi. Bộ regression chạy lặp lại nhiều lần nên rất hợp để tự động hóa.</p>`,
+    ex:'Dev sửa lỗi làm tròn → QC chạy lại case DH-2009 (xác nhận) và chạy cả bộ giỏ hàng, voucher, thanh toán (hồi quy).',
+    trap:'Hồi quy không chỉ trong đối tượng vừa sửa mà cả các thành phần, hệ thống liên quan.' },
+  { k:'Kiểm thử bảo trì', en:'Maintenance testing', lo:'FL-2.3.1',
+    d:`<p>Thực hiện khi hệ thống đang vận hành bị thay đổi. Tác nhân (trigger):</p><ul><li><b>Sửa đổi</b>: nâng cấp theo kế hoạch, sửa lỗi, hotfix.</li><li><b>Nâng cấp hoặc chuyển đổi môi trường vận hành</b>: đổi nền tảng, chuyển dữ liệu (migration).</li><li><b>Ngừng sử dụng</b> (retirement): kiểm thử lưu trữ và khôi phục dữ liệu nếu cần giữ lâu dài.</li></ul><p>Phạm vi phụ thuộc mức rủi ro, kích thước hệ thống và độ lớn thay đổi; dựa trên phân tích ảnh hưởng.</p>`,
+    ex:'ShopDemo chuyển DB từ MySQL sang PostgreSQL: cần test chuyển đổi dữ liệu và chạy regression trên môi trường mới.',
+    trap:'Phát triển tính năng cho sản phẩm mới chưa phát hành thì không phải kiểm thử bảo trì.' },
+  ]},
+{ ch:3, name:'Kiểm thử tĩnh', en:'Static Testing', exam:4, time:'80 phút',
+  theory:[
+  { k:'Kiểm thử tĩnh là gì, giá trị', en:'Static testing basics & value', lo:'FL-3.1.1, FL-3.1.2',
+    d:`<p>Kiểm thử mà <b>không chạy</b> phần mềm: rà soát (con người đọc) và phân tích tĩnh (công cụ). Gần như mọi sản phẩm công việc đều kiểm tra được: yêu cầu, user story, thiết kế, code, kế hoạch test, test case, hợp đồng…</p><p>Không nên áp dụng cho sản phẩm khó đọc với con người và không có công cụ phân tích, ví dụ mã thực thi của bên thứ ba vì lý do pháp lý.</p><p><b>Giá trị</b>: tìm lỗi từ rất sớm, khi sửa còn rẻ; tìm được lỗi mà kiểm thử động không thấy (code không bao giờ chạy tới, thiết kế không theo pattern, lỗi trong tài liệu không thực thi được); tăng hiểu biết chung giữa các bên.</p>`,
+    ex:'QC rà soát spec màn đăng ký, phát hiện spec không nói email có phân biệt hoa thường không: sửa tốn 5 phút, thay vì sau release mới phát hiện khách có 2 tài khoản.',
+    trap:'Kiểm thử tĩnh có chi phí (họp, chuẩn bị), nhưng tổng chi phí dự án thường giảm.' },
+  { k:'Khác biệt tĩnh và động', en:'Static vs Dynamic', lo:'FL-3.1.3',
+    d:`<ul><li>Cả hai đều giúp tìm lỗi, nhưng loại lỗi khác nhau.</li><li><b>Tĩnh tìm lỗi trực tiếp</b>; động làm lộ ra sự cố, rồi phải phân tích để tìm lỗi.</li><li>Tĩnh tìm được lỗi nằm ở nhánh code hiếm khi chạy.</li><li>Tĩnh áp dụng được cho sản phẩm không thực thi được (tài liệu).</li><li>Tĩnh đo được đặc tính không phụ thuộc lúc chạy (khả năng bảo trì); động đo đặc tính phụ thuộc lúc chạy (hiệu năng).</li></ul><p>Lỗi điển hình kiểm thử tĩnh tìm dễ hơn: lỗi yêu cầu (mâu thuẫn, mơ hồ), lỗi thiết kế, lỗi code (biến chưa khai báo, code không chạy tới), lệch chuẩn code, đặc tả giao diện sai, lỗ hổng bảo mật, thiếu truy vết.</p>`,
+    ex:'Đo thời gian phản hồi API cần chạy thật (động). Phát hiện biến "tong_tien" dùng trước khi gán giá trị có thể làm bằng công cụ phân tích tĩnh.',
+    trap:'"Kiểm thử tĩnh đo được hiệu năng" là sai.' },
+  { k:'Quy trình rà soát', en:'Review process (ISO/IEC 20246)', lo:'FL-3.2.2',
+    d:`<ol><li><b>Lập kế hoạch</b>: phạm vi, mục tiêu, đặc tính cần đánh giá, tiêu chí kết thúc, công sức, thời gian.</li><li><b>Khởi tạo rà soát</b>: đảm bảo mọi người và tài liệu sẵn sàng, người tham gia hiểu vai trò.</li><li><b>Rà soát cá nhân</b>: từng người tự đọc, ghi nhận bất thường, câu hỏi, đề xuất.</li><li><b>Trao đổi và phân tích</b>: thống nhất trạng thái, người phụ trách, hành động cho từng bất thường; thường qua họp rà soát.</li><li><b>Khắc phục và báo cáo</b>: tạo báo cáo lỗi, tác giả sửa, báo cáo kết quả; kiểm tra tiêu chí kết thúc.</li></ol>`,
+    ex:'Trước buổi họp rà soát spec, mỗi QC tự đọc và ghi 10–15 câu hỏi vào sheet: đó là bước rà soát cá nhân.',
+    trap:'Thứ tự thường bị gài: Lập kế hoạch → Khởi tạo rà soát → Rà soát cá nhân → Trao đổi và phân tích → Khắc phục và báo cáo.' },
+  { k:'Vai trò và trách nhiệm trong rà soát', en:'Review roles', lo:'FL-3.2.3',
+    d:`<ul><li><b>Quản lý</b>: quyết định rà soát cái gì, cung cấp nguồn lực (người, thời gian).</li><li><b>Tác giả (author)</b>: tạo và sửa sản phẩm được rà soát.</li><li><b>Điều phối viên (moderator / facilitator)</b>: đảm bảo buổi họp hiệu quả, hòa giải, quản lý thời gian, tạo môi trường an toàn.</li><li><b>Thư ký (scribe / recorder)</b>: ghi lại các bất thường và quyết định.</li><li><b>Người rà soát (rà soáter)</b>: thực hiện rà soát; có thể là chuyên gia, người dùng, người trong dự án…</li><li><b>Trưởng nhóm rà soát (review leader)</b>: chịu trách nhiệm chung về rà soát: ai tham gia, tổ chức khi nào, ở đâu.</li></ul>`,
+    ex:'Buổi rà soát spec: BA (tác giả), QC lead điều phối, một QC ghi biên bản, 3 dev và 2 QC là người rà soát.',
+    trap:'"Điều phối" (moderator) và "trưởng nhóm rà soát" (review leader) là hai vai trò khác nhau.' },
+  { k:'Các loại rà soát', en:'Review types', lo:'FL-3.2.4',
+    d:`<ul><li><b>Rà soát không chính thức</b> (informal): không quy trình cố định, không bắt buộc ghi lại; mục tiêu chính là phát hiện bất thường.</li><li><b>Rà soát có hướng dẫn</b> (walkthrough): do <b>tác giả dẫn dắt</b>; mục tiêu: đánh giá chất lượng, xây dựng niềm tin, giáo dục người tham gia, đạt đồng thuận, sinh ý tưởng, tìm bất thường. Rà soát cá nhân trước là không bắt buộc.</li><li><b>Rà soát kỹ thuật</b> (technical review): người rà soát có chuyên môn kỹ thuật, do điều phối viên dẫn dắt; mục tiêu: đạt đồng thuận, ra quyết định kỹ thuật, tìm bất thường, đánh giá chất lượng.</li><li><b>Đánh giá chuyên sâu</b> (inspection): <b>chính thức nhất</b>, theo quy trình chung đầy đủ; mục tiêu tìm tối đa bất thường; thu thập các chỉ số để cải tiến quy trình; tác giả <b>không được</b> làm trưởng nhóm rà soát hay thư ký.</li></ul>`,
+    ex:'Dev lead trình bày thiết kế mới cho cả team để mọi người hiểu và góp ý: rà soát có hướng dẫn (walkthrough).',
+    trap:'Từ khóa nhận diện: "tác giả dẫn dắt" là rà soát có hướng dẫn (walkthrough); "chỉ số, chính thức nhất" là đánh giá chuyên sâu (inspection); "quyết định kỹ thuật" là technical review.' },
+  { k:'Các yếu tố thành công của rà soát', en:'Success factors', lo:'FL-3.2.5',
+    d:'<ul><li>Mục tiêu rõ ràng, tiêu chí kết thúc đo được (không dùng việc đánh giá người tham gia làm mục tiêu).</li><li>Chọn loại rà soát phù hợp mục tiêu, sản phẩm, người tham gia.</li><li>Rà soát từng phần nhỏ để người rà soát không mất tập trung.</li><li>Phản hồi kết quả cho stakeholder và tác giả để cải tiến.</li><li>Đủ thời gian chuẩn bị.</li><li>Có sự ủng hộ của quản lý.</li><li>Rà soát là một phần văn hóa tổ chức, thúc đẩy học hỏi.</li><li>Đào tạo người tham gia; điều phối buổi họp tốt.</li></ul>',
+    ex:'Thay vì rà soát spec 80 trang trong một buổi, chia thành 4 buổi theo từng màn hình.',
+    trap:'Dùng kết quả rà soát để đánh giá năng lực tác giả là một yếu tố làm rà soát thất bại.' },
+  ]},
+{ ch:4, name:'Phân tích và thiết kế test case', en:'Test Analysis and Design', exam:11, time:'390 phút',
+  theory:[
+  { k:'3 nhóm kỹ thuật kiểm thử', en:'Test techniques overview', lo:'FL-4.1.1',
+    d:'<ul><li><b>Hộp đen</b> (black-box / specification-based): dựa trên hành vi đặc tả, không cần biết cấu trúc bên trong; vẫn dùng được khi code thay đổi mà hành vi giữ nguyên.</li><li><b>Hộp trắng</b> (white-box / structure-based): dựa trên cấu trúc bên trong; chỉ thiết kế được sau khi có thiết kế hoặc code.</li><li><b>Dựa trên kinh nghiệm</b> (experience-based): dùng kiến thức và kinh nghiệm của tester; tìm được lỗi mà hai nhóm kia bỏ sót.</li></ul>',
+    ex:'Phân vùng tuổi 18–60 từ spec là hộp đen; đảm bảo mọi nhánh if trong hàm tính phí ship được chạy là hộp trắng; thử bấm 2 lần nút Đặt hàng là kinh nghiệm.',
+    trap:'Kỹ thuật hộp đen dựa trên đặc tả nên không phát hiện được code thừa (code làm điều spec không yêu cầu).' },
+  { k:'Phân vùng tương đương', en:'Equivalence Partitioning (EP)', lo:'FL-4.2.1',
+    d:`<p>Chia dữ liệu thành các <b>phân vùng</b>, mọi giá trị trong một vùng được xử lý giống nhau. Có vùng hợp lệ và không hợp lệ; mỗi giá trị chỉ thuộc đúng một vùng.</p><p><b>Bao phủ EP</b> = số vùng đã test / tổng số vùng × 100%.</p><p>Có nhiều tập phân vùng (nhiều trường) thì mức tối thiểu là <b>bao phủ Each Choice</b>: mỗi vùng của mỗi tập được test ít nhất một lần.</p>`,
+    ex:'Tuổi hợp lệ 18–60 (số nguyên) → 3 vùng: &lt;18 (không hợp lệ), 18–60 (hợp lệ), &gt;60 (không hợp lệ). Tối thiểu 3 test: 10, 35, 70.',
+    trap:'Vùng không hợp lệ nên test từng vùng một, không gộp nhiều giá trị sai vào một test (lỗi này có thể che lỗi kia).' },
+  { k:'Phân tích giá trị biên', en:'Boundary Value Analysis (BVA)', lo:'FL-4.2.2',
+    d:`<p>Chỉ áp dụng cho vùng <b>có thứ tự</b>. Biên là giá trị nhỏ nhất và lớn nhất của một vùng.</p><ul><li><b>BVA 2 giá trị</b>: mỗi biên lấy <b>biên + giá trị liền kề thuộc vùng bên cạnh</b>.</li><li><b>BVA 3 giá trị</b>: mỗi biên lấy <b>biên + cả hai giá trị liền kề</b>.</li></ul><p><b>Bao phủ BVA</b> = số giá trị biên (hạng mục bao phủ) đã test / tổng số × 100%.</p>`,
+    ex:'Số lượng mua 1–10. BVA 2 giá trị: 0, 1, 10, 11 (4 giá trị). BVA 3 giá trị: 0, 1, 2, 9, 10, 11 (6 giá trị).',
+    trap:'Đề hay hỏi số giá trị: 2 giá trị → 2 cho mỗi biên; 3 giá trị → 3 cho mỗi biên. Liệt kê ra trước rồi mới đếm, đừng nhẩm.' },
+  { k:'Kiểm thử dựa vào bảng quyết định', en:'Decision Table Testing', lo:'FL-4.2.3',
+    d:`<p>Dùng khi có <b>tổ hợp điều kiện</b> dẫn tới các hành động khác nhau. Dòng = điều kiện và hành động; <b>mỗi cột</b> là một tổ hợp điều kiện + hành động tương ứng.</p><p>Bảng đầy đủ với n điều kiện đúng/sai có <b>2ⁿ cột</b>. Có thể rút gọn bằng giá trị "–" (giá trị của điều kiện không ảnh hưởng đến kết quả hành động), và loại bỏ tổ hợp không thể xảy ra.</p><p><b>Bao phủ</b> = số cột khả thi đã test / tổng số cột khả thi × 100%.</p>`,
+    ex:'Khách VIP? × Đơn ≥ 500k? → 4 cột: VIP+≥500k: giảm 20%; VIP+&lt;500k: giảm 10%; thường+≥500k: freeship; thường+&lt;500k: không ưu đãi.',
+    trap:'Điểm mạnh: phát hiện tổ hợp bị spec bỏ sót. Điểm yếu: số cột tăng theo hàm mũ khi thêm điều kiện.' },
+  { k:'Kiểm thử dựa vào chuyển đổi trạng thái', en:'State Transition Testing', lo:'FL-4.2.4',
+    d:`<p>Mô hình hóa bằng <b>sơ đồ trạng thái</b> hoặc <b>bảng trạng thái</b>: trạng thái, sự kiện, chuyển đổi (có thể kèm điều kiện bảo vệ (guard condition) và hành động).</p><ul><li><b>Bao phủ tất cả trạng thái</b> (all states): mọi trạng thái được đi qua.</li><li><b>Bao phủ chuyển đổi trạng thái hợp lệ</b> (valid transitions, còn gọi 0-switch): mọi chuyển đổi hợp lệ được thực hiện. Đây là mức phổ biến nhất.</li><li><b>Bao phủ tất cả chuyển đổi trạng thái</b> (all transitions): mọi chuyển đổi hợp lệ + thử mọi chuyển đổi không hợp lệ (mỗi test chỉ một chuyển đổi không hợp lệ).</li></ul><p>100% chuyển đổi hợp lệ thì đảm bảo 100% trạng thái, nhưng ngược lại thì không.</p>`,
+    ex:'Đơn: Chờ thanh toán → Đã thanh toán → Đang giao → Đã giao; Chờ thanh toán → Đã hủy; Đã thanh toán → Đã hủy. Thử "Hủy" khi đơn Đã giao là test chuyển đổi không hợp lệ.',
+    trap:'Đếm số test tối thiểu: vẽ đường đi từ trạng thái bắt đầu, mỗi test là một đường không quay lại được thì phải tách test mới.' },
+  { k:'Bao phủ câu lệnh và nhánh', en:'Statement & Branch coverage', lo:'FL-4.3.1, FL-4.3.2',
+    d:`<p><b>Bao phủ câu lệnh</b> = số câu lệnh thực thi được chạy / tổng số × 100%.</p><p><b>Bao phủ nhánh</b> = số nhánh được chạy / tổng số nhánh × 100%. Nhánh là sự chuyển điều khiển giữa hai nút: có điều kiện (if: đúng / sai) hoặc vô điều kiện.</p><p><b>100% nhánh ⇒ 100% câu lệnh</b>, nhưng 100% câu lệnh <b>không</b> đảm bảo 100% nhánh (ví dụ if không có else: chỉ test nhánh đúng là đủ câu lệnh nhưng thiếu nhánh sai).</p>`,
+    ex:'<code>if (tong &gt;= 500000) { ship = 0 }</code> rồi <code>tinh_tien()</code>. Một test với tổng 600.000: 100% câu lệnh, 2/3 ≈ 67% nhánh (3 nhánh: đúng, sai, và nhánh vô điều kiện từ ship = 0 tới tinh_tien()). Cần thêm test tổng 300.000 để đạt 100% nhánh.',
+    trap:'Đạt 100% bao phủ không có nghĩa là hết lỗi: lỗi chỉ lộ ra với một số giá trị dữ liệu cụ thể vẫn có thể lọt.' },
+  { k:'Giá trị của kiểm thử hộp trắng', en:'Value of white-box testing', lo:'FL-4.3.3',
+    d:'<p>Điểm mạnh: xét toàn bộ phần đã cài đặt, nên tìm được lỗi ngay cả khi spec mơ hồ, lỗi thời hoặc không đầy đủ; đo được bao phủ một cách khách quan.</p><p>Điểm yếu: <b>không phát hiện được thiếu sót</b>. Yêu cầu chưa được cài đặt thì không có code để bao phủ.</p>',
+    ex:'Spec yêu cầu chặn đặt hàng với tài khoản bị khóa nhưng dev quên viết: 100% bao phủ nhánh vẫn không lộ ra lỗi này.',
+    trap:'Câu "kiểm thử hộp trắng phát hiện được yêu cầu bị bỏ sót" là sai.' },
+  { k:'Kỹ thuật dựa trên kinh nghiệm', en:'Experience-based techniques', lo:'FL-4.4.1 – 4.4.3',
+    d:`<ul><li><b>Đoán lỗi</b> (error guessing): dựa vào kinh nghiệm về lỗi thường gặp (dữ liệu sai, chia 0, bấm 2 lần, mất mạng…). Cách có hệ thống là <b>tấn công lỗi (fault attacks)</b>: lập danh sách lỗi có thể có rồi thiết kế test để tấn công.</li><li><b>Kiểm thử khám phá</b> (exploratory): vừa học, vừa thiết kế, vừa chạy test. Có thể theo <b>phiên (session-based)</b> với khung thời gian và <b>thẻ kiểm thử</b> (test charter). Hữu ích khi spec ít hoặc thiếu, thời gian gấp, hoặc bổ sung cho kỹ thuật chính thức.</li><li><b>Dựa trên checklist</b>: dùng danh sách kiểm tra xây từ kinh nghiệm, tiêu chuẩn, lỗi đã gặp. Checklist cần cập nhật thường xuyên.</li></ul>`,
+    ex:'Thẻ kiểm thử (test charter): "Khám phá luồng hoàn tiền trong 60 phút để tìm rủi ro hoàn sai số tiền".',
+    trap:'Kiểm thử khám phá vẫn có thể có cấu trúc (session, charter, ghi chép). "Khám phá = không có kế hoạch" là hiểu sai.' },
+  { k:'User story, tiêu chí chấp nhận, ATDD', en:'Collaboration-based approaches', lo:'FL-4.5.1 – 4.5.3',
+    d:`<p><b>User story</b> theo 3C: <b>Card</b> (thẻ mô tả), <b>Conversation</b> (trao đổi để hiểu cách dùng), <b>Confirmation</b> (tiêu chí chấp nhận). Story tốt theo <b>INVEST</b>: Độc lập, Thương lượng được, Có giá trị, Ước lượng được, Nhỏ, Kiểm thử được.</p><p><b>Tiêu chí chấp nhận</b> (acceptance criteria) có hai dạng: <b>hướng kịch bản</b> (Given/When/Then) và <b>hướng quy tắc</b> (danh sách gạch đầu dòng, bảng input–output).</p><p><b>ATDD</b>: cả nhóm viết test từ tiêu chí chấp nhận <b>trước khi</b> cài đặt; test case đầu tiên là luồng chính tích cực, sau đó tới luồng tiêu cực và phi chức năng.</p>`,
+    ex:'Tiêu chí: "Given voucher VIP20 còn 0 lượt, When khách áp mã, Then hiển thị \'Mã đã hết lượt\'".',
+    trap:'Tiêu chí chấp nhận là chữ C thứ ba: Confirmation.' },
+  ]},
+{ ch:5, name:'Quản lý các hoạt động kiểm thử', en:'Managing the Test Activities', exam:9, time:'335 phút',
+  theory:[
+  { k:'Kế hoạch kiểm thử', en:'Test plan', lo:'FL-5.1.1, FL-5.1.2',
+    d:'<p>Mô tả mục tiêu, nguồn lực, quy trình. Nội dung điển hình: bối cảnh (phạm vi, mục tiêu, cơ sở kiểm thử), giả định và ràng buộc, các bên liên quan, giao tiếp, danh sách rủi ro, phương pháp tiếp cận kiểm thử (mức, loại, kỹ thuật, tiêu chí bắt đầu và tiêu chí kết thúc, mức độc lập, chỉ số, dữ liệu, môi trường), ngân sách và lịch.</p><p>Trong Agile, tester tham gia <b>lập kế hoạch release</b> (viết story kiểm thử được, phân tích rủi ro, ước lượng) và <b>lập kế hoạch iteration</b> (phân tích rủi ro chi tiết từng story, ước lượng công sức test, chia task).</p>',
+    ex:'Kế hoạch test release 2.4: phạm vi gồm voucher mới; rủi ro: cổng Momo đổi API; tiêu chí kết thúc: không còn bug Critical mở.',
+    trap:'Kế hoạch kiểm thử là tài liệu sống, được cập nhật khi dự án thay đổi.' },
+  { k:'Tiêu chí bắt đầu và tiêu chí kết thúc', en:'Entry & Exit criteria', lo:'FL-5.1.3',
+    d:'<p><b>Tiêu chí bắt đầu</b> (entry): điều kiện cần có trước khi bắt đầu một hoạt động, ví dụ môi trường sẵn sàng, build qua smoke test, có cơ sở kiểm thử. Trong Agile gọi là <b>Definition of Ready</b>.</p><p><b>Tiêu chí kết thúc</b> (exit): điều kiện để coi là xong, ví dụ đạt mức bao phủ, không còn bug nghiêm trọng mở, đã chạy hết case dự kiến. Trong Agile gọi là <b>Definition of Done</b>.</p><p>Hết thời gian hoặc ngân sách cũng có thể là lý do dừng, nếu các bên chấp nhận rủi ro.</p>',
+    ex:'"Chỉ nhận build vào test khi pipeline xanh và có release note" là tiêu chí bắt đầu.',
+    trap:'Đề hay đưa 4 tiêu chí và hỏi đâu là tiêu chí kết thúc. Từ khóa của tiêu chí kết thúc: bao phủ, mật độ lỗi còn lại, số lỗi chưa đóng.' },
+  { k:'Kỹ thuật ước lượng', en:'Estimation techniques', lo:'FL-5.1.4',
+    d:`<ul><li><b>Ước lượng dựa trên tỷ lệ</b>: dùng tỉ lệ từ dự án trước, ví dụ dev:test = 3:2.</li><li><b>Kỹ thuật ước lượng ngoại suy</b> (extrapolation): đo sớm trong dự án hiện tại rồi suy ra phần còn lại, ví dụ trung bình 3 iteration gần nhất.</li><li><b>Wideband Delphi</b>: chuyên gia ước lượng độc lập, thảo luận chênh lệch, lặp lại tới khi đồng thuận. <b>Planning poker</b> là một biến thể.</li><li><b>Ước lượng ba điểm</b>: a (lạc quan), m (khả dĩ nhất), b (bi quan). <b>E = (a + 4m + b) / 6</b>; độ lệch chuẩn <b>SD = (b − a) / 6</b>.</li></ul>`,
+    ex:'a = 6, m = 9, b = 18 giờ → E = (6 + 36 + 18) / 6 = 10 giờ; SD = (18 − 6) / 6 = 2 → 10 ± 2 giờ.',
+    trap:'Nhớ nhân 4 cho m, rồi chia 6. Hay bị nhầm với trung bình cộng (a + m + b) / 3.' },
+  { k:'Ưu tiên hóa test case', en:'Test case prioritization', lo:'FL-5.1.5',
+    d:'<p>Các chiến lược: <b>dựa vào rủi ro</b> (rủi ro cao chạy trước), <b>dựa vào độ bao phủ</b> (case bao phủ nhiều nhất chạy trước), <b>dựa vào yêu cầu</b> (theo độ ưu tiên yêu cầu của stakeholder).</p><p>Lý tưởng là chạy theo độ ưu tiên, nhưng phải tôn trọng <b>phụ thuộc</b>: case tiên quyết phải chạy trước, kể cả khi ưu tiên thấp hơn. Cũng cần tính tới tài nguyên sẵn có.</p>',
+    ex:'Case "Thanh toán đơn" (ưu tiên 1) cần case "Tạo đơn" (ưu tiên 3) chạy trước.',
+    trap:'Với bài sắp xếp: chọn case ưu tiên cao nhất mà đã đủ điều kiện chạy; nếu chưa đủ thì chạy case tiên quyết của nó trước.' },
+  { k:'Tháp kiểm thử và các góc phần tư kiểm thử', en:'Test pyramid & Testing quadrants', lo:'FL-5.1.6, FL-5.1.7',
+    d:`<p><b>Tháp kiểm thử</b>: tầng dưới (unit) nhiều test nhỏ, độc lập, nhanh; càng lên cao (API, UI end-to-end) càng ít test, phức tạp, chậm hơn.</p><p><b>Các góc phần tư kiểm thử</b> (Agile):</p><ul><li><b>Q1</b> – công nghệ, hỗ trợ nhóm: component test, component integration test (nên tự động, trong CI).</li><li><b>Q2</b> – nghiệp vụ, hỗ trợ nhóm: functional test, ví dụ, user story test, prototype, API test.</li><li><b>Q3</b> – nghiệp vụ, đánh giá sản phẩm: exploratory, usability, UAT (thường thủ công, hướng người dùng).</li><li><b>Q4</b> – công nghệ, đánh giá sản phẩm: smoke test, kiểm thử phi chức năng (trừ usability), thường tự động.</li></ul>`,
+    ex:'Phiên khám phá 60 phút trên luồng hoàn tiền thuộc Q3. Load test 500 người dùng thuộc Q4.',
+    trap:'Usability nằm ở Q3, không phải Q4 dù là phi chức năng.' },
+  { k:'Rủi ro', en:'Risk management', lo:'FL-5.2.1 – 5.2.4',
+    d:`<p><b>Mức rủi ro</b> = khả năng xảy ra × mức ảnh hưởng.</p><ul><li><b>Rủi ro dự án</b>: liên quan quản lý dự án, ví dụ thiếu người, trễ bàn giao, công cụ, nhà cung cấp, ước lượng sai. Ảnh hưởng tới lịch, ngân sách, phạm vi.</li><li><b>Rủi ro sản phẩm</b>: liên quan chất lượng sản phẩm, ví dụ tính sai tiền, chậm, lỗ hổng bảo mật, khó dùng.</li></ul><p><b>Phân tích rủi ro sản phẩm</b> = nhận diện + đánh giá; kết quả dùng để xác định phạm vi, mức, loại, kỹ thuật, độ sâu và thứ tự test.</p><p><b>Kiểm soát</b> = giảm thiểu + giám sát. Các phản ứng: giảm thiểu bằng kiểm thử, chấp nhận, chuyển giao, kế hoạch dự phòng.</p>`,
+    ex:'Rủi ro A: khả năng 4 × ảnh hưởng 2 = 8; B: 2 × 5 = 10 → B được test kỹ hơn và sớm hơn.',
+    trap:'"Tester chủ chốt nghỉ việc" là rủi ro dự án; "tính sai tổng tiền" là rủi ro sản phẩm.' },
+  { k:'Giám sát kiểm thử, kiểm soát kiểm thử và kết thúc kiểm thử', en:'Monitoring, control, reporting', lo:'FL-5.3.1 – 5.3.3',
+    d:'<p><b>Giám sát kiểm thử</b>: thu thập thông tin để đánh giá tiến độ, mức đạt tiêu chí kết thúc. <b>Kiểm soát kiểm thử</b>: hành động khi lệch kế hoạch (đổi ưu tiên, thêm nguồn lực…). <b>Kết thúc kiểm thử</b>: thu thập dữ liệu khi kết thúc để rút kinh nghiệm.</p><p>Nhóm chỉ số kiểm thử: tiến độ dự án, tiến độ test, chất lượng sản phẩm, lỗi, rủi ro, bao phủ, chi phí.</p><p><b>Báo cáo tiến độ kiểm thử</b> (định kỳ): kỳ báo cáo, tiến độ so với kế hoạch, trở ngại và cách xử lý, chỉ số, rủi ro mới, kế hoạch kỳ tới. <b>Báo cáo kết thúc kiểm thử</b> (cuối): tóm tắt, đánh giá chất lượng, sai lệch so với kế hoạch, rủi ro còn lại, bài học.</p>',
+    ex:'Daily report: "Đã chạy 180/320 case, 12 fail, 3 bug Critical đang mở; trở ngại: môi trường staging chập chờn".',
+    trap:'Cách giao tiếp phụ thuộc người nhận: quản lý cần tóm tắt, dev cần chi tiết kỹ thuật.' },
+  { k:'Quản lý cấu hình', en:'Configuration management', lo:'FL-5.4.1',
+    d:'<p>Xác định, quản lý phiên bản, theo dõi thay đổi của đối tượng kiểm thử và sản phẩm kiểm thử (kế hoạch, case, script, dữ liệu, môi trường) và quan hệ giữa chúng. Nhờ đó kết quả kiểm thử tái hiện được và truy vết được.</p>',
+    ex:'Bug report ghi rõ "build 2.4.0-rc3, testcase v1.2, dữ liệu seed 2026-11-13": dev tái hiện được đúng điều kiện.',
+    trap:'Trong DevOps, quản lý cấu hình thường được tự động hóa trong pipeline.' },
+  { k:'Báo cáo lỗi', en:'Defect report', lo:'FL-5.5.1',
+    d:'<p>Mục tiêu: đủ thông tin để xử lý và giải quyết; theo dõi chất lượng sản phẩm; gợi ý cải tiến quy trình.</p><p>Nội dung điển hình: ID duy nhất; tiêu đề tóm tắt; ngày, tổ chức, người báo; đối tượng và môi trường test; bối cảnh (test case, hoạt động, mức test); mô tả sự cố đủ để tái hiện (các bước, log, ảnh, video); <b>kết quả mong đợi và thực tế</b>; mức độ nghiêm trọng (severity); mức độ ưu tiên (priority); trạng thái; tham chiếu (test case liên quan).</p>',
+    ex:'Tiêu đề "Hoàn tiền vượt số đã thu khi hủy đơn đã thanh toán (DH-2015: thu 447.000, hoàn 500.000)".',
+    trap:'Thiếu "kết quả mong đợi" là lỗi hay gặp nhất: dev không biết thế nào mới là đúng.' },
+  ]},
+{ ch:6, name:'Công cụ kiểm thử', en:'Test Tools', exam:2, time:'20 phút',
+  theory:[
+  { k:'Các loại công cụ', en:'Tool support for testing', lo:'FL-6.1.1',
+    d:'<ul><li><b>Công cụ quản lý kiểm thử</b>: quản lý vòng đời, yêu cầu, test, lỗi, cấu hình (Jira, TestRail…).</li><li><b>Kiểm thử tĩnh</b>: hỗ trợ rà soát và phân tích tĩnh.</li><li><b>Thiết kế và triển khai kiểm thử</b>: sinh test case, dữ liệu, trình tự thực hiện kiểm thử.</li><li><b>Thực thi kiểm thử và đo độ bao phủ</b>: chạy test tự động, đo coverage.</li><li><b>Kiểm thử phi chức năng</b>: hiệu năng, bảo mật… những việc khó làm thủ công.</li><li><b>DevOps</b>: pipeline, build tự động, CI/CD.</li><li><b>Cộng tác</b>: hỗ trợ giao tiếp.</li><li><b>Mở rộng và chuẩn hóa triển khai</b>: máy ảo, container.</li></ul>',
+    ex:'Docker dựng môi trường test giống nhau cho cả team thuộc nhóm "mở rộng và chuẩn hóa triển khai".',
+    trap:'Công cụ đo coverage khi chạy test thuộc nhóm "thực thi kiểm thử và đo độ bao phủ", không phải nhóm kiểm thử tĩnh.' },
+  { k:'Lợi ích và rủi ro của tự động hóa', en:'Benefits & risks of test automation', lo:'FL-6.2.1',
+    d:'<p><b>Lợi ích</b>: tiết kiệm thời gian cho việc thủ công lặp lại (regression, nhập lại dữ liệu); tránh lỗi con người; đánh giá khách quan và nhất quán hơn (coverage); dễ truy cập thông tin về kiểm thử; rút ngắn thời gian chạy, phản hồi sớm hơn; tester có thêm thời gian thiết kế test mới.</p><p><b>Rủi ro</b>: kỳ vọng phi thực tế về công cụ; ước lượng sai thời gian, chi phí, công sức để triển khai và bảo trì; dùng công cụ cho việc mà thủ công hợp hơn; phụ thuộc quá nhiều vào công cụ, bỏ qua tư duy phản biện; phụ thuộc nhà cung cấp (ngừng hỗ trợ, bán cho bên khác); dự án mã nguồn mở bị bỏ dở; không tương thích nền tảng; không đáp ứng yêu cầu quy định hoặc an toàn.</p>',
+    ex:'Team mua công cụ record-and-playback và kỳ vọng "không cần tester nữa": đó là kỳ vọng phi thực tế.',
+    trap:'Đề hay trộn lợi ích và rủi ro. "Giảm thời gian chạy regression" là lợi ích; "phụ thuộc nhà cung cấp" là rủi ro.' },
+  ]},
+];
+
+/* ===================== Ngân hàng câu hỏi (tự biên soạn theo mục tiêu học tập CTFL 4.0) ===================== */
+const QUESTIONS = [
+/* ---------- Chương 1 ---------- */
+{ id:'1-01', ch:1, lo:'FL-1.1.1', k:'K1', q:'Đâu <b>KHÔNG</b> phải là mục tiêu điển hình của kiểm thử?',
+  o:['Đánh giá các sản phẩm công việc như yêu cầu, user story, thiết kế','Phát hiện các sự cố và tìm lỗi','Chứng minh phần mềm không còn lỗi nào','Cung cấp thông tin để các bên liên quan ra quyết định'], a:2,
+  w:['Đây là mục tiêu điển hình: kiểm thử cả tài liệu chứ không chỉ code.','Đây là mục tiêu điển hình.','Đúng. Kiểm thử có thể cho thấy lỗi đang tồn tại nhưng không thể chứng minh đối tượng kiểm thử không có lỗi (nguyên tắc 1, mục 1.3).','Đây là mục tiêu điển hình, ví dụ báo cáo để PO quyết định release.'] },
+{ id:'1-02', ch:1, lo:'FL-1.1.2', k:'K2', q:'QC phát hiện bấm "Thanh toán" bị lỗi 500. Dev đọc log, tìm ra biến bị null và sửa code. QC chạy lại case ban đầu thì pass. Hoạt động nào là <b>gỡ lỗi (debugging)</b>?',
+  o:['QC chạy case và phát hiện lỗi 500','Dev tái hiện lỗi, tìm nguyên nhân trong code và sửa','QC chạy lại case ban đầu sau khi dev sửa','QC chạy lại bộ regression của module thanh toán'], a:1,
+  w:['Đây là kiểm thử: làm lộ ra sự cố.','Đúng. Gỡ lỗi gồm tái hiện, chẩn đoán nguyên nhân và sửa.','Đây là kiểm thử xác nhận.','Đây là kiểm thử hồi quy.'] },
+{ id:'1-03', ch:1, lo:'FL-1.2.3', k:'K2', q:'(1) Dev hiểu nhầm quy tắc làm tròn khi giảm giá. (2) Hàm tính giảm giá làm tròn sai. (3) Khách thấy tổng tiền lệch 100đ. Cách gọi đúng là:',
+  o:['(1) lỗi, (2) sai sót, (3) sự cố','(1) sự cố, (2) lỗi, (3) sai sót','(1) sai sót, (2) sự cố, (3) lỗi','(1) sai sót, (2) lỗi, (3) sự cố'], a:3,
+  w:['Sai: hiểu nhầm của con người là sai sót (error), không phải lỗi.','Sai thứ tự.','Sai: code sai là lỗi; điều người dùng thấy khi chạy là sự cố.','Đúng. Sai sót của con người → lỗi trong code → sự cố khi chạy.'] },
+{ id:'1-04', ch:1, lo:'FL-1.2.3', k:'K2', q:'Tiếp câu trên: điều tra cho thấy spec không ghi quy tắc làm tròn và spec chưa từng được rà soát. Đâu là <b>nguyên nhân gốc rễ (root cause)</b>?',
+  o:['Dòng code làm tròn sai trong hàm tính giảm giá','Spec không định nghĩa quy tắc làm tròn và không được rà soát','Tổng tiền hiển thị lệch 100đ','Khách phàn nàn với CSKH'], a:1,
+  w:['Đây là lỗi, là hệ quả chứ không phải nguyên nhân gốc rễ.','Đúng. Sửa ở đây (thêm quy tắc, rà soát spec) mới ngăn được các lỗi tương tự.','Đây là sự cố.','Đây là hệ quả của sự cố.'] },
+{ id:'1-05', ch:1, lo:'FL-1.2.2', k:'K2', q:'Phát biểu nào đúng về kiểm thử và đảm bảo chất lượng (QA)?',
+  o:['Kiểm thử là một dạng kiểm soát chất lượng, hướng sản phẩm và mang tính khắc phục; QA hướng quy trình và mang tính phòng ngừa','QA và kiểm thử là hai tên gọi của cùng một hoạt động','QA chỉ do nhóm QA chịu trách nhiệm','Kiểm thử hướng vào quy trình, QA hướng vào sản phẩm'], a:0,
+  w:['Đúng.','Sai: hai khái niệm khác nhau.','Sai: QA là trách nhiệm của mọi người trong dự án.','Sai: đảo ngược.'] },
+{ id:'1-06', ch:1, lo:'FL-1.3.1', k:'K2', q:'Bộ regression của ShopDemo chạy 6 tháng nay không phát hiện lỗi mới, nhưng khách vẫn báo bug ở chính các chức năng đó. Nguyên tắc nào giải thích hiện tượng này?',
+  o:['Lỗi có xu hướng tập trung','Kiểm thử vét cạn là không thể','Test case giảm hiệu quả theo thời gian','Ngộ nhận về việc không có lỗi'], a:2,
+  w:['Nguyên tắc này nói lỗi dồn vào ít module.','Nguyên tắc này đúng (không thể kiểm thử mọi thứ) nhưng không giải thích vì sao bộ test cũ không còn phát hiện lỗi mới.','Đúng. Cùng một bộ test case lặp lại nhiều lần sẽ ngày càng kém hiệu quả trong việc phát hiện lỗi mới; cần rà soát, sửa đổi test case và dữ liệu kiểm thử, bổ sung test case mới (mục 1.3).','Nguyên tắc này nói: kiểm thử kỹ mọi yêu cầu và sửa hết lỗi vẫn có thể cho ra hệ thống không đáp ứng nhu cầu người dùng; bên cạnh xác minh cần thẩm định.'] },
+{ id:'1-07', ch:1, lo:'FL-1.3.1', k:'K2', q:'Thống kê sprint: 34/42 bug nằm ở module thanh toán. Nguyên tắc nào phản ánh điều này?',
+  o:['Lỗi có xu hướng tập trung','Kiểm thử sớm giúp tiết kiệm thời gian và chi phí','Kiểm thử phụ thuộc vào ngữ cảnh','Test case giảm hiệu quả theo thời gian'], a:0,
+  w:['Đúng. Một số ít module chứa phần lớn lỗi; dùng thông tin này để tập trung kiểm thử theo rủi ro.','Không liên quan tới phân bố lỗi.','Không liên quan.','Không liên quan.'] },
+{ id:'1-08', ch:1, lo:'FL-1.3.1', k:'K2', q:'App đặt hàng mới không còn bug mức High nào, nhưng sau release rất ít người dùng vì luồng đặt hàng khác hẳn thói quen của khách. Đây là ví dụ của nguyên tắc nào?',
+  o:['Kiểm thử cho thấy sự tồn tại của lỗi, chứ không phải sự vắng mặt của lỗi','Ngộ nhận về việc không có lỗi','Lỗi có xu hướng tập trung','Kiểm thử vét cạn là không thể'], a:1,
+  w:['Gần nghĩa nhưng không đúng trọng tâm: vấn đề ở đây là hệ thống không đáp ứng nhu cầu.','Đúng. Hết lỗi không có nghĩa là thành công; còn phải thẩm định (validate) với nhu cầu người dùng.','Không liên quan.','Không liên quan.'] },
+{ id:'1-09', ch:1, lo:'FL-1.3.1', k:'K2', q:'Cùng một team QC, nhưng dự án app y tế cần kỹ thuật kiểm thử chặt chẽ và nhiều tài liệu hơn hẳn dự án game giải trí. Nguyên tắc nào?',
+  o:['Kiểm thử sớm giúp tiết kiệm thời gian và chi phí','Test case giảm hiệu quả theo thời gian','Kiểm thử phụ thuộc vào ngữ cảnh','Ngộ nhận về việc không có lỗi'], a:2,
+  w:['Không liên quan.','Không liên quan.','Đúng. Không có cách kiểm thử nào áp dụng chung cho mọi trường hợp.','Không liên quan.'] },
+{ id:'1-10', ch:1, lo:'FL-1.4.1', k:'K2', q:'QC đọc spec màn hoàn tiền và lập danh sách: "hoàn đúng số đã thu", "không hoàn 2 lần", "hoàn đúng phương thức". Danh sách này được tạo trong hoạt động nào?',
+  o:['Lập kế hoạch kiểm thử','Phân tích kiểm thử','Thiết kế test case','Triển khai kiểm thử'], a:1,
+  w:['Lập kế hoạch xác định mục tiêu kiểm thử và chọn cách tiếp cận phù hợp nhất để đạt mục tiêu.','Đúng. Đây là các khía cạnh kiểm thử (cần test cái gì), sản phẩm của phân tích.','Thiết kế test case chi tiết hóa các khía cạnh kiểm thử thành test case, trả lời câu hỏi “kiểm thử như thế nào?”.','Triển khai chuẩn bị sản phẩm kiểm thử để chạy: trình tự thực hiện kiểm thử, bộ test case, lịch.'] },
+{ id:'1-11', ch:1, lo:'FL-1.4.1', k:'K2', q:'QC gom các test case thành bộ "Regression thanh toán", viết trình tự thực hiện kiểm thử, chuẩn bị dữ liệu seed và xếp lịch chạy tối thứ Sáu. Đây là hoạt động nào?',
+  o:['Thiết kế test case','Thực thi kiểm thử','Triển khai kiểm thử','Hoàn tất kiểm thử'], a:2,
+  w:['Thiết kế test case chi tiết hóa khía cạnh kiểm thử thành test case, xác định yêu cầu dữ liệu kiểm thử và thiết kế môi trường kiểm thử; chưa tạo dữ liệu hay xếp lịch.','Thực thi là chạy test.','Đúng. Triển khai tạo hoặc thu thập sản phẩm kiểm thử cần cho thực thi: trình tự thực hiện kiểm thử, bộ test case, lịch, dữ liệu.','Hoàn tất kiểm thử diễn ra tại các mốc dự án (phát hành, kết thúc chu kỳ phát triển, hoàn tất một mức kiểm thử): lưu trữ sản phẩm kiểm thử, rút kinh nghiệm, viết báo cáo hoàn tất kiểm thử.'] },
+{ id:'1-12', ch:1, lo:'FL-1.4.4', k:'K2', q:'Lợi ích chính của việc duy trì khả năng truy vết giữa yêu cầu và test case là gì?',
+  o:['Tăng số lỗi tìm được','Giảm số test case cần viết','Thay thế cho báo cáo tiến độ','Đánh giá độ bao phủ yêu cầu và phân tích ảnh hưởng khi yêu cầu thay đổi'], a:3,
+  w:['Truy vết không trực tiếp làm tăng số lỗi tìm được.','Không phải mục đích của truy vết.','Truy vết hỗ trợ báo cáo, không thay thế báo cáo.','Đúng.'] },
+{ id:'1-13', ch:1, lo:'FL-1.5.3', k:'K2', q:'Đâu là <b>bất lợi</b> của kiểm thử độc lập?',
+  o:['Tester độc lập tìm được loại lỗi khác so với tác giả','Tester có thể bị tách khỏi team phát triển, và dev có thể giảm ý thức trách nhiệm về chất lượng','Tester độc lập dám phản biện giả định của stakeholder','Tester độc lập có góc nhìn khác do không bị thiên kiến của tác giả'], a:1,
+  w:['Đây là lợi ích.','Đúng. Đây là các bất lợi được nêu trong syllabus.','Đây là lợi ích.','Đây là lợi ích.'] },
+{ id:'1-14', ch:1, lo:'FL-1.5.2', k:'K1', q:'Phát biểu nào đúng về cách tiếp cận toàn đội ngũ (whole team approach)?',
+  o:['Chỉ tester chịu trách nhiệm về chất lượng sản phẩm','Tester không tham gia lập kế hoạch','Cả nhóm cùng chịu trách nhiệm về chất lượng; tester có thể cùng business viết acceptance test','Dev không được viết test'], a:2,
+  w:['Sai: trong cách tiếp cận này, tất cả mọi người trong nhóm đều chịu trách nhiệm về chất lượng.','Sai: các thành viên có đủ kiến thức và kỹ năng để thực hiện bất kỳ nhiệm vụ nào.','Đúng. Mọi người cùng chịu trách nhiệm về chất lượng; tester hợp tác với đại diện nghiệp vụ để xây dựng test case ở mức chấp nhận (mục 1.5.2).','Sai: tester làm việc với lập trình viên để thống nhất chiến lược kiểm thử và cách tự động hóa; ai cũng có thể làm việc kiểm thử.'] },
+
+{ id:'1-15', ch:1, lo:'FL-1.2.1', k:'K2', q:'Ví dụ nào cho thấy kiểm thử <b>góp phần vào thành công</b> của dự án?',
+  o:['QC tham gia rà soát user story và phát hiện hai tiêu chí chấp nhận mâu thuẫn nhau trước khi dev bắt đầu code','QC tự sửa lỗi trong code để dev đỡ mất thời gian','QC ký xác nhận phần mềm không còn lỗi nên PO không cần tham gia nghiệm thu','QC chỉ tham gia sau khi code xong để giữ tính độc lập'], a:0,
+  w:['Đúng. Tester tham gia sớm vào rà soát yêu cầu giúp phát hiện lỗi khi chi phí sửa còn thấp (mục 1.2.1).','Sai: sửa lỗi là gỡ lỗi, việc của dev; tester sửa code còn làm mất tính độc lập.','Sai: kiểm thử không chứng minh được phần mềm hết lỗi (nguyên tắc 1), và vẫn cần thẩm định với nhu cầu người dùng.','Sai: tham gia muộn làm mất cơ hội phát hiện lỗi sớm (nguyên tắc kiểm thử sớm).'] },
+{ id:'1-16', ch:1, lo:'FL-1.4.2', k:'K2', q:'App ví điện tử phải tuân thủ quy định bảo mật giao dịch của Ngân hàng Nhà nước, nên team phải lưu bằng chứng kiểm thử chi tiết cho từng yêu cầu. Yếu tố ngữ cảnh nào ảnh hưởng tới quy trình kiểm thử ở đây?',
+  o:['Thành viên nhóm (kỹ năng, kinh nghiệm)','Lĩnh vực nghiệp vụ (mức độ quan trọng, rủi ro, quy định pháp lý)','Công cụ sẵn có','Mô hình vòng đời phát triển phần mềm'], a:1,
+  w:['Không phải: tình huống không nói gì về năng lực của nhóm.','Đúng. Lĩnh vực nghiệp vụ gồm mức độ quan trọng của đối tượng kiểm thử, rủi ro, nhu cầu thị trường và các quy định pháp lý cụ thể (mục 1.4.2).','Không phải: tình huống không nói về công cụ.','Không phải: tình huống không nói về Agile hay tuần tự.'] },
+{ id:'1-17', ch:1, lo:'FL-1.4.3', k:'K2', q:'Sản phẩm kiểm thử (testware) nào được tạo ra trong hoạt động <b>triển khai kiểm thử</b> (test implementation)?',
+  o:['Kế hoạch kiểm thử, lịch trình, danh sách rủi ro','Các khía cạnh kiểm thử đã ưu tiên và báo cáo lỗi trong cơ sở kiểm thử','Quy trình kiểm thử, bộ kiểm thử (test suite), dữ liệu kiểm thử và lịch thực hiện kiểm thử','Nhật ký kiểm thử và báo cáo lỗi khi chạy test'], a:2,
+  w:['Đây là sản phẩm của lập kế hoạch.','Đây là sản phẩm của phân tích kiểm thử.','Đúng. Triển khai kiểm thử tạo quy trình kiểm thử, kịch bản tự động, bộ kiểm thử, dữ liệu kiểm thử, lịch thực hiện và các thành phần môi trường như stub, driver, giả lập (mục 1.4.3).','Đây là sản phẩm của thực thi kiểm thử.'] },
+{ id:'1-18', ch:1, lo:'FL-1.4.5', k:'K2', q:'Phát biểu nào đúng về <b>vai trò quản lý kiểm thử</b> (test management role)?',
+  o:['Chịu trách nhiệm chính về phân tích, thiết kế, triển khai và thực thi kiểm thử','Chịu trách nhiệm chính về lập kế hoạch, giám sát, kiểm soát và hoàn thành kiểm thử; trong Agile một phần nhiệm vụ có thể do cả nhóm đảm nhận','Luôn phải do một người có chức danh Test Manager riêng đảm nhận','Chỉ tồn tại trong mô hình thác nước'], a:1,
+  w:['Đây là vai trò kiểm thử (testing role), thiên về kỹ thuật.','Đúng. Mục 1.4.5: vai trò quản lý kiểm thử chịu trách nhiệm tổng thể về quy trình kiểm thử, nhóm kiểm thử và lãnh đạo các hoạt động kiểm thử.','Sai: một vai trò có thể do nhiều người khác nhau đảm nhận tùy ngữ cảnh, ví dụ team leader hay quản lý phát triển.','Sai: vai trò này có trong mọi mô hình, cách thực hiện thì khác nhau.'] },
+{ id:'1-19', ch:1, lo:'FL-1.5.1', k:'K2', q:'Dev thường phản ứng tiêu cực khi nhận bug, coi QC là "người mang tin xấu". Kỹ năng nào giúp QC giảm vấn đề này nhất?',
+  o:['Kỹ năng giao tiếp: trình bày lỗi khách quan, mang tính xây dựng, lắng nghe và làm việc nhóm','Kiến thức chuyên môn về lĩnh vực nghiệp vụ','Kỹ năng lập trình để tự sửa lỗi','Kỹ năng ước lượng công sức kiểm thử'], a:0,
+  w:['Đúng. Mục 1.5.1: thông tin về lỗi dễ bị xem là chỉ trích tác giả, nên kỹ năng giao tiếp và cách trình bày mang tính xây dựng rất quan trọng.','Hữu ích nhưng không giải quyết vấn đề tâm lý khi báo lỗi.','Không phù hợp: sửa lỗi không phải việc của QC.','Không liên quan tới tình huống.'] },
+{ id:'1-20', ch:1, lo:'FL-1.5.3', k:'K2', q:'Dev tự kiểm thử code mình viết. Đâu là <b>hạn chế chính</b> so với để tester độc lập kiểm thử?',
+  o:['Dev không biết dùng công cụ kiểm thử','Dev dễ bỏ sót lỗi vì mang cùng giả định và cách hiểu đã dẫn tới lỗi khi viết code','Dev hiểu code quá rõ nên tìm được quá nhiều lỗi','Kiểm thử bởi dev luôn tốn chi phí hơn'], a:1,
+  w:['Sai: không phải hạn chế bản chất.','Đúng. Tác giả thường có thiên kiến với sản phẩm của mình; tester độc lập có góc nhìn khác nên nhận ra các loại lỗi khác (mục 1.5.3).','Sai: hiểu code là ưu điểm của dev, không phải hạn chế.','Sai: thường ngược lại, dev tìm lỗi trong code của mình hiệu quả về chi phí.'] },
+{ id:'1-21', ch:1, lo:'FL-1.5.3', k:'K2', q:'Đâu là <b>nhược điểm</b> của mức độ độc lập kiểm thử cao?',
+  o:['Tester phát hiện được các loại lỗi khác với dev','Tester có thể kiểm chứng, phản biện các giả định của bên liên quan','Tester bị tách khỏi nhóm phát triển, giao tiếp kém, dễ thành nút thắt cổ chai; dev có thể giảm ý thức trách nhiệm về chất lượng','Tester không bị ảnh hưởng bởi thiên kiến của tác giả'], a:2,
+  w:['Đây là ưu điểm.','Đây là ưu điểm.','Đúng. Mục 1.5.3 nêu các nhược điểm: bị cô lập, thiếu hợp tác, thành nút thắt, dev mất ý thức trách nhiệm về chất lượng.','Đây là ưu điểm.'] },
+{ id:'1-22', ch:1, lo:'FL-1.4.4', k:'K2', q:'Team duy trì liên kết truy vết giữa user story, khía cạnh kiểm thử, test case và lỗi. Lợi ích nào có được từ việc này?',
+  o:['Tự động sinh script kiểm thử từ user story','Giảm số lỗi dev tạo ra','Đánh giá độ bao phủ yêu cầu và phân tích ảnh hưởng khi một user story thay đổi','Không cần viết báo cáo kiểm thử'], a:2,
+  w:['Không: truy vết không sinh script.','Không trực tiếp.','Đúng. Truy vết giúp đánh giá độ bao phủ, xác định ảnh hưởng của thay đổi, hỗ trợ kiểm toán và làm báo cáo dễ hiểu với bên liên quan (mục 1.4.4).','Sai: truy vết giúp báo cáo rõ ràng hơn, không thay thế báo cáo.'] },
+{ id:'1-23', ch:1, lo:'FL-1.4.1', k:'K2', q:'Hoạt động nào thuộc <b>hoàn thành kiểm thử</b> (test completion)?',
+  o:['So sánh kết quả thực tế với kết quả mong đợi','Lưu trữ sản phẩm kiểm thử để tái sử dụng, đóng môi trường kiểm thử, rút bài học và viết báo cáo hoàn thành','Xác định và ưu tiên các khía cạnh kiểm thử','Tạo dữ liệu kiểm thử và dựng môi trường'], a:1,
+  w:['Đây là thực thi kiểm thử.','Đúng. Hoạt động này thường diễn ra ở các mốc dự án như release, cuối vòng lặp hoặc kết thúc một cấp kiểm thử.','Đây là phân tích kiểm thử.','Đây là triển khai kiểm thử.'] },
+{ id:'1-24', ch:1, lo:'FL-1.4.1', k:'K2', q:'Giữa sprint, QC lead thấy tỉ lệ test pass mới đạt 60% so với tiêu chí kết thúc 95%, nên đề xuất thêm một tester và lùi ngày release. Đây là hoạt động nào?',
+  o:['Lập kế hoạch kiểm thử','Giám sát và kiểm soát kiểm thử','Hoàn thành kiểm thử','Triển khai kiểm thử'], a:1,
+  w:['Kế hoạch đã có từ trước; ở đây đang theo dõi tiến độ so với kế hoạch.','Đúng. Giám sát: so sánh tiến độ thực tế với kế hoạch; kiểm soát: đưa ra hành động điều chỉnh để đạt mục tiêu.','Chưa tới lúc hoàn thành.','Không phải.'] },
+
+/* ---------- Chương 2 ---------- */
+{ id:'2-01', ch:2, lo:'FL-2.1.2', k:'K1', q:'Thực hành kiểm thử tốt nào áp dụng cho <b>mọi</b> mô hình SDLC?',
+  o:['Thiết kế test case chỉ bắt đầu khi code đã hoàn thành','Mỗi hoạt động phát triển có một hoạt động kiểm thử tương ứng','Mọi mức kiểm thử có cùng một mục tiêu','Tester chỉ rà soát bản cuối cùng của tài liệu'], a:1,
+  w:['Sai: phân tích và thiết kế nên bắt đầu sớm.','Đúng.','Sai: mỗi mức có mục tiêu riêng.','Sai: nên tham gia rà soát từ bản nháp.'] },
+{ id:'2-02', ch:2, lo:'FL-2.1.3', k:'K1', q:'PO, dev và QC cùng viết kịch bản "Given giỏ hàng 600.000đ / When áp mã SALE10 / Then tổng còn 540.000đ" bằng ngôn ngữ tự nhiên, sau đó tự động hóa. Đây là cách tiếp cận nào?',
+  o:['TDD','Kiểm thử khám phá','BDD','Kiểm thử thành phần'], a:2,
+  w:['TDD định hướng việc lập trình bằng test case viết trước, không dùng định dạng Given/When/Then cho các bên liên quan.','Không phải test-first.','Đúng. BDD mô tả hành vi bằng Given/When/Then để mọi bên cùng hiểu.','Không đúng mức.'] },
+{ id:'2-03', ch:2, lo:'FL-2.1.3', k:'K1', q:'Dev viết unit test cho hàm tinh_phi_ship() trước, chạy thấy fail, sau đó viết code cho đến khi pass rồi refactor. Đây là:',
+  o:['TDD','ATDD','BDD','Kiểm thử chấp nhận'], a:0,
+  w:['Đúng.','ATDD dựa trên acceptance criteria, do cả nhóm viết.','BDD dùng Given/When/Then ở mức hành vi.','Không phải.'] },
+{ id:'2-04', ch:2, lo:'FL-2.1.5', k:'K2', q:'Đâu <b>KHÔNG</b> phải là thực hành shift left (kiểm thử sớm)?',
+  o:['Rà soát spec từ góc nhìn kiểm thử','Viết test case trước khi code','Chạy test tự động trong CI ở mỗi lần commit','Chỉ thực hiện kiểm thử hiệu năng ở giai đoạn UAT trước khi go-live'], a:3,
+  w:['Là shift left.','Là shift left.','Là shift left.','Đúng. Đẩy kiểm thử phi chức năng về cuối là ngược với shift left; nên làm sớm, kể cả ở mức component.'] },
+{ id:'2-05', ch:2, lo:'FL-2.2.1', k:'K2', q:'QC kiểm tra ShopDemo nhận và xử lý đúng callback từ cổng thanh toán Momo bên ngoài. Đây là mức kiểm thử nào?',
+  o:['Kiểm thử thành phần','Kiểm thử tích hợp thành phần','Kiểm thử tích hợp hệ thống','Kiểm thử chấp nhận vận hành'], a:2,
+  w:['Không phải: đang test giao tiếp giữa các hệ thống.','Tích hợp thành phần là giữa các module nội bộ.','Đúng. Giao tiếp với hệ thống hoặc dịch vụ bên ngoài.','Kiểm thử chấp nhận vận hành là một hình thức của kiểm thử chấp nhận, không phải kiểm thử điểm kết nối với hệ thống bên ngoài.'] },
+{ id:'2-06', ch:2, lo:'FL-2.2.1', k:'K2', q:'Dev kiểm tra riêng hàm tinh_giam_gia(), dùng stub thay cho database. Đây là mức kiểm thử nào?',
+  o:['Kiểm thử thành phần','Kiểm thử hệ thống','Kiểm thử tích hợp hệ thống','Kiểm thử chấp nhận'], a:0,
+  w:['Đúng. Kiểm thử thành phần tập trung kiểm thử các thành phần một cách độc lập, thường cần môi trường chạy kiểm thử (test harness); stub là một hạng mục môi trường kiểm thử (mục 2.2.1, 1.4.3).','Không phải.','Không phải.','Không phải.'] },
+{ id:'2-07', ch:2, lo:'FL-2.2.1', k:'K2', q:'Trước go-live, đội vận hành kiểm tra sao lưu, khôi phục dữ liệu và quy trình cài đặt bản cập nhật. Đây là loại kiểm thử chấp nhận nào?',
+  o:['Kiểm thử chấp nhận người dùng (UAT)','Kiểm thử chấp nhận vận hành (OAT)','Kiểm thử beta','Kiểm thử chấp nhận theo hợp đồng'], a:1,
+  w:['UAT do người dùng xác nhận hệ thống đáp ứng nhu cầu sử dụng.','Đúng. Lưu ý: syllabus v4.0 chỉ liệt kê tên “kiểm thử chấp nhận vận hành”, không mô tả nội dung; chi tiết sao lưu, khôi phục, cài đặt lấy từ syllabus v3.1. Câu này để hiểu thêm, ít khả năng ra thi v4.0.','Kiểm thử beta do người dùng thực hiện tại môi trường của họ (mô tả theo syllabus v3.1; v4.0 chỉ liệt kê tên).','Kiểm thử chấp nhận theo hợp đồng dựa trên các tiêu chí trong hợp đồng (mô tả theo syllabus v3.1; v4.0 chỉ liệt kê tên).'] },
+{ id:'2-08', ch:2, lo:'FL-2.2.2', k:'K2', q:'"API đặt hàng phải phản hồi dưới 2 giây khi có 500 người dùng đồng thời." Kiểm thử yêu cầu này thuộc loại nào?',
+  o:['Kiểm thử chức năng','Kiểm thử hộp trắng','Kiểm thử xác nhận','Kiểm thử phi chức năng'], a:3,
+  w:['Không: kiểm thử chức năng đánh giá hệ thống phải “làm gì”; ở đây đánh giá hệ thống hoạt động “tốt như thế nào”.','Không liên quan cấu trúc code.','Không phải.','Đúng. Đây là đặc tính “hiệu năng hoạt động” trong ISO/IEC 25010 (mục 2.2.2).'] },
+{ id:'2-09', ch:2, lo:'FL-2.2.3', k:'K2', q:'Sau khi dev sửa lỗi tổng tiền, QC (1) chạy lại đúng case đã fail, và (2) chạy lại các case giỏ hàng, voucher, thanh toán liên quan. Gọi đúng tên:',
+  o:['(1) hồi quy, (2) xác nhận','(1) xác nhận, (2) hồi quy','Cả hai đều là kiểm thử xác nhận','Cả hai đều là kiểm thử hồi quy'], a:1,
+  w:['Đảo ngược.','Đúng.','Sai: (2) là hồi quy.','Sai: (1) là xác nhận.'] },
+{ id:'2-10', ch:2, lo:'FL-2.3.1', k:'K2', q:'Đâu <b>KHÔNG</b> phải tác nhân (trigger) của kiểm thử bảo trì?',
+  o:['Nâng cấp hệ điều hành máy chủ đang chạy hệ thống','Hotfix lỗi thanh toán trên production','Ngừng sử dụng hệ thống cũ, cần lưu trữ dữ liệu','Viết user story cho một sản phẩm mới chưa phát hành'], a:3,
+  w:['Là tác nhân: nâng cấp hoặc chuyển đổi môi trường vận hành.','Là tác nhân: thay đổi trong phần mềm (bản vá lỗi khẩn cấp).','Là tác nhân: ngừng sử dụng (kiểm thử việc lưu trữ dữ liệu).','Đúng. Sản phẩm chưa vận hành thì không có kiểm thử bảo trì.'] },
+
+{ id:'2-11', ch:2, lo:'FL-2.1.1', k:'K2', q:'Trong mô hình phát triển <b>tuần tự</b> (ví dụ V-model), điều nào đúng về kiểm thử?',
+  o:['Không thể áp dụng kiểm thử tĩnh','Tester chỉ được tham gia sau khi giai đoạn lập trình kết thúc','Ở giai đoạn đầu tester tham gia rà soát yêu cầu, phân tích và thiết kế test; kiểm thử động thường diễn ra muộn vì code có ở giai đoạn sau','Mỗi vòng lặp đều phải chạy kiểm thử hồi quy tự động'], a:2,
+  w:['Sai: rà soát yêu cầu, thiết kế là kiểm thử tĩnh, rất phù hợp ở giai đoạn đầu.','Sai: tester nên tham gia từ đầu (shift left).','Đúng. Mục 2.1.1: trong mô hình tuần tự, giai đoạn đầu tester thường tham gia rà soát yêu cầu, phân tích và thiết kế test; code có muộn nên kiểm thử động không thể làm sớm.','Đây là đặc điểm của mô hình lặp và tăng dần.'] },
+{ id:'2-12', ch:2, lo:'FL-2.1.4', k:'K2', q:'Đâu là <b>lợi ích</b> của DevOps đối với kiểm thử?',
+  o:['Phản hồi nhanh về chất lượng code; CI tự động chạy test giúp phát hiện lỗi sớm và giảm rủi ro hồi quy','Không cần kiểm thử thủ công nữa','Không cần thiết lập và bảo trì pipeline CI/CD','Giảm nhu cầu môi trường kiểm thử ổn định'], a:0,
+  w:['Đúng. Mục 2.1.4 còn nêu: khuyến khích dev viết code chất lượng cao kèm test thành phần, môi trường ổn định nhờ quy trình tự động.','Sai: vẫn cần kiểm thử thủ công, nhất là từ góc nhìn người dùng.','Sai: phải thiết lập và bảo trì pipeline, đó chính là một rủi ro/thách thức.','Sai: ngược lại.'] },
+{ id:'2-13', ch:2, lo:'FL-2.1.4', k:'K2', q:'Đâu là <b>thách thức</b> (rủi ro) của DevOps đối với kiểm thử?',
+  o:['Phản hồi nhanh về chất lượng code','Phải định nghĩa và thiết lập pipeline giao hàng, đưa vào và bảo trì công cụ CI/CD; tự động hóa kiểm thử cần thêm nguồn lực','Khả năng hiển thị các đặc tính phi chức năng tốt hơn','Giảm kiểm thử hồi quy thủ công lặp lại'], a:1,
+  w:['Đây là lợi ích.','Đúng (mục 2.1.4).','Đây là lợi ích.','Đây là lợi ích.'] },
+{ id:'2-14', ch:2, lo:'FL-2.2.1', k:'K2', q:'QC chạy toàn bộ luồng từ tìm sản phẩm, thêm giỏ, thanh toán đến nhận email xác nhận, trên môi trường gần giống production, đối chiếu với đặc tả hệ thống. Đây là cấp kiểm thử nào?',
+  o:['Kiểm thử tích hợp thành phần','Kiểm thử tích hợp hệ thống','Kiểm thử hệ thống','Kiểm thử chấp nhận người dùng'], a:2,
+  w:['Không: cấp này tập trung vào giao diện giữa các thành phần.','Không: cấp này tập trung vào giao diện với hệ thống, dịch vụ bên ngoài.','Đúng. Kiểm thử hệ thống tập trung vào hành vi tổng thể, đầu cuối của cả hệ thống, thường do nhóm kiểm thử độc lập thực hiện dựa trên đặc tả.','Không: UAT do người dùng thực hiện nhằm xác nhận hệ thống đáp ứng nhu cầu sử dụng.'] },
+{ id:'2-15', ch:2, lo:'FL-2.2.2', k:'K2', q:'Phát biểu nào đúng về mối quan hệ giữa <b>loại kiểm thử</b> và <b>cấp kiểm thử</b>?',
+  o:['Kiểm thử hộp trắng chỉ thực hiện ở cấp thành phần','Kiểm thử phi chức năng chỉ thực hiện ở cấp hệ thống','Kiểm thử chức năng chỉ thực hiện ở cấp chấp nhận','Mọi loại kiểm thử đều có thể áp dụng ở mọi cấp kiểm thử, dù trọng tâm mỗi cấp khác nhau'], a:3,
+  w:['Sai: ví dụ có thể đo độ bao phủ giao diện ở cấp tích hợp.','Sai: ví dụ đo hiệu năng của một hàm ở cấp thành phần.','Sai.','Đúng (mục 2.2.2).'] },
+{ id:'2-16', ch:2, lo:'FL-2.3.1', k:'K2', q:'Trước khi nâng cấp module voucher đang chạy production, team làm <b>phân tích ảnh hưởng</b> (impact analysis). Việc này giúp gì cho kiểm thử bảo trì?',
+  o:['Xác định những phần của hệ thống có thể bị ảnh hưởng để quyết định phạm vi kiểm thử hồi quy','Thay thế hoàn toàn kiểm thử hồi quy','Đo hiệu năng của module mới','Chỉ dùng để ước lượng chi phí dev'], a:0,
+  w:['Đúng. Mục 2.3.1: phân tích ảnh hưởng giúp quyết định có nên thay đổi và phạm vi kiểm thử hồi quy cần thiết.','Sai: vẫn cần kiểm thử hồi quy, chỉ là có trọng tâm hơn.','Không phải.','Không phải mục đích chính với kiểm thử.'] },
+{ id:'2-17', ch:2, lo:'FL-2.3.1', k:'K2', q:'Phạm vi của kiểm thử bảo trì thường phụ thuộc vào những yếu tố nào?',
+  o:['Số lượng tester đang có trong team','Mức độ rủi ro của thay đổi, quy mô hệ thống hiện tại và quy mô của thay đổi','Ngôn ngữ lập trình của hệ thống','Luôn bằng toàn bộ bộ kiểm thử hồi quy'], a:1,
+  w:['Không phải yếu tố quyết định phạm vi.','Đúng (mục 2.3.1).','Không liên quan.','Sai: phạm vi điều chỉnh theo rủi ro và quy mô thay đổi.'] },
+{ id:'2-18', ch:2, lo:'FL-2.1.6', k:'K2', q:'Buổi retrospective cuối sprint mang lại lợi ích gì cho kiểm thử?',
+  o:['Phân công lỗi cho từng dev chịu trách nhiệm','Đánh giá năng lực cá nhân của tester để xét thưởng','Thay thế báo cáo hoàn thành kiểm thử','Tăng hiệu quả kiểm thử, cải thiện chất lượng testware và cơ sở kiểm thử, tăng gắn kết nhóm và hợp tác giữa dev và tester'], a:3,
+  w:['Sai: retrospective không nhằm đổ lỗi.','Sai: không phải mục đích.','Sai.','Đúng (mục 2.1.6). Kết quả retrospective được ghi lại, thường nằm trong báo cáo hoàn thành kiểm thử.'] },
+
+/* ---------- Chương 3 ---------- */
+{ id:'3-01', ch:3, lo:'FL-3.1.1', k:'K1', q:'Sản phẩm nào <b>không nên</b> là đối tượng của kiểm thử tĩnh?',
+  o:['User story và tiêu chí chấp nhận','Test case','Hợp đồng','Mã thực thi của bên thứ ba mà về mặt pháp lý không được phép phân tích'], a:3,
+  w:['Kiểm tra được.','Kiểm tra được.','Kiểm tra được.','Đúng. Sản phẩm khó đọc với con người và không được phép phân tích bằng công cụ thì không phù hợp.'] },
+{ id:'3-02', ch:3, lo:'FL-3.1.2', k:'K2', q:'Loại lỗi nào kiểm thử tĩnh tìm được nhưng kiểm thử động khó tìm?',
+  o:['Thời gian phản hồi chậm khi tải cao','Code không bao giờ chạy tới (unreachable code)','Rò rỉ bộ nhớ khi chạy lâu','Giao diện hiển thị sai trên một trình duyệt'], a:1,
+  w:['Cần chạy thật (động).','Đúng. Code không chạy tới thì kiểm thử động không thể kích hoạt.','Cần chạy thật.','Cần chạy thật.'] },
+{ id:'3-03', ch:3, lo:'FL-3.1.3', k:'K2', q:'Phát biểu nào đúng về khác biệt giữa kiểm thử tĩnh và kiểm thử động?',
+  o:['Kiểm thử tĩnh tìm lỗi trực tiếp; kiểm thử động làm lộ sự cố rồi phải phân tích để tìm lỗi','Kiểm thử tĩnh chỉ thực hiện được bằng công cụ','Kiểm thử động áp dụng được cho tài liệu yêu cầu','Kiểm thử tĩnh đo được hiệu năng hệ thống'], a:0,
+  w:['Đúng.','Sai: rà soát do con người làm.','Sai: tài liệu không thực thi được.','Sai: hiệu năng phụ thuộc lúc chạy.'] },
+{ id:'3-04', ch:3, lo:'FL-3.2.2', k:'K2', q:'Thứ tự đúng của các hoạt động trong quy trình rà soát là:',
+  o:['Rà soát cá nhân → Lập kế hoạch → Khởi tạo rà soát → Khắc phục và báo cáo → Trao đổi và phân tích','Lập kế hoạch → Khởi tạo rà soát → Rà soát cá nhân → Trao đổi và phân tích → Khắc phục và báo cáo','Khởi tạo rà soát → Lập kế hoạch → Trao đổi và phân tích → Rà soát cá nhân → Khắc phục và báo cáo','Lập kế hoạch → Rà soát cá nhân → Khởi tạo rà soát → Khắc phục và báo cáo → Trao đổi và phân tích'], a:1,
+  w:['Sai thứ tự.','Đúng.','Sai thứ tự.','Sai thứ tự.'] },
+{ id:'3-05', ch:3, lo:'FL-3.2.3', k:'K1', q:'Trong buổi họp rà soát, ai chịu trách nhiệm điều phối để buổi họp hiệu quả, điều phối thảo luận, quản lý thời gian và duy trì môi trường an toàn để mọi người tự do phát biểu?',
+  o:['Tác giả','Thư ký','Điều phối viên (moderator)','Quản lý'], a:2,
+  w:['Tác giả tạo ra và sửa sản phẩm công việc đang được rà soát.','Thư ký tổng hợp các bất thường và ghi lại thông tin thảo luận, các quyết định.','Đúng (mục 3.2.3).','Quản lý quyết định rà soát cái gì và cấp nguồn lực.'] },
+{ id:'3-06', ch:3, lo:'FL-3.2.4', k:'K2', q:'Dev lead trình bày thiết kế mới cho cả team để mọi người hiểu, góp ý và đạt đồng thuận; rà soát cá nhân trước buổi họp là không bắt buộc. Đây là loại rà soát nào?',
+  o:['Đánh giá chuyên sâu (inspection)','Rà soát có hướng dẫn (walkthrough)','Rà soát kỹ thuật','Rà soát không chính thức'], a:1,
+  w:['Đánh giá chuyên sâu là loại chính thức nhất, tuân theo đầy đủ quy trình rà soát (gồm rà soát cá nhân); tác giả không được làm trưởng nhóm rà soát hay thư ký.','Đúng. Rà soát có hướng dẫn do tác giả chủ trì; mục tiêu gồm đào tạo người rà soát, đạt sự đồng thuận, tạo ý tưởng mới; rà soát cá nhân trước buổi họp là không bắt buộc (mục 3.2.4).','Rà soát kỹ thuật do điều phối viên dẫn dắt, người rà soát có trình độ kỹ thuật; mục tiêu là đồng thuận và quyết định về vấn đề kỹ thuật.','Rà soát không chính thức không theo quy trình cố định, không yêu cầu ghi nhận kết quả chính thức; mục tiêu chính là phát hiện bất thường.'] },
+{ id:'3-07', ch:3, lo:'FL-3.2.4', k:'K2', q:'Loại rà soát nào chính thức nhất, thu thập chỉ số để cải tiến quy trình, và tác giả <b>không được</b> làm trưởng nhóm rà soát hay thư ký?',
+  o:['Đánh giá chuyên sâu (inspection)','Rà soát có hướng dẫn (walkthrough)','Rà soát kỹ thuật','Rà soát không chính thức'], a:0,
+  w:['Đúng.','Rà soát có hướng dẫn do tác giả dẫn dắt.','Syllabus chỉ nêu việc thu thập chỉ số ở đánh giá chuyên sâu; rà soát kỹ thuật do điều phối viên dẫn dắt.','Không có quy trình cố định.'] },
+{ id:'3-08', ch:3, lo:'FL-3.2.5', k:'K1', q:'Đâu <b>KHÔNG</b> phải yếu tố thành công của rà soát?',
+  o:['Mục tiêu rõ ràng và tiêu chí kết thúc đo được','Đủ thời gian chuẩn bị','Rà soát toàn bộ tài liệu 80 trang trong một buổi để tiết kiệm thời gian','Có sự ủng hộ của quản lý'], a:2,
+  w:['Là yếu tố thành công.','Là yếu tố thành công.','Đúng. Nên chia nhỏ để người rà soát không mất tập trung.','Là yếu tố thành công.'] },
+
+{ id:'3-09', ch:3, lo:'FL-3.2.2', k:'K2', q:'Trong quy trình rà soát, mỗi người tự đọc sản phẩm công việc và ghi lại bất thường, đề xuất, câu hỏi. Đây là hoạt động nào?',
+  o:['Lập kế hoạch','Khởi tạo rà soát','Rà soát cá nhân','Sửa chữa và báo cáo'], a:2,
+  w:['Lập kế hoạch xác định phạm vi, mục đích, tiêu chí kết thúc, người tham gia.','Khởi tạo đảm bảo mọi người sẵn sàng: có quyền truy cập tài liệu, hiểu vai trò.','Đúng (mục 3.2.2).','Đây là bước cuối: tạo báo cáo lỗi, theo dõi sửa chữa.'] },
+{ id:'3-10', ch:3, lo:'FL-3.2.1', k:'K1', q:'Lợi ích của việc nhận <b>phản hồi sớm và thường xuyên</b> từ các bên liên quan là gì?',
+  o:['Không cần kiểm thử động nữa','Phát hiện sớm hiểu nhầm về yêu cầu, tránh làm lại tốn kém; giúp nhóm tập trung vào tính năng có giá trị nhất','Đảm bảo yêu cầu không thay đổi trong suốt dự án','Giảm số cuộc họp với khách hàng'], a:1,
+  w:['Sai.','Đúng (mục 3.2.1).','Sai: yêu cầu vẫn có thể thay đổi; phản hồi giúp xử lý thay đổi sớm.','Không phải mục tiêu.'] },
+{ id:'3-11', ch:3, lo:'FL-3.1.2', k:'K2', q:'Đặc tính chất lượng nào thường được đánh giá hiệu quả bằng <b>kiểm thử tĩnh</b>, không cần chạy code?',
+  o:['Thời gian phản hồi khi có tải lớn','Mức tiêu thụ bộ nhớ khi chạy','Khả năng bảo trì (độ phức tạp, vi phạm chuẩn code, code trùng lặp)','Độ ổn định khi chạy liên tục 72 giờ'], a:2,
+  w:['Cần chạy hệ thống: kiểm thử động.','Cần chạy: kiểm thử động.','Đúng. Mục 3.1.2: kiểm thử tĩnh có thể đánh giá khả năng bảo trì và bảo mật, những đặc tính không phụ thuộc việc thực thi.','Cần chạy: kiểm thử động.'] },
+{ id:'3-12', ch:3, lo:'FL-3.2.3', k:'K1', q:'Trong rà soát, ai chịu trách nhiệm <b>tổng thể</b> cho việc rà soát, ví dụ quyết định ai tham gia và tổ chức thời gian, địa điểm?',
+  o:['Người điều phối (moderator)','Người ghi chép (scribe)','Trưởng nhóm rà soát (review leader)','Tác giả (author)'], a:2,
+  w:['Người điều phối đảm bảo buổi họp hiệu quả: điều phối thảo luận, quản lý thời gian.','Người ghi chép tổng hợp bất thường và ghi lại thông tin trong buổi họp.','Đúng (mục 3.2.3).','Tác giả tạo và sửa sản phẩm công việc.'] },
+
+/* ---------- Chương 4 ---------- */
+{ id:'4-01', ch:4, lo:'FL-4.2.1', k:'K3', q:'Trường "Tuổi" nhận số nguyên, hợp lệ từ 18 đến 60. Dùng phân vùng tương đương, cần tối thiểu bao nhiêu test để bao phủ 100% các phân vùng (cả hợp lệ và không hợp lệ)?',
+  o:['2','3','4','6'], a:1,
+  w:['Thiếu một vùng không hợp lệ.','Đúng. 3 vùng: &lt;18, 18–60, &gt;60; mỗi vùng một giá trị.','Chỉ có 3 vùng.','6 là số giá trị của BVA 3 giá trị, không phải EP.'] },
+{ id:'4-02', ch:4, lo:'FL-4.2.1', k:'K3', q:'Cùng trường "Tuổi" 18–60. Bộ giá trị nào đạt 100% bao phủ phân vùng tương đương?',
+  o:['18, 60, 61','20, 40, 59','17, 30, 61','18, 30, 60'], a:2,
+  w:['Thiếu vùng &lt;18.','Chỉ có vùng hợp lệ.','Đúng. Mỗi vùng có một giá trị: 17 (&lt;18), 30 (18–60), 61 (&gt;60).','Chỉ có vùng hợp lệ.'] },
+{ id:'4-03', ch:4, lo:'FL-4.2.2', k:'K3', q:'Số lượng mua hợp lệ từ 1 đến 10 (số nguyên). Dùng BVA <b>2 giá trị</b>, các giá trị cần test là:',
+  o:['1, 10','0, 1, 10, 11','0, 1, 2, 9, 10, 11','1, 5, 10'], a:1,
+  w:['Thiếu giá trị liền kề ở vùng bên cạnh.','Đúng. Mỗi biên lấy biên và giá trị liền kề thuộc vùng bên cạnh.','Đây là BVA 3 giá trị.','Không phải BVA.'] },
+{ id:'4-04', ch:4, lo:'FL-4.2.2', k:'K3', q:'Cùng phạm vi 1–10. Dùng BVA <b>3 giá trị</b> thì có bao nhiêu giá trị cần test?',
+  o:['4','5','6','8'], a:2,
+  w:['Đó là BVA 2 giá trị.','Thiếu một giá trị.','Đúng. 0, 1, 2 và 9, 10, 11.','Thừa.'] },
+{ id:'4-05', ch:4, lo:'FL-4.2.2', k:'K3', q:'Phạm vi hợp lệ 1–10, dùng BVA 2 giá trị. Bộ test hiện có các giá trị 1, 10, 11. Độ bao phủ BVA là bao nhiêu?',
+  o:['50%','67%','75%','100%'], a:2,
+  w:['Sai.','Sai mẫu số.','Đúng. Hạng mục bao phủ: 0, 1, 10, 11 (4 giá trị). Đã test 3 → 75%.','Còn thiếu giá trị 0.'] },
+{ id:'4-06', ch:4, lo:'FL-4.2.3', k:'K3', q:'Quy tắc ưu đãi có 3 điều kiện đúng/sai: khách VIP?, đơn ≥ 500k?, có mã voucher? Bảng quyết định đầy đủ (chưa rút gọn) có bao nhiêu cột?',
+  o:['3','6','8','9'], a:2,
+  w:['Đó là số điều kiện.','Sai.','Đúng. 2³ = 8.','Sai.'] },
+{ id:'4-07', ch:4, lo:'FL-4.2.3', k:'K3', q:`Bảng quyết định ưu đãi:
+<div class="tbl-wrap"><table class="res"><tr><th></th><th>R1</th><th>R2</th><th>R3</th><th>R4</th></tr>
+<tr><td>Khách VIP</td><td>T</td><td>T</td><td>F</td><td>F</td></tr>
+<tr><td>Đơn ≥ 500k</td><td>T</td><td>F</td><td>T</td><td>F</td></tr>
+<tr><td>Hành động</td><td>Giảm 20%</td><td>Giảm 10%</td><td>Freeship</td><td>Không ưu đãi</td></tr></table></div>
+Khách thường đặt đơn 600.000đ. Kết quả mong đợi là gì?`,
+  o:['Giảm 20%','Giảm 10%','Freeship','Không ưu đãi'], a:2,
+  w:['Đây là R1 (VIP).','Đây là R2 (VIP, đơn &lt;500k).','Đúng. Khách thường (F) và đơn ≥ 500k (T) → R3.','Đây là R4 (đơn &lt;500k).'] },
+{ id:'4-08', ch:4, lo:'FL-4.2.3', k:'K3', q:'Với bảng quyết định 4 cột ở câu trên, bộ test gồm: (a) VIP, đơn 700k; (b) VIP, đơn 200k; (c) VIP, đơn 900k. Độ bao phủ bảng quyết định là:',
+  o:['25%','50%','75%','100%'], a:1,
+  w:['Sai.','Đúng. (a) và (c) cùng là R1, (b) là R2 → 2/4 cột = 50%.','Sai: (a) và (c) trùng cột.','Sai.'] },
+{ id:'4-09', ch:4, lo:'FL-4.2.4', k:'K3', q:`Trạng thái đơn hàng: Chờ thanh toán →(thanh toán)→ Đã thanh toán →(giao)→ Đang giao →(nhận hàng)→ Đã giao. Ngoài ra: Chờ thanh toán →(hủy)→ Đã hủy; Đã thanh toán →(hủy)→ Đã hủy.<br>Mỗi test bắt đầu từ "Chờ thanh toán". Cần tối thiểu bao nhiêu test để đạt 100% <b>bao phủ chuyển đổi trạng thái hợp lệ</b>?`,
+  o:['2','3','4','5'], a:1,
+  w:['Không đủ: có 2 chuyển đổi tới Đã hủy từ 2 trạng thái khác nhau.','Đúng. T1: Chờ TT → Đã TT → Đang giao → Đã giao; T2: Chờ TT → Đã hủy; T3: Chờ TT → Đã TT → Đã hủy.','Thừa.','5 là số chuyển đổi, không phải số test tối thiểu.'] },
+{ id:'4-10', ch:4, lo:'FL-4.2.4', k:'K3', q:'Cùng sơ đồ trạng thái ở câu trên. Cần tối thiểu bao nhiêu test để đạt 100% <b>bao phủ tất cả trạng thái</b>?',
+  o:['1','2','3','5'], a:1,
+  w:['Một đường không thể vừa tới Đã giao vừa tới Đã hủy.','Đúng. T1 đi qua 4 trạng thái tới Đã giao; T2 tới Đã hủy.','Thừa.','5 là số trạng thái.'] },
+{ id:'4-11', ch:4, lo:'FL-4.2.4', k:'K2', q:'Để đạt <b>bao phủ tất cả chuyển đổi trạng thái</b> (all transitions) cho sơ đồ trên, ngoài các chuyển đổi hợp lệ còn cần test điều gì?',
+  o:['Mọi trạng thái được đi qua ít nhất 2 lần','Thử các chuyển đổi không hợp lệ, ví dụ chọn "Hủy" khi đơn đã ở trạng thái Đã giao','Mọi đường đi có thể có từ đầu đến cuối','Mọi giá trị biên của số tiền đơn hàng'], a:1,
+  w:['Không phải định nghĩa.','Đúng. All transitions = mọi chuyển đổi hợp lệ + thử mọi chuyển đổi không hợp lệ.','Không phải định nghĩa.','Đó là BVA.'] },
+{ id:'4-12', ch:4, lo:'FL-4.3.1, FL-4.3.2', k:'K2', q:`Đoạn code:<pre class="syn">if (tong &gt;= 500000) {
+  phi_ship = 0
+}
+tinh_tien()</pre>Chỉ có một test với tong = 600000. Độ bao phủ câu lệnh và bao phủ nhánh lần lượt là:`,
+  o:['100% câu lệnh, 100% nhánh','67% câu lệnh, 67% nhánh','100% câu lệnh, 67% nhánh','100% câu lệnh, 50% nhánh'], a:2,
+  w:['Chưa thực thi nhánh sai của if (từ if đi thẳng tới tinh_tien()).','Sai: cả 3 câu lệnh (if, phi_ship = 0, tinh_tien()) đều được thực thi.','Đúng. Đồ thị luồng điều khiển có 3 nhánh: if → phi_ship = 0 (đúng), if → tinh_tien() (sai), phi_ship = 0 → tinh_tien() (vô điều kiện). Test đi qua 2/3 nhánh ≈ 67%. Mục 4.3.2: nhánh gồm cả có điều kiện và vô điều kiện.','Sai: 50% là khi chỉ đếm 2 kết quả đúng/sai của if. Theo syllabus, nhánh vô điều kiện cũng được tính nên tổng là 3 nhánh.'] },
+{ id:'4-13', ch:4, lo:'FL-4.3.2', k:'K2', q:'Phát biểu nào đúng?',
+  o:['100% bao phủ câu lệnh đảm bảo 100% bao phủ nhánh','100% bao phủ nhánh đảm bảo 100% bao phủ câu lệnh','Bao phủ câu lệnh và nhánh luôn bằng nhau','Bao phủ nhánh chỉ tính các nhánh có điều kiện, không tính nhánh vô điều kiện'], a:1,
+  w:['Sai: ví dụ if không có else.','Đúng.','Sai.','Sai: nhánh gồm cả có điều kiện và vô điều kiện.'] },
+{ id:'4-14', ch:4, lo:'FL-4.3.3', k:'K2', q:'Điểm yếu cơ bản của kiểm thử hộp trắng là gì?',
+  o:['Không đo được độ bao phủ','Chỉ dùng được khi spec đầy đủ','Không phát hiện được yêu cầu bị bỏ sót, chưa được cài đặt','Chỉ áp dụng ở mức kiểm thử hệ thống'], a:2,
+  w:['Sai: đo bao phủ là điểm mạnh.','Sai: hộp trắng vẫn dùng được khi spec mơ hồ.','Đúng. Không có code thì không có gì để bao phủ.','Sai.'] },
+{ id:'4-15', ch:4, lo:'FL-4.4.1', k:'K2', q:'Dựa trên kinh nghiệm các dự án trước, QC lập danh sách lỗi hay gặp (bấm 2 lần, mất mạng giữa chừng, nhập emoji, số âm) rồi thiết kế test để "tấn công" từng lỗi. Đây là:',
+  o:['Phân vùng tương đương','Đoán lỗi (tấn công lỗi – fault attacks)','Bảng quyết định','Kiểm thử chấp nhận'], a:1,
+  w:['Không phải.','Đúng. Tấn công lỗi (fault attacks) là cách làm có hệ thống của đoán lỗi.','Không phải.','Không phải.'] },
+{ id:'4-16', ch:4, lo:'FL-4.4.2', k:'K2', q:'Khi nào kiểm thử khám phá đặc biệt hữu ích?',
+  o:['Khi spec đầy đủ và đã được phê duyệt chính thức','Khi cần chứng minh 100% bao phủ nhánh','Khi spec ít hoặc thiếu và thời gian kiểm thử gấp','Khi kiểm thử theo yêu cầu quy định cần tài liệu đầy đủ'], a:2,
+  w:['Lúc đó kỹ thuật chính thức phù hợp hơn.','Đó là hộp trắng.','Đúng.','Không phù hợp nhất.'] },
+{ id:'4-17', ch:4, lo:'FL-4.5.1', k:'K1', q:'3C của user story là gì?',
+  o:['Card, Conversation, Confirmation','Code, Commit, Coverage','Criteria, Coverage, Completion','Card, Code, Confirmation'], a:0,
+  w:['Đúng.','Sai.','Sai.','Sai.'] },
+{ id:'4-18', ch:4, lo:'FL-4.5.2', k:'K2', q:'Tiêu chí chấp nhận viết theo dạng "Given voucher VIP20 hết lượt / When khách áp mã / Then hiển thị \'Mã đã hết lượt\'" thuộc dạng nào?',
+  o:['Hướng quy tắc (rule-oriented)','Hướng kịch bản (scenario-oriented)','Bảng quyết định','Checklist'], a:1,
+  w:['Hướng quy tắc là danh sách gạch đầu dòng hoặc bảng input–output.','Đúng.','Không phải.','Không phải.'] },
+{ id:'4-19', ch:4, lo:'FL-4.5.3', k:'K2', q:'Phát biểu nào đúng về ATDD?',
+  o:['Test được viết sau khi cài đặt xong, do riêng tester','Test được viết trước khi cài đặt, từ tiêu chí chấp nhận, bởi nhóm có business, dev và tester','ATDD chỉ áp dụng ở mức kiểm thử thành phần','ATDD thay thế hoàn toàn kiểm thử hệ thống'], a:1,
+  w:['Sai.','Đúng.','Sai.','Sai.'] },
+
+{ id:'4-20', ch:4, lo:'FL-4.2.1', k:'K3', q:'Phí ship theo giá trị đơn (số nguyên, nghìn đồng): đơn dưới 200 phí 30; từ 200 đến dưới 500 phí 15; từ 500 trở lên miễn phí. Giá trị đơn ≤ 0 là không hợp lệ. Có bao nhiêu phân vùng tương đương cho giá trị đơn?',
+  o:['3','4','5','6'], a:1,
+  w:['Thiếu phân vùng không hợp lệ ≤ 0.','Đúng. ≤ 0 (không hợp lệ), 1–199, 200–499, ≥ 500.','Thừa: không có phân vùng không hợp lệ phía trên vì không có giới hạn trên.','Thừa.'] },
+{ id:'4-21', ch:4, lo:'FL-4.2.1', k:'K3', q:'Trường "Tuổi" có các phân vùng: P1 dưới 18, P2 từ 18 đến 60, P3 trên 60. Bộ test gồm các giá trị 17, 25, 30, 45. Độ bao phủ phân vùng tương đương là:',
+  o:['33%','50%','67%','100%'], a:2,
+  w:['Sai: đã bao phủ 2 phân vùng.','Sai.','Đúng. 17 thuộc P1; 25, 30, 45 cùng thuộc P2; chưa có giá trị nào thuộc P3 → 2/3 ≈ 67%.','Sai: thiếu P3 (ví dụ 61).'] },
+{ id:'4-22', ch:4, lo:'FL-4.2.2', k:'K3', q:'Mật khẩu hợp lệ dài từ 8 đến 20 ký tự. Dùng BVA <b>2 giá trị</b>, các độ dài cần kiểm thử là:',
+  o:['8, 20','7, 8, 20, 21','8, 9, 19, 20','7, 8, 9, 19, 20, 21'], a:1,
+  w:['Thiếu hai giá trị biên của các phân vùng không hợp lệ.','Đúng. BVA 2 giá trị: mỗi biên lấy giá trị biên và giá trị liền kề thuộc phân vùng bên cạnh: 7 | 8 và 20 | 21.','Đây là các giá trị bên trong phân vùng hợp lệ, thiếu giá trị không hợp lệ.','Đây là BVA 3 giá trị.'] },
+{ id:'4-23', ch:4, lo:'FL-4.2.2', k:'K3', q:'Đơn hàng từ 500 (nghìn đồng) trở lên được giảm giá; giá trị đơn là số nguyên theo nghìn đồng. Dùng BVA <b>3 giá trị</b> cho biên giữa "không giảm" và "được giảm", các giá trị cần kiểm thử là:',
+  o:['499, 500','499, 500, 501','498, 499, 500, 501','500, 501, 502'], a:2,
+  w:['Đây là BVA 2 giá trị.','Thiếu 498: 499 cũng là giá trị biên (của phân vùng "không giảm") nên cần cả hai giá trị liền kề của nó.','Đúng. Hai giá trị biên là 499 và 500. Với mỗi giá trị biên lấy chính nó và hai giá trị liền kề: 498, 499, 500 và 499, 500, 501 → gộp lại 498, 499, 500, 501.','Sai: thiếu phía phân vùng "không giảm".'] },
+{ id:'4-24', ch:4, lo:'FL-4.2.3', k:'K2', q:'Trong bảng quyết định đã rút gọn, ký hiệu "–" ở một ô điều kiện có nghĩa là gì?',
+  o:['Điều kiện đó sai (F)','Giá trị của điều kiện không ảnh hưởng tới hành động của quy tắc đó','Quy tắc đó là tổ hợp không khả thi','Chưa xác định kết quả mong đợi'], a:1,
+  w:['Sai: F được ghi là F.','Đúng. Mục 4.2.3: "–" nghĩa là giá trị của điều kiện không liên quan tới hành động, giúp gộp nhiều cột thành một.','Sai: tổ hợp không khả thi thường bị loại khỏi bảng hoặc đánh dấu riêng.','Sai.'] },
+{ id:'4-25', ch:4, lo:'FL-4.2.3', k:'K3', q:`Bảng quyết định đổi trả hàng:
+<div class="tbl-wrap"><table class="res"><tr><th></th><th>R1</th><th>R2</th><th>R3</th></tr>
+<tr><td>Trong vòng 7 ngày</td><td>T</td><td>T</td><td>F</td></tr>
+<tr><td>Còn tem nhãn</td><td>T</td><td>F</td><td>–</td></tr>
+<tr><td>Hành động</td><td>Hoàn tiền 100%</td><td>Đổi hàng, không hoàn tiền</td><td>Từ chối</td></tr></table></div>
+Khách mua hàng 10 ngày trước, hàng còn nguyên tem nhãn. Kết quả mong đợi là gì?`,
+  o:['Hoàn tiền 100%','Đổi hàng, không hoàn tiền','Từ chối','Không xác định được từ bảng'], a:2,
+  w:['Sai: R1 cần mua trong vòng 7 ngày.','Sai: R2 cũng cần trong vòng 7 ngày.','Đúng. Quá 7 ngày (F) → R3; điều kiện tem nhãn là "–" nên không ảnh hưởng.','Sai: R3 bao gồm mọi trường hợp quá 7 ngày.'] },
+{ id:'4-26', ch:4, lo:'FL-4.2.4', k:'K3', q:'Giỏ hàng có các chuyển đổi hợp lệ: Trống →(thêm)→ Có hàng; Có hàng →(thêm)→ Có hàng; Có hàng →(xóa hết)→ Trống; Có hàng →(thanh toán)→ Đang thanh toán; Đang thanh toán →(hủy)→ Có hàng; Đang thanh toán →(xác nhận)→ Đã đặt.<br>Một test đi: Trống → thêm → thanh toán → xác nhận. Độ bao phủ <b>chuyển đổi hợp lệ</b> đạt được là:',
+  o:['33%','50%','67%','100%'], a:1,
+  w:['Sai: đi qua 3 chuyển đổi chứ không phải 2.','Đúng. Có 6 chuyển đổi hợp lệ, test đi qua 3 (Trống→Có hàng, Có hàng→Đang TT, Đang TT→Đã đặt) → 3/6 = 50%.','Sai.','Sai: chưa đi qua thêm-khi-có-hàng, xóa hết và hủy.'] },
+{ id:'4-27', ch:4, lo:'FL-4.2.4', k:'K3', q:'Cùng sơ đồ giỏ hàng ở câu trên (6 chuyển đổi hợp lệ, "Đã đặt" là trạng thái kết thúc). Mỗi test bắt đầu từ "Trống". Cần tối thiểu bao nhiêu test để đạt 100% bao phủ chuyển đổi hợp lệ?',
+  o:['1','2','3','6'], a:0,
+  w:['Đúng. Một đường đi qua cả 6: Trống →thêm→ Có hàng →thêm→ Có hàng →xóa hết→ Trống →thêm→ Có hàng →thanh toán→ Đang TT →hủy→ Có hàng →thanh toán→ Đang TT →xác nhận→ Đã đặt. Chỉ có một trạng thái kết thúc nên không cần tách test.','Thừa: các chuyển đổi đều có thể nối vào một đường trước khi tới Đã đặt.','Thừa.','6 là số chuyển đổi, không phải số test tối thiểu.'] },
+{ id:'4-28', ch:4, lo:'FL-4.3.1, FL-4.3.2', k:'K2', q:`Đoạn code:<pre class="syn">if (tong &gt;= 500000) {
+  giam = 50000
+}
+phi = 30000
+if (la_thanh_vien) {
+  phi = 0
+}</pre>Cần tối thiểu bao nhiêu test để đạt 100% bao phủ câu lệnh và 100% bao phủ nhánh?`,
+  o:['1 test cho câu lệnh, 1 test cho nhánh','1 test cho câu lệnh, 2 test cho nhánh','2 test cho câu lệnh, 2 test cho nhánh','2 test cho câu lệnh, 4 test cho nhánh'], a:1,
+  w:['Sai: một test không thể đi qua cả kết quả đúng và sai của cùng một if.','Đúng. Câu lệnh: 1 test (tong ≥ 500000, là thành viên) chạy mọi câu lệnh. Nhánh: cần thêm 1 test cho kết quả sai của cả hai if (tong < 500000, không phải thành viên) → 2 test.','Sai: 1 test đủ cho câu lệnh.','Sai: 4 là số tổ hợp điều kiện, bao phủ nhánh không yêu cầu mọi tổ hợp.'] },
+{ id:'4-29', ch:4, lo:'FL-4.3.3', k:'K2', q:'Đâu là <b>giá trị</b> của kiểm thử hộp trắng?',
+  o:['Phát hiện được các yêu cầu bị thiếu trong đặc tả','Không cần kiến thức về code','Đo được độ bao phủ code một cách khách quan và phát hiện lỗi trong code ngay cả khi đặc tả mơ hồ, lỗi thời hoặc thiếu; dùng được cả trong kiểm thử tĩnh (chạy thử code trên giấy)','Đảm bảo hệ thống đáp ứng nhu cầu người dùng'], a:2,
+  w:['Sai: đây là điểm yếu. Code không hiện thực yêu cầu nào đó thì hộp trắng không thấy được phần bị thiếu.','Sai: hộp trắng dựa trên cấu trúc bên trong.','Đúng (mục 4.3.3).','Sai: đó là mục tiêu của thẩm định, ví dụ kiểm thử chấp nhận.'] },
+{ id:'4-30', ch:4, lo:'FL-4.1.1', k:'K2', q:'Đặc điểm chung của các kỹ thuật kiểm thử <b>hộp đen</b> là gì?',
+  o:['Dựa trên cấu trúc bên trong như code, kiến trúc, luồng dữ liệu','Dựa trên phân tích hành vi được đặc tả của đối tượng kiểm thử; test case vẫn dùng được khi code thay đổi nhưng hành vi không đổi','Dựa chủ yếu vào kinh nghiệm và trực giác của tester','Chỉ dùng được ở cấp kiểm thử hệ thống'], a:1,
+  w:['Đó là kỹ thuật hộp trắng.','Đúng (mục 4.1).','Đó là kỹ thuật dựa trên kinh nghiệm.','Sai: dùng được ở mọi cấp.'] },
+{ id:'4-31', ch:4, lo:'FL-4.4.3', k:'K2', q:'Phát biểu nào đúng về <b>kiểm thử dựa trên checklist</b>?',
+  o:['Checklist nên gồm cả những mục mà công cụ có thể kiểm tra tự động','Checklist chỉ dùng được khi có đặc tả chi tiết','Checklist cần cập nhật thường xuyên dựa trên phân tích lỗi; mục cũ có thể kém hiệu quả khi dev đã học được cách tránh lỗi đó','Checklist càng dài, càng chi tiết thì càng tốt'], a:2,
+  w:['Sai: mục kiểm tra tự động được không nên đưa vào checklist.','Sai: khi thiếu test case chi tiết, checklist càng hữu ích.','Đúng (mục 4.4.3).','Sai: checklist không nên quá dài.'] },
+{ id:'4-32', ch:4, lo:'FL-4.4.2', k:'K2', q:'Điều nào đúng về <b>kiểm thử khám phá theo phiên</b> (session-based)?',
+  o:['Không có mục tiêu, tester làm tùy hứng','Thực hiện trong khung thời gian xác định, theo test charter có mục tiêu; sau phiên có trao đổi với bên liên quan','Chỉ phù hợp cho tester mới vào nghề','Phải viết đầy đủ test case trước khi bắt đầu phiên'], a:1,
+  w:['Sai: luôn có mục tiêu trong charter.','Đúng. Tester dùng session sheet ghi lại các bước đã làm và phát hiện (mục 4.4.2).','Sai: hiệu quả phụ thuộc nhiều vào kinh nghiệm, kiến thức nghiệp vụ và kỹ năng phân tích của tester.','Sai: thiết kế, thực thi và đánh giá diễn ra đồng thời trong phiên.'] },
+{ id:'4-33', ch:4, lo:'FL-4.5.1', k:'K2', q:'User story "Là khách hàng, tôi muốn trang web chạy nhanh" bị QC đánh giá là chưa đạt. Story này vi phạm tiêu chí nào của INVEST rõ nhất?',
+  o:['Independent (độc lập)','Negotiable (thương lượng được)','Small (nhỏ)','Testable (kiểm thử được)'], a:3,
+  w:['Không phải vấn đề chính.','Không phải vấn đề chính.','Không phải vấn đề chính.','Đúng. "Nhanh" không đo được; cần tiêu chí chấp nhận cụ thể, ví dụ "trang danh sách tải xong dưới 2 giây".'] },
+
+/* ---------- Chương 5 ---------- */
+{ id:'5-01', ch:5, lo:'FL-5.1.1', k:'K2', q:'Nội dung nào <b>ít khả năng</b> nằm trong kế hoạch kiểm thử?',
+  o:['Phạm vi và mục tiêu kiểm thử','Danh sách rủi ro','Mã nguồn của các script kiểm thử tự động','Ngân sách và lịch'], a:2,
+  w:['Có trong kế hoạch.','Có trong kế hoạch.','Đúng. Mã script là sản phẩm kiểm thử, không phải nội dung kế hoạch.','Có trong kế hoạch.'] },
+{ id:'5-02', ch:5, lo:'FL-5.1.3', k:'K2', q:'Đâu là một <b>tiêu chí kết thúc (exit criteria)</b>?',
+  o:['Môi trường test đã sẵn sàng','Build đã qua smoke test','Đã có tài liệu yêu cầu','Không còn lỗi Critical nào đang mở'], a:3,
+  w:['Tiêu chí bắt đầu.','Tiêu chí bắt đầu.','Tiêu chí bắt đầu.','Đúng.'] },
+{ id:'5-03', ch:5, lo:'FL-5.1.4', k:'K3', q:'Ước lượng ba điểm cho việc test module voucher: lạc quan a = 6 giờ, khả dĩ nhất m = 9 giờ, bi quan b = 18 giờ. Kết quả ước lượng E ± SD là:',
+  o:['11 ± 4 giờ','9 ± 2 giờ','10 ± 2 giờ','10 ± 3 giờ'], a:2,
+  w:['(6+9+18)/3 = 11 là trung bình cộng, sai công thức.','Sai.','Đúng. E = (6 + 4×9 + 18)/6 = 60/6 = 10; SD = (18 − 6)/6 = 2.','SD sai.'] },
+{ id:'5-04', ch:5, lo:'FL-5.1.4', k:'K3', q:'Các dự án trước có tỉ lệ công sức dev : test = 3 : 2. Dự án mới ước lượng 600 giờ dev. Dùng ước lượng dựa trên tỷ lệ, công sức test là:',
+  o:['200 giờ','300 giờ','400 giờ','900 giờ'], a:2,
+  w:['Sai.','Sai.','Đúng. 600 × 2/3 = 400.','Đó là 600 × 3/2, đảo ngược tỉ lệ.'] },
+{ id:'5-05', ch:5, lo:'FL-5.1.4', k:'K2', q:'Mỗi thành viên tự ước lượng, công bố cùng lúc; những người có ước lượng chênh lệch nhiều giải thích lý do, sau đó cả nhóm ước lượng lại cho tới khi đồng thuận. Đây là kỹ thuật nào?',
+  o:['Ước lượng ba điểm','Ngoại suy','Wideband Delphi (planning poker là một biến thể)','Ước lượng dựa trên tỷ lệ'], a:2,
+  w:['Không phải.','Không phải.','Đúng.','Không phải.'] },
+{ id:'5-06', ch:5, lo:'FL-5.1.5', k:'K3', q:'Có 4 test case (1 là ưu tiên cao nhất): TC-A ưu tiên 1, cần TC-C chạy trước; TC-B ưu tiên 2; TC-C ưu tiên 3; TC-D ưu tiên 1, không phụ thuộc. Thứ tự thực thi hợp lý nhất:',
+  o:['A, C, D, B','D, A, C, B','D, C, A, B','C, B, A, D'], a:2,
+  w:['A không chạy trước C được.','A không chạy trước C được.','Đúng. D (ưu tiên 1, sẵn sàng) → C (tiên quyết của A) → A → B.','Chạy B và C trước các case ưu tiên 1 là sai.'] },
+{ id:'5-07', ch:5, lo:'FL-5.1.6', k:'K1', q:'Theo tháp kiểm thử, tầng dưới cùng có đặc điểm gì?',
+  o:['Ít test, chạy chậm, kiểm tra end-to-end qua giao diện','Nhiều test nhỏ, độc lập, chạy nhanh','Chỉ gồm kiểm thử thủ công','Chỉ gồm kiểm thử hiệu năng'], a:1,
+  w:['Đó là tầng trên cùng.','Đúng.','Sai.','Sai.'] },
+{ id:'5-08', ch:5, lo:'FL-5.1.7', k:'K2', q:'Kiểm thử khám phá, kiểm thử tính khả dụng và UAT thuộc góc phần tư nào?',
+  o:['Q1: công nghệ, hỗ trợ nhóm','Q2: nghiệp vụ, hỗ trợ nhóm','Q3: nghiệp vụ, đánh giá sản phẩm','Q4: công nghệ, đánh giá sản phẩm'], a:2,
+  w:['Q1 là component test.','Q2 là functional test, user story test.','Đúng.','Q4 là smoke test và phi chức năng (trừ usability).'] },
+{ id:'5-09', ch:5, lo:'FL-5.2.1', k:'K3', q:'Rủi ro A: khả năng 4, ảnh hưởng 2. Rủi ro B: khả năng 2, ảnh hưởng 5. Rủi ro C: khả năng 3, ảnh hưởng 3 (thang 1–5). Rủi ro nào cần ưu tiên kiểm thử nhất?',
+  o:['A','B','C','Ba rủi ro ngang nhau'], a:1,
+  w:['A = 8.','Đúng. B = 10, cao nhất (C = 9, A = 8).','C = 9.','Không ngang nhau.'] },
+{ id:'5-10', ch:5, lo:'FL-5.2.2', k:'K2', q:'Đâu là <b>rủi ro sản phẩm</b>?',
+  o:['Tester chủ chốt nghỉ việc giữa dự án','Nhà cung cấp bàn giao môi trường test trễ 2 tuần','Hệ thống tính sai tổng tiền khi áp nhiều voucher','Ước lượng công sức test quá thấp'], a:2,
+  w:['Rủi ro dự án.','Rủi ro dự án.','Đúng. Liên quan trực tiếp tới chất lượng sản phẩm.','Rủi ro dự án.'] },
+{ id:'5-11', ch:5, lo:'FL-5.2.4', k:'K2', q:'Công ty ký hợp đồng để đơn vị cổng thanh toán chịu toàn bộ trách nhiệm bồi hoàn nếu giao dịch lỗi do phía họ. Đây là phản ứng rủi ro nào?',
+  o:['Giảm thiểu bằng kiểm thử','Chấp nhận rủi ro','Chuyển giao rủi ro','Kế hoạch dự phòng'], a:2,
+  w:['Không phải: không có kiểm thử nào ở đây.','Không phải.','Đúng. Rủi ro được chuyển sang bên khác.','Kế hoạch dự phòng là chuẩn bị sẵn hành động nếu rủi ro xảy ra.'] },
+{ id:'5-12', ch:5, lo:'FL-5.4.1', k:'K2', q:'Quản lý cấu hình hỗ trợ kiểm thử như thế nào?',
+  o:['Tự động sinh test case từ yêu cầu','Xác định, quản lý phiên bản và theo dõi thay đổi của đối tượng kiểm thử và sản phẩm kiểm thử để kết quả tái hiện được','Thay thế cho quản lý lỗi','Đo độ bao phủ code'], a:1,
+  w:['Không phải.','Đúng.','Không phải.','Không phải.'] },
+{ id:'5-13', ch:5, lo:'FL-5.5.1', k:'K3', q:'Báo cáo lỗi có: ID, tiêu đề, môi trường, build, các bước tái hiện, kết quả thực tế ("hoàn 500.000đ"), severity, priority. Thông tin quan trọng nào còn thiếu?',
+  o:['Tên của dev sẽ sửa','Kết quả mong đợi','Ước lượng thời gian sửa','Danh sách người rà soát'], a:1,
+  w:['Không bắt buộc ở báo cáo.','Đúng. Thiếu kết quả mong đợi ("hoàn đúng 447.000đ đã thu") thì dev không biết thế nào là đúng.','Không phải nội dung báo cáo lỗi.','Không phải nội dung báo cáo lỗi.'] },
+
+{ id:'5-14', ch:5, lo:'FL-5.1.1', k:'K2', q:'Đâu là <b>mục đích</b> của kế hoạch kiểm thử?',
+  o:['Ghi lại kết quả của từng test case đã chạy','Mô tả mục tiêu, nguồn lực và quy trình kiểm thử; là phương tiện giao tiếp với các bên liên quan và cho thấy kiểm thử tuân thủ chính sách, chiến lược kiểm thử','Là hợp đồng cố định, không được thay đổi sau khi duyệt','Chỉ dùng trong mô hình thác nước'], a:1,
+  w:['Đó là nhật ký kiểm thử.','Đúng (mục 5.1.1).','Sai: kế hoạch được cập nhật khi dự án thay đổi.','Sai: mọi mô hình đều cần lập kế hoạch, chỉ khác hình thức.'] },
+{ id:'5-15', ch:5, lo:'FL-5.1.2', k:'K1', q:'Trong buổi <b>lập kế hoạch vòng lặp</b> (iteration planning), tester đóng góp bằng cách nào?',
+  o:['Quyết định thứ tự ưu tiên của backlog thay PO','Tham gia phân tích rủi ro chi tiết của user story, đánh giá khả năng kiểm thử, chia nhỏ thành nhiệm vụ kiểm thử và ước lượng công sức','Ký duyệt ngân sách dự án','Chỉ nhận test case do BA viết sẵn'], a:1,
+  w:['Sai: đó là quyền của PO.','Đúng (mục 5.1.2). Tester cũng xác định các khía cạnh chức năng và phi chức năng cần kiểm thử.','Không phải.','Sai: tester chủ động thiết kế test.'] },
+{ id:'5-16', ch:5, lo:'FL-5.1.3', k:'K2', q:'Trong Agile, tiêu chí <b>kết thúc</b> (exit criteria) thường được gọi là gì?',
+  o:['Definition of Ready','Definition of Done','Sprint Goal','Product Vision'], a:1,
+  w:['Đó là tiêu chí bắt đầu (entry criteria) của một user story.','Đúng (mục 5.1.3).','Sprint Goal là mục tiêu của sprint, không phải tiêu chí kết thúc.','Không phải.'] },
+{ id:'5-17', ch:5, lo:'FL-5.1.4', k:'K3', q:'Ước lượng ba điểm cho việc kiểm thử module hoàn tiền: lạc quan a = 4 giờ, khả dĩ nhất m = 10 giờ, bi quan b = 22 giờ. Kết quả E ± SD là:',
+  o:['10 ± 3','11 ± 3','11 ± 6','12 ± 3'], a:1,
+  w:['Sai: E = (a + 4m + b) / 6, không phải m.','Đúng. E = (4 + 4×10 + 22) / 6 = 66 / 6 = 11; SD = (b − a) / 6 = 18 / 6 = 3.','Sai: SD = (22 − 4) / 6 = 3.','Sai: E = 66 / 6 = 11.'] },
+{ id:'5-18', ch:5, lo:'FL-5.1.5', k:'K3', q:'Có 4 test case (1 là ưu tiên cao nhất): TC-P ưu tiên 2; TC-Q ưu tiên 1, cần TC-R chạy trước; TC-R ưu tiên 3; TC-S ưu tiên 2, cần TC-P chạy trước. Thứ tự thực thi hợp lý nhất là:',
+  o:['TC-R, TC-Q, TC-P, TC-S','TC-Q, TC-R, TC-P, TC-S','TC-R, TC-P, TC-Q, TC-S','TC-P, TC-S, TC-R, TC-Q'], a:0,
+  w:['Đúng. TC-Q ưu tiên cao nhất nhưng phụ thuộc TC-R nên chạy TC-R trước; sau đó TC-P và TC-S (cùng ưu tiên 2, TC-S phụ thuộc TC-P).','Sai: TC-Q không chạy được trước TC-R.','Sai: TC-Q ưu tiên cao hơn TC-P nên chạy ngay khi phụ thuộc đã xong.','Sai: đẩy TC-Q (ưu tiên cao nhất) xuống cuối.'] },
+{ id:'5-19', ch:5, lo:'FL-5.1.6', k:'K1', q:'Theo mô hình tháp kiểm thử, càng lên các tầng trên thì:',
+  o:['Số lượng test càng nhiều và chạy càng nhanh','Test càng ít, mức tích hợp càng cao, chạy chậm hơn và tốn công hơn','Test càng nhỏ, càng cô lập','Không còn cần tự động hóa'], a:1,
+  w:['Đó là đặc điểm tầng dưới.','Đúng (mục 5.1.6).','Đó là tầng dưới (unit test).','Sai.'] },
+{ id:'5-20', ch:5, lo:'FL-5.2.1', k:'K1', q:'<b>Mức độ rủi ro</b> được xác định bởi những yếu tố nào?',
+  o:['Số lỗi đã tìm thấy và số lỗi đã sửa','Khả năng xảy ra và mức độ tác động của rủi ro','Chi phí kiểm thử và thời gian kiểm thử','Số người dùng và số tính năng'], a:1,
+  w:['Không phải.','Đúng (mục 5.2.1).','Không phải.','Không phải.'] },
+{ id:'5-21', ch:5, lo:'FL-5.2.3', k:'K2', q:'Kết quả <b>phân tích rủi ro sản phẩm</b> ảnh hưởng tới kiểm thử như thế nào?',
+  o:['Chỉ quyết định ai trong team sẽ làm tester','Quyết định ngôn ngữ lập trình của dự án','Không ảnh hưởng nếu đã có kế hoạch kiểm thử','Quyết định phạm vi kiểm thử, cấp và loại kiểm thử, kỹ thuật, mức độ kỹ lưỡng, thứ tự ưu tiên và công sức kiểm thử'], a:3,
+  w:['Không phải.','Không phải.','Sai: phân tích rủi ro chính là đầu vào của kế hoạch và được cập nhật liên tục.','Đúng (mục 5.2.3).'] },
+{ id:'5-22', ch:5, lo:'FL-5.2.4', k:'K2', q:'Rủi ro sản phẩm: tính sai thuế với một số tỉnh có quy định riêng (khả năng cao, ảnh hưởng cao). Biện pháp <b>giảm thiểu bằng kiểm thử</b> phù hợp nhất?',
+  o:['Chấp nhận rủi ro và xử lý khi khách phản ánh','Chỉ kiểm thử một tỉnh đại diện','Thiết kế test bằng bảng quyết định cho các tổ hợp tỉnh và loại hàng, nhờ chuyên gia thuế rà soát, tăng mức độ kỹ lưỡng ở module thuế','Chuyển trách nhiệm kiểm tra cho khách hàng'], a:2,
+  w:['Không phù hợp với rủi ro mức cao.','Không đủ: rủi ro nằm ở chính các tỉnh có quy định riêng.','Đúng. Mục 5.2.4: chọn kỹ thuật phù hợp, mức độ kỹ lưỡng, rà soát và kiểm thử độc lập theo mức rủi ro.','Không phải biện pháp kiểm thử.'] },
+{ id:'5-23', ch:5, lo:'FL-5.3.1', k:'K1', q:'Chỉ số nào thuộc nhóm chỉ số về <b>chất lượng sản phẩm</b>?',
+  o:['Số test case đã chạy so với kế hoạch','Thời gian trung bình giữa các lần hỏng (MTTF)','Phần trăm yêu cầu được bao phủ bởi test','Chi phí kiểm thử thực tế so với ngân sách'], a:1,
+  w:['Chỉ số tiến độ kiểm thử.','Đúng. Ví dụ khác: độ sẵn sàng, thời gian phản hồi (mục 5.3.1).','Chỉ số độ bao phủ.','Chỉ số chi phí.'] },
+{ id:'5-24', ch:5, lo:'FL-5.3.2', k:'K2', q:'<b>Báo cáo tiến độ kiểm thử</b> khác <b>báo cáo hoàn thành kiểm thử</b> ở điểm nào?',
+  o:['Báo cáo tiến độ lập định kỳ trong quá trình kiểm thử để hỗ trợ kiểm soát; báo cáo hoàn thành lập khi kết thúc một mốc (cấp, vòng lặp, dự án), tổng kết dựa trên tiêu chí kết thúc','Báo cáo tiến độ chỉ gửi cho dev, báo cáo hoàn thành chỉ gửi cho khách hàng','Báo cáo hoàn thành không chứa thông tin về lỗi còn tồn','Hai loại giống nhau, chỉ khác tên'], a:0,
+  w:['Đúng (mục 5.3.2).','Sai: người nhận tùy bên liên quan, không cố định.','Sai: báo cáo hoàn thành có lỗi chưa đóng, rủi ro còn lại, độ lệch so với kế hoạch.','Sai.'] },
+{ id:'5-25', ch:5, lo:'FL-5.3.3', k:'K2', q:'Team phân tán ở 3 múi giờ, PO cần nắm trạng thái kiểm thử hằng ngày. Cách truyền đạt nào phù hợp nhất?',
+  o:['Chỉ gửi báo cáo chính thức vào cuối dự án','Họp trực tiếp mỗi sáng tại văn phòng','Dashboard tự động (kết quả CI/CD, biểu đồ lỗi) kết hợp kênh trao đổi trực tuyến','Không cần báo cáo vì đang làm Agile'], a:2,
+  w:['Quá muộn với nhu cầu hằng ngày.','Không khả thi với team ở nhiều múi giờ.','Đúng. Mục 5.3.3: chọn cách truyền đạt theo bên liên quan và ngữ cảnh, ví dụ dashboard, kênh điện tử, tài liệu trực tuyến.','Sai: Agile vẫn cần minh bạch về trạng thái.'] },
+{ id:'5-26', ch:5, lo:'FL-5.5.1', k:'K3', q:'Nút "Đặt hàng" không phản hồi trên Safari iOS 17 nhưng Chrome Android vẫn bình thường. Khi viết báo cáo lỗi, thông tin nào <b>quan trọng nhất</b> để dev tái hiện được?',
+  o:['Tên người phát hiện lỗi','Môi trường: thiết bị, hệ điều hành và trình duyệt kèm phiên bản, build đang test','Thời gian dự kiến sửa','Số lượng người dùng bị ảnh hưởng ước tính'], a:1,
+  w:['Có ích nhưng không giúp tái hiện.','Đúng. Lỗi chỉ xảy ra trên một môi trường cụ thể, thiếu thông tin này dev rất khó tái hiện.','Không phải nội dung báo cáo lỗi.','Có thể dùng để đánh giá mức ảnh hưởng nhưng không giúp tái hiện.'] },
+{ id:'5-27', ch:5, lo:'FL-5.1.7', k:'K2', q:'Unit test và kiểm thử tích hợp thành phần thuộc góc phần tư kiểm thử nào?',
+  o:['Q1: hướng công nghệ, hỗ trợ nhóm','Q2: hướng nghiệp vụ, hỗ trợ nhóm','Q3: hướng nghiệp vụ, đánh giá sản phẩm','Q4: hướng công nghệ, đánh giá sản phẩm'], a:0,
+  w:['Đúng. Q1 thường được tự động hóa và đưa vào CI.','Q2 gồm kiểm thử chức năng, user story, prototype.','Q3 gồm kiểm thử khám phá, khả dụng, UAT.','Q4 gồm smoke test và kiểm thử phi chức năng (trừ khả dụng).'] },
+
+/* ---------- Chương 6 ---------- */
+{ id:'6-01', ch:6, lo:'FL-6.1.1', k:'K2', q:'Công cụ đo xem test tự động đã chạy qua bao nhiêu % nhánh code thuộc nhóm nào?',
+  o:['Công cụ kiểm thử tĩnh','Công cụ quản lý kiểm thử','Công cụ thực thi kiểm thử và đo độ bao phủ','Công cụ cộng tác'], a:2,
+  w:['Không: cần chạy test.','Không phải.','Đúng.','Không phải.'] },
+{ id:'6-02', ch:6, lo:'FL-6.1.1', k:'K2', q:'Team dùng Docker để dựng môi trường test giống nhau cho mọi người và cho pipeline. Docker thuộc nhóm công cụ nào?',
+  o:['Mở rộng và chuẩn hóa triển khai (máy ảo, container)','Công cụ thiết kế và triển khai kiểm thử','Kiểm thử phi chức năng','Kiểm thử tĩnh'], a:0,
+  w:['Đúng.','Không phải.','Không phải.','Không phải.'] },
+{ id:'6-03', ch:6, lo:'FL-6.2.1', k:'K1', q:'Đâu là <b>lợi ích</b> của tự động hóa kiểm thử?',
+  o:['Không cần tester thiết kế test nữa','Giảm công việc thủ công lặp lại và tránh lỗi con người khi nhập dữ liệu','Không cần bảo trì script','Luôn rẻ hơn kiểm thử thủ công ở mọi trường hợp'], a:1,
+  w:['Sai: đây là kỳ vọng phi thực tế.','Đúng.','Sai: bảo trì script là chi phí thật.','Sai.'] },
+{ id:'6-04', ch:6, lo:'FL-6.2.1', k:'K1', q:'Đâu là <b>rủi ro</b> của tự động hóa kiểm thử?',
+  o:['Phản hồi về chất lượng sớm hơn','Đánh giá khách quan, nhất quán hơn','Phụ thuộc vào nhà cung cấp công cụ, có thể ngừng hỗ trợ','Tester có thêm thời gian thiết kế test mới'], a:2,
+  w:['Lợi ích.','Lợi ích.','Đúng.','Lợi ích.'] },
+{ id:'6-05', ch:6, lo:'FL-6.2.1', k:'K2', q:'Quản lý mua công cụ record-and-playback và lên kế hoạch "từ quý sau không cần test thủ công nữa". Đây là rủi ro nào?',
+  o:['Kỳ vọng phi thực tế về công cụ','Công cụ không tương thích nền tảng','Dự án mã nguồn mở bị bỏ dở','Không đáp ứng tiêu chuẩn an toàn'], a:0,
+  w:['Đúng. Vẫn cần test thủ công, ví dụ khám phá và usability.','Không phải.','Không phải.','Không phải.'] },
+{ id:'6-06', ch:6, lo:'FL-6.1.1', k:'K2', q:'Team dùng Jira để quản lý yêu cầu, test case và lỗi, có liên kết truy vết giữa chúng. Đây là nhóm công cụ nào?',
+  o:['Công cụ quản lý (management tools)','Công cụ kiểm thử tĩnh','Công cụ kiểm thử phi chức năng','Công cụ thực thi kiểm thử'], a:0,
+  w:['Đúng. Nhóm này hỗ trợ quản lý vòng đời phát triển, yêu cầu, kiểm thử, lỗi, cấu hình.','Không phải.','Không phải.','Không phải.'] },
+{ id:'6-07', ch:6, lo:'FL-6.1.1', k:'K2', q:'SonarQube quét code để tìm code trùng lặp, biến không dùng và vi phạm chuẩn mà không chạy chương trình. Đây là nhóm công cụ nào?',
+  o:['Công cụ thực thi kiểm thử','Công cụ kiểm thử tĩnh','Công cụ kiểm thử phi chức năng','Công cụ cộng tác'], a:1,
+  w:['Không: không chạy chương trình.','Đúng. Công cụ kiểm thử tĩnh hỗ trợ rà soát và phân tích tĩnh.','Không phải.','Không phải.'] },
+{ id:'6-08', ch:6, lo:'FL-6.2.1', k:'K2', q:'Team viết 300 script UI tự động trong 2 tuần nhưng không tính tới việc giao diện thay đổi mỗi sprint; sau 2 tháng phần lớn script hỏng. Đây là rủi ro nào?',
+  o:['Phụ thuộc vào nhà cung cấp công cụ','Đánh giá thấp thời gian, chi phí và công sức để bảo trì script','Công cụ không tương thích với nền tảng','Không đáp ứng tiêu chuẩn an toàn'], a:1,
+  w:['Không phải.','Đúng (mục 6.2).','Không phải: script vẫn chạy được, chỉ là không được bảo trì.','Không phải.'] },
+];
+
+
+/* ===================== Thuật ngữ theo chương: [tiếng Việt, tiếng Anh, giải thích, ví dụ, mục syllabus] =====================
+   Tên thuật ngữ và câu giải thích trích NGUYÊN VĂN từ Syllabus CTFL v4.0.1 bản tiếng Việt (© ISTQB®).
+   Không sửa câu chữ phần giải thích (kể cả lỗi chính tả của bản gốc). Chỉ cột "Ví dụ" là phần minh họa thêm. */
+const GLOSSARY = {
+1:[
+ ['Kiểm thử','Testing','Kiểm thử phần mềm là một tập hợp nhiều hoạt động nhằm phát hiện lỗi và đánh giá chất lượng của các sản phẩm công việc (work products) của phần mềm.','Chạy testcase trên app và rà soát spec đều là kiểm thử.','1.1'],
+ ['Đối tượng kiểm thử','Test object','Các sản phẩm công việc này, khi được kiểm thử, được gọi là đối tượng kiểm thử (test object).','Màn "Đơn hàng của tôi" bản build 2.4.0.','1.1'],
+ ['Mục tiêu kiểm thử','Test objective','Các mục tiêu kiểm thử điển hình bao gồm: Đánh giá các sản phẩm công việc như tài liệu yêu cầu, user story, tài liệu thiết kế, và mã nguồn; Phát hiện các sự cố và tìm lỗi; Đảm bảo mức độ bao phủ cần thiết của đối tượng kiểm thử; Giảm mức rủi ro liên quan đến việc chất lượng phần mềm không đạt yêu cầu; Xác minh xem các yêu cầu đã được đáp ứng hay chưa; Xác minh rằng đối tượng kiểm thử đã tuân thủ các yêu cầu trong hợp đồng, pháp lý, và các quy định; Cung cấp đầy đủ thông tin giúp các bên liên quan đưa ra quyết định sáng suốt; Tăng niềm tin vào chất lượng của đối tượng kiểm thử; Thẩm định xem đối tượng kiểm thử đã hoàn chỉnh và hoạt động như mong đợi của các bên liên quan hay chưa','','1.1.1'],
+ ['Xác minh','Verification','xác minh, tức là kiểm tra xem hệ thống có đáp ứng các yêu cầu đã được mô tả hay không','So màn hình với spec từng trường.','1.1'],
+ ['Thẩm định','Validation','thẩm định (validation), tức là đánh giá xem hệ thống có đáp ứng nhu cầu của người dùng và các bên liên quan trong môi trường vận hành hay không.','Cho khách dùng thử xem luồng đặt hàng có thuận tiện không.','1.1'],
+ ['Kiểm thử động / Kiểm thử tĩnh','Dynamic testing / Static testing','Các hoạt động kiểm thử có thể là kiểm thử động hoặc kiểm thử tĩnh. Kiểm thử động cần thực thi phần mềm, trong khi đó, kiểm thử tĩnh thì không. Kiểm thử tĩnh bao gồm các hoạt động rà soát và phân tích tĩnh (xem Chương 3).','Chạy testcase trên app là kiểm thử động; đọc spec tìm mâu thuẫn là kiểm thử tĩnh.','1.1'],
+ ['Gỡ lỗi','Debugging','Kiểm thử và gỡ lỗi là hai hoạt động riêng biệt. […] Khi kiểm thử động (xem Chương 4) phát hiện một sự cố, hoạt động gỡ lỗi sẽ tập trung vào việc tìm nguyên nhân của sự cố này (gọi là lỗi), phân tích nguyên nhân, và loại bỏ chúng. Quy trình gỡ lỗi điển hình bao gồm các hoạt động: Tái hiện lại sự cố; Chẩn đoán (để tìm lỗi); Sửa lỗi','Dev đọc log, tìm biến null và sửa.','1.1.2'],
+ ['Đảm bảo chất lượng (QA)','Quality assurance','Đảm bảo chất lượng (QA - quality assurance) là cách tiếp cận hướng quy trình và mang tính phòng ngừa, tập trung vào việc triển khai và cải tiến các quy trình phát triển phần mềm. QA dựa trên nguyên tắc nếu một quy trình tốt được tuân thủ đúng cách, thì sẽ tạo ra một sản phẩm tốt.','Quy định bắt buộc rà soát spec trước khi code.','1.2.2'],
+ ['Kiểm soát chất lượng (QC)','Quality control','Kiểm thử là cách tiếp cận hướng sản phẩm và mang tính khắc phục, tập trung vào các hoạt động hỗ trợ để phần mềm đạt được mức chất lượng phù hợp. Kiểm thử là một hình thức kiểm soát chất lượng (QC - quality control) quan trọng, bên cạnh các hình thức khác bao gồm các phương pháp chính thức (kiểm tra mô hình và chứng minh tính đúng đắn), mô phỏng, và tạo mẫu.','Chạy regression trước release.','1.2.2'],
+ ['Sai sót','Error / Mistake','Trong quá trình làm việc, con người có thể mắc sai sót (error / mistake), từ đó tạo ra lỗi (còn gọi là khiếm khuyết – defect / fault / bug), và các lỗi này có thể dẫn đến sự cố (failure) khi chương trình được thực thi.','Dev hiểu sai quy tắc làm tròn.','1.2.3'],
+ ['Lỗi','Defect / Fault / Bug','Lỗi có thể tồn tại trong tài liệu (như tài liệu đặc tả yêu cầu, hay kịch bản kiểm thử), mã nguồn, hoặc các sản phẩm công việc hỗ trợ (ví dụ: bản build phần mềm).','Hàm làm tròn viết sai công thức.','1.2.3'],
+ ['Sự cố','Failure','Khi một lỗi trong mã nguồn được thực thi, hệ thống có thể không thực hiện đúng chức năng cần thiết, hoặc thực hiện điều không nên làm, gây ra sự cố. […] Sự cố cũng có thể xảy ra do điều kiện môi trường, ví dụ như bức xạ hoặc trường điện từ gây ra lỗi trong firmware (phần mềm điều khiển được tích hợp sẵn trong thiết bị phần cứng).','Khách thấy tổng tiền lệch 100đ.','1.2.3'],
+ ['Nguyên nhân gốc rễ','Root cause','Nguyên nhân gốc rễ là lý do căn bản dẫn đến sự xuất hiện của một vấn đề (ví dụ: một tình huống dẫn đến sai sót). Nguyên nhân gốc rễ được xác định thông qua các hoạt động phân tích nguyên nhân gốc rễ (RCA – root cause analysis), thường được thực hiện khi có sự cố xảy ra hoặc khi một lỗi nghiêm trọng được phát hiện.','Spec không ghi quy tắc làm tròn.','1.2.3'],
+ ['Quy trình kiểm thử','Test process','Kiểm thử phụ thuộc vào ngữ cảnh, nhưng ở mức tổng thể, vẫn có các tập hoạt động kiểm thử chung mà nếu thiếu chúng thì việc kiểm thử ít có khả năng đạt được các mục tiêu kiểm thử. Các tập hoạt động này hình thành nên một quy trình kiểm thử.','Lập kế hoạch → phân tích → thiết kế → triển khai → thực thi → hoàn tất.','1.4'],
+ ['Lập kế hoạch kiểm thử','Test planning','Lập kế hoạch kiểm thử bao gồm việc xác định các mục tiêu kiểm thử và sau đó lựa chọn cách tiếp cận phù hợp nhất để đạt được những mục tiêu đó, dựa vào các ràng buộc của bối cảnh tổng thể.','','1.4.1'],
+ ['Giám sát kiểm thử / Kiểm soát kiểm thử','Test monitoring / Test control','Giám sát kiểm thử bao gồm việc liên tục theo dõi mọi hoạt động kiểm thử và so sánh tiến độ thực tế với kế hoạch. Kiểm soát kiểm thử bao gồm việc thực hiện mọi hành động cần thiết để đạt được các mục tiêu kiểm thử.','Lệch tiến độ → đổi ưu tiên test case.','1.4.1'],
+ ['Phân tích kiểm thử','Test analysis','Phân tích kiểm thử bao gồm việc phân tích cơ sở kiểm thử để xác định các tính năng có thể kiểm thử được. Các khía cạnh kiểm thử liên quan cũng được xác định và ưu tiên hoá, có xét đến các rủi ro và mức rủi ro liên quan (xem mục 5.2). […] Phân tích kiểm thử trả lời câu hỏi “kiểm thử cái gì?” dưới dạng các tiêu chí bao phủ có thể đo lường được.','','1.4.1'],
+ ['Cơ sở kiểm thử','Test basis','Phân tích kiểm thử bao gồm việc phân tích cơ sở kiểm thử để xác định các tính năng có thể kiểm thử được. […] Cơ sở kiểm thử và đối tượng kiểm thử cũng được đánh giá để tìm lỗi tiềm ẩn, và đánh giá khả năng kiểm thử của chúng.','Spec màn hoàn tiền là cơ sở kiểm thử cho các test case hoàn tiền.','1.4.1'],
+ ['Khía cạnh kiểm thử','Test condition','Các khía cạnh kiểm thử liên quan cũng được xác định và ưu tiên hoá, có xét đến các rủi ro và mức rủi ro liên quan (xem mục 5.2).','"Hoàn đúng số tiền đã thu".','1.4.1'],
+ ['Thiết kế test case','Test design','Thiết kế test case bao gồm việc chi tiết hóa các khía cạnh kiểm thử thành các test case và các sản phẩm kiểm thử khác (ví dụ: test charter - thẻ kiểm thử). […] Thiết kế test case trả lời câu hỏi “kiểm thử như thế nào?”.','','1.4.1'],
+ ['Trường hợp kiểm thử (test case)','Test case','Thông thường, test case bao gồm các câu mô tả bằng ngôn ngữ tự nhiên, gồm các điều kiện tiên quyết nếu có (precondition), dữ liệu đầu vào, và các yêu cầu sau khi thực thi test case (postcondition).','Hủy đơn đã trả 447.000đ → mong đợi hoàn 447.000đ.','4.5.3'],
+ ['Triển khai kiểm thử','Test implementation','Triển khai kiểm thử bao gồm việc tạo ra hoặc thu thập các sản phẩm kiểm thử cần thiết cho việc thực thi kiểm thử (ví dụ: dữ liệu kiểm thử).','','1.4.1'],
+ ['Trình tự thực hiện kiểm thử / Bộ test case','Test procedure / Test suite','Các test case có thể được sắp xếp thành vào những trình tự thực hiện kiểm thử (test procedure), và các trình tự này sau đó thường được gom thành các bộ test case (test suite).','Đăng nhập → tạo đơn → thanh toán → hủy → kiểm tra hoàn tiền.','1.4.1'],
+ ['Thực thi kiểm thử','Test execution','Thực thi kiểm thử bao gồm việc chạy các test case theo lịch thực thi kiểm thử (gọi là test run). Việc thực thi kiểm thử có thể là thủ công hoặc tự động.','','1.4.1'],
+ ['Kết quả kiểm thử','Test result','Kết quả thực tế sẽ được so sánh với kết quả mong đợi để đánh giá kết quả kiểm thử. Các kết quả kiểm thử này được ghi lại.','','1.4.1'],
+ ['Hoàn tất kiểm thử','Test completion','Hoàn tất kiểm thử thường diễn ra tại các mốc dự án (ví dụ: sau khi phát hành một phiên bản, kết thúc một chu kỳ phát triển, hoàn tất một mức kiểm thử nào đó).','','1.4.1'],
+ ['Sản phẩm kiểm thử','Testware','Các sản phẩm kiểm thử được tạo ra như các sản phẩm công việc đầu ra từ các hoạt động kiểm thử được mô tả trong mục 1.4.1.','File testcase Excel và báo cáo lỗi đều là sản phẩm kiểm thử.','1.4.3'],
+ ['Khả năng truy vết','Traceability','Để thực hiện các hoạt động giám sát và kiểm soát kiểm thử hiệu quả, việc thiết lập và duy trì khả năng truy vết trong suốt quy trình kiểm thử giữa các phần tử trong cơ sở kiểm thử, sản phẩm kiểm thử liên quan (ví dụ: khía cạnh kiểm thử, rủi ro, test case), kết quả kiểm thử, và lỗi là điều rất quan trọng.','Cột "Requirement ID" trong file testcase.','1.4.4'],
+ ['Cách tiếp cận toàn đội ngũ','Whole team approach','Trong cách tiếp cận này, các thành viên trong nhóm có đủ kiến thức và kỹ năng để có thể thực hiện bất kỳ nhiệm vụ nào, và tất cả mọi người trong nhóm đều chịu trách nhiệm về chất lượng.','QC và PO cùng viết tiêu chí chấp nhận.','1.5.2'],
+ ['Tính độc lập của kiểm thử','Independence of testing','Các sản phẩm công việc có thể được kiểm thử bởi chính người tạo ra nó (không có tính độc lập), đồng nghiệp trong cùng nhóm (mức độ độc lập thấp), tester bên ngoài nhóm nhưng trong cùng tổ chức (mức độ độc lập cao), và tester bên ngoài tổ chức (mức độ độc lập rất cao).','Thuê đơn vị ngoài test bảo mật.','1.5.3'],
+],
+2:[
+ ['Mô hình SDLC','SDLC model','Một mô hình SDLC là một biểu diễn trừu tượng, ở mức khái quát cao của một quy trình phát triển phần mềm. Mô hình SDLC xác định cách các giai đoạn phát triển và các loại hoạt động khác nhau, được thực hiện trong quy trình này liên quan với nhau, cả về mặt lôgic lẫn theo trình tự thời gian.','Mô hình chữ V, Scrum.','2.1'],
+ ['Phát triển Hướng Kiểm thử (TDD)','Test-Driven Development','Định hướng việc lập trình thông qua các test case (thay vì dựa vào thiết kế phần mềm chi tiết) (Beck 2003); Test case được viết trước, sau đó mã nguồn được viết để đáp ứng các test case đó, rồi tiếp tục tái cấu trúc cả test case và mã nguồn','','2.1.3'],
+ ['Phát triển Hướng Kiểm thử Chấp nhận (ATDD)','Acceptance Test-Driven Development','Xây dựng test case dựa trên các tiêu chí chấp nhận như một phần của quá trình thiết kế hệ thống (Gärtner 2011); Test case được viết trước khi phát triển phần tương ứng của ứng dụng để đáp ứng các test case này','','2.1.3'],
+ ['Phát triển Hướng Hành vi (BDD)','Behavior-Driven Development','Mô tả hành vi mong muốn của ứng dụng bằng các test case được viết dưới dạng ngôn ngữ tự nhiên đơn giản, dễ hiểu đối với các bên liên quan – thường sử dụng định dạng Given/When/Then (Chelimsky 2010); Sau đó, các test case này nên được tự động chuyển đổi thành các test case có thể thực thi được','Given giỏ 600k / When áp SALE10 / Then còn 540k.','2.1.3'],
+ ['DevOps','DevOps','DevOps là một cách tiếp cận ở cấp độ tổ chức nhằm tạo ra sự phối hợp hiệu quả giữa việc phát triển (bao gồm các hoạt động kiểm thử) và vận hành phần mềm để cùng đạt được các mục tiêu chung.','','2.1.4'],
+ ['Tích hợp liên tục / Phân phối liên tục','Continuous integration (CI) / Continuous delivery (CD)','DevOps thúc đẩy tính tự chủ của nhóm, phản hồi nhanh, áp dụng chuỗi công cụ tích hợp, và các thực hành về kỹ thuật như tích hợp liên tục (continuous integration – CI) và phân phối liên tục (continuous delivery – CD).','Mỗi lần merge, pipeline chạy unit test.','2.1.4'],
+ ['Shift left (kiểm thử sớm)','Shift left','Nguyên tắc kiểm thử sớm (xem mục 1.3) đôi khi được gọi là shift left, vì đây là cách tiếp cận trong đó các hoạt động kiểm thử được thực hiện sớm hơn trong SDLC.','QC rà soát spec trước khi dev bắt đầu code.','2.1.5'],
+ ['Retrospective (họp rút kinh nghiệm)','Retrospective','Các buổi retrospective (họp rút kinh nghiệm) thường được tổ chức vào cuối dự án hoặc cuối mỗi chu kỳ phát triển, tại các mốc phát hành, hoặc khi cần thiết.','Retro sprint 12: thêm checklist rà soát spec.','2.1.6'],
+ ['Mức kiểm thử','Test level','Mức kiểm thử (test level) là các nhóm các hoạt động kiểm thử được tổ chức và quản lý cùng nhau. Mỗi mức kiểm thử là một thể hiện của quy trình kiểm thử, được thực hiện đối với phần mềm ở một giai đoạn phát triển nhất định, từ các thành phần riêng lẻ đến toàn bộ hệ thống hoặc, khi phù hợp, đến các hệ thống gồm nhiều hệ thống.','','2.2'],
+ ['Loại kiểm thử','Test type','Loại kiểm thử (test type) là các nhóm hoạt động kiểm thử liên quan đến các đặc tính chất lượng cụ thể, và hầu hết các hoạt động này có thể được thực hiện ở mọi mức kiểm thử.','','2.2'],
+ ['Kiểm thử thành phần','Component testing','Kiểm thử thành phần (còn gọi là unit testing – kiểm thử đơn vị) tập trung kiểm thử các thành phần một cách độc lập.','Test hàm tinh_giam_gia().','2.2.1'],
+ ['Kiểm thử tích hợp thành phần','Component integration testing','Kiểm thử tích hợp thành phần (component integration testing) tập trung kiểm thử các điểm kết nối và sự tương tác giữa các thành phần.','Module giỏ hàng gọi module voucher.','2.2.1'],
+ ['Kiểm thử hệ thống','System testing','Kiểm thử hệ thống (system testing) tập trung vào hành vi tổng thể và khả năng của toàn bộ hệ thống hoặc sản phẩm, thường bao gồm kiểm thử chức năng cho các luồng nghiệp vụ (kiểm thử end-to-end) và kiểm thử phi chức năng đối với các đặc tính chất lượng.','Đặt hàng từ đầu tới cuối trên môi trường staging.','2.2.1'],
+ ['Kiểm thử tích hợp hệ thống','System integration testing','Kiểm thử tích hợp hệ thống (system integration testing) tập trung kiểm thử các điểm kết nối giữa hệ thống đang kiểm thử với các hệ thống khác hoặc các dịch vụ bên ngoài.','ShopDemo ↔ cổng thanh toán Momo.','2.2.1'],
+ ['Kiểm thử chấp nhận','Acceptance testing','Kiểm thử chấp nhận (acceptance testing) tập trung vào việc xác nhận (validation) và chứng minh mức độ sẵn sàng để triển khai của hệ thống, tức là hệ thống đã đáp ứng mọi nhu cầu nghiệp vụ của người dùng.','Khách hàng duyệt bản release.','2.2.1'],
+ ['Các hình thức kiểm thử chấp nhận','UAT / OAT / Contractual / Regulatory / Alpha / Beta','Các hình thức chính của kiểm thử chấp nhận bao gồm: kiểm thử chấp nhận người dùng (UAT), kiểm thử chấp nhận vận hành, kiểm thử chấp nhận theo hợp đồng, kiểm thử chấp nhận theo quy định, kiểm thử alpha, và kiểm thử beta.','Mở bản beta cho 500 khách dùng thử.','2.2.1'],
+ ['Kiểm thử chức năng','Functional testing','Kiểm thử chức năng (functional testing) đánh giá các chức năng mà một thành phần hoặc hệ thống cần thực hiện. Các chức năng cho thấy hệ thống phải “làm gì”.','Áp mã SALE10 thì giảm 10%.','2.2.2'],
+ ['Kiểm thử phi chức năng','Non-functional testing','Kiểm thử phi chức năng (non-functional testing) đánh giá các thuộc tính khác chức năng của thành phần hoặc hệ thống. Đây là việc đánh giá hệ thống hoạt động “tốt như thế nào”.','API phản hồi dưới 2 giây.','2.2.2'],
+ ['Kiểm thử hộp đen','Black-box testing','Kiểm thử hộp đen (Black-box testing) (xem mục 4.2) là việc kiểm thử dựa trên đặc tả, trong đó các test case được thiết kế dựa vào tài liệu, không liên quan đến cấu trúc bên trong của đối tượng kiểm thử.','Phân vùng tuổi theo spec.','2.2.2'],
+ ['Kiểm thử hộp trắng','White-box testing','Kiểm thử hộp trắng (White-box testing) (xem mục 4.3) là việc kiểm thử dựa trên cấu trúc, trong đó các test case được thiết kế dựa trên kiến thức về cấu trúc bên trong hoặc chính mã nguồn của hệ thống (ví dụ: mã nguồn, kiến trúc, luồng điều khiển, và luồng dữ liệu).','Đảm bảo mọi nhánh if được chạy.','2.2.2'],
+ ['Kiểm thử xác nhận','Confirmation testing','Kiểm thử xác nhận xác nhận rằng lỗi đã được sửa thành công.','Chạy lại đúng case DH-2009 sau khi sửa.','2.2.3'],
+ ['Kiểm thử hồi quy','Regression testing','Kiểm thử hồi quy xác nhận rằng việc thực hiện những thay đổi (bao gồm cả việc sửa lỗi đã được kiểm thử xác nhận) không gây ra các tác động tiêu cực nào.','Chạy lại bộ giỏ hàng, voucher, thanh toán.','2.2.3'],
+ ['Phân tích ảnh hưởng','Impact analysis','Nên thực hiện phân tích ảnh hưởng trước để xác định phạm vi kiểm thử hồi quy cần thiết, tức là xác định những phần nào của phần mềm có thể bị ảnh hưởng.','Đổi công thức giảm giá → ảnh hưởng giỏ hàng, hóa đơn, báo cáo doanh thu.','2.2.3'],
+ ['Kiểm thử bảo trì','Maintenance testing','Các yếu tố dẫn đến hoạt động bảo trì và kiểm thử bảo trì có thể được phân loại như sau: Các thay đổi trong phần mềm […]; Nâng cấp hoặc chuyển đổi môi trường vận hành […]; Ngừng sử dụng, như khi một ứng dụng kết thúc vòng đời của nó.','Test sau khi chuyển DB sang server mới.','2.3'],
+ ['Mô-đun giả / Thành phần điều khiển kiểm thử','Stub / Driver','Ví dụ một số hạng mục môi trường kiểm thử bao gồm: mô-đun giả (stub), thành phần điều khiển kiểm thử (driver), trình mô phỏng (simulator), và ảo hoá dịch vụ (service virtualization).','Stub trả về dữ liệu khách cố định thay cho DB.','1.4.3'],
+],
+3:[
+ ['Kiểm thử tĩnh','Static testing','Khác với kiểm thử động, trong kiểm thử tĩnh, phần mềm đang được kiểm thử không cần phải được thực thi (chạy). Mã nguồn, đặc tả quy trình, đặc tả kiến trúc hệ thống, hoặc các sản phẩm công việc khác đều có thể được đánh giá thông qua việc kiểm tra thủ công (ví dụ: rà soát) hoặc bằng công cụ hỗ trợ (ví dụ: phân tích tĩnh).','Đọc spec để tìm chỗ mâu thuẫn.','3.1'],
+ ['Kiểm thử động','Dynamic testing','Kiểm thử tĩnh phát hiện lỗi trực tiếp, trong khi kiểm thử động phát hiện sự cố, từ đó những lỗi liên quan có thể được xác định thông qua các hoạt động phân tích tiếp theo','Chạy testcase trên app.','3.1.3'],
+ ['Rà soát','Review','Bất kỳ sản phẩm công việc nào mà có thể đọc và hiểu được đều có thể là đối tượng của hoạt động rà soát.','Rà soát test case của đồng nghiệp.','3.1.1'],
+ ['Phân tích tĩnh','Static analysis','Phân tích tĩnh có thể giúp phát hiện vấn đề trước khi kiểm thử động được thực hiện, đồng thời thường đòi hỏi ít công sức hơn vì không cần viết test case, và thường được thực hiện bằng công cụ (xem chương 6).','SonarQube báo biến khai báo mà không dùng.','3.1'],
+ ['Bất thường','Anomaly','Vì các bất thường được xác định trong quá trình rà soát không nhất thiết đều là lỗi, nên tất cả các bất thường này cần được phân tích và thảo luận.','Câu hỏi "email có phân biệt hoa thường không?" khi rà soát spec.','3.2.2'],
+ ['Rà soát chính thức / không chính thức','Formal review / Informal review','Có nhiều loại rà soát khác nhau, từ rà soát không chính thức đến rà soát chính thức. Mức độ chính thức cần thiết phụ thuộc vào các yếu tố như: SDLC đang được áp dụng, mức độ trưởng thành của quy trình phát triển phần mềm, mức độ quan trọng và độ phức tạp của sản phẩm công việc cần được rà soát, các yêu cầu pháp lý hoặc quy định liên quan, và nhu cầu đảm bảo khả năng đánh giá tuân thủ.','','3.2.4'],
+ ['Rà soát không chính thức','Informal review','Rà soát không chính thức (informal review) không tuân theo một quy trình cố định và không yêu cầu ghi nhận kết quả rà soát một cách chính thức. Mục tiêu chính là phát hiện các bất thường.','Nhờ đồng nghiệp đọc nhanh báo cáo lỗi.','3.2.4'],
+ ['Rà soát có hướng dẫn','Walkthrough','Walkthrough (rà soát có hướng dẫn) do tác giả chủ trì, có thể phục vụ nhiều mục tiêu như: đánh giá chất lượng và xây dựng sự tin tưởng đối với sản phẩm công việc, đào tạo người rà soát, nhằm đạt được sự đồng thuận, tạo ra ý tưởng mới, thúc đẩy và hỗ trợ tác giả hoàn thiện hơn, cũng như phát hiện các bất thường.','Dev lead trình bày thiết kế cho cả team.','3.2.4'],
+ ['Rà soát kỹ thuật','Technical review','Rà soát kỹ thuật (technical review) được thực hiện bởi những người rà soát có trình độ kỹ thuật phù hợp và do một điều phối viên dẫn dắt. Mục tiêu của rà soát kỹ thuật là đạt được sự đồng thuận và đưa ra quyết định liên quan đến một vấn đề kỹ thuật, đồng thời phát hiện các bất thường, đánh giá chất lượng và xây dựng sự tin tưởng đối với sản phẩm công việc, tạo ra ý tưởng mới, cũng như thúc đẩy và hỗ trợ tác giả hoàn thiện hơn.','Các senior dev rà soát phương án kiến trúc thanh toán.','3.2.4'],
+ ['Đánh giá chuyên sâu','Inspection','Vì kiểm tra chuyên sâu (inspection) là loại rà soát chính thức nhất, nên nó tuân theo đầy đủ quy trình tổng quát (xem mục 3.2.2). Mục tiêu chính là tối đa hoá việc phát hiện các bất thường. […] Trong đánh giá chuyên sâu, tác giả không được nắm giữ vai trò là trưởng nhóm rà soát hay thư ký.','Đánh giá chuyên sâu tài liệu yêu cầu của hệ thống y tế.','3.2.4'],
+ ['Quản lý','Manager','Quản lý – quyết định nội dung cần được rà soát và cung cấp các nguồn lực cần thiết, chẳng hạn như nhân sự và thời gian cho hoạt động rà soát','PM duyệt 2 giờ cho buổi rà soát.','3.2.3'],
+ ['Tác giả','Author','Tác giả – tạo ra và thực hiện sửa chữa sản phẩm công việc đang được rà soát','BA viết spec.','3.2.3'],
+ ['Điều phối viên','Moderator / Facilitator','Điều phối viên – đảm bảo việc tổ chức và vận hành hiệu quả các cuộc họp rà soát, bao gồm điều phối thảo luận, quản lý thời gian, và duy trì môi trường rà soát an toàn để mọi người có thể tự do phát biểu','QC lead điều phối buổi rà soát spec.','3.2.3'],
+ ['Thư ký','Scribe / Recorder','Thư ký – tổng hợp các bất thường được phát hiện những bởi người rà soát và ghi lại các thông tin thảo luận trong buổi rà soát, như các quyết định và các bất thường mới phát sinh trong cuộc họp phân tích rà soát','Một QC ghi biên bản vào sheet.','3.2.3'],
+ ['Người rà soát','Reviewer','Người rà soát – thực hiện việc rà soát. Người rà soát có thể là thành viên trong dự án, các chuyên gia trong lĩnh vực, hoặc bất kỳ bên liên quan nào khác','Dev và QC đọc spec, ghi câu hỏi.','3.2.3'],
+ ['Trưởng nhóm rà soát','Review leader','Trưởng nhóm rà soát – chịu trách nhiệm tổng thể cho hoạt động rà soát, bao gồm việc quyết định ai sẽ tham gia và tổ chức thời gian, địa điểm diễn ra buổi rà soát','Test manager tổ chức đợt rà soát.','3.2.3'],
+ ['Tiêu chí kết thúc rà soát','Exit criteria (review)','Khi các tiêu chí kết thúc rà soát đã được đáp ứng, sản phẩm công việc đó có thể được chấp nhận.','Mọi bất thường mức High đã có hướng xử lý.','3.2.2'],
+],
+4:[
+ ['Kỹ thuật kiểm thử','Test technique','Các kỹ thuật kiểm thử hỗ trợ tester trong hoạt động phân tích kiểm thử (kiểm thử cái gì) và thiết kế test case (kiểm thử như thế nào). Các kỹ thuật kiểm thử giúp xây dựng một tập hợp test case tương đối nhỏ nhưng vẫn bao phủ đủ, theo một cách có hệ thống.','Phân vùng tương đương, bảng quyết định…','4.1'],
+ ['Kỹ thuật kiểm thử hộp đen','Black-box test technique','Các kỹ thuật kiểm thử hộp đen (còn được gọi là kỹ thuật dựa trên đặc tả) dựa trên việc phân tích hành vi được mô tả của đối tượng kiểm thử mà không tham chiếu đến cấu trúc bên trong của đối tượng đó.','','4.1'],
+ ['Kỹ thuật kiểm thử hộp trắng','White-box test technique','Các kỹ thuật kiểm thử hộp trắng (còn được gọi là kỹ thuật dựa trên cấu trúc) dựa trên việc phân tích cấu trúc bên trong và cách xử lý của đối tượng kiểm thử.','','4.1'],
+ ['Kỹ thuật kiểm thử dựa trên kinh nghiệm','Experience-based test technique','Các kỹ thuật kiểm thử dựa trên kinh nghiệm tận dụng hiệu quả kiến thức và kinh nghiệm của tester trong việc thiết kế và thực thi test case.','','4.1'],
+ ['Hạng mục bao phủ','Coverage item','Hoạt động này thường bao gồm việc xác định các hạng mục bao phủ, chúng đóng vai trò hướng dẫn cách xác định đầu vào cho test case.','Trong EP, mỗi vùng tương đương là một hạng mục bao phủ.','1.4.1'],
+ ['Độ bao phủ','Coverage','Độ bao phủ được đo bằng số lượng vùng tương đương được kiểm thử bởi các test case, chia cho tổng số vùng tương đương đã xác định, và được biểu diễn dưới dạng phần trăm (%).','Đã test 3/4 vùng → 75%.','4.2.1'],
+ ['Phân vùng tương đương','Equivalence Partitioning (EP)','Phân vùng tương đương (EP) chia dữ liệu thành các vùng (gọi là các vùng tương đương hoặc lớp tương đương) dựa trên giả định rằng tất cả các phần tử trong cùng một phân vùng sẽ được đối tượng kiểm thử xử lý theo một cách giống nhau.','Tuổi: &lt;18, 18–60, &gt;60.','4.2.1'],
+ ['Phân vùng hợp lệ / không hợp lệ','Valid / Invalid partition','Vùng tương đương chứa các giá trị hợp lệ được gọi là phân vùng hợp lệ. Vùng tương đương chứa các giá trị không hợp lệ được gọi là phân vùng không hợp lệ.','18–60 hợp lệ; &lt;18 và &gt;60 không hợp lệ.','4.2.1'],
+ ['Bao phủ Each Choice','Each Choice coverage','Tiêu chí bao phủ đơn giản nhất trong trường hợp có nhiều tập vùng tương đương là bao phủ Each Choice (Ammann 2016). Tiêu chí này yêu cầu các test case phải bao phủ mỗi vùng tương đương trong từng tập phân vùng ít nhất một lần. Bao phủ Each Choice không xét đến các tổ hợp các phân vùng tương đương.','Trường Tuổi và trường Hạng thẻ, mỗi vùng của mỗi trường có ít nhất 1 test.','4.2.1'],
+ ['Phân tích giá trị biên','Boundary Value Analysis (BVA)','Phân tích giá trị biên (BVA) là kỹ thuật kiểm thử dựa trên việc kiểm tra các giá trị tại ranh giới (biên) của các phân vùng tương đương. Do đó, BVA chỉ có thể áp dụng cho các vùng tương đương có tính thứ tự.','Phạm vi 1–10: test 0, 1, 10, 11.','4.2.2'],
+ ['BVA 2 giá trị','2-value BVA','BVA 2 giá trị (Craig 2002, Myers 2011), với mỗi biên có hai hạng mục bao phủ: giá trị biên của phân vùng đó và giá trị biên gần nhất của phân vùng liền kề.','Biên 1: test 0 và 1.','4.2.2'],
+ ['BVA 3 giá trị','3-value BVA','BVA 3 giá trị (Koomen 2006, O’Regan 2019), với mỗi biên có ba hạng mục bao phủ: giá trị biên của phân vùng đó và hai giá trị lân cận của nó.','Biên 1: test 0, 1, 2.','4.2.2'],
+ ['Kiểm thử dựa vào bảng quyết định','Decision table testing','Bảng quyết định được sử dụng để kiểm thử chương trình mà có các yêu cầu quy định các tổ hợp điều kiện khác nhau sẽ tạo ra các kết quả khác nhau. Bảng quyết định là một cách hiệu quả để biểu diễn lôgic phức tạp, chẳng hạn như các quy tắc nghiệp vụ.','VIP? × Đơn ≥ 500k? → 4 cột.','4.2.3'],
+ ['Cột của bảng quyết định','Column (rule)','Mỗi cột trong bảng tương ứng với một quyết định nghiệp vụ, nó thể hiện một tổ hợp điều kiện duy nhất cùng với các hành động liên quan.','Cột 3: khách thường + đơn ≥ 500k → freeship.','4.2.3'],
+ ['Ký hiệu trong bảng quyết định','T / F / – / N/A / X','“T” (true) nghĩa là điều kiện được thỏa mãn. “F” (false) là điều kiện không được thỏa mãn. “–” là giá trị của điều kiện không ảnh hưởng đến kết quả hành động. Và “N/A” là điều kiện không áp dụng trong tổ hợp đó. Đối với hành động: “X” là hành động xảy ra. Ô để trống là hành động không xảy ra.','Tài khoản bị khóa thì "–" cho mọi điều kiện còn lại.','4.2.3'],
+ ['Kiểm thử dựa vào chuyển đổi trạng thái','State transition testing','Sơ đồ trạng thái giúp mô hình hóa hành vi của hệ thống bằng cách thể hiện các trạng thái có thể có và các chuyển đổi trạng thái hợp lệ.','Trạng thái đơn: Chờ TT, Đã TT, Đang giao, Đã giao, Đã hủy.','4.2.4'],
+ ['Chuyển đổi trạng thái / Điều kiện bảo vệ','Transition / Guard condition','Một chuyển đổi trạng thái được kích hoạt bởi một sự kiện (event), có thể được bổ sung bởi một điều kiện bảo vệ (guard condition). […] Cú pháp ghi nhãn cho các chuyển đổi trạng thái thường dùng là: “event [guard condition] / action”.','Hủy đơn [chưa giao hàng] / hoàn tiền.','4.2.4'],
+ ['Bảng trạng thái','State table','Bảng trạng thái là một mô hình tương đương với sơ đồ trạng thái. […] Khác với sơ đồ trạng thái, bảng trạng thái thể hiện rõ các chuyển đổi trạng thái không hợp lệ, được biểu diễn bằng các ô trống.','Ô (Đã giao, Hủy) để trống = chuyển đổi không hợp lệ.','4.2.4'],
+ ['Bao phủ tất cả trạng thái','All states coverage','Với bao phủ tất cả trạng thái, hạng mục bao phủ là các trạng thái. Để đạt 100% độ bao phủ này, bộ test case phải đảm bảo tất cả các trạng thái đều được thực thi ít nhất một lần.','','4.2.4'],
+ ['Bao phủ chuyển đổi trạng thái hợp lệ','Valid transitions coverage (0-switch)','Với bao phủ chuyển đổi trạng thái hợp lệ (còn gọi là bao phủ 0-switch), hạng mục bao phủ là các chuyển đổi trạng thái hợp lệ riêng lẻ. Để đạt 100% độ bao phủ này, bộ test case phải thực thi tất cả các chuyển đổi trạng thái hợp lệ.','','4.2.4'],
+ ['Bao phủ tất cả chuyển đổi trạng thái','All transitions coverage','Với bao phủ tất cả chuyển đổi trạng thái, hạng mục bao phủ là tất cả các chuyển đổi trạng thái được thể hiện trong bảng trạng thái. Để đạt 100% độ bao phủ này, bộ test case phải thực thi tất cả các chuyển đổi trạng thái hợp lệ và cả các chuyển đổi trạng thái không hợp lệ.','','4.2.4'],
+ ['Kiểm thử câu lệnh / Bao phủ câu lệnh','Statement testing / Statement coverage','Trong kiểm thử câu lệnh, các hạng mục bao phủ là các câu lệnh có thể thực thi được trong mã nguồn. […] Bao phủ câu lệnh được đo bằng số lượng câu lệnh được thực thi bởi các test case hiện có, chia cho tổng số câu lệnh có thể thực thi trong mã nguồn, và được biểu diễn dưới dạng phần trăm.','<code>phi_ship = 0</code> là một câu lệnh thực thi được.','4.3.1'],
+ ['Nhánh','Branch','Nhánh là sự chuyển luồng điều khiển giữa hai nút trong đồ thị luồng điều khiển. […] Mỗi sự chuyển luồng điều khiển có thể là vô điều kiện (tức là các đoạn mã chạy tuần tự) hoặc có điều kiện (tức là kết quả của một quyết định).','if có 2 nhánh: đúng và sai.','4.3.2'],
+ ['Kiểm thử nhánh / Độ bao phủ nhánh','Branch testing / Branch coverage','Trong kiểm thử nhánh, các hạng mục bao phủ là các nhánh. […] Độ bao phủ được đo bằng số lượng nhánh được thực thi bởi các test case hiện có, chia cho tổng số nhánh, và được biểu diễn dưới dạng phần trăm.','','4.3.2'],
+ ['Đoán lỗi','Error guessing','Đoán lỗi là một kỹ thuật kiểm thử dùng để dự đoán sự xuất hiện của sai sót, lỗi, và các sự cố, dựa vào kiến thức và kinh nghiệm của của tester','Bấm Đặt hàng 2 lần liên tiếp.','4.4.1'],
+ ['Tấn công lỗi','Fault attacks','Fault attacks (tấn công lỗi) là một cách triển khai thực tế của kỹ thuật đoán lỗi. Kỹ thuật này yêu cầu tester tạo ra hoặc thu thập danh sách các sai sót, lỗi, hoặc sự cố có thể xảy ra, sau đó thiết kế test case nhằm phát hiện lỗi hoặc sự cố liên quan đến các sai sót đó.','Danh sách: số âm, emoji, chuỗi rất dài, mất mạng.','4.4.1'],
+ ['Kiểm thử khám phá','Exploratory testing','Trong kiểm thử khám phá, việc thiết kế, thực thi test case, và đánh giá kết quả được thực hiện đồng thời, cùng lúc đó tester cũng sẽ tìm hiểu thêm về đối tượng kiểm thử.','60 phút khám phá luồng hoàn tiền.','4.4.2'],
+ ['Kiểm thử theo phiên / Thẻ kiểm thử','Session-based testing / Test charter','Với cách tiếp cận này, kiểm thử khám phá được thực hiện trong một khoảng thời gian có giới hạn (ví dụ: 45 phút). Tester sử dụng một thẻ kiểm thử (test charter) chứa các mục tiêu kiểm thử giúp định hướng việc kiểm thử.','"Khám phá hoàn tiền để tìm rủi ro hoàn sai số tiền".','4.4.2'],
+ ['Kiểm thử dựa trên checklist','Checklist-based testing','Trong kiểm thử dựa trên checklist, tester thiết kế, triển khai, và thực thi các test case để bao phủ các khía cạnh kiểm thử được mô tả trong một checklist (danh sách các mục cần kiểm tra).','Checklist form: bắt buộc, độ dài, ký tự đặc biệt, khoảng trắng.','4.4.3'],
+ ['Phương pháp kiểm thử dựa trên sự cộng tác','Collaboration-based test approach','Trong khi đó, các phương pháp tiếp cận kiểm thử dựa trên sự cộng tác tập trung vào việc phòng tránh lỗi thông qua sự hợp tác và giao tiếp giữa các bên liên quan.','','4.5'],
+ ['User story','User story','Mỗi user story đại diện cho một tính năng mang lại giá trị cho người dùng hoặc người mua hệ thống/ phần mềm. […] Định dạng phổ biến nhất của một user story là: “Là [vai trò], tôi muốn [mục tiêu cần đạt được], để tôi có thể [giá trị nghiệp vụ mang lại cho vai trò đó]”, theo sau đó là các tiêu chí chấp nhận.','Là khách VIP, tôi muốn áp mã VIP20 để được giảm 20%.','4.5.1'],
+ ['Nguyên tắc 3 C’s','Card, Conversation, Confirmation','Card (thẻ) – phương tiện mô tả user story (ví dụ: thẻ giấy, một mục trong bảng điện tử); Conversation (thảo luận) – giải thích cách phần mềm sẽ được sử dụng (có thể được ghi lại hoặc trao đổi bằng lời nói); Confirmation (xác nhận) – tiêu chí chấp nhận (xem mục 4.5.2)','','4.5.1'],
+ ['INVEST','INVEST','Một user story tốt nên tuân theo nguyên tắc INVEST: Independent – độc lập, Negotiable – có thể thương lượng, Valuable – có giá trị, Estimable – có thể ước lượng, Small – nhỏ gọn, và Testable – có thể kiểm thử được.','Story "Làm lại toàn bộ thanh toán" vi phạm Small.','4.5.1'],
+ ['Tiêu chí chấp nhận','Acceptance criteria (AC)','Tiêu chí chấp nhận (acceptance criteria - AC) của một user story là các điều kiện mà phần chương trình được lập trình cho user story đó phải đáp ứng để được các bên liên quan chấp nhận.','Then hiển thị "Mã đã hết lượt".','4.5.2'],
+ ['Phát triển hướng Kiểm thử Chấp nhận (ATDD)','Acceptance Test-Driven Development','ATDD là một phương pháp phát triển phần mềm theo hướng kiểm thử trước (test-first) (xem mục 2.1.3). Các test case được tạo ra trước khi lập trình cho một user story.','','4.5.3'],
+],
+5:[
+ ['Kế hoạch kiểm thử','Test plan','Kế hoạch kiểm thử mô tả các mục tiêu kiểm thử, nguồn lực, và các quy trình của một dự án kiểm thử.','Kế hoạch kiểm thử release 2.4.','5.1.1'],
+ ['Phương pháp tiếp cận kiểm thử','Test approach','Phương pháp tiếp cận kiểm thử (ví dụ: mức kiểm thử, loại kiểm thử, kỹ thuật kiểm thử, các sản phẩm bàn giao của kiểm thử, tiêu chí bắt đầu và tiêu chí kết thúc, mức độ độc lập của kiểm thử, các chỉ số cần thu thập, yêu cầu về dữ liệu kiểm thử, yêu cầu về môi trường kiểm thử, các sai lệch so với chính sách kiểm thử và chiến lược kiểm thử)','Ưu tiên tự động API, khám phá cho UI.','5.1.1'],
+ ['Tiêu chí bắt đầu','Entry criteria','Tiêu chí bắt đầu xác định các điều kiện tiên quyết để tiến hành một hoạt động nhất định. […] Các tiêu chí bắt đầu mà một user story phải đáp ứng để tiến hành các hoạt động phát triển và/hoặc kiểm thử được gọi là Định nghĩa Sẵn sàng (Definition of Ready - DoR).','Build qua smoke test.','5.1.3'],
+ ['Tiêu chí kết thúc','Exit criteria','Tiêu chí kết thúc xác định những điều phải đạt được để tuyên bố rằng một hoạt động đã hoàn thành. […] Trong phát triển phần mềm Agile, tiêu chí kết thúc thường được gọi là Định nghĩa Hoàn thành (Definition of Done - DoD), là các chỉ số khách quan của nhóm để quyết định một hạng mục có thể được phát hành.','Không còn lỗi Critical mở.','5.1.3'],
+ ['Ước lượng dựa trên tỷ lệ','Ratio-based estimation','Ước lượng dựa trên tỷ lệ. Trong kỹ thuật dựa trên số liệu này, các số liệu được thu thập từ những dự án trước đây trong tổ chức, qua đó có thể xác định các tỷ lệ “chuẩn” cho những dự án tương tự.','Dev:test = 3:2 → 600 ngày dev cần 400 ngày test.','5.1.4'],
+ ['Kỹ thuật ước lượng ngoại suy','Extrapolation','Kỹ thuật ước lượng ngoại suy. Trong kỹ thuật dựa trên số liệu này, các phép đo được thực hiện càng sớm càng tốt trong dự án hiện tại để thu thập dữ liệu. Khi đã có đủ lượng dữ liệu quan sát, công sức cần thiết cho phần công việc còn lại có thể được ước lượng bằng cách ngoại suy từ dữ liệu này (thường bằng cách áp dụng một mô hình toán học).','Trung bình 3 chu kỳ gần nhất.','5.1.4'],
+ ['Wideband Delphi','Wideband Delphi','Wideband Delphi. Trong kỹ thuật ước lượng dựa vào chuyên gia này, các chuyên gia đưa ra ước lượng dựa trên kinh nghiệm của mình. […] Planning Poker là một biến thể của Wideband Delphi, thường được sử dụng trong các mô hình phát triển phần mềm Agile.','','5.1.4'],
+ ['Ước lượng ba điểm','Three-point estimation','Ước lượng ba điểm. Trong kỹ thuật ước lượng dựa vào chuyên gia này, mỗi chuyên gia cần đưa ra 3 ước lượng: ước lượng lạc quan nhất (a), ước lượng có khả năng xảy ra nhất (m), và ước lượng bi quan nhất (b). […] E = (a + 4*m + b) / 6. […] SD = (b – a) / 6.','a=6, m=9, b=18 → 10 ± 2 giờ.','5.1.4'],
+ ['Ưu tiên hóa test case','Test case prioritization','Các chiến lược ưu tiên hoá test case phổ biến nhất bao gồm: Ưu tiên hoá dựa vào rủi ro […]; Ưu tiên hoá dựa vào độ bao phủ […]; Ưu tiên hoá dựa vào yêu cầu […]','','5.1.5'],
+ ['Tháp kiểm thử','Test pyramid','Test pyramid (tháp kiểm thử) là mô hình thể hiện các loại test case khác nhau có thể có mức độ chi tiết khác nhau.','','5.1.6'],
+ ['Các góc phần tư kiểm thử','Testing quadrants','Các testing quadrant (góc phần tư kiểm thử), được định nghĩa bởi Brian Marick (Marick 2003, Crispin 2008), gom nhóm các mức kiểm thử với các loại kiểm thử phù hợp, các hoạt động kiểm thử, kỹ thuật kiểm thử, và các sản phẩm công việc trong phát triển phần mềm Agile.','Kiểm thử tính khả dụng ở Q3, kiểm thử phi chức năng khác ở Q4.','5.1.7'],
+ ['Quản lý rủi ro','Risk management','Các hoạt động chính của quản lý rủi ro bao gồm: Phân tích rủi ro (gồm nhận diện rủi ro và đánh giá rủi ro; xem mục 5.2.3); Kiểm soát rủi ro (gồm giảm thiểu rủi ro và giám sát rủi ro; xem mục 5.2.4)','','5.2'],
+ ['Kiểm thử dựa vào rủi ro','Risk-based testing','Cách tiếp cận kiểm thử, trong đó các hoạt động kiểm thử được lựa chọn, ưu tiên, và quản lý dựa trên việc phân tích rủi ro và kiểm soát rủi ro, được gọi là kiểm thử dựa vào rủi ro (risk-based testing).','Module thanh toán rủi ro cao → test trước và kỹ hơn.','5.2'],
+ ['Rủi ro','Risk','Rủi ro là một sự kiện, mối nguy, mối đe dọa, hoặc tình huống tiềm ẩn mà khi xảy ra sẽ gây ra tác động bất lợi.','','5.2.1'],
+ ['Mức rủi ro','Risk level','Một rủi ro có thể được xác định dựa trên hai yếu tố: Khả năng xảy ra rủi ro – xác suất rủi ro xảy ra (lớn hơn 0 và nhỏ hơn 1); Mức độ ảnh hưởng của rủi ro (gây hại) – các hậu quả khi rủi ro xảy ra; Hai yếu tố này thể hiện mức rủi ro, là thước đo rủi ro.','4 × 2 = 8.','5.2.1'],
+ ['Rủi ro dự án','Project risk','Rủi ro dự án liên quan đến việc quản lý và kiểm soát các hoạt động trong dự án.','Tester chủ chốt nghỉ việc.','5.2.2'],
+ ['Rủi ro sản phẩm','Product risk','Rủi ro sản phẩm liên quan đến các đặc tính chất lượng của sản phẩm (ví dụ như được mô tả trong mô hình chất lượng ISO 25010).','Tính sai tổng tiền khi áp nhiều voucher.','5.2.2'],
+ ['Phân tích rủi ro / Nhận diện rủi ro / Đánh giá rủi ro','Risk analysis / Risk identification / Risk assessment','Phân tích rủi ro sản phẩm bao gồm các hoạt động nhận diện rủi ro và đánh giá rủi ro. Nhận diện rủi ro là liệt kê danh sách các rủi ro đầy đủ. […] Đánh giá rủi ro bao gồm: phân loại các rủi ro đã xác định, xác định khả năng xảy ra, mức độ ảnh hưởng, và mức rủi ro, ưu tiên hóa, và đề xuất cách xử lý chúng.','','5.2.3'],
+ ['Kiểm soát rủi ro / Giảm thiểu rủi ro / Giám sát rủi ro','Risk control / Risk mitigation / Risk monitoring','Kiểm soát rủi ro sản phẩm bao gồm giảm thiểu rủi ro và giám sát rủi ro. Giảm thiểu rủi ro là việc triển khai các hành động được đề xuất trong quá trình đánh giá rủi ro nhằm giảm mức rủi ro. Mục tiêu của việc giám sát rủi ro là đảm bảo rằng các biện pháp giảm thiểu rủi ro mang lại hiệu quả, thu thập thêm thông tin để cải thiện việc đánh giá rủi ro, và xác định các rủi ro mới phát sinh.','','5.2.4'],
+ ['Các lựa chọn ứng phó rủi ro','Risk response options','sau khi một rủi ro đã được phân tích, có thể có nhiều lựa chọn ứng phó với rủi ro đó, ví dụ: giảm thiểu rủi ro bằng kiểm thử, chấp nhận rủi ro, chuyển giao rủi ro, hoặc lập kế hoạch dự phòng (Veenendaal 2012).','Hợp đồng để cổng thanh toán chịu bồi hoàn là chuyển giao rủi ro.','5.2.4'],
+ ['Giám sát kiểm thử / Kiểm soát kiểm thử','Test monitoring / Test control','Giám sát kiểm thử liên quan đến việc thu thập thông tin về các hoạt động kiểm thử. […] Kiểm soát kiểm thử sử dụng những thông tin từ hoạt động giám sát kiểm thử để đưa ra các chỉ đạo điều chỉnh, hướng dẫn, và các hành động khắc phục cần thiết, nhằm đạt được hiệu quả và hiệu suất kiểm thử tốt nhất.','Lệch tiến độ → đổi ưu tiên test case.','5.3'],
+ ['Kết thúc kiểm thử','Test completion','Kết thúc kiểm thử thu thập dữ liệu từ các hoạt động kiểm thử đã hoàn thành nhằm tổng hợp kinh nghiệm, các sản phẩm kiểm thử, và các thông tin liên quan khác.','','5.3'],
+ ['Chỉ số kiểm thử','Test metric','Các chỉ số kiểm thử (test metric) được thu thập để thể hiện tiến độ thực tế so với kế hoạch kiểm thử đã đề ra và ngân sách đã phân bổ, chất lượng hiện tại của đối tượng kiểm thử, cũng như hiệu quả của các hoạt động kiểm thử so với mục tiêu kiểm thử, hoặc mục tiêu của một vòng lặp phát triển.','180/320 test case đã chạy.','5.3.1'],
+ ['Báo cáo tiến độ kiểm thử','Test progress report','Báo cáo tiến độ kiểm thử hỗ trợ việc kiểm soát kiểm thử liên tục và phải cung cấp thông tin đầy đủ để có thể điều chỉnh lịch thực thi kiểm thử, nguồn lực, hoặc kế hoạch kiểm thử khi cần thiết, do có sự sai lệch so với kế hoạch, hoặc do bối cảnh kiểm thử đã bị thay đổi.','Daily report.','5.3.2'],
+ ['Báo cáo kết thúc kiểm thử','Test completion report','Báo cáo kết thúc kiểm thử tổng hợp thông tin về một hoạt động kiểm thử cụ thể (ví dụ: một mức kiểm thử, một chu kỳ kiểm thử, một vòng lặp phát triển trong Agile) và có thể cung cấp thông tin đầu vào cho các hoạt động kiểm thử tiếp theo.','Báo cáo cuối release 2.4.','5.3.2'],
+ ['Quản lý cấu hình','Configuration management (CM)','Trong kiểm thử, quản lý cấu hình (CM - configuration management) cung cấp một phương thức có hệ thống để xác định, kiểm soát và theo dõi các sản phẩm công việc như kế hoạch kiểm thử, chiến lược kiểm thử, điều kiện kiểm thử, test case, test script, kết quả kiểm thử, nhật ký kiểm thử và báo cáo kiểm thử dưới dạng các hạng mục cấu hình.','Ghi rõ build 2.4.0-rc3, testcase v1.2.','5.4'],
+ ['Quản lý lỗi','Defect management','Ít nhất, quy trình quản lý lỗi gồm một luồng xử lý để giải quyết từng lỗi hoặc bất thường từ khi phát hiện cho đến khi nó được đóng lại, cùng với các quy tắc phân loại chúng.','','5.5'],
+ ['Báo cáo lỗi','Defect report','Các báo cáo lỗi thường có các mục tiêu sau: Cung cấp đầy đủ thông tin cho những người chịu trách nhiệm xử lý và khắc phục lỗi để họ giải quyết vấn đề; Cung cấp phương tiện để theo dõi chất lượng của sản phẩm công việc; Cung cấp ý tưởng để cải tiến quy trình phát triển và kiểm thử','Báo cáo lỗi "Hoàn tiền vượt số đã thu".','5.5'],
+ ['Mức độ nghiêm trọng','Severity','Mức độ ảnh hưởng (mức độ nghiêm trọng) của lỗi đối với lợi ích của các bên liên quan hoặc yêu cầu','Mất tiền của khách: Critical.','5.5'],
+ ['Mức độ ưu tiên','Priority','Mức độ ưu tiên sửa lỗi','Sai chính tả logo trang chủ: mức độ nghiêm trọng thấp nhưng ưu tiên cao.','5.5'],
+],
+6:[
+ ['Công cụ quản lý kiểm thử','Test management tools','Công cụ quản lý kiểm thử – giúp tăng hiệu quả của quy trình kiểm thử bằng cách hỗ trợ quản lý: vòng đời phát triển phần mềm (SDLC), yêu cầu, test case, lỗi, và cấu hình','Jira, TestRail.','6.1'],
+ ['Công cụ kiểm thử tĩnh','Static testing tools','Công cụ kiểm thử tĩnh – hỗ trợ tester trong việc thực hiện rà soát và phân tích tĩnh','SonarQube, ESLint.','6.1'],
+ ['Công cụ thiết kế và triển khai kiểm thử','Test design and implementation tools','Công cụ thiết kế và triển khai kiểm thử – hỗ trợ việc tạo test case, dữ liệu kiểm thử, và trình tự thực hiện kiểm thử','Công cụ sinh dữ liệu giả.','6.1'],
+ ['Công cụ thực thi kiểm thử và đo độ bao phủ','Test execution and coverage tools','Công cụ thực thi kiểm thử và đo độ bao phủ – hỗ trợ thực thi kiểm thử tự động và đo lường độ bao phủ','Playwright, JaCoCo.','6.1'],
+ ['Công cụ kiểm thử phi chức năng','Non-functional testing tools','Công cụ kiểm thử phi chức năng – cho phép tester thực hiện các kiểm thử phi chức năng vốn khó hoặc không thể thực hiện thủ công','JMeter, OWASP ZAP.','6.1'],
+ ['Công cụ DevOps','DevOps tools','Công cụ DevOps – hỗ trợ quy trình phân phối DevOps, theo dõi quy trình công việc, tự động hóa quá trình build phần mềm và CI/CD','GitHub Actions, Jenkins.','6.1'],
+ ['Công cụ cộng tác','Collaboration tools','Công cụ cộng tác – hỗ trợ giao tiếp giữa các bên liên quan','Slack, Confluence.','6.1'],
+ ['Công cụ hỗ trợ khả năng mở rộng và chuẩn hóa triển khai','Scalability and deployment standardization tools','Các công cụ hỗ trợ khả năng mở rộng và chuẩn hóa triển khai phần mềm (ví dụ: máy ảo, công cụ container hóa)','Docker.','6.1'],
+ ['Tự động hóa kiểm thử','Test automation','Chỉ mua hoặc triển khai một công cụ sẽ không đảm bảo thành công. Mỗi công cụ mới đều cần nhiều nỗ lực để mang lại lợi ích thực sự và lâu dài (ví dụ: triển khai công cụ, bảo trì, và đào tạo). Bên cạnh đó, quá trình tự động hoá kiểm thử phần mềm cũng tồn tại một số rủi ro cần được phân tích và giảm thiểu.','Bộ regression chạy tự động mỗi đêm.','6.2'],
+],
+};
+
+/* ===================== Tiện ích & trạng thái ===================== */
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const LETTERS = ['A','B','C','D'];
+const DOCS = [
+  { t:'Syllabus CTFL 4.0 (tiếng Việt)', u:'https://d288qud2qgn4l3.cloudfront.net/media/resources/ISTQB_CTFL_Syllabus-v4.0.1.pdf', n:'Tài liệu lý thuyết gốc, mọi câu hỏi thi đều dựa trên đây.' },
+  { t:'Đề thi thử A – Câu hỏi', u:'https://d288qud2qgn4l3.cloudfront.net/media/resources/ISTQB_CTFL_v4.0_%C4%90%E1%BB%81_thi_th%E1%BB%AD-A-C%C3%A2u_h%E1%BB%8Fi_v1.7.pdf', n:'Đề chính thức 40 câu. Làm sau cùng, bấm giờ 60 phút.' },
+  { t:'Đề thi thử A – Đáp án', u:'https://d288qud2qgn4l3.cloudfront.net/media/resources/ISTQB_CTFL_v4.0_%C4%90%E1%BB%81_thi_th%E1%BB%AD-A-%C4%90%C3%A1p_%C3%A1n_v1.7.pdf', n:'Có giải thích từng câu và mục tiêu học tập (LO).' },
+  { t:'Trang tài liệu Brightest', u:'https://brightest.org/en/resources/?language=15', n:'Nguồn của các file trên.' },
+];
+const KDESC = { K1:'Ghi nhớ', K2:'Hiểu', K3:'Áp dụng' };
+const STORE = 'istqb.v1';
+let S = { done:{}, view:'home', tab:{}, qi:{}, mockHist:[] };
+try { const s = JSON.parse(localStorage.getItem(STORE) || 'null'); if (s) S = Object.assign(S, s); } catch(e) {}
+const save = () => { try { localStorage.setItem(STORE, JSON.stringify(S)); } catch(e) {} };
+const byCh = ch => QUESTIONS.filter(q => q.ch === ch);
+const chap = ch => CHAPTERS.find(c => c.ch === ch);
+const isNumeric = q => q.o.every(x => /^[\d\s%.,±giờ]+$/.test(x));
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const orderCache = {};
+const orderOf = q => orderCache[q.id] || (orderCache[q.id] = isNumeric(q) ? [0,1,2,3] : shuffle([0,1,2,3]));
+let practice = {}; // trả lời tạm trong phiên: id -> {pick, submitted}
+let mock = null;
+
+/* ===================== Điều hướng ===================== */
+function renderNav(){
+  let h = '<h2>Bắt đầu</h2>' + navItem('home', '·', 'Tổng quan kỳ thi', 'Cấu trúc đề, tài liệu chính thức', '');
+  h += '<h2>Học theo chương</h2>';
+  CHAPTERS.forEach(c => {
+    const qs = byCh(c.ch), ok = qs.filter(q => S.done[q.id]).length;
+    h += navItem('ch' + c.ch, 'C' + c.ch, c.name, c.en, '<span class="cnt' + (ok === qs.length ? ' full' : '') + '">' + ok + '/' + qs.length + '</span>');
+  });
+  h += '<h2>Kiểm tra</h2>' + navItem('mock', '40', 'Thi thử', '3 đề cố định + đề ngẫu nhiên', '');
+  $('nav').innerHTML = h;
+  const ok = Object.values(S.done).filter(Boolean).length;
+  $('progText').textContent = ok + '/' + QUESTIONS.length + ' câu đúng';
+  $('progBar').style.width = (ok / QUESTIONS.length * 100) + '%';
+}
+function navItem(v, no, nm, sm, extra){
+  return '<button type="button" class="nitem" data-v="' + v + '"' + (S.view === v ? ' aria-current="true"' : '') + '><span class="no">' + no + '</span><span class="nm">' + esc(nm) + '<small>' + esc(sm) + '</small></span>' + extra + '</button>';
+}
+$('nav').addEventListener('click', e => { const b = e.target.closest('.nitem'); if (b) go(b.dataset.v); });
+function go(v){ S.view = v; save(); renderNav(); render(); $('main').scrollTop = 0; window.scrollTo(0, 0); }
+function render(){
+  if (S.view === 'home') return renderHome();
+  if (S.view === 'mock') return renderMock();
+  renderChapter(+S.view.slice(2));
+}
+
+/* ===================== Tổng quan ===================== */
+function renderHome(){
+  const ok = Object.values(S.done).filter(Boolean).length;
+  let h = '<div class="eyebrow">ISTQB® Certified Tester Foundation Level · Version 4.0</div><h2 class="h-title">Tổng quan kỳ thi và cách học</h2>';
+  h += '<p class="h-sub">Học lý thuyết từng chương, làm câu hỏi có giải thích cho từng đáp án, rồi thi thử 40 câu bấm giờ. Cuối cùng làm đề chính thức của ISTQB để kiểm tra thật.</p>';
+  h += '<div class="grid2"><div class="stat"><b>40 câu</b><span>trắc nghiệm, mỗi câu 1 điểm, chọn 1 đáp án</span></div><div class="stat"><b>60 phút</b><span>75 phút nếu thi bằng ngôn ngữ không phải tiếng mẹ đẻ</span></div><div class="stat"><b>26/40</b><span>điểm đạt (65%)</span></div><div class="stat"><b>' + ok + '/' + QUESTIONS.length + '</b><span>câu luyện bạn đã làm đúng</span></div></div>';
+  h += '<div class="sec"><h3>Phân bổ câu hỏi trong đề thi</h3><div class="tbl-wrap"><table class="res"><tr><th>Chương</th><th>Nội dung</th><th>Thời lượng học</th><th>Số câu thi</th><th>Câu luyện ở đây</th></tr>' +
+    CHAPTERS.map(c => '<tr><td>' + c.ch + '</td><td>' + esc(c.name) + '<br><span class="note">' + esc(c.en) + '</span></td><td>' + c.time + '</td><td class="num">' + c.exam + '</td><td class="num">' + byCh(c.ch).length + '</td></tr>').join('') +
+    '<tr><td></td><td><b>Tổng</b></td><td></td><td class="num"><b>40</b></td><td class="num"><b>' + QUESTIONS.length + '</b></td></tr></table></div>' +
+    '<p class="note">Chương 4 và 5 chiếm 20/40 câu, và gần như toàn bộ câu K3 (tính toán, áp dụng kỹ thuật) nằm ở đây. Nên dành nhiều thời gian nhất cho hai chương này.</p></div>';
+  h += '<div class="sec"><h3>Mức nhận thức (K-level) của câu hỏi</h3><div class="tbl-wrap"><table class="res"><tr><th>Mức</th><th>Nghĩa</th><th>Dạng câu hỏi điển hình</th></tr>' +
+    '<tr><td><b>K1</b></td><td>Ghi nhớ</td><td>Định nghĩa, gọi đúng tên khái niệm</td></tr>' +
+    '<tr><td><b>K2</b></td><td>Hiểu</td><td>Phân biệt, giải thích, chọn ví dụ đúng cho một tình huống</td></tr>' +
+    '<tr><td><b>K3</b></td><td>Áp dụng</td><td>Tính giá trị biên, bao phủ, ước lượng; thiết kế test từ bảng quyết định, sơ đồ trạng thái</td></tr></table></div></div>';
+  h += '<div class="sec"><h3>Cách học đề xuất</h3><ol class="stack" style="padding-left:20px;margin:0">' +
+    '<li>Mỗi chương: đọc tab <b>Lý thuyết</b>, chú ý ô "Bẫy đề thi".</li>' +
+    '<li>Làm tab <b>Câu hỏi</b> của chương đó. Sai câu nào thì đọc giải thích của <b>cả 4 đáp án</b>, không chỉ đáp án đúng.</li>' +
+    '<li>Xong 6 chương thì làm <b>Thi thử</b>. Đề được rút ngẫu nhiên đúng tỉ lệ thi thật, mỗi lần một bộ khác.</li>' +
+    '<li>Thi thử đạt từ 30/40 trở lên một cách ổn định thì làm <b>đề chính thức A</b> bên dưới, bấm giờ 60 phút.</li></ol></div>';
+  h += '<div class="sec"><h3>Tài liệu chính thức (tiếng Việt)</h3><div class="doclist">' + DOCS.map(d => '<div class="doc"><a href="' + d.u + '" target="_blank" rel="noopener">' + esc(d.t) + '</a><span>' + esc(d.n) + '</span></div>').join('') + '</div>' +
+    '<p class="note" style="margin-top:10px">Lý thuyết và câu hỏi trên trang này được viết lại theo các mục tiêu học tập (FL-x.y.z) của syllabus CTFL 4.0, không chép từ đề chính thức. Khi có chỗ khác nhau, syllabus là chuẩn.</p></div>';
+  $('view').innerHTML = h;
+}
+
+/* ===================== Chương ===================== */
+function renderChapter(n){
+  const c = chap(n), tab = S.tab[n] || 'theory';
+  let h = '<div class="eyebrow">Chương ' + n + ' · ' + esc(c.en) + '</div><h2 class="h-title">' + esc(c.name) + '</h2>';
+  h += '<div class="chips"><span class="chip acc">' + c.exam + ' câu trong đề thi</span><span class="chip">Thời lượng học ' + c.time + '</span><span class="chip">' + c.theory.length + ' chủ đề</span><span class="chip">' + GLOSSARY[n].length + ' thuật ngữ</span><span class="chip">' + byCh(n).length + ' câu luyện</span></div>';
+  h += '<div class="seg" role="tablist"><button type="button" role="tab" data-t="theory" aria-selected="' + (tab === 'theory') + '">Lý thuyết</button><button type="button" role="tab" data-t="terms" aria-selected="' + (tab === 'terms') + '">Thuật ngữ</button><button type="button" role="tab" data-t="quiz" aria-selected="' + (tab === 'quiz') + '">Câu hỏi</button></div>';
+  h += '<div id="chBody"></div>';
+  $('view').innerHTML = h;
+  $('view').querySelectorAll('.seg button').forEach(b => b.onclick = () => { S.tab[n] = b.dataset.t; save(); renderChapter(n); });
+  tab === 'theory' ? renderTheory(c) : tab === 'terms' ? renderTerms(n) : renderQuiz(n);
+}
+function renderTheory(c){
+  let h = '<div class="stack">' + c.theory.map((t, i) =>
+    '<details class="th"' + (i === 0 ? ' open' : '') + '><summary><b>' + esc(t.k) + '</b><i>' + esc(t.en) + '</i><span class="lo">' + esc(t.lo) + '</span></summary><div class="th-body">' + t.d +
+    '<div class="box ex"><b class="lbl">Ví dụ trong công việc QC</b>' + t.ex + '</div>' +
+    '<div class="box trap"><b class="lbl">Bẫy đề thi</b>' + t.trap + '</div></div></details>').join('') + '</div>';
+  h += '<div class="actions"><button type="button" class="btn" id="openAll">Mở tất cả</button><span class="spacer"></span><button type="button" class="btn primary" id="toQuiz">Làm ' + byCh(c.ch).length + ' câu hỏi chương ' + c.ch + '</button></div>';
+  $('chBody').innerHTML = h;
+  $('openAll').onclick = () => document.querySelectorAll('.th').forEach(d => d.open = true);
+  $('toQuiz').onclick = () => { S.tab[c.ch] = 'quiz'; save(); renderChapter(c.ch); };
+}
+let termQ = '';
+const fold = s => String(s).normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').toLowerCase();
+const termMatch = (t, q) => !q || fold(t[0] + ' ' + t[1] + ' ' + t[2] + ' ' + t[3]).includes(fold(q));
+const termCard = (t, chNo) => '<div class="term"><div class="term-h"><b>' + t[0] + '</b><i>' + t[1] + '</i>' + (chNo ? '<span class="chip">Chương ' + chNo + '</span>' : '') + '</div><p>“' + t[2] + '”</p>' + (t[4] ? '<p class="term-src">Syllabus CTFL v4.0.1 (VN), mục ' + t[4] + '</p>' : '') + (t[3] ? '<p class="term-ex"><b>Ví dụ:</b> ' + t[3] + '</p>' : '') + '</div>';
+function renderTerms(n){
+  let h = '<div class="term-search"><input type="search" id="termQ" placeholder="Tìm thuật ngữ (tiếng Việt hoặc tiếng Anh, gõ không dấu cũng được)" value="' + esc(termQ) + '" aria-label="Tìm thuật ngữ"></div><p class="note" style="margin:0 0 12px">Tên thuật ngữ và phần giải thích trích nguyên văn từ Syllabus CTFL v4.0.1 bản tiếng Việt (© ISTQB®). Dấu “;” thay cho gạch đầu dòng, “[…]” là đoạn lược bớt. Chỉ phần <b>Ví dụ</b> là minh họa thêm.</p><div id="termList"></div>';
+  $('chBody').innerHTML = h;
+  const draw = () => {
+    const mine = GLOSSARY[n].filter(t => termMatch(t, termQ));
+    let out = mine.length ? '<div class="terms">' + mine.map(t => termCard(t)).join('') + '</div>' : '<p class="note">Không có thuật ngữ nào trong chương ' + n + ' khớp với "' + esc(termQ) + '".</p>';
+    if (termQ){
+      const other = [];
+      Object.keys(GLOSSARY).forEach(k => { if (+k !== n) GLOSSARY[k].forEach(t => { if (termMatch(t, termQ)) other.push(termCard(t, k)); }); });
+      if (other.length) out += '<div class="sec"><h3>Ở chương khác</h3><div class="terms">' + other.join('') + '</div></div>';
+    }
+    $('termList').innerHTML = out;
+  };
+  const inp = $('termQ');
+  inp.addEventListener('input', () => { termQ = inp.value; draw(); });
+  draw();
+}
+function optHTML(q, picked, reveal, clickable){
+  return '<div class="opts">' + orderOf(q).map((oi, pos) => {
+    let cls = 'opt';
+    if (reveal){ if (oi === q.a) cls += ' right'; else if (oi === picked) cls += ' wrong'; }
+    else if (oi === picked) cls += ' sel';
+    const why = reveal ? '<span class="why">' + q.w[oi] + '</span>' : '';
+    return '<button type="button" class="' + cls + '" data-oi="' + oi + '"' + (clickable ? '' : ' disabled') + '><span class="L">' + LETTERS[pos] + '</span><span>' + q.o[oi] + why + '</span></button>';
+  }).join('') + '</div>';
+}
+function qHead(q){
+  const c = chap(q.ch);
+  return '<div class="qmeta"><span class="chip acc">' + q.k + ' · ' + KDESC[q.k] + '</span><span class="chip">' + esc(q.lo) + '</span><span class="chip">Chương ' + q.ch + '</span></div>';
+}
+function renderQuiz(n){
+  const qs = byCh(n); let i = S.qi[n] || 0; if (i >= qs.length) i = 0;
+  const q = qs[i], st = practice[q.id] || {};
+  let h = '<div class="qnav">' + qs.map((x, j) => {
+    const p = practice[x.id]; let cls = 'qdot';
+    if (p && p.submitted) cls += p.pick === x.a ? ' ok' : ' no'; else if (S.done[x.id]) cls += ' ok';
+    return '<button type="button" class="' + cls + '" data-j="' + j + '"' + (j === i ? ' aria-current="true"' : '') + ' aria-label="Câu ' + (j+1) + '">' + (j+1) + '</button>';
+  }).join('') + '</div>';
+  h += '<div class="card">' + qHead(q) + '<div class="qtext"><b>Câu ' + (i+1) + '/' + qs.length + '.</b> ' + q.q + '</div>' + optHTML(q, st.pick, st.submitted, !st.submitted);
+  if (st.submitted){
+    const ok = st.pick === q.a;
+    h += '<div class="verdict ' + (ok ? 'ok' : 'no') + '">' + (ok ? 'Đúng.' : 'Chưa đúng. Đáp án đúng được tô xanh; đọc giải thích của từng đáp án bên trên.') + '</div>';
+    h += '<p class="reflink">Xem lại lý thuyết: mục tiêu ' + esc(q.lo) + ' trong tab <button type="button" class="linkbtn" id="toTheory">Lý thuyết</button>.</p>';
+  }
+  h += '<div class="actions"><button type="button" class="btn" id="prevQ"' + (i === 0 ? ' disabled' : '') + '>Câu trước</button>';
+  h += st.submitted ? '<button type="button" class="btn" id="retryQ">Làm lại câu này</button>' : '<button type="button" class="btn primary" id="submitQ"' + (st.pick == null ? ' disabled' : '') + '>Trả lời</button>';
+  h += '<span class="spacer"></span><button type="button" class="btn' + (st.submitted ? ' primary' : '') + '" id="nextQ"' + (i === qs.length - 1 ? ' disabled' : '') + '>Câu tiếp</button></div></div>';
+  const answered = qs.filter(x => practice[x.id] && practice[x.id].submitted), right = answered.filter(x => practice[x.id].pick === x.a).length;
+  if (answered.length) h += '<p class="note" style="margin-top:12px">Phiên này: đúng ' + right + '/' + answered.length + ' câu đã trả lời. Câu làm đúng được lưu vào tiến độ.</p>';
+  $('chBody').innerHTML = h;
+  const setI = j => { S.qi[n] = j; save(); renderQuiz(n); };
+  $('chBody').querySelectorAll('.qdot').forEach(b => b.onclick = () => setI(+b.dataset.j));
+  $('chBody').querySelectorAll('.opt:not(:disabled)').forEach(b => b.onclick = () => { practice[q.id] = { pick:+b.dataset.oi }; renderQuiz(n); });
+  const sb = $('submitQ'); if (sb) sb.onclick = () => { st.submitted = true; practice[q.id] = Object.assign({}, practice[q.id], { submitted:true }); if (practice[q.id].pick === q.a){ S.done[q.id] = true; save(); renderNav(); } renderQuiz(n); };
+  const rb = $('retryQ'); if (rb) rb.onclick = () => { delete practice[q.id]; delete orderCache[q.id]; renderQuiz(n); };
+  $('prevQ').onclick = () => setI(i - 1); $('nextQ').onclick = () => setI(i + 1);
+  const tt = $('toTheory'); if (tt) tt.onclick = () => { S.tab[n] = 'theory'; save(); renderChapter(n); };
+}
+
+/* ===================== Thi thử ===================== */
+let tick = null;
+// 3 đề cố định: mỗi chương xáo trộn ngân hàng câu hỏi theo hạt giống cố định rồi chia thành các phần không trùng nhau.
+// Thêm câu hỏi mới vào một chương sẽ làm thay đổi thành phần các đề cố định của chương đó.
+const SET_N = 3;
+const seeded = seed => () => { seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+const seededShuffle = (a, seed) => { const r = seeded(seed); a = a.slice(); for (let i = a.length - 1; i > 0; i--){ const j = Math.floor(r() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const setIds = k => { const out = []; CHAPTERS.forEach(c => { const pool = seededShuffle(byCh(c.ch).map(q => q.id).sort(), 4049 + c.ch * 7919); out.push(...pool.slice((k - 1) * c.exam, k * c.exam)); }); return out; };
+const setName = k => k ? 'Đề ' + k : 'Đề ngẫu nhiên';
+function startMock(minutes, set){
+  set = set || 0;
+  const ids = set ? setIds(set) : [];
+  if (!set) CHAPTERS.forEach(c => ids.push(...shuffle(byCh(c.ch)).slice(0, c.exam).map(q => q.id)));
+  ids.forEach(id => delete orderCache[id]);
+  mock = { ids, set, picks:{}, flags:{}, i:0, end: Date.now() + minutes * 60000, minutes, done:false, confirm:false };
+  runTimer(); renderMock();
+}
+function runTimer(){
+  clearInterval(tick);
+  tick = setInterval(() => {
+    if (!mock || mock.done){ clearInterval(tick); return; }
+    const left = mock.end - Date.now();
+    if (left <= 0){ finishMock(); return; }
+    const el = $('timer'); if (el){ el.textContent = fmt(left); el.classList.toggle('low', left < 5 * 60000); }
+  }, 1000);
+}
+const fmt = ms => { const s = Math.max(0, Math.round(ms / 1000)); return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); };
+const Q = id => QUESTIONS.find(q => q.id === id);
+function finishMock(){
+  clearInterval(tick); mock.done = true;
+  const score = mock.ids.filter(id => mock.picks[id] === Q(id).a).length;
+  mock.score = score;
+  S.mockHist.push({ at: new Date().toISOString().slice(0, 16).replace('T', ' '), score, set: mock.set || 0 });
+  if (mock.set){ S.setBest = S.setBest || {}; S.setBest[mock.set] = Math.max(S.setBest[mock.set] || 0, score); }
+  S.mockHist = S.mockHist.slice(-10); save();
+  renderMock();
+}
+function renderMock(){
+  if (!mock){
+    const min = S.mockMin === 75 ? 75 : 60, best = S.setBest || {};
+    let h = '<div class="eyebrow">Kiểm tra</div><h2 class="h-title">Thi thử 40 câu</h2><p class="h-sub">Mỗi đề có đúng số câu từng chương như đề thật (8 · 6 · 4 · 11 · 9 · 2), lấy từ ngân hàng ' + QUESTIONS.length + ' câu. Không hiện đáp án cho tới khi nộp bài.</p>';
+    h += '<div class="grid2"><div class="stat"><b>40</b><span>câu hỏi</span></div><div class="stat"><b>26</b><span>câu đúng để đạt (65%)</span></div></div>';
+    h += '<div class="sec"><h3>Thời gian</h3><div class="seg" role="tablist" aria-label="Thời gian làm bài"><button type="button" role="tab" data-min="60" aria-selected="' + (min === 60) + '">60 phút</button><button type="button" role="tab" data-min="75" aria-selected="' + (min === 75) + '">75 phút</button></div><p class="note" style="margin-top:-8px">75 phút áp dụng khi thi bằng ngôn ngữ không phải tiếng mẹ đẻ, ví dụ bạn thi bằng tiếng Anh.</p></div>';
+    h += '<div class="sec"><h3>Chọn đề</h3><div class="sets"><button type="button" class="setcard" data-set="0"><b>Đề ngẫu nhiên</b><span>Rút lại câu hỏi mỗi lần thi</span></button>';
+    for (let k = 1; k <= SET_N; k++) h += '<button type="button" class="setcard" data-set="' + k + '"><b>' + setName(k) + '</b><span>Cố định 40 câu, không trùng với các đề cố định khác</span>' + (best[k] != null ? '<span class="best">Tốt nhất ' + best[k] + '/40</span>' : '<span>Chưa làm</span>') + '</button>';
+    h += '</div><p class="note">Gợi ý: làm lần lượt Đề 1, 2, 3 để gặp hết ngân hàng câu hỏi; dùng đề ngẫu nhiên để ôn lại.</p></div>';
+    if (S.mockHist.length) h += '<div class="sec"><h3>Các lần thi gần đây</h3><div class="tbl-wrap"><table class="res"><tr><th>Thời điểm</th><th>Đề</th><th>Điểm</th><th>Kết quả</th></tr>' + S.mockHist.slice().reverse().map(r => '<tr><td>' + r.at + '</td><td>' + setName(r.set) + '</td><td class="num">' + r.score + '/40</td><td>' + (r.score >= 26 ? 'Đạt' : 'Chưa đạt') + '</td></tr>').join('') + '</table></div></div>';
+    $('view').innerHTML = h;
+    $('view').querySelectorAll('[data-min]').forEach(b => b.onclick = () => { S.mockMin = +b.dataset.min; save(); renderMock(); });
+    $('view').querySelectorAll('.setcard').forEach(b => b.onclick = () => startMock(min, +b.dataset.set));
+    return;
+  }
+  if (mock.done) return renderMockResult();
+  const id = mock.ids[mock.i], q = Q(id), answered = Object.keys(mock.picks).length;
+  let h = '<div class="actions" style="margin:0 0 12px"><h2 class="h-title" style="margin:0">Thi thử · ' + setName(mock.set) + '</h2><span class="spacer"></span><span class="note">Đã trả lời ' + answered + '/40</span><span class="timer" id="timer">' + fmt(mock.end - Date.now()) + '</span></div>';
+  h += '<div class="qnav">' + mock.ids.map((x, j) => '<button type="button" class="qdot' + (mock.picks[x] != null ? ' ans' : '') + (mock.flags[x] ? ' flag' : '') + '" data-j="' + j + '"' + (j === mock.i ? ' aria-current="true"' : '') + ' aria-label="Câu ' + (j+1) + '">' + (j+1) + '</button>').join('') + '</div>';
+  h += '<div class="card"><div class="qmeta"><span class="chip acc">Câu ' + (mock.i + 1) + '/40</span><span class="chip">' + q.k + '</span></div><div class="qtext">' + q.q + '</div>' + optHTML(q, mock.picks[id], false, true);
+  h += '<div class="actions"><button type="button" class="btn" id="mPrev"' + (mock.i === 0 ? ' disabled' : '') + '>Câu trước</button><button type="button" class="btn" id="mFlag">' + (mock.flags[id] ? 'Bỏ đánh dấu' : 'Đánh dấu xem lại') + '</button><span class="spacer"></span><button type="button" class="btn primary" id="mNext"' + (mock.i === 39 ? ' disabled' : '') + '>Câu tiếp</button></div></div>';
+  h += '<div class="actions">' + (mock.confirm
+    ? '<div class="confirm"><span>Nộp bài? Còn ' + (40 - answered) + ' câu chưa trả lời (câu bỏ trống tính 0 điểm).</span><button type="button" class="btn primary" id="mSubmit2">Nộp bài</button><button type="button" class="btn" id="mCancel">Làm tiếp</button></div>'
+    : '<button type="button" class="btn" id="mSubmit">Nộp bài</button>') + '<span class="spacer"></span><button type="button" class="btn" id="mQuit">Hủy bài thi</button></div>';
+  $('view').innerHTML = h;
+  const setI = j => { mock.i = j; renderMock(); };
+  $('view').querySelectorAll('.qdot').forEach(b => b.onclick = () => setI(+b.dataset.j));
+  $('view').querySelectorAll('.opt').forEach(b => b.onclick = () => { mock.picks[id] = +b.dataset.oi; renderMock(); });
+  $('mPrev').onclick = () => setI(mock.i - 1); $('mNext').onclick = () => setI(mock.i + 1);
+  $('mFlag').onclick = () => { mock.flags[id] = !mock.flags[id]; renderMock(); };
+  const s1 = $('mSubmit'); if (s1) s1.onclick = () => { mock.confirm = true; renderMock(); };
+  const s2 = $('mSubmit2'); if (s2) s2.onclick = finishMock;
+  const cc = $('mCancel'); if (cc) cc.onclick = () => { mock.confirm = false; renderMock(); };
+  $('mQuit').onclick = () => { if (mock.quit){ clearInterval(tick); mock = null; renderMock(); } else { mock.quit = true; $('mQuit').textContent = 'Bấm lần nữa để hủy (không lưu điểm)'; } };
+}
+function renderMockResult(){
+  const pass = mock.score >= 26;
+  let h = '<div class="eyebrow">Kết quả thi thử · ' + setName(mock.set) + '</div><div class="actions" style="margin:0 0 6px"><span class="result-big">' + mock.score + '/40</span><span class="pass-tag ' + (pass ? 'ok' : 'no') + '">' + (pass ? 'Đạt' : 'Chưa đạt') + '</span></div>';
+  h += '<p class="h-sub">Điểm đạt là 26/40. ' + (pass ? (mock.score >= 30 ? 'Kết quả tốt. Nếu ổn định ở mức này, hãy làm đề chính thức A.' : 'Đạt nhưng sát ngưỡng. Ôn lại các chương có tỉ lệ thấp bên dưới.') : 'Xem chương nào sai nhiều nhất, đọc lại lý thuyết và làm lại câu hỏi của chương đó.') + '</p>';
+  h += '<div class="sec"><h3>Theo chương</h3><div class="tbl-wrap"><table class="res"><tr><th>Chương</th><th>Đúng</th><th style="width:40%">Tỉ lệ</th></tr>' + CHAPTERS.map(c => {
+    const ids = mock.ids.filter(id => Q(id).ch === c.ch), ok = ids.filter(id => mock.picks[id] === Q(id).a).length, pct = Math.round(ok / ids.length * 100);
+    return '<tr><td>' + c.ch + '. ' + esc(c.name) + '</td><td class="num">' + ok + '/' + ids.length + '</td><td><div class="meter"><i style="width:' + pct + '%"></i></div></td></tr>';
+  }).join('') + '</table></div></div>';
+  const wrong = mock.ids.filter(id => mock.picks[id] !== Q(id).a);
+  h += '<div class="sec"><h3>Xem lại ' + wrong.length + ' câu sai hoặc bỏ trống</h3><div class="stack">' + (wrong.length ? wrong.map(id => {
+    const q = Q(id), p = mock.picks[id];
+    return '<div class="rv">' + qHead(q) + '<div class="qtext">' + q.q + '</div>' + optHTML(q, p, true, false) + (p == null ? '<p class="note">Bạn bỏ trống câu này.</p>' : '') + '</div>';
+  }).join('') : '<p class="note">Không có câu sai nào.</p>') + '</div></div>';
+  h += '<div class="actions"><button type="button" class="btn primary" id="again">' + (mock.set ? 'Làm lại ' + setName(mock.set) : 'Thi lại đề khác') + '</button>' + (mock.set && mock.set < SET_N ? '<button type="button" class="btn" id="nextSet">Làm ' + setName(mock.set + 1) + '</button>' : '') + '<button type="button" class="btn" id="back">Về trang thi thử</button></div>';
+  $('view').innerHTML = h;
+  $('again').onclick = () => startMock(mock.minutes, mock.set);
+  const ns = $('nextSet'); if (ns) ns.onclick = () => startMock(mock.minutes, mock.set + 1);
+  $('back').onclick = () => { mock = null; renderMock(); };
+}
+
+/* ===================== Giao diện ===================== */
+$('themeBtn').onclick = () => {
+  const root = document.documentElement;
+  const dark = root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+  root.dataset.theme = dark ? 'light' : 'dark';
+  try { localStorage.setItem('istqb.theme', root.dataset.theme); } catch(e) {}
+};
+try { const th = localStorage.getItem('istqb.theme'); if (th) document.documentElement.dataset.theme = th; } catch(e) {}
+
+renderNav(); render();
+</script>
+
+</html>

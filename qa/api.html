@@ -1,0 +1,1910 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><script>(function(){var e=false;try{e=window.top!==window}catch(x){e=true}if(e)document.documentElement.classList.add("embedded")})()</script><style>html.embedded nav.switch{display:none!important}</style>
+<title>Luyện test API</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: cùng bộ với các bài luyện khác — danh sách bài bên trái, đề bài ở giữa, "mini Postman" bên phải (form request hoặc editor test script). */
+:root{
+  --bg:#f8f4f6; --surface:#ffffff; --sunken:#f1e9ed; --ink:#22161c; --muted:#6b5a63; --line:#e6d9df;
+  --accent:#c2185b; --accent-ink:#ffffff; --accent-soft:#fce4ec;
+  --pass:#1d7a46; --pass-soft:#e1f3e7; --fail:#b3261e; --fail-soft:#fbe7e5; --warn:#8a5a00; --warn-soft:#fbf0d6;
+  --get:#1f5fae; --post:#1d7a46; --put:#8a5a00; --del:#b3261e;
+  --code-bg:#fbf8f9; --kw:#ad1457; --str:#9a4b00; --num:#1f5fae; --cmt:#868296;
+  --f-display:"Be Vietnam Pro", "Segoe UI", system-ui, sans-serif;
+  --f-body:"Inter", "Segoe UI", system-ui, sans-serif;
+  --f-mono:"JetBrains Mono", Consolas, "Courier New", monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#151013; --surface:#1d161a; --sunken:#100c0e; --ink:#efe6ea; --muted:#ab99a2; --line:#352a30;
+  --accent:#f48fb1; --accent-ink:#2a0a17; --accent-soft:#3d1a29;
+  --pass:#5fd08e; --pass-soft:#163322; --fail:#ff8a80; --fail-soft:#3a1a18; --warn:#f0c35a; --warn-soft:#352a12;
+  --get:#8db8f2; --post:#5fd08e; --put:#f0c35a; --del:#ff8a80;
+  --code-bg:#171114; --kw:#f8a5c2; --str:#f0b070; --num:#8db8f2; --cmt:#7a768a; color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#151013; --surface:#1d161a; --sunken:#100c0e; --ink:#efe6ea; --muted:#ab99a2; --line:#352a30;
+  --accent:#f48fb1; --accent-ink:#2a0a17; --accent-soft:#3d1a29;
+  --pass:#5fd08e; --pass-soft:#163322; --fail:#ff8a80; --fail-soft:#3a1a18; --warn:#f0c35a; --warn-soft:#352a12;
+  --get:#8db8f2; --post:#5fd08e; --put:#f0c35a; --del:#ff8a80;
+  --code-bg:#171114; --kw:#f8a5c2; --str:#f0b070; --num:#8db8f2; --cmt:#7a768a; color-scheme:dark;
+}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:14px;line-height:1.55;display:flex;flex-direction:column}
+*{box-sizing:border-box}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0}
+code,pre,textarea,input,select{font-family:var(--f-mono)}
+code{font-size:.9em;background:var(--sunken);padding:1px 5px;border-radius:4px}
+button{font:inherit;cursor:pointer;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.top{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding-block:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));border-bottom:1px solid var(--line);background:var(--surface)}
+.brand{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;min-width:0}
+.brand h1{font-size:18px;font-weight:700;letter-spacing:-.01em}
+.brand h1 span{color:var(--accent)}
+.brand p{margin:0;color:var(--muted);font-size:12.5px}
+.switch{display:flex;gap:2px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:2px;background:var(--bg);flex-wrap:wrap}
+.sw{padding:4px 12px;border-radius:6px;font-size:12.5px;font-weight:500;text-decoration:none;color:var(--muted);white-space:nowrap}
+a.sw:hover{background:var(--sunken);color:var(--ink)}
+.sw.cur{background:var(--accent);color:var(--accent-ink)}
+.progress{margin-left:auto;display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--muted)}
+.bar{width:120px;height:6px;border-radius:3px;background:var(--sunken);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);width:0;transition:width .3s}
+.theme-btn{border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:6px;padding:4px 8px;font-size:12px}
+
+.app{flex:1;min-height:0;display:grid;grid-template-columns:240px minmax(0,1fr) minmax(0,1.2fr)}
+.pane{min-height:0;overflow:auto}
+.queue{border-right:1px solid var(--line);background:var(--surface);padding:12px 10px 24px}
+.phase{margin-bottom:14px}
+.phase h2{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:4px 8px 6px}
+.qitem{display:grid;grid-template-columns:18px 1fr;gap:8px;align-items:start;width:100%;text-align:left;border:0;background:transparent;padding:7px 8px;border-radius:6px}
+.qitem:hover{background:var(--sunken)}
+.qitem[aria-current="true"]{background:var(--accent-soft)}
+.qitem .dot{width:14px;height:14px;margin-top:3px;border-radius:50%;border:1.5px solid var(--line)}
+.qitem.done .dot{background:var(--pass);border-color:var(--pass)}
+.qitem .k{font-family:var(--f-mono);font-size:11px;color:var(--muted);display:block}
+.qitem .s{font-family:var(--f-mono);font-size:12.5px;font-weight:500;color:var(--accent);display:block;line-height:1.35;margin-bottom:2px}
+.qitem .t{font-size:12.5px;line-height:1.35;display:block;color:var(--muted)}
+
+.ticket{padding:20px 24px 40px;border-right:1px solid var(--line)}
+.tk-head{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:8px}
+.tk-key{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.chip{font-size:11.5px;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--sunken);color:var(--muted)}
+.chip.req{background:var(--accent-soft);color:var(--accent)}
+.chip.bug{background:var(--fail-soft);color:var(--fail)}
+.chip.auto{background:var(--pass-soft);color:var(--pass)}
+.ticket h2.title{font-size:21px;font-weight:700;line-height:1.3;margin-bottom:2px}
+.subtitle{font-size:15px;color:var(--muted);margin:0 0 10px;font-weight:500}
+.practice{display:inline-flex;gap:8px;align-items:baseline;flex-wrap:wrap;background:var(--accent-soft);border-radius:8px;padding:6px 12px;margin-bottom:12px;font-size:13.5px}
+.practice b{color:var(--accent);font-weight:600}
+.practice code{background:transparent;padding:0;font-weight:500}
+.meta{font-size:12.5px;color:var(--muted);margin-bottom:18px;display:flex;gap:14px;flex-wrap:wrap}
+.field{margin-bottom:18px;max-width:70ch}
+.field h3{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.field p,.field ul,.field ol{margin:0 0 8px}
+.field ul,.field ol{padding-left:20px}
+.expect{border:1px dashed var(--line);border-radius:8px;padding:10px 12px;background:var(--surface)}
+.lesson{display:flex;flex-direction:column;gap:8px}
+.kw{border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+.kw summary{cursor:pointer;padding:8px 12px;font-weight:600}
+.kw summary code{background:transparent;padding:0;color:var(--accent);font-size:13px}
+.kw-body{padding:0 12px 12px;display:flex;flex-direction:column;gap:6px}
+.kw-body p{margin:0}
+.kw-label{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-top:4px}
+.kw-note{font-size:13px;color:var(--muted)}
+.kw-note b{color:var(--ink)}
+pre.syn{margin:0;background:var(--code-bg);border:1px solid var(--line);border-radius:6px;padding:8px 10px;overflow-x:auto;font-size:12.5px;line-height:1.55;white-space:pre}
+.hints{display:flex;flex-direction:column;gap:8px}
+.hint{background:var(--warn-soft);border-radius:8px;padding:8px 12px;font-size:13.5px}
+.hint b{color:var(--warn);font-weight:600;margin-right:4px}
+.linkbtn{border:0;background:none;color:var(--accent);font-weight:600;padding:0;font-size:13px}
+.linkbtn:disabled{color:var(--muted);cursor:default}
+.qc{border-radius:8px;padding:12px 14px;background:var(--accent-soft);max-width:70ch}
+.qc h3{color:var(--accent)}
+
+.work{display:flex;flex-direction:column;min-height:0;overflow:hidden;background:var(--surface)}
+.toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:10px 14px;border-bottom:1px solid var(--line)}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:7px;padding:6px 12px;font-weight:500;font-size:13px}
+.btn:hover{background:var(--sunken)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn:disabled{opacity:.55;cursor:default}
+.kbd{font-size:11.5px;color:var(--muted);margin-left:auto}
+.reqform{display:flex;flex-direction:column;gap:8px;padding:12px 14px;border-bottom:1px solid var(--line);background:var(--code-bg);flex:0 0 auto}
+.urlrow{display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px;align-items:center}
+.urlrow select,.urlrow input,.reqform textarea,.toolbar select{border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink);font-size:13px;padding:6px 8px}
+.urlrow select{font-weight:600}
+.base{font-family:var(--f-mono);font-size:11.5px;color:var(--muted)}
+.reqform label{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);display:flex;justify-content:space-between;gap:8px}
+.reqform textarea{width:100%;resize:vertical;min-height:58px;line-height:1.5}
+#rqBody{min-height:96px}
+.editor-wrap{position:relative;flex:0 0 46%;min-height:200px;border-bottom:1px solid var(--line);background:var(--code-bg)}
+.editor-wrap pre,.editor-wrap textarea{position:absolute;inset:0;margin:0;padding:12px 14px;font-size:13px;line-height:1.6;white-space:pre-wrap;word-wrap:break-word;overflow:auto;tab-size:2}
+.editor-wrap pre{pointer-events:none;color:var(--ink)}
+.editor-wrap textarea{border:0;resize:none;background:transparent;color:transparent;caret-color:var(--ink);outline:none}
+.editor-wrap textarea::selection{background:var(--accent-soft);color:var(--ink);-webkit-text-fill-color:var(--ink)}
+.hl-k{color:var(--kw);font-weight:500}.hl-s{color:var(--str)}.hl-n{color:var(--num)}.hl-c{color:var(--cmt);font-style:italic}
+.tabs{display:flex;gap:2px;padding:0 10px;border-bottom:1px solid var(--line);overflow-x:auto}
+.tab{border:0;background:none;padding:9px 10px;color:var(--muted);font-size:13px;font-weight:500;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.tab .badge{font-size:11px;margin-left:4px;padding:0 6px;border-radius:999px;background:var(--sunken)}
+.tab .badge.pass{background:var(--pass-soft);color:var(--pass)}.tab .badge.fail{background:var(--fail-soft);color:var(--fail)}
+.out{flex:1;min-height:0;overflow:auto;padding:12px 14px 24px}
+.msg{font-size:13px;color:var(--muted);margin:0 0 10px}
+.msg.err{color:var(--fail);background:var(--fail-soft);padding:8px 12px;border-radius:8px;font-family:var(--f-mono);font-size:12.5px;white-space:pre-wrap}
+.status{display:flex;gap:12px;align-items:baseline;flex-wrap:wrap;margin-bottom:10px;font-size:13px}
+.st{font-family:var(--f-mono);font-weight:600;padding:2px 8px;border-radius:6px}
+.st.s2{background:var(--pass-soft);color:var(--pass)}.st.s4{background:var(--warn-soft);color:var(--warn)}.st.s5{background:var(--fail-soft);color:var(--fail)}
+.json{margin:0;background:var(--code-bg);border:1px solid var(--line);border-radius:8px;padding:10px 12px;overflow-x:auto;font-size:12.5px;line-height:1.55;white-space:pre}
+.hdrs{font-family:var(--f-mono);font-size:12px;color:var(--muted);margin:0 0 10px;white-space:pre-wrap;word-break:break-all}
+.m{font-family:var(--f-mono);font-weight:600;font-size:12px}
+.m.GET{color:var(--get)}.m.POST{color:var(--post)}.m.PUT,.m.PATCH{color:var(--put)}.m.DELETE{color:var(--del)}
+.hist{display:flex;flex-direction:column;gap:6px}
+.hrow{display:grid;grid-template-columns:56px minmax(0,1fr) auto auto;gap:8px;align-items:center;width:100%;text-align:left;border:1px solid var(--line);border-radius:7px;background:var(--surface);padding:6px 10px;font-size:12.5px}
+.hrow:hover{background:var(--sunken)}
+.hrow .p{font-family:var(--f-mono);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hrow .ms{color:var(--muted);font-family:var(--f-mono);font-size:11.5px}
+.checks{list-style:none;padding:0;margin:0 0 14px;display:flex;flex-direction:column;gap:6px}
+.checks li{display:grid;grid-template-columns:22px 1fr;gap:6px;align-items:start;font-size:13.5px}
+.checks .ic{width:18px;height:18px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:700;margin-top:1px}
+.checks .ok .ic{background:var(--pass-soft);color:var(--pass)}
+.checks .no .ic{background:var(--fail-soft);color:var(--fail)}
+.verdict{border-radius:8px;padding:10px 14px;margin-bottom:12px;font-weight:600}
+.verdict.pass{background:var(--pass-soft);color:var(--pass)}
+.verdict.fail{background:var(--fail-soft);color:var(--fail)}
+.tres{list-style:none;padding:0;margin:0 0 12px;display:flex;flex-direction:column;gap:4px;font-size:13px}
+.tres li{display:grid;grid-template-columns:18px 1fr;gap:6px}
+.tres .ok{color:var(--pass)} .tres .no{color:var(--fail)}
+.tres small{display:block;color:var(--muted);font-family:var(--f-mono);font-size:11.5px}
+.build{font-size:12px;font-weight:600;margin:12px 0 6px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.doc-ep{border:1px solid var(--line);border-radius:8px;margin-bottom:10px;background:var(--surface)}
+.doc-ep summary{cursor:pointer;padding:8px 12px;display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.doc-ep summary .p{font-family:var(--f-mono);font-size:13px}
+.doc-ep summary span.d{color:var(--muted);font-size:12.5px}
+.doc-body{padding:0 12px 12px;font-size:13px;display:flex;flex-direction:column;gap:6px}
+.doc-body ul{margin:0;padding-left:18px}
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:8px;max-width:100%}
+table.res{border-collapse:collapse;font-size:12.5px;min-width:100%}
+table.res th,table.res td{padding:5px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+table.res th{background:var(--sunken);font-weight:600}
+table.res tr:last-child td{border-bottom:0}
+
+/* Buổi học, tiêu chí đạt, collection runner, REST Assured, trắc nghiệm, đối chiếu DB */
+.phase h2{display:flex;flex-direction:column;gap:1px}
+.phase h2 .bu{color:var(--accent);letter-spacing:.04em;font-size:10.5px}
+.crit-btn{display:flex;justify-content:space-between;align-items:center;gap:8px;width:100%;border:1px solid var(--line);background:var(--bg);border-radius:8px;padding:8px 10px;margin-bottom:14px;font-size:12.5px;font-weight:600;text-align:left}
+.crit-btn:hover{background:var(--sunken)}
+.crit-btn[aria-current="true"]{background:var(--accent-soft);border-color:var(--accent)}
+.crit-btn .n{font-family:var(--f-mono);font-weight:500;color:var(--muted);font-variant-numeric:tabular-nums}
+.chip.buoi{background:transparent;border:1px solid var(--line);color:var(--ink)}
+.crit-sec{border:1px solid var(--line);border-radius:10px;background:var(--surface);padding:14px 16px 8px;margin-bottom:16px;max-width:76ch}
+.crit-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:6px}
+.crit-head h3{font-size:16px;font-weight:700}
+.crit-head .eyebrow{display:block;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:2px}
+.crit-pct{display:flex;align-items:center;gap:8px;font-family:var(--f-mono);font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.crit-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 12px;padding:10px 0;border-top:1px solid var(--line);align-items:start}
+.crit-row .lbl{font-size:13.5px;font-weight:500}
+.crit-row .src{grid-column:1/-1;display:flex;gap:6px;flex-wrap:wrap}
+.tk-link{border:1px solid var(--line);background:var(--bg);border-radius:6px;padding:1px 8px;font-family:var(--f-mono);font-size:11.5px}
+.tk-link:hover{background:var(--sunken)}
+.tk-link.ok{background:var(--pass-soft);color:var(--pass);border-color:transparent}
+.pill{font-size:11.5px;font-weight:600;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:var(--pass-soft);color:var(--pass)}.pill.part{background:var(--warn-soft);color:var(--warn)}.pill.no{background:var(--sunken);color:var(--muted)}
+.crit-sub{font-size:13px;color:var(--muted);margin:8px 0 6px;padding-top:8px;border-top:1px solid var(--line)}
+.nm-req{margin-bottom:12px;padding-bottom:10px;border-bottom:1px dashed var(--line)}
+.nm-name{font-weight:600;font-size:13.5px;margin-bottom:2px}
+.nm-req .ln{display:flex;gap:8px;flex-wrap:wrap;align-items:baseline;font-size:12.5px;margin-bottom:6px}
+.nm-req .ln .p{font-family:var(--f-mono);word-break:break-all}
+.nm-req .ms{color:var(--muted);font-family:var(--f-mono);font-size:11.5px}
+.tres .wn{color:var(--warn)}
+.quiz{display:flex;flex-direction:column;gap:14px;padding:12px 14px 20px}
+.qz{border:1px solid var(--line);border-radius:8px;padding:12px;background:var(--surface)}
+.qz h4{margin:0 0 8px;font-family:var(--f-display);font-size:14px;font-weight:600;line-height:1.45}
+.qz .opts{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.qz label{display:grid;grid-template-columns:18px minmax(0,1fr);gap:8px;align-items:start;border:1px solid var(--line);border-radius:7px;padding:7px 10px;cursor:pointer;font-size:13.5px}
+.qz label:hover{background:var(--sunken)}
+.qz label input{margin:3px 0 0}
+.qz label.right{background:var(--pass-soft);border-color:transparent}
+.qz label.wrong{background:var(--fail-soft);border-color:transparent}
+.qz .why{margin-top:8px;font-size:13px;padding:8px 10px;border-radius:7px;background:var(--sunken)}
+.sqlbox{display:flex;flex-direction:column;gap:8px;padding:12px 14px;border-bottom:1px solid var(--line);background:var(--code-bg)}
+.sqlbox label{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);display:flex;justify-content:space-between;gap:8px}
+.sqlbox textarea,.sqlbox select,#envIn{border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink);font-size:13px;padding:6px 8px;width:100%}
+.sqlbox textarea{resize:vertical;min-height:96px;line-height:1.5}
+#envIn{resize:vertical;min-height:84px;line-height:1.5}
+.work.mode-quiz #workspace{flex:1.4 1 0;min-height:0;overflow:auto}
+.work.mode-db #workspace{flex:0 1 auto;max-height:62%;overflow:auto}
+.work.mode-code .editor-wrap,.work.mode-collection .editor-wrap{min-height:280px}
+.field code,.qz code,.msg code,.why code,.kw-note code{overflow-wrap:anywhere}
+.tres li > span:last-child{min-width:0;overflow-wrap:anywhere}
+
+@media (max-width:1100px){
+  .app{grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);grid-template-rows:auto minmax(0,1fr)}
+  .queue{grid-column:1/-1;border-right:0;border-bottom:1px solid var(--line);display:flex;gap:4px;overflow-x:auto;padding:8px 10px}
+  .phase{display:contents}
+  .phase h2{display:none}
+  .qitem{flex:0 0 auto;width:auto;grid-template-columns:14px auto}
+  .qitem .t{display:none}
+  .qitem .s{white-space:nowrap;margin-bottom:0}
+}
+@media (max-width:760px){
+  html,body{height:auto}
+  .app{display:block}
+  .pane{overflow:visible}
+  .queue{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;overflow-x:auto}
+  .ticket{border-right:0;padding:16px max(16px,env(safe-area-inset-right,0px)) 20px max(16px,env(safe-area-inset-left,0px))}
+  .work{overflow:visible;border-top:1px solid var(--line)}
+  .editor-wrap{flex:none;height:280px}
+  .out{overflow:visible;min-height:200px}
+  .kbd{display:none}
+  .bar{width:70px}
+  .work.mode-quiz #workspace,.work.mode-db #workspace{flex:none;max-height:none;overflow:visible}
+  .crit-btn{flex:0 0 auto;width:auto;margin:0}
+}
+@media (max-width:1100px){ .crit-btn{flex:0 0 auto;width:auto;margin:0;white-space:nowrap} }
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<header class="top">
+  <div class="brand">
+    <h1>Luyện <span>test API</span></h1>
+    <p>Buổi 11–12 · Postman &amp; Newman · REST Assured · Đối chiếu API với DB</p>
+  </div>
+  <nav class="switch" aria-label="Chuyển bài luyện">
+    <a class="sw" href="https://claude.ai/artifact/JaoKpmEcfkpAuEXorgS3pS" target="_blank" rel="noopener">Trang chủ</a>
+    <a class="sw" href="https://claude.ai/artifact/2kvvuqBZQFg8RipuUKwpPe" target="_blank" rel="noopener">Luyện SQL</a>
+    <a class="sw" href="https://claude.ai/artifact/UEyyLXfD54P1DxKUjVyGEN" target="_blank" rel="noopener">Luyện Java</a>
+    <a class="sw" href="https://claude.ai/artifact/BnjTWDD4PMrHT31KFUc7vQ" target="_blank" rel="noopener">Luyện ISTQB</a>
+    <a class="sw cur" aria-current="page">Luyện test API</a>
+  </nav>
+  <div class="progress"><span id="progText">0/18 bài</span><div class="bar"><i id="progBar"></i></div>
+    <button class="theme-btn" id="themeBtn" type="button" aria-label="Đổi giao diện sáng/tối">Sáng/Tối</button></div>
+</header>
+
+<div class="app">
+  <nav class="pane queue" id="queue" aria-label="Danh sách bài"></nav>
+  <article class="pane ticket" id="ticket"></article>
+  <section class="work" aria-label="Công cụ gửi request">
+    <div class="toolbar" id="toolbar"></div>
+    <div id="workspace"></div>
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" data-tab="resp" aria-selected="true" type="button">Phản hồi</button>
+      <button class="tab" role="tab" data-tab="hist" aria-selected="false" type="button">Lịch sử</button>
+      <button class="tab" role="tab" data-tab="grade" aria-selected="false" type="button">Chấm bài <span class="badge" id="gradeBadge" hidden></span></button>
+      <button class="tab" role="tab" data-tab="docs" aria-selected="false" type="button">Tài liệu API</button>
+    </div>
+    <div class="out" id="out-resp"></div>
+    <div class="out" id="out-hist" hidden></div>
+    <div class="out" id="out-grade" hidden></div>
+    <div class="out" id="out-docs" hidden></div>
+  </section>
+</div>
+
+<script>
+/* ===================== API ShopDemo mô phỏng ===================== */
+const BASE = 'https://api.shopdemo.test/v1';
+const PRODUCTS = [
+  { id:1, sku:'TS-001', name:'Áo thun basic trắng', category:'ao', price:149000, stock:120 },
+  { id:2, sku:'TS-002', name:'Áo thun basic đen', category:'ao', price:149000, stock:0 },
+  { id:3, sku:'JN-010', name:'Quần jeans slim', category:'quan', price:459000, stock:35 },
+  { id:4, sku:'SN-021', name:'Giày sneaker canvas', category:'giay', price:699000, stock:8 },
+  { id:5, sku:'BG-005', name:'Balo laptop 15 inch', category:'phu-kien', price:389000, stock:18 },
+  { id:6, sku:'CP-100', name:'Mũ lưỡi trai', category:'phu-kien', price:99000, stock:60 },
+  { id:7, sku:'SM-200', name:'Sơ mi oxford', category:'ao', price:329000, stock:25 },
+];
+const USERS = [
+  { id:1, email:'an.nguyen@shopdemo.test', password:'Test@1234', full_name:'Nguyễn Văn An', token:'eyJhbGciOiJIUzI1NiJ9.dWlkOjE.an_k7Qw2' },
+  { id:2, email:'binh.tran@shopdemo.test', password:'Test@1234', full_name:'Trần Thị Bình', token:'eyJhbGciOiJIUzI1NiJ9.dWlkOjI.binh_P9x4' },
+];
+const VOUCHERS = { SALE10:10 };
+const SEED_ORDERS = [
+  { id:101, code:'DH-2001', customer_id:1, status:'delivered', items:[{ product_id:1, name:'Áo thun basic trắng', qty:2, unit_price:149000 }], discount_amount:0, total_amount:298000, created_at:'2026-11-02T02:15:00Z' },
+  { id:102, code:'DH-2002', customer_id:2, status:'delivered', items:[{ product_id:3, name:'Quần jeans slim', qty:1, unit_price:459000 }], discount_amount:45900, total_amount:413100, created_at:'2026-11-03T07:40:00Z' },
+  { id:103, code:'DH-2003', customer_id:1, status:'paid', items:[{ product_id:5, name:'Balo laptop 15 inch', qty:1, unit_price:389000 }], discount_amount:0, total_amount:389000, created_at:'2026-11-05T13:20:00Z' },
+];
+/* Bug của build v1.0 (bản đang test). Build v1.1 đã sửa hết. */
+const BUGS_V10 = ['qtyZero', 'register500', 'noAuth403', 'idor', 'idempotency'];
+const clone = x => JSON.parse(JSON.stringify(x));
+
+/* hooks (tùy chọn): báo cho DB giả lập khi API ghi dữ liệu, dùng ở bài đối chiếu API ↔ DB. */
+function makeServer(bugs, hooks){
+  const B = new Set(bugs || []), HK = hooks || {};
+  const st = { orders: clone(SEED_ORDERS), nextId: 104, idem: {}, users: clone(USERS).map(u => ({ id:u.id, email:u.email, password:u.password, full_name:u.full_name, token:u.token })), nextUser: 3, seq: 0 };
+  const J = (status, body, extra) => ({ status, headers: Object.assign({ 'content-type': B.has('htmlType') ? 'text/html; charset=utf-8' : 'application/json; charset=utf-8', 'x-request-id': 'req_' + (++st.seq).toString(36).padStart(5, '0') }, extra || {}), body });
+  const E = (status, code, message, field) => J(status, { error: Object.assign({ code, message }, field ? { field } : {}) });
+  const authUser = h => { const a = h['authorization'] || ''; const m = a.match(/^Bearer\s+(.+)$/i); return m ? st.users.find(u => u.token === m[1].trim()) : null; };
+  const pub = p => {
+    const o = { id:p.id, sku:p.sku, name:p.name, category:p.category, price:p.price, stock:p.stock };
+    if (B.has('priceString')) o.price = String(o.price);
+    if (B.has('negativeStock') && p.id === 4) o.stock = -2;
+    if (B.has('missingName') && p.id === 1) delete o.name;
+    return o;
+  };
+  function route(req){
+    const { method, path, query, headers } = req;
+    let body = null;
+    if (req.bodyText && req.bodyText.trim()){
+      try { body = JSON.parse(req.bodyText); } catch(e){ return E(400, 'INVALID_JSON', 'Body không phải JSON hợp lệ: ' + e.message); }
+    }
+    const seg = path.replace(/\/+$/, '').split('/').filter(Boolean);
+    const allow = (list) => list.includes(method) ? null : J(405, { error:{ code:'METHOD_NOT_ALLOWED', message:'Phương thức ' + method + ' không được hỗ trợ cho ' + path } }, { allow: list.join(', ') });
+
+    if (seg[0] === 'products' && seg.length === 1){
+      const na = allow(['GET']); if (na) return na;
+      let list = PRODUCTS.slice();
+      if (query.category) list = list.filter(p => p.category === query.category);
+      if (query.sort){
+        if (!['price', '-price', 'name'].includes(query.sort)) return E(400, 'VALIDATION_ERROR', 'sort chỉ nhận price, -price, name', 'sort');
+        const k = query.sort.replace('-', ''), dir = query.sort.startsWith('-') ? -1 : 1;
+        list.sort((a, b) => (a[k] > b[k] ? 1 : a[k] < b[k] ? -1 : a.id - b.id) * dir);
+      }
+      const page = query.page ? +query.page : 1, limit = query.limit ? +query.limit : 20;
+      if (!Number.isInteger(page) || page < 1) return E(400, 'VALIDATION_ERROR', 'page phải là số nguyên ≥ 1', 'page');
+      if (!Number.isInteger(limit) || limit < 1 || limit > 50) return E(400, 'VALIDATION_ERROR', 'limit phải từ 1 đến 50', 'limit');
+      return J(200, { data: list.slice((page - 1) * limit, page * limit).map(pub), page, limit, total: list.length });
+    }
+    if (seg[0] === 'products' && seg.length === 2){
+      const na = allow(['GET']); if (na) return na;
+      if (!/^\d+$/.test(seg[1])) return E(400, 'INVALID_ID', 'id sản phẩm phải là số nguyên dương');
+      let id = +seg[1];
+      if (B.has('wrongId') && id === 1) id = 2;
+      const p = PRODUCTS.find(x => x.id === id);
+      if (!p) return E(404, 'PRODUCT_NOT_FOUND', 'Không tìm thấy sản phẩm ' + seg[1]);
+      return J(200, pub(p));
+    }
+    if (seg[0] === 'auth' && seg[1] === 'login' && seg.length === 2){
+      const na = allow(['POST']); if (na) return na;
+      if (!body || !body.email || !body.password) return E(400, 'VALIDATION_ERROR', 'Cần email và password', !body || !body.email ? 'email' : 'password');
+      const u = st.users.find(x => x.email.toLowerCase() === String(body.email).trim().toLowerCase() && x.password === body.password);
+      if (!u) return E(401, 'INVALID_CREDENTIALS', 'Email hoặc mật khẩu không đúng');
+      return J(200, { access_token: u.token, token_type:'Bearer', expires_in:3600, user:{ id:u.id, email:u.email, full_name:u.full_name } });
+    }
+    if (seg[0] === 'me' && seg.length === 1){
+      const na = allow(['GET']); if (na) return na;
+      const u = authUser(headers);
+      if (!u) return E(401, 'UNAUTHORIZED', 'Thiếu hoặc sai access token');
+      return J(200, { id:u.id, email:u.email, full_name:u.full_name });
+    }
+    if (seg[0] === 'users' && seg.length === 1){
+      const na = allow(['POST']); if (na) return na;
+      const b = body || {};
+      if (B.has('register500') && b.email === undefined) return E(500, 'INTERNAL_ERROR', "TypeError: Cannot read properties of undefined (reading 'toLowerCase') at UserService.register (user.service.js:42:31)");
+      if (!b.email) return E(400, 'VALIDATION_ERROR', 'email là bắt buộc', 'email');
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(b.email).trim())) return E(400, 'VALIDATION_ERROR', 'email không đúng định dạng', 'email');
+      if (!b.password || String(b.password).length < 8) return E(400, 'VALIDATION_ERROR', 'password phải có ít nhất 8 ký tự', 'password');
+      if (!b.full_name || !String(b.full_name).trim()) return E(400, 'VALIDATION_ERROR', 'full_name là bắt buộc', 'full_name');
+      const email = String(b.email).trim().toLowerCase();
+      if (st.users.some(u => u.email.toLowerCase() === email)) return E(409, 'EMAIL_EXISTS', 'Email đã được đăng ký');
+      const u = { id: st.nextUser++, email, password: String(b.password), full_name: String(b.full_name).trim(), token: 'eyJhbGciOiJIUzI1NiJ9.dWlkOj' + st.nextUser + '.new_' + Math.random().toString(36).slice(2, 6) };
+      st.users.push(u);
+      if (HK.userCreated) HK.userCreated(clone(u));
+      return J(201, { id:u.id, email:u.email, full_name:u.full_name, created_at: new Date().toISOString().slice(0, 19) + 'Z' }, { location: '/v1/users/' + u.id });
+    }
+    if (seg[0] === 'orders' && seg.length <= 2){
+      const na = allow(seg.length === 1 ? ['GET', 'POST'] : ['GET', 'PATCH']); if (na) return na;
+      const u = authUser(headers);
+      if (!u){
+        if (B.has('noAuth403')) return E(403, 'FORBIDDEN', 'Bạn không có quyền truy cập tài nguyên này');
+        return E(401, 'UNAUTHORIZED', 'Thiếu hoặc sai access token');
+      }
+      if (seg.length === 1 && method === 'GET') return J(200, { data: st.orders.filter(o => o.customer_id === u.id) });
+      if (seg.length === 2){
+        if (!/^\d+$/.test(seg[1])) return E(400, 'INVALID_ID', 'id đơn hàng phải là số nguyên dương');
+        const o = st.orders.find(x => x.id === +seg[1]);
+        if (!o) return E(404, 'ORDER_NOT_FOUND', 'Không tìm thấy đơn hàng ' + seg[1]);
+        if (o.customer_id !== u.id && !B.has('idor')) return E(403, 'FORBIDDEN', 'Bạn không có quyền xem đơn hàng này');
+        if (method === 'PATCH'){
+          if (!body || body.status !== 'cancelled') return E(400, 'VALIDATION_ERROR', 'Chỉ hỗ trợ đổi status sang cancelled', 'status');
+          if (o.status !== 'pending_payment') return E(409, 'INVALID_STATUS', 'Chỉ hủy được đơn đang chờ thanh toán (pending_payment)');
+          o.status = 'cancelled';
+          if (HK.orderUpdated) HK.orderUpdated(clone(o), B);
+          return J(200, clone(o));
+        }
+        const out = clone(o);
+        if (o.id >= 104){
+          if (B.has('wrongTotal')) out.total_amount = out.items[0].unit_price;
+          if (B.has('statusPaid')) out.status = 'paid';
+        }
+        return J(200, out);
+      }
+      // POST /orders
+      const key = headers['idempotency-key'];
+      if (key && st.idem[u.id + ':' + key] && !B.has('idempotency')) return J(200, clone(st.orders.find(o => o.id === st.idem[u.id + ':' + key])), { 'idempotent-replayed': 'true' });
+      const b = body || {};
+      if (!Array.isArray(b.items) || !b.items.length) return E(400, 'VALIDATION_ERROR', 'items phải là mảng có ít nhất 1 phần tử', 'items');
+      const items = [];
+      for (let i = 0; i < b.items.length; i++){
+        const it = b.items[i] || {};
+        if (!Number.isInteger(it.product_id)) return E(400, 'VALIDATION_ERROR', 'product_id phải là số nguyên', 'items[' + i + '].product_id');
+        const p = PRODUCTS.find(x => x.id === it.product_id);
+        if (!p) return E(422, 'PRODUCT_NOT_FOUND', 'Không tìm thấy sản phẩm ' + it.product_id, 'items[' + i + '].product_id');
+        const bad = !Number.isInteger(it.qty) || (B.has('qtyZero') ? (it.qty < 0 || it.qty > 10) : (it.qty < 1 || it.qty > 10));
+        if (bad) return E(400, 'VALIDATION_ERROR', 'qty phải là số nguyên từ 1 đến 10', 'items[' + i + '].qty');
+        if (it.qty > p.stock) return E(409, 'OUT_OF_STOCK', 'Sản phẩm ' + p.sku + ' chỉ còn ' + p.stock, 'items[' + i + '].qty');
+        items.push({ product_id:p.id, name:p.name, qty:it.qty, unit_price:p.price });
+      }
+      let pct = 0;
+      if (b.voucher_code != null){ pct = VOUCHERS[b.voucher_code]; if (!pct) return E(400, 'VOUCHER_INVALID', 'Mã giảm giá không hợp lệ', 'voucher_code'); }
+      const sub = items.reduce((s, x) => s + x.qty * x.unit_price, 0), disc = Math.round(sub * pct / 100);
+      const id = st.nextId++;
+      const o = { id, code:'DH-' + (2000 + id - 100), customer_id:u.id, status:'pending_payment', items, discount_amount:disc, total_amount:sub - disc, created_at: new Date().toISOString().slice(0, 19) + 'Z' };
+      if (b.voucher_code) o.voucher_code = b.voucher_code;
+      st.orders.push(o);
+      if (HK.orderCreated) HK.orderCreated(clone(o), B);
+      if (key) st.idem[u.id + ':' + key] = id;
+      return J(201, clone(o), { location: '/v1/orders/' + id });
+    }
+    return E(404, 'ROUTE_NOT_FOUND', 'Không có endpoint ' + method + ' ' + path);
+  }
+  return async function handle(req){
+    const res = route(req);
+    res.time = B.has('slow') ? 700 + Math.floor(Math.random() * 120) : 40 + Math.floor(Math.random() * 110);
+    return res;
+  };
+}
+function parseUrl(u){
+  u = String(u || '').trim();
+  if (u.startsWith(BASE)) u = u.slice(BASE.length);
+  else if (/^https?:\/\//i.test(u)){ const x = u.replace(/^https?:\/\/[^/]+/i, ''); u = x.startsWith('/v1') ? x.slice(3) : x; }
+  else if (u.startsWith('/v1/')) u = u.slice(3);
+  if (!u.startsWith('/')) u = '/' + u;
+  const [p, qs] = u.split('?');
+  const query = {};
+  (qs || '').split('&').filter(Boolean).forEach(kv => { const [k, v] = kv.split('='); query[decodeURIComponent(k)] = decodeURIComponent((v || '').replace(/\+/g, ' ')); });
+  return { path: p, query };
+}
+function parseHeaders(text){
+  const h = {};
+  String(text || '').split('\n').forEach(line => { const i = line.indexOf(':'); if (i > 0){ const k = line.slice(0, i).trim().toLowerCase(); if (k) h[k] = line.slice(i + 1).trim(); } });
+  return h;
+}
+
+/* ===================== Bài luyện ===================== */
+/* buoi: buổi tương ứng trong kế hoạch học Automation v2 (buổi 11: Postman/Newman; buổi 12: REST Assured + JDBC). */
+const PHASES = [
+  { id:'A', name:'Gửi request cơ bản', buoi:'Buổi 11' },
+  { id:'B', name:'Tìm bug API (build v1.0)', buoi:'Buổi 11' },
+  { id:'C', name:'Viết test script', buoi:'Buổi 11' },
+  { id:'D', name:'Hồi quy & chạy collection', buoi:'Buổi 11 · Newman/CI' },
+  { id:'E', name:'API automation bằng code', buoi:'Buổi 12' },
+];
+const find = (h, f) => h.filter(f);
+const hasAuth = e => !!e.req.headers['authorization'];
+const TICKETS = [
+{ id:'A1', phase:'A', key:'Bài 1', type:'req', name:'GET & query params', skills:['GET','query params','status 200'],
+  title:'Danh sách áo, giá từ thấp đến cao',
+  context:`<p>Màn "Áo" trên app gọi API lấy danh sách sản phẩm thuộc danh mục áo, sắp theo giá tăng dần. Bạn cần gọi trực tiếp API để đối chiếu với màn hình.</p>`,
+  task:`<p>Gửi request lấy sản phẩm có <code>category</code> là <code>ao</code>, sắp xếp theo <code>price</code> tăng dần. Đọc phản hồi: có bao nhiêu sản phẩm, sản phẩm rẻ nhất là gì.</p>`,
+  expect:'Gửi được request lấy đúng danh sách áo, sắp giá tăng dần, và nhận phản hồi thành công.',
+  grade: h => { const g = find(h, e => e.req.method === 'GET' && e.req.path === '/products'); const c = g.filter(e => e.req.query.category === 'ao'); const s = c.filter(e => e.req.query.sort === 'price');
+    return [[g.length > 0, 'Gọi đúng endpoint danh sách sản phẩm'], [c.length > 0, 'Lọc đúng danh mục áo'], [s.length > 0, 'Sắp xếp giá tăng dần'], [s.some(e => e.res.status === 200), 'Nhận phản hồi thành công']]; },
+  answer:{ method:'GET', url:'/products?category=ao&sort=price', headers:'', body:'' },
+  hints:['Query param nằm sau dấu <code>?</code> trong URL, các cặp nối bằng <code>&amp;</code>.','Xem tab <b>Tài liệu API</b>: <code>sort</code> nhận <code>price</code> (tăng) hoặc <code>-price</code> (giảm).','<code>GET /products?category=ao&amp;sort=price</code>'],
+  lessons:[
+    { k:'HTTP method', d:'Cho server biết bạn muốn làm gì với tài nguyên. GET: đọc; POST: tạo mới; PUT/PATCH: sửa; DELETE: xóa. GET không được làm thay đổi dữ liệu.', ex:'GET  /products        → đọc danh sách\nPOST /orders          → tạo đơn mới\nGET  /orders/101      → đọc một đơn', n:'Một bug hay gặp: endpoint GET mà lại ghi dữ liệu (vd GET /orders/101/cancel). Đáng báo bug thiết kế API.' },
+    { k:'Query params', d:'Tham số lọc, sắp xếp, phân trang đặt sau dấu ? của URL, dạng key=value, nối bằng &.', ex:'/products?category=ao&sort=-price&page=2&limit=5', n:'Test cả giá trị sai của query param: sort=abc, limit=0, limit=1000, page=-1. API nên trả 400 kèm thông báo rõ ràng.' },
+    { k:'Status 2xx', d:'Nhóm thành công. 200 OK (đọc/sửa thành công), 201 Created (tạo mới thành công), 204 No Content (thành công, không có body).', ex:'HTTP/1.1 200 OK\nContent-Type: application/json', n:'Kiểm tra status code là assertion đầu tiên của mọi test API.' },
+  ],
+  qc:`<p>Có 3 sản phẩm áo, rẻ nhất là "Áo thun basic trắng" và "Áo thun basic đen" (cùng 149.000đ). Khi hai sản phẩm cùng giá, API xếp theo id: đây là điều spec nên ghi rõ, nếu không UI và API dễ hiển thị thứ tự khác nhau.</p><p>Đối chiếu API với UI giúp khoanh vùng bug: API đúng mà màn hình sai thì lỗi ở frontend, và ngược lại.</p>` },
+
+{ id:'A2', phase:'A', key:'Bài 2', type:'req', name:'Path param & 404', skills:['path param','404','error body'],
+  title:'Sản phẩm không tồn tại trả về gì?',
+  context:`<p>Link chia sẻ sản phẩm có dạng <code>/products/{id}</code>. Khách mở link của một sản phẩm đã bị xóa. Spec: API trả <b>404</b> với body lỗi có <code>error.code = PRODUCT_NOT_FOUND</code>.</p>`,
+  task:`<p>Gửi request lấy một sản phẩm có id không tồn tại và xác nhận API trả đúng 404 và đúng mã lỗi. Thử thêm id không phải số (vd <code>abc</code>) xem API trả gì.</p>`,
+  expect:'Nhận được phản hồi lỗi đúng spec khi sản phẩm không tồn tại: đúng status và đúng mã lỗi.',
+  grade: h => { const g = find(h, e => e.req.method === 'GET' && /^\/products\/[^/]+$/.test(e.req.path)); const nf = g.filter(e => e.res.status === 404);
+    return [[g.length > 0, 'Gọi endpoint chi tiết sản phẩm'], [nf.length > 0, 'Nhận đúng status cho trường hợp không tìm thấy'], [nf.some(e => e.res.body && e.res.body.error && e.res.body.error.code === 'PRODUCT_NOT_FOUND'), 'Body lỗi có mã lỗi đúng spec']]; },
+  answer:{ method:'GET', url:'/products/999', headers:'', body:'' },
+  hints:['Path param là phần của đường dẫn: <code>/products/1</code> thì 1 là id.','Danh sách chỉ có id từ 1 đến 7.','<code>GET /products/999</code>'],
+  lessons:[
+    { k:'Path param', d:'Giá trị nằm trong đường dẫn, xác định một tài nguyên cụ thể.', ex:'GET /products/3     → sản phẩm id 3\nGET /orders/101     → đơn id 101', n:'Test id không tồn tại (404), id sai kiểu (abc → 400), id âm, id rất lớn.' },
+    { k:'Status 4xx', d:'Lỗi phía client (request sai). 400 Bad Request: dữ liệu không hợp lệ; 401: chưa xác thực; 403: không có quyền; 404: không tìm thấy; 405: sai method; 409: xung đột; 422: dữ liệu đúng cú pháp nhưng không xử lý được.', ex:'HTTP/1.1 404 Not Found\n{ "error": { "code": "PRODUCT_NOT_FOUND", "message": "..." } }', n:'Kiểm tra cả body lỗi, không chỉ status: mã lỗi có đúng spec không, message có dễ hiểu không, có lộ thông tin nội bộ không.' },
+  ],
+  qc:`<p>Với <code>/products/abc</code> API trả 400 <code>INVALID_ID</code> chứ không phải 404: hai trường hợp khác nhau là đúng. Testcase âm cho path param thường gồm: không tồn tại, sai kiểu, số âm, số 0, số rất lớn, ký tự đặc biệt.</p>` },
+
+{ id:'A3', phase:'A', key:'Bài 3', type:'req', name:'Login & Bearer token', skills:['POST','Authorization','Bearer'],
+  title:'Đăng nhập rồi gọi API cần xác thực',
+  context:`<p>Màn "Tài khoản" gọi <code>GET /me</code>. Endpoint này cần access token lấy từ <code>POST /auth/login</code>.</p><p>Tài khoản test: <code>an.nguyen@shopdemo.test</code> / <code>Test@1234</code>.</p>`,
+  task:`<ol><li>Đăng nhập để lấy <code>access_token</code>.</li><li>Gọi <code>GET /me</code> với header <code>Authorization: Bearer &lt;token&gt;</code> và nhận 200.</li><li>Thử gọi <code>/me</code> không có token, hoặc token sai, xem API trả gì.</li></ol>`,
+  expect:'Gọi thành công API lấy thông tin tài khoản bằng token của chính bạn.',
+  grade: h => { const l = find(h, e => e.req.method === 'POST' && e.req.path === '/auth/login' && e.res.status === 200); const m = find(h, e => e.req.method === 'GET' && e.req.path === '/me');
+    return [[l.length > 0, 'Đăng nhập thành công'], [m.some(hasAuth), 'Gọi API thông tin tài khoản có gửi kèm token'], [m.some(e => e.res.status === 200), 'Lấy được thông tin tài khoản']]; },
+  answer:{ method:'GET', url:'/me', headers:'Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.dWlkOjE.an_k7Qw2', body:'', pre:{ method:'POST', url:'/auth/login', headers:'Content-Type: application/json', body:'{\n  "email": "an.nguyen@shopdemo.test",\n  "password": "Test@1234"\n}' } },
+  hints:['Đăng nhập: method POST, URL <code>/auth/login</code>, body JSON có <code>email</code> và <code>password</code>.','Chép giá trị <code>access_token</code> trong phản hồi.','Ô Headers của request /me: <code>Authorization: Bearer eyJhbGci...</code> (có chữ Bearer và một dấu cách).'],
+  lessons:[
+    { k:'Header Authorization', d:'Cách phổ biến để gửi token xác thực. Server đọc token để biết bạn là ai.', ex:'Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...', n:'Testcase: không có header, token sai, token hết hạn, thiếu chữ "Bearer", token của người khác. Mọi trường hợp sai đều phải 401.' },
+    { k:'Body JSON', d:'Dữ liệu gửi kèm request POST/PUT, thường ở dạng JSON, kèm header Content-Type: application/json.', ex:'{\n  "email": "an.nguyen@shopdemo.test",\n  "password": "Test@1234"\n}', n:'Chuỗi JSON dùng nháy kép, không có dấu phẩy thừa ở phần tử cuối.' },
+  ],
+  qc:`<p>Không token và token sai đều trả 401 <code>UNAUTHORIZED</code>: đúng spec. Khi test xác thực, nên kiểm tra cả thông báo lỗi không tiết lộ lý do chi tiết (vd "email không tồn tại" giúp kẻ xấu dò email). API này trả chung "Email hoặc mật khẩu không đúng" là tốt.</p>` },
+
+{ id:'A4', phase:'A', key:'Bài 4', type:'req', name:'POST tạo tài nguyên', skills:['POST','201 Created','Location'],
+  title:'Tạo đơn hàng qua API',
+  context:`<p>Bạn cần tạo đơn để chuẩn bị dữ liệu test thanh toán, nhanh hơn đi qua UI. Đăng nhập bằng tài khoản an.nguyen (xem bài 3).</p>`,
+  task:`<p>Tạo đơn gồm 2 "Mũ lưỡi trai" (product_id 6) qua <code>POST /orders</code>. Kiểm tra: status 201, header <code>Location</code>, <code>total_amount</code> đúng 198000, <code>status</code> là <code>pending_payment</code>.</p>`,
+  expect:'Tạo được một đơn hàng mới; phản hồi đúng status cho việc tạo mới và có header trỏ tới đơn vừa tạo.',
+  grade: h => { const p = find(h, e => e.req.method === 'POST' && e.req.path === '/orders'); const ok = p.filter(e => e.res.status === 201);
+    return [[p.length > 0, 'Gọi đúng endpoint tạo đơn'], [p.some(hasAuth), 'Request có gửi kèm token'], [ok.length > 0, 'Nhận đúng status cho việc tạo mới'], [ok.some(e => e.res.headers.location), 'Phản hồi có header trỏ tới đơn vừa tạo']]; },
+  answer:{ method:'POST', url:'/orders', headers:'Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.dWlkOjE.an_k7Qw2\nContent-Type: application/json', body:'{\n  "items": [ { "product_id": 6, "qty": 2 } ]\n}' },
+  hints:['Cần cả 2 header: <code>Authorization</code> và <code>Content-Type: application/json</code>.','Body: <code>{"items": [{"product_id": 6, "qty": 2}]}</code>.','Xem phần Headers trong tab Phản hồi để thấy <code>location</code>.'],
+  lessons:[
+    { k:'201 Created + Location', d:'Tạo mới thành công nên trả 201, kèm header Location trỏ tới tài nguyên vừa tạo, và body là tài nguyên đó.', ex:'HTTP/1.1 201 Created\nLocation: /v1/orders/104\n{ "id": 104, "status": "pending_payment", ... }', n:'Trả 200 thay vì 201 khi tạo mới không làm hỏng chức năng, nhưng sai chuẩn REST: nên ghi nhận mức Low.' },
+    { k:'Kiểm tra dữ liệu trả về', d:'Không chỉ status: so từng trường với dữ liệu gửi đi và quy tắc nghiệp vụ (tổng tiền, trạng thái mặc định, người tạo).', ex:'qty 2 × 99000 = 198000 → total_amount phải là 198000\nstatus mặc định = pending_payment', n:'Gọi tiếp GET /orders/{id} để chắc dữ liệu thực sự được lưu, không chỉ được trả về.' },
+  ],
+  qc:`<p>Tạo dữ liệu test qua API nhanh hơn và ổn định hơn qua UI. Cách này hay dùng làm bước Precondition trong test tự động. Ghi lại request vào testcase để người khác chạy lại được.</p>` },
+
+{ id:'B1', phase:'B', key:'Bài 5', type:'req', bug:true, name:'Giá trị biên trong API', skills:['BVA','400','validation'],
+  title:'Số lượng ngoài khoảng 1–10 có bị chặn không?',
+  context:`<p>Spec: mỗi sản phẩm trong đơn có <code>qty</code> là số nguyên <b>từ 1 đến 10</b>. Ngoài khoảng → <b>400 VALIDATION_ERROR</b>.</p><p>Build v1.0 vừa lên staging. Hãy tìm xem validation có lỗi không.</p>`,
+  task:`<p>Áp dụng phân tích giá trị biên cho <code>qty</code>. Gửi các request <code>POST /orders</code> với các giá trị biên và tìm giá trị mà API <b>chấp nhận sai</b> (trả 201 trong khi spec nói phải 400).</p>`,
+  expect:'Đã thử các giá trị biên và tìm ra giá trị không hợp lệ mà API vẫn chấp nhận.',
+  grade: h => { const p = find(h, e => e.req.method === 'POST' && e.req.path === '/orders'); const vals = new Set(); p.forEach(e => { try { (JSON.parse(e.req.bodyText).items || []).forEach(i => vals.add(i.qty)); } catch(x){} });
+    const bug = p.some(e => e.res.status === 201 && e.res.body && e.res.body.items && e.res.body.items.some(i => i.qty < 1 || i.qty > 10));
+    return [[p.length >= 2, 'Đã thử nhiều giá trị (' + p.length + ' request tạo đơn)'], [[0, 1, 10, 11].filter(v => vals.has(v)).length >= 3, 'Đã thử đủ các giá trị biên của khoảng số lượng (đã thử: ' + ([...vals].join(', ') || 'chưa có') + ')'], [bug, 'Tìm ra giá trị ngoài khoảng mà API vẫn trả 201']]; },
+  answer:{ method:'POST', url:'/orders', headers:'Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.dWlkOjE.an_k7Qw2\nContent-Type: application/json', body:'{\n  "items": [ { "product_id": 6, "qty": 0 } ]\n}' },
+  hints:['BVA 2 giá trị cho khoảng 1–10: 0, 1, 10, 11.','Đổi <code>qty</code> trong body rồi gửi lại, xem status từng lần. Dùng sản phẩm còn hàng như product_id 6.','Thử <code>qty: 0</code>.'],
+  lessons:[
+    { k:'Giá trị biên trong API', d:'Kỹ thuật BVA áp dụng y hệt cho API: mỗi trường số có khoảng hợp lệ thì test ở biên và ngay ngoài biên.', ex:'qty: 0 → 400 | 1 → 201 | 10 → 201 | 11 → 400\nThêm: -1, 1.5, "2", null', n:'Validation ở UI không thay thế validation ở API: người dùng có thể gọi API trực tiếp, bỏ qua UI.' },
+    { k:'Body lỗi validation', d:'API tốt chỉ rõ trường nào sai và vì sao, để client hiển thị đúng chỗ.', ex:'{ "error": { "code": "VALIDATION_ERROR",\n  "field": "items[0].qty",\n  "message": "qty phải là số nguyên từ 1 đến 10" } }', n:'Ghi cả request và response vào bug report. Dev tái hiện được ngay mà không cần UI.' },
+  ],
+  qc:`<p><b>Bug:</b> <code>qty = 0</code> được chấp nhận, tạo ra đơn 0đ. Điều kiện kiểm tra bị lệch biên (<code>qty &lt; 0</code> thay vì <code>qty &lt; 1</code>), một lỗi off-by-one điển hình.</p><p>Bug report mẫu: <i>Tiêu đề</i> "POST /orders chấp nhận qty = 0, tạo đơn tổng 0đ". <i>Mong đợi</i>: 400 VALIDATION_ERROR, field items[0].qty. <i>Thực tế</i>: 201, total_amount 0. <i>Severity</i>: High.</p>` },
+
+{ id:'B2', phase:'B', key:'Bài 6', type:'req', bug:true, name:'Thiếu trường bắt buộc', skills:['negative test','500','lộ thông tin'],
+  title:'Đăng ký thiếu email làm server lỗi',
+  context:`<p>Spec <code>POST /users</code>: <code>email</code>, <code>password</code> (≥ 8 ký tự), <code>full_name</code> đều bắt buộc. Thiếu hoặc sai → <b>400</b> và chỉ rõ trường sai. Endpoint không cần token.</p>`,
+  task:`<p>Thử đăng ký với các body thiếu từng trường bắt buộc. Tìm trường hợp server trả lỗi <b>5xx</b> thay vì 400.</p>`,
+  expect:'Tìm ra trường hợp dữ liệu đăng ký sai khiến server bị lỗi, thay vì báo lỗi dữ liệu.',
+  grade: h => { const p = find(h, e => e.req.method === 'POST' && e.req.path === '/users');
+    return [[p.length > 0, 'Gọi đúng endpoint đăng ký'], [p.some(e => e.res.status === 400), 'Đã thấy ít nhất một trường hợp API báo lỗi dữ liệu đúng'], [p.some(e => e.res.status === 500), 'Tìm ra trường hợp server bị lỗi']]; },
+  answer:{ method:'POST', url:'/users', headers:'Content-Type: application/json', body:'{\n  "password": "Matkhau@123",\n  "full_name": "Test Thiếu Email"\n}' },
+  hints:['Bắt đầu với một body đầy đủ, hợp lệ để chắc nhận 201. Sau đó bỏ từng trường một.','Bỏ hẳn trường (không gửi key) khác với gửi chuỗi rỗng <code>""</code>. Thử cả hai.','Bỏ hẳn key <code>email</code>.'],
+  lessons:[
+    { k:'Status 5xx', d:'Lỗi phía server. 500: lỗi không lường trước; 502/503/504: lỗi gateway, server quá tải, hết thời gian chờ. Dữ liệu sai của client không bao giờ được gây ra 5xx.', ex:'HTTP/1.1 500 Internal Server Error', n:'Mọi 5xx do input của người dùng đều là bug: server phải validate và trả 4xx.' },
+    { k:'Thiếu trường, rỗng, null', d:'Ba trường hợp khác nhau, code xử lý khác nhau, nên test riêng từng cái.', ex:'{ }                       ← thiếu key\n{ "email": "" }           ← chuỗi rỗng\n{ "email": null }         ← null', n:'Lỗi hay gặp: code chỉ kiểm tra chuỗi rỗng, quên trường hợp không có key.' },
+    { k:'Lộ thông tin nội bộ', d:'Thông báo lỗi chứa stack trace, tên file, câu SQL… giúp kẻ tấn công hiểu hệ thống.', ex:'"TypeError: Cannot read properties of undefined\n at UserService.register (user.service.js:42:31)"', n:'Đây là vấn đề bảo mật, nên ghi thành bug riêng.' },
+  ],
+  qc:`<p><b>2 bug:</b> (1) thiếu key <code>email</code> → 500 thay vì 400; (2) body lỗi lộ stack trace (tên file, số dòng). Gửi <code>"email": ""</code> thì lại trả 400 đúng: vì vậy phải test cả "thiếu key" lẫn "chuỗi rỗng".</p>` },
+
+{ id:'B3', phase:'B', key:'Bài 7', type:'req', bug:true, name:'401 hay 403', skills:['401','403','xác thực'],
+  title:'Gọi danh sách đơn khi chưa đăng nhập',
+  context:`<p>Spec: mọi endpoint <code>/orders</code> cần token. Không có token hoặc token sai → <b>401 UNAUTHORIZED</b>. Có token hợp lệ nhưng không có quyền → <b>403 FORBIDDEN</b>.</p><p>App mobile tự đăng xuất người dùng khi nhận 401. Đội mobile báo: "token hết hạn mà app không đăng xuất".</p>`,
+  task:`<p>Gọi <code>GET /orders</code> không có token, rồi với token sai. So status nhận được với spec.</p>`,
+  expect:'Phát hiện status code trả về khi thiếu token không đúng spec.',
+  grade: h => { const g = find(h, e => e.req.method === 'GET' && e.req.path === '/orders');
+    return [[g.some(e => !hasAuth(e)), 'Đã gọi danh sách đơn khi không có token'], [g.some(e => !hasAuth(e) && e.res.status === 403), 'Phát hiện status code sai spec']]; },
+  answer:{ method:'GET', url:'/orders', headers:'', body:'' },
+  hints:['Để trống ô Headers.','So sánh với <code>GET /me</code> không có token: endpoint đó trả gì?','401 = "bạn là ai?"; 403 = "tôi biết bạn là ai, nhưng bạn không được phép".'],
+  lessons:[
+    { k:'401 và 403', d:'401 Unauthorized: chưa xác thực được (thiếu, sai, hết hạn token). 403 Forbidden: đã xác thực nhưng không có quyền.', ex:'Không token        → 401\nToken của An xem đơn của Bình → 403', n:'Nhầm 401/403 làm client xử lý sai: app chờ 401 để bắt đăng nhập lại, nhận 403 thì hiển thị "không có quyền" và người dùng bị kẹt.' },
+    { k:'Nhất quán giữa các endpoint', d:'Cùng một tình huống thì mọi endpoint phải trả cùng status và cùng cấu trúc lỗi.', ex:'GET /me     (không token) → 401\nGET /orders (không token) → phải 401', n:'So sánh chéo các endpoint là cách nhanh để tìm lỗi không nhất quán.' },
+  ],
+  qc:`<p><b>Bug:</b> <code>/orders</code> trả 403 khi thiếu token, trong khi <code>/me</code> trả 401. Đây chính là nguyên nhân của bug mobile: app chỉ đăng xuất khi nhận 401. Một bug API gây ra bug ở client, tìm ra nhờ đọc spec status code.</p>` },
+
+{ id:'B4', phase:'B', key:'Bài 8', type:'req', bug:true, name:'Phân quyền dữ liệu (IDOR)', skills:['IDOR','403','bảo mật'],
+  title:'Xem được đơn hàng của người khác',
+  context:`<p>Đơn <code>102</code> thuộc khách Bình (customer_id 2). Spec: khách chỉ xem được đơn của chính mình; đơn của người khác → <b>403</b>.</p>`,
+  task:`<p>Đăng nhập bằng tài khoản <b>An</b> (customer_id 1). Gọi <code>GET /orders/101</code> (đơn của An) rồi <code>GET /orders/102</code> (đơn của Bình). So kết quả với spec.</p>`,
+  expect:'Phát hiện tài khoản đang đăng nhập xem được dữ liệu không thuộc về mình.',
+  grade: h => { const g = find(h, e => e.req.method === 'GET' && /^\/orders\/\d+$/.test(e.req.path) && e.res.status === 200);
+    const tokUser = e => { const m = (e.req.headers['authorization'] || '').match(/Bearer\s+(.+)/i); const u = m && USERS.find(x => x.token === m[1].trim()); return u ? u.id : null; };
+    return [[find(h, e => e.req.path === '/auth/login' && e.res.status === 200).length > 0 || g.some(hasAuth), 'Đã có token đăng nhập'], [g.some(e => e.res.body.customer_id === tokUser(e)), 'Đã xem đơn của chính mình (để so sánh)'], [g.some(e => tokUser(e) && e.res.body.customer_id !== tokUser(e)), 'Phát hiện xem được đơn của người khác']]; },
+  answer:{ method:'GET', url:'/orders/102', headers:'Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.dWlkOjE.an_k7Qw2', body:'' },
+  hints:['Token của An lấy từ bài 3.','Gửi <code>GET /orders/102</code> với token của An.','Xem trường <code>customer_id</code> trong phản hồi.'],
+  lessons:[
+    { k:'IDOR / BOLA', d:'Insecure Direct Object Reference (OWASP API Top 10 gọi là Broken Object Level Authorization): đổi id trong URL là truy cập được dữ liệu của người khác. Đây là lỗ hổng API phổ biến nhất.', ex:'GET /orders/101  (token An) → 200 ✓ của An\nGET /orders/102  (token An) → phải 403, thực tế 200 ✗', n:'Cách test: luôn chuẩn bị 2 tài khoản; dùng token tài khoản A gọi tài nguyên của tài khoản B, với mọi method (GET, PUT, DELETE).' },
+  ],
+  qc:`<p><b>Bug bảo mật, mức Critical:</b> bất kỳ ai đăng nhập cũng xem được đơn (địa chỉ, sản phẩm, số tiền) của người khác chỉ bằng cách đổi id. Id đơn lại là số tăng dần nên rất dễ dò.</p><p>Báo cáo kèm 2 request: đơn của mình (200, đúng) và đơn người khác (200, sai). Bug bảo mật nên báo qua kênh riêng, không đăng công khai.</p>` },
+
+{ id:'B5', phase:'B', key:'Bài 9', type:'req', bug:true, name:'Idempotency-Key', skills:['idempotency','gửi lặp','retry'],
+  title:'Mạng chập chờn, app gửi lại request tạo đơn',
+  context:`<p>Khi mạng chập chờn, app gửi lại <code>POST /orders</code>. Spec: request có header <code>Idempotency-Key</code>; gửi lại với <b>cùng key</b> thì API <b>không tạo đơn mới</b> mà trả lại đơn đã tạo (status 200).</p>`,
+  task:`<p>Gửi <code>POST /orders</code> hai lần liên tiếp với cùng body và cùng <code>Idempotency-Key</code> (tự đặt, vd <code>order-test-001</code>). So <code>id</code> của 2 phản hồi.</p>`,
+  expect:'Phát hiện việc gửi lại request không được xử lý đúng spec.',
+  grade: h => { const p = find(h, e => e.req.method === 'POST' && e.req.path === '/orders' && e.req.headers['idempotency-key'] && e.res.status === 201); const by = {};
+    p.forEach(e => { const k = e.req.headers['idempotency-key']; (by[k] = by[k] || []).push(e.res.body.id); });
+    const dup = Object.values(by).some(ids => new Set(ids).size > 1);
+    return [[p.length > 0, 'Có request tạo đơn kèm header chống tạo trùng'], [Object.values(by).some(ids => ids.length > 1), 'Đã gửi lại cùng key ít nhất 2 lần'], [dup, 'Phát hiện cùng key tạo ra nhiều đơn']]; },
+  answer:{ method:'POST', url:'/orders', headers:'Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.dWlkOjE.an_k7Qw2\nContent-Type: application/json\nIdempotency-Key: order-test-001', body:'{\n  "items": [ { "product_id": 6, "qty": 1 } ]\n}' },
+  hints:['Thêm một dòng vào Headers: <code>Idempotency-Key: order-test-001</code>.','Bấm Gửi 2 lần, không sửa gì.','So <code>id</code> và <code>code</code> trong 2 phản hồi ở tab Lịch sử.'],
+  lessons:[
+    { k:'Idempotency', d:'Một thao tác idempotent: gọi 1 lần hay nhiều lần cho cùng kết quả. GET, PUT, DELETE vốn idempotent; POST thì không, nên cần Idempotency-Key để an toàn khi retry.', ex:'POST /orders  Idempotency-Key: abc → 201, id 104\nPOST /orders  Idempotency-Key: abc → 200, id 104 (không tạo mới)', n:'Liên hệ bài SQL "Self join": đơn trùng do double submit. Bug này chính là nguyên nhân ở tầng API.' },
+  ],
+  qc:`<p><b>Bug:</b> API bỏ qua <code>Idempotency-Key</code>, mỗi lần gửi lại tạo thêm một đơn. Khách bị trừ tiền nhiều lần nếu app retry sau khi thanh toán. Mức High.</p><p>Testcase nên có: cùng key 2 lần (không tạo mới); khác key (tạo mới); cùng key nhưng body khác (spec cần nói rõ, thường trả 422).</p>` },
+
+{ id:'C1', phase:'C', key:'Bài 10', type:'script', name:'test() & expect()', skills:['assertion','status','body'],
+  title:'Test tự động đầu tiên: GET /products/1',
+  context:`<p>Bộ test tự động chạy trên build <b>v1.1</b> (đã sửa lỗi). Hệ thống chấm sẽ chạy bộ test của bạn trên v1.1 và trên 2 bản lỗi bí mật:</p><ul><li>Bản lỗi (a): API trả về sai sản phẩm.</li><li>Bản lỗi (b): phản hồi thiếu trường <code>name</code>.</li></ul>`,
+  task:`<p>Viết ít nhất 3 test cho <code>GET /products/1</code>. Bộ test phải <b>pass hết trên v1.1</b> và <b>fail trên cả 2 bản lỗi</b>.</p>`,
+  expect:'≥ 3 test; pass trên v1.1; mỗi bản lỗi làm ít nhất 1 test fail.',
+  minTests:3, mutants:[['wrongId', 'API trả về sai sản phẩm'], ['missingName', 'Thiếu trường name']],
+  starter:`// Bài 10: viết test cho GET /products/1
+const res = await api.get('/products/1');
+
+test('Status là 200', () => {
+  expect(res.status).toBe(200);
+});
+
+// Viết thêm test: đúng id? có name? price là số?
+`,
+  answer:`const res = await api.get('/products/1');
+
+test('Status là 200', () => {
+  expect(res.status).toBe(200);
+});
+
+test('Trả đúng sản phẩm id 1', () => {
+  expect(res.body.id).toBe(1);
+  expect(res.body.sku).toBe('TS-001');
+});
+
+test('Có name là chuỗi không rỗng', () => {
+  expect(res.body).toHaveProperty('name');
+  expect(typeof res.body.name).toBe('string');
+  expect(res.body.name.length).toBeGreaterThan(0);
+});
+
+test('price là số dương', () => {
+  expect(typeof res.body.price).toBe('number');
+  expect(res.body.price).toBeGreaterThan(0);
+});`,
+  hints:['Mỗi <code>test()</code> kiểm tra một ý. Dữ liệu phản hồi nằm trong <code>res.body</code>.','Bắt lỗi (a): <code>expect(res.body.id).toBe(1)</code>.','Bắt lỗi (b): <code>expect(res.body).toHaveProperty(\'name\')</code>.'],
+  lessons:[
+    { k:'api.get / api.post', d:'Gửi request trong test script. Kết quả có res.status, res.headers (tên header viết thường), res.body (JSON đã parse), res.time (ms).', ex:"const res = await api.get('/products/1');\nconst r2 = await api.post('/orders', { items: [...] }, { headers: { Authorization: 'Bearer ' + token } });", n:'Nhớ <code>await</code> trước api.get / api.post.' },
+    { k:'test() và expect()', d:'test(tên, hàm) là một test case. expect(giá trị_thực_tế) rồi gọi matcher để so với mong đợi. Một expect sai thì test đó fail.', ex:"test('Status là 200', () => {\n  expect(res.status).toBe(200);\n});", n:'Matcher có sẵn: toBe, toEqual, toBeGreaterThan, toBeLessThan, toContain, toHaveProperty, toMatch, toBeDefined, toBeTruthy; thêm .not để phủ định: expect(x).not.toBe(0).' },
+    { k:'Test phải "bắt được lỗi"', d:'Một bộ test chỉ có giá trị khi nó fail lúc API sai. Chấm bài ở đây dùng bản lỗi cố ý (giống mutation testing) để đo điều đó.', ex:'Chỉ kiểm tra status 200 → bản lỗi (a) vẫn pass → test chưa đủ.', n:'Test luôn pass dù API sai còn nguy hiểm hơn không có test: nó tạo cảm giác an toàn giả.' },
+  ],
+  qc:`<p>Chỉ kiểm tra <code>status 200</code> là lỗi phổ biến của test API tự động: API trả sai sản phẩm vẫn là 200. Mỗi test nên trả lời được câu hỏi "nếu API sai kiểu X, test nào sẽ fail?".</p>` },
+
+{ id:'C2', phase:'C', key:'Bài 11', type:'script', name:'Kiểm tra schema', skills:['schema','kiểu dữ liệu','vòng lặp'],
+  title:'Mọi sản phẩm trong danh sách đúng kiểu dữ liệu',
+  context:`<p>App mobile bị crash khi <code>price</code> là chuỗi. Team muốn test schema cho <code>GET /products</code>. Hệ thống chấm dùng 3 bản lỗi bí mật:</p><ul><li>(a) <code>price</code> trả về dạng chuỗi "149000".</li><li>(b) một sản phẩm có <code>stock</code> âm.</li><li>(c) một sản phẩm thiếu <code>name</code>.</li></ul>`,
+  task:`<p>Viết test kiểm tra <b>mọi phần tử</b> trong <code>res.body.data</code>: <code>id</code> là số nguyên, <code>name</code> là chuỗi không rỗng, <code>price</code> là số &gt; 0, <code>stock</code> là số nguyên ≥ 0.</p>`,
+  expect:'Pass trên v1.1; bắt được cả 3 bản lỗi.',
+  minTests:2, mutants:[['priceString', 'price là chuỗi'], ['negativeStock', 'stock âm'], ['missingName', 'Thiếu name']],
+  starter:`// Bài 11: kiểm tra schema mọi sản phẩm
+const res = await api.get('/products');
+
+test('Status 200 và có mảng data', () => {
+  expect(res.status).toBe(200);
+  expect(Array.isArray(res.body.data)).toBe(true);
+});
+
+test('Mọi sản phẩm đúng kiểu dữ liệu', () => {
+  for (const p of res.body.data) {
+    // viết expect cho id, name, price, stock của từng p
+  }
+});
+`,
+  answer:`const res = await api.get('/products');
+
+test('Status 200 và có mảng data', () => {
+  expect(res.status).toBe(200);
+  expect(Array.isArray(res.body.data)).toBe(true);
+  expect(res.body.data.length).toBeGreaterThan(0);
+});
+
+test('Mọi sản phẩm đúng kiểu dữ liệu', () => {
+  for (const p of res.body.data) {
+    expect(Number.isInteger(p.id)).toBe(true);
+    expect(typeof p.name).toBe('string');
+    expect(p.name.length).toBeGreaterThan(0);
+    expect(typeof p.price).toBe('number');
+    expect(p.price).toBeGreaterThan(0);
+    expect(Number.isInteger(p.stock)).toBe(true);
+    expect(p.stock).toBeGreaterThanOrEqual(0);
+  }
+});`,
+  hints:['Kiểm tra kiểu: <code>expect(typeof p.price).toBe(\'number\')</code>.','Số nguyên: <code>expect(Number.isInteger(p.stock)).toBe(true)</code>.','Lỗi (c) làm <code>p.name</code> là undefined: kiểm tra <code>typeof p.name</code> là <code>\'string\'</code>.'],
+  lessons:[
+    { k:'Schema validation', d:'Kiểm tra cấu trúc phản hồi: có đủ trường, đúng kiểu, đúng ràng buộc giá trị. Lỗi schema thường làm client crash dù status vẫn 200.', ex:"expect(typeof p.price).toBe('number');\nexpect(Number.isInteger(p.stock)).toBe(true);", n:'Trong dự án thật thường dùng JSON Schema (Postman: pm.response.to.have.jsonSchema, hoặc thư viện ajv) thay vì viết tay từng expect.' },
+    { k:'Kiểm tra mọi phần tử', d:'Dùng vòng lặp để kiểm tra mọi phần tử của mảng, không chỉ phần tử đầu tiên.', ex:'for (const p of res.body.data) {\n  expect(p.price).toBeGreaterThan(0);\n}', n:'Bản lỗi (b) chỉ sai ở sản phẩm id 4: test chỉ kiểm tra data[0] sẽ không bắt được.' },
+  ],
+  qc:`<p>Lỗi kiểu dữ liệu (số thành chuỗi) hay xuất hiện sau khi đổi thư viện serialize hoặc đổi kiểu cột DB. Đặt test schema vào CI để bắt ngay khi build, trước khi tới tay QC.</p>` },
+
+{ id:'C3', phase:'C', key:'Bài 12', type:'script', name:'Header & thời gian phản hồi', skills:['Content-Type','response time','phi chức năng'],
+  title:'Kiểm tra header và hiệu năng cơ bản',
+  context:`<p>Yêu cầu phi chức năng: <code>GET /products</code> phản hồi <b>dưới 500 ms</b>, và luôn trả <code>Content-Type: application/json</code>. Hai bản lỗi bí mật:</p><ul><li>(a) phản hồi chậm hơn 700 ms.</li><li>(b) Content-Type là <code>text/html</code>.</li></ul>`,
+  task:`<p>Viết test kiểm tra <code>res.time</code> và header <code>content-type</code> (tên header viết thường trong <code>res.headers</code>).</p>`,
+  expect:'Pass trên v1.1; bắt được cả 2 bản lỗi.',
+  minTests:2, mutants:[['slow', 'Phản hồi chậm (> 700 ms)'], ['htmlType', 'Content-Type là text/html']],
+  starter:`// Bài 12: header và thời gian phản hồi
+const res = await api.get('/products');
+
+test('Phản hồi dưới 500 ms', () => {
+  // res.time là số mili giây
+});
+
+test('Content-Type là JSON', () => {
+  // res.headers['content-type']
+});
+`,
+  answer:`const res = await api.get('/products');
+
+test('Phản hồi dưới 500 ms', () => {
+  expect(res.time).toBeLessThan(500);
+});
+
+test('Content-Type là JSON', () => {
+  expect(res.headers['content-type']).toContain('application/json');
+});`,
+  hints:['<code>expect(res.time).toBeLessThan(500)</code>.','Header có thể kèm charset: <code>application/json; charset=utf-8</code>, nên dùng <code>toContain</code> thay vì <code>toBe</code>.','<code>expect(res.headers[\'content-type\']).toContain(\'application/json\')</code>'],
+  lessons:[
+    { k:'Response headers', d:'Thông tin kèm phản hồi: Content-Type, Location, Cache-Control, các header bảo mật… Tên header không phân biệt hoa thường.', ex:"res.headers['content-type']  // 'application/json; charset=utf-8'\nres.headers['location']      // '/v1/orders/104'", n:'Header bảo mật nên kiểm tra thêm: Strict-Transport-Security, X-Content-Type-Options.' },
+    { k:'Thời gian phản hồi', d:'Test chức năng có thể kèm ngưỡng thời gian đơn giản để phát hiện sớm vấn đề hiệu năng. Đây không thay cho kiểm thử tải (load test).', ex:'expect(res.time).toBeLessThan(500);', n:'Ngưỡng nên rộng hơn mục tiêu thực một chút để test không fail ngẫu nhiên do mạng (flaky test).' },
+  ],
+  qc:`<p>Đây là kiểm thử phi chức năng ở mức đơn giản (ISTQB chương 2). Content-Type sai khiến client không parse được JSON; lỗi này hay xuất hiện khi server trả trang lỗi HTML của proxy hoặc load balancer.</p>` },
+
+{ id:'C4', phase:'C', key:'Bài 13', type:'script', name:'Chuỗi request (chaining)', skills:['chaining','biến','end-to-end'],
+  title:'Đăng nhập → tạo đơn → đọc lại đơn',
+  context:`<p>Luồng end-to-end qua API: đăng nhập, tạo đơn 2 "Mũ lưỡi trai" (product_id 6, 99.000đ), rồi đọc lại đơn vừa tạo. Hai bản lỗi bí mật ở bước đọc lại:</p><ul><li>(a) <code>total_amount</code> đọc lại bị sai.</li><li>(b) <code>status</code> đọc lại là <code>paid</code> dù chưa thanh toán.</li></ul>`,
+  task:`<p>Viết script lấy token từ phản hồi login, dùng token tạo đơn, lấy <code>id</code> đơn mới, rồi <code>GET /orders/{id}</code> và kiểm tra dữ liệu đọc lại khớp với dữ liệu lúc tạo.</p>`,
+  expect:'Pass trên v1.1; bắt được cả 2 bản lỗi.',
+  minTests:2, mutants:[['wrongTotal', 'total_amount đọc lại sai'], ['statusPaid', 'status đọc lại sai']],
+  starter:`// Bài 13: chuỗi request
+const login = await api.post('/auth/login', { email: 'an.nguyen@shopdemo.test', password: 'Test@1234' });
+const token = login.body.access_token;
+const auth = { headers: { Authorization: 'Bearer ' + token } };
+
+const created = await api.post('/orders', { items: [ { product_id: 6, qty: 2 } ] }, auth);
+
+// Đọc lại đơn vừa tạo bằng created.body.id, rồi viết test
+`,
+  answer:`const login = await api.post('/auth/login', { email: 'an.nguyen@shopdemo.test', password: 'Test@1234' });
+const token = login.body.access_token;
+const auth = { headers: { Authorization: 'Bearer ' + token } };
+
+const created = await api.post('/orders', { items: [ { product_id: 6, qty: 2 } ] }, auth);
+const fetched = await api.get('/orders/' + created.body.id, auth);
+
+test('Tạo đơn trả 201', () => {
+  expect(created.status).toBe(201);
+  expect(created.body.total_amount).toBe(198000);
+});
+
+test('Đọc lại đúng tổng tiền và trạng thái', () => {
+  expect(fetched.status).toBe(200);
+  expect(fetched.body.total_amount).toBe(198000);
+  expect(fetched.body.status).toBe('pending_payment');
+});`,
+  hints:['<code>const fetched = await api.get(\'/orders/\' + created.body.id, auth);</code>','Tổng tiền mong đợi: 2 × 99.000 = 198.000.','Kiểm tra <code>fetched.body.status</code> là <code>\'pending_payment\'</code>.'],
+  lessons:[
+    { k:'Chaining', d:'Dùng dữ liệu của phản hồi trước (token, id) làm đầu vào cho request sau. Postman làm bằng biến môi trường (pm.environment.set), code thì dùng biến thường.', ex:"const token = login.body.access_token;\nconst id = created.body.id;\nawait api.get('/orders/' + id, auth);", n:'Không chép cứng token hay id vào test: token hết hạn, id thay đổi theo môi trường làm test fail ngẫu nhiên.' },
+    { k:'Đọc lại sau khi ghi', d:'Sau POST/PUT, gọi GET để xác nhận dữ liệu thật sự được lưu đúng, không chỉ được trả về đúng.', ex:'POST trả total 198000 ✓\nGET đọc lại total 99000 ✗ → lỗi lưu hoặc lỗi đọc', n:'Có thể kiểm tra thêm ở tầng DB bằng SQL (bài luyện SQL).' },
+  ],
+  qc:`<p>Lỗi chỉ lộ ra ở bước đọc lại rất khó thấy nếu chỉ test từng endpoint riêng lẻ. Test chuỗi bắt được lỗi ở chỗ nối giữa các bước, đúng loại lỗi người dùng thật gặp.</p>` },
+
+{ id:'D1', phase:'D', key:'Bài 14', type:'script', regression:true, name:'Regression cho bug đã sửa', skills:['regression','negative test','tổng hợp'],
+  title:'Tự động hóa 3 bug đã tìm ở phần B',
+  context:`<p>Dev đã sửa 3 bug ở build v1.1: <b>qty = 0 được chấp nhận</b> (bài 5), <b>thiếu token trả 403</b> (bài 7), <b>xem được đơn người khác</b> (bài 8). Bạn cần bộ regression để các bug này không quay lại.</p><p>Hệ thống chấm chạy bộ test trên v1.1 và trên 3 build, mỗi build chứa lại đúng một bug cũ.</p>`,
+  task:`<p>Viết test cho cả 3 bug. Bộ test pass trên v1.1 và fail trên từng build có bug. Dùng nút chọn build trên thanh công cụ để chạy thử trên v1.0 (có đủ bug) và xem test fail.</p>`,
+  expect:'Pass trên v1.1; mỗi build có bug cũ làm ít nhất 1 test fail.',
+  minTests:3, mutants:[['qtyZero', 'Bug bài 5: qty = 0 được chấp nhận'], ['noAuth403', 'Bug bài 7: thiếu token trả 403'], ['idor', 'Bug bài 8: xem được đơn người khác']],
+  starter:`// Bài 14: regression cho 3 bug đã sửa
+const login = await api.post('/auth/login', { email: 'an.nguyen@shopdemo.test', password: 'Test@1234' });
+const auth = { headers: { Authorization: 'Bearer ' + login.body.access_token } };
+
+test('qty = 0 bị từ chối với 400', async () => {
+  const r = await api.post('/orders', { items: [ { product_id: 6, qty: 0 } ] }, auth);
+  expect(r.status).toBe(400);
+});
+
+// Thêm test cho: thiếu token → 401; xem đơn 102 của người khác → 403
+`,
+  answer:`const login = await api.post('/auth/login', { email: 'an.nguyen@shopdemo.test', password: 'Test@1234' });
+const auth = { headers: { Authorization: 'Bearer ' + login.body.access_token } };
+
+test('qty = 0 bị từ chối với 400', async () => {
+  const r = await api.post('/orders', { items: [ { product_id: 6, qty: 0 } ] }, auth);
+  expect(r.status).toBe(400);
+  expect(r.body.error.field).toBe('items[0].qty');
+});
+
+test('Thiếu token → 401', async () => {
+  const r = await api.get('/orders');
+  expect(r.status).toBe(401);
+});
+
+test('Không xem được đơn của người khác → 403', async () => {
+  const r = await api.get('/orders/102', auth);
+  expect(r.status).toBe(403);
+});`,
+  hints:['Test có request riêng thì viết <code>async</code>: <code>test(\'...\', async () =&gt; { const r = await api.get(...); ... })</code>.','Thiếu token: gọi <code>api.get(\'/orders\')</code> không truyền <code>auth</code>.','Đơn 102 là của Bình; token đang dùng là của An.'],
+  lessons:[
+    { k:'Test regression cho bug', d:'Mỗi bug đã sửa nên có ít nhất một test tự động tái hiện đúng bug đó. Bug quay lại thì test fail ngay.', ex:"test('BUG-205: qty = 0 bị từ chối', async () => { ... });", n:'Đặt mã bug vào tên test để khi fail biết ngay bug nào quay lại.' },
+    { k:'Negative test tự động', d:'Test các trường hợp phải bị từ chối (dữ liệu sai, thiếu quyền), không chỉ trường hợp thành công.', ex:'expect(r.status).toBe(401);\nexpect(r.body.error.code).toBe(\'UNAUTHORIZED\');', n:'Bộ test chỉ có happy path sẽ bỏ lọt gần như mọi bug bảo mật và validation.' },
+  ],
+  qc:`<p>Đây là vòng đời đầy đủ của một bug: tìm ra (phần B) → báo cáo → dev sửa → kiểm thử xác nhận → đưa vào regression tự động (phần D). Bộ regression này nên chạy trong CI mỗi lần build.</p><p>Trong Postman, bộ test này nằm trong collection và chạy bằng Newman ở CI (xem bài 15).</p>` },
+
+{ id:'D2', phase:'D', key:'Bài 15', type:'collection', name:'Environment & chạy collection', skills:['environment','{{biến}}','Newman','case âm'], build:'Build v1.1',
+  title:'Collection chạy được bằng Newman trong CI',
+  context:`<p>Bài nộp của buổi 11 là một <b>Postman collection</b> kèm <b>environment</b> và kết quả chạy bằng <b>Newman</b>. Newman chạy lần lượt mọi request trong collection, chạy tab Tests của từng request rồi in báo cáo pass/fail. Đưa lệnh <code>newman run</code> vào GitHub Actions là bộ test API chạy trong CI.</p><p>Trang này mô phỏng collection bằng code: mỗi <code>request(tên, {...})</code> là một request trong collection, hàm <code>tests</code> là tab Tests. Ô Environment phía trên editor là environment.</p>`,
+  task:`<ol><li>Environment có <code>baseUrl</code>; mọi URL bắt đầu bằng <code>{{baseUrl}}</code>.</li><li>Request đăng nhập lưu token bằng <code>pm.environment.set('token', ...)</code>; các request sau dùng <code>{{token}}</code>. Không chép cứng token vào collection hay environment.</li><li>Thêm 3 case âm: <b>401</b> (thiếu hoặc sai token), <b>404</b> (tài nguyên không tồn tại), <b>body sai</b> (400).</li><li>Mỗi request có ít nhất <b>2 assertion</b>.</li><li>Bấm <b>Chạy collection</b> trên build v1.1: không assertion nào fail. Thử thêm trên build v1.0 để thấy case 401 bắt được bug của bài 7.</li></ol>`,
+  expect:'Chạy trên build v1.1 không có assertion fail; URL dùng {{baseUrl}}, request cần xác thực dùng {{token}}; có case 401, 404, body sai; mỗi request có ít nhất 2 assertion.',
+  env:`baseUrl = https://api.shopdemo.test/v1
+email = an.nguyen@shopdemo.test
+password = Test@1234
+token =
+`,
+  starter:`// Bài 15: collection kiểu Postman, Newman chạy các request theo thứ tự khai báo.
+// {{tên}} lấy giá trị từ Environment; pm.environment.set() ghi biến cho các request sau.
+
+request('Đăng nhập', {
+  method: 'POST',
+  url: '{{baseUrl}}/auth/login',
+  body: { email: '{{email}}', password: '{{password}}' },
+  tests: (res) => {
+    expect(res.status).toBe(200);
+    expect(res.body.token_type).toBe('Bearer');
+    pm.environment.set('token', res.body.access_token);
+  }
+});
+
+request('Thông tin tài khoản', {
+  method: 'GET',
+  url: '{{baseUrl}}/me',
+  headers: { Authorization: 'Bearer {{token}}' },
+  tests: (res) => {
+    expect(res.status).toBe(200);
+    // thêm assertion thứ 2 cho body
+  }
+});
+
+// Thêm 3 case âm: 401, 404, body sai (mỗi request ít nhất 2 assertion)
+`,
+  answer:`request('Đăng nhập', {
+  method: 'POST',
+  url: '{{baseUrl}}/auth/login',
+  body: { email: '{{email}}', password: '{{password}}' },
+  tests: (res) => {
+    expect(res.status).toBe(200);
+    expect(res.body.token_type).toBe('Bearer');
+    pm.environment.set('token', res.body.access_token);
+  }
+});
+
+request('Thông tin tài khoản', {
+  method: 'GET',
+  url: '{{baseUrl}}/me',
+  headers: { Authorization: 'Bearer {{token}}' },
+  tests: (res) => {
+    expect(res.status).toBe(200);
+    expect(res.body.email).toBe(pm.environment.get('email'));
+  }
+});
+
+request('401 - thiếu token', {
+  method: 'GET',
+  url: '{{baseUrl}}/orders',
+  tests: (res) => {
+    expect(res.status).toBe(401);
+    expect(res.body.error.code).toBe('UNAUTHORIZED');
+  }
+});
+
+request('404 - sản phẩm không tồn tại', {
+  method: 'GET',
+  url: '{{baseUrl}}/products/999',
+  tests: (res) => {
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('PRODUCT_NOT_FOUND');
+  }
+});
+
+request('400 - body sai', {
+  method: 'POST',
+  url: '{{baseUrl}}/orders',
+  headers: { Authorization: 'Bearer {{token}}' },
+  body: { items: [] },
+  tests: (res) => {
+    expect(res.status).toBe(400);
+    expect(res.body.error.field).toBe('items');
+  }
+});`,
+  hints:['Biến trong URL: <code>\'{{baseUrl}}/products/999\'</code>. Biến trong header: <code>Authorization: \'Bearer {{token}}\'</code>.','Case 401: gọi <code>{{baseUrl}}/orders</code> mà không có <code>headers</code>. Case body sai: <code>POST {{baseUrl}}/orders</code> có token, body <code>{ items: [] }</code>.','Assertion thứ 2 thường kiểm tra body: <code>expect(res.body.error.code).toBe(\'UNAUTHORIZED\')</code>.'],
+  lessons:[
+    { k:'Environment & {{biến}}', d:'Environment là bộ biến theo môi trường (staging, UAT). Collection chỉ dùng {{tên}}; đổi môi trường thì đổi file environment, không sửa request.', ex:"url: '{{baseUrl}}/orders'\nheaders: { Authorization: 'Bearer {{token}}' }\npm.environment.set('token', res.body.access_token);", n:'Token lấy từ request đăng nhập ở đầu collection. Token chép cứng sẽ hết hạn và làm cả bộ test fail khi chạy trong CI.' },
+    { k:'Newman trong CI', d:'Newman là công cụ dòng lệnh chạy collection Postman. Xuất collection và environment ra file JSON, rồi chạy trong pipeline.', ex:'newman run shopdemo.postman_collection.json \\\n  -e staging.postman_environment.json \\\n  -r cli,junit --reporter-junit-export results.xml\n\n# GitHub Actions\n- run: npm install -g newman\n- run: newman run shopdemo.postman_collection.json -e staging.postman_environment.json', n:'Newman trả exit code khác 0 khi có assertion fail, nên pipeline tự chuyển đỏ.' },
+    { k:'Case âm tối thiểu', d:'Mỗi endpoint quan trọng nên có ít nhất: thiếu/sai token (401), tài nguyên không tồn tại (404), body sai (400).', ex:'GET  /orders              (không token) → 401\nGET  /products/999                    → 404\nPOST /orders  { "items": [] }         → 400', n:'Kiểm tra cả mã lỗi trong body, không chỉ status: đó là assertion thứ 2 của mỗi case âm.' },
+  ],
+  qc:`<p>Collection này chính là bài nộp của buổi 11: xuất collection + environment, chạy <code>newman run</code> và lưu báo cáo. Khi chạy trên build v1.0, case 401 fail vì API trả 403: bộ hồi quy trong CI bắt lại đúng bug của bài 7.</p><p>Không commit file environment chứa mật khẩu thật lên Git. Ở CI, đặt giá trị nhạy cảm vào secret rồi truyền bằng <code>--env-var</code>.</p>` },
+
+{ id:'E1', phase:'E', key:'Bài 16', type:'code', name:'REST Assured: given/when/then', skills:['given/when/then','statusCode','body()','JSON schema'], build:'Build v1.1',
+  title:'Viết lại test GET /products/1 bằng Java',
+  context:`<p>Buổi 12 chuyển test API sang code Java với <b>REST Assured</b>, chạy cùng TestNG và CI như framework Selenium. Trình duyệt không chạy được Java: trang này đọc code của bạn theo một <b>tập con cú pháp REST Assured + Hamcrest</b>, gửi request tương ứng tới API giả lập rồi kiểm tra các assertion.</p><p>Hệ thống chấm chạy test trên build v1.1 và trên 3 bản lỗi bí mật: (a) trả sai sản phẩm, (b) thiếu <code>name</code>, (c) <code>price</code> là chuỗi.</p>`,
+  task:`<ol><li>Hoàn thiện test thứ nhất: status 200, Content-Type JSON, đúng <code>id</code> và <code>sku</code>, <code>name</code> không null, <code>price</code> lớn hơn 0.</li><li>Viết test thứ hai kiểm tra schema bằng <code>matchesJsonSchemaInClasspath("schemas/product.json")</code>.</li><li>Bấm <b>Chạy test</b> để xem request được gửi và kết quả từng assertion.</li></ol>`,
+  expect:'Có ít nhất 2 method @Test và 5 assertion; pass trên build v1.1; bắt được cả 3 bản lỗi.',
+  minTests:2, minAsserts:5, needSchema:true, mutants:[['wrongId', 'API trả về sai sản phẩm'], ['missingName', 'Thiếu trường name'], ['priceString', 'price là chuỗi']],
+  starter:`// Bài 16: REST Assured cho GET /products/1
+// BASE_URL đã khai báo trong BaseApiTest. Xem cú pháp hỗ trợ ở "Kiến thức dùng trong bài".
+public class ProductApiTest extends BaseApiTest {
+
+    @Test
+    public void getProductById_returnsProduct() {
+        given()
+            .baseUri(BASE_URL)
+        .when()
+            .get("/products/1")
+        .then()
+            .statusCode(200)
+            .body("id", equalTo(1));
+            // thêm: Content-Type, sku, name, price
+    }
+
+    @Test
+    public void getProductById_matchesSchema() {
+        // gọi lại GET /products/1 và kiểm tra schema "schemas/product.json"
+    }
+}
+`,
+  answer:`public class ProductApiTest extends BaseApiTest {
+
+    @Test
+    public void getProductById_returnsProduct() {
+        given()
+            .baseUri(BASE_URL)
+        .when()
+            .get("/products/1")
+        .then()
+            .statusCode(200)
+            .contentType(ContentType.JSON)
+            .body("id", equalTo(1))
+            .body("sku", equalTo("TS-001"))
+            .body("name", notNullValue())
+            .body("price", greaterThan(0));
+    }
+
+    @Test
+    public void getProductById_matchesSchema() {
+        given()
+            .baseUri(BASE_URL)
+        .when()
+            .get("/products/1")
+        .then()
+            .statusCode(200)
+            .body(matchesJsonSchemaInClasspath("schemas/product.json"));
+    }
+}`,
+  hints:['Mỗi kiểm tra là một lời gọi sau <code>.then()</code>: <code>.body("sku", equalTo("TS-001"))</code>.','<code>greaterThan(0)</code> chỉ đúng khi giá trị là số: bản lỗi (c) trả chuỗi "149000" nên assertion fail.','Test schema: <code>.then().statusCode(200).body(matchesJsonSchemaInClasspath("schemas/product.json"));</code>'],
+  lessons:[
+    { k:'given / when / then', d:'given(): chuẩn bị request (header, body, query). when(): gửi request (get, post, put, patch, delete). then(): kiểm tra phản hồi. Mỗi assertion fail sẽ dừng method @Test đó, giống JUnit/TestNG.', ex:'given()\n    .baseUri(BASE_URL)\n    .header("Authorization", "Bearer " + token)\n    .queryParam("category", "ao")\n.when()\n    .get("/products")\n.then()\n    .statusCode(200)\n    .body("data.size()", greaterThan(0));', n:'Postman → REST Assured: pm.response.to.have.status(200) ↔ .statusCode(200); pm.expect(json.id).to.eql(1) ↔ .body("id", equalTo(1)).' },
+    { k:'Hamcrest matcher & GPath', d:'body("đường dẫn", matcher): đường dẫn kiểu GPath. "data.price" lấy price của mọi phần tử trong data; "data[0].name" lấy phần tử đầu; "data.size()" đếm phần tử.', ex:'.body("data.price", everyItem(greaterThan(0)))\n.body("data[0].name", notNullValue())\n.body("error.code", equalTo("PRODUCT_NOT_FOUND"))', n:'Trang hỗ trợ: equalTo, is, not, notNullValue, nullValue, greaterThan, greaterThanOrEqualTo, lessThan, lessThanOrEqualTo, hasSize, hasItem, hasItems, hasKey, containsString, everyItem, matchesJsonSchemaInClasspath; cùng header(), contentType(), time(), extract().path(), extract().as().' },
+    { k:'JSON Schema', d:'File schema mô tả kiểu và ràng buộc của từng trường. Một assertion schema thay cho hàng chục assertion kiểu dữ liệu viết tay.', ex:'// schemas/product.json (có sẵn trên trang)\n{\n  "type": "object",\n  "required": ["id","sku","name","category","price","stock"],\n  "properties": {\n    "id":    { "type": "integer" },\n    "name":  { "type": "string", "minLength": 1 },\n    "price": { "type": "number", "exclusiveMinimum": 0 },\n    "stock": { "type": "integer", "minimum": 0 }\n  }\n}', n:'Schema có sẵn: schemas/product.json, schemas/product-list.json, schemas/order.json. Trong project thật, đặt file trong src/test/resources/schemas và thêm thư viện json-schema-validator.' },
+  ],
+  qc:`<p>So với test Postman ở bài 10–11, test REST Assured nằm cùng project với test UI: dùng chung config môi trường, chạy bằng <code>mvn test</code> và cùng một pipeline CI. Đây là bài nộp chính của buổi 12 (package <code>api</code>, ít nhất 5 test).</p><p>Bản lỗi (c) cho thấy giá trị của kiểm tra kiểu: status vẫn 200, <code>notNullValue()</code> vẫn đúng, chỉ <code>greaterThan(0)</code> hoặc schema mới bắt được.</p>` },
+
+{ id:'E2', phase:'E', key:'Bài 17', type:'quiz', name:'POJO, extract & schema', skills:['POJO','extract()','JSON schema','JDBC config'], build:'Đọc code',
+  title:'Đọc code REST Assured và chọn đáp án đúng',
+  context:`<p>Khi review code test API của đồng nghiệp, bạn cần hiểu từng dòng làm gì và lỗi nào nó bắt được. Mỗi câu hỏi có một đoạn code; câu nào có nút <b>Gửi request tương ứng</b> thì bấm để xem API giả lập (staging, build v1.0) thực sự trả gì.</p>`,
+  task:`<p>Trả lời 6 câu ở cột bên phải. Chọn đáp án sẽ thấy ngay đúng/sai; chọn sai thì đọc gợi ý và chọn lại. Bấm <b>Kiểm tra bài</b> khi đã trả lời hết.</p>`,
+  expect:'Trả lời đúng cả 6 câu.',
+  questions:[
+    { q:'Đoạn code dưới chuyển body JSON thành object <code>Product</code> (POJO). Class <code>Product</code> cần gì để dòng <code>extract().as(Product.class)</code> chạy được?',
+      code:'Product p = given()\n        .baseUri(BASE_URL)\n    .when()\n        .get("/products/1")\n    .then()\n        .statusCode(200)\n        .extract().as(Product.class);\n\nassertEquals(p.getSku(), "TS-001");',
+      req:{ method:'GET', url:'/products/1', headers:'', body:'' },
+      opts:['Các field trùng tên với key trong JSON (id, sku, name, category, price, stock), có getter/setter hoặc annotation của Jackson','Một constructor nhận đủ 6 tham số theo đúng thứ tự key trong JSON','Kế thừa class <code>Response</code> của REST Assured','Không cần gì: REST Assured tự sinh class từ JSON'],
+      a:0, why:'REST Assured dùng Jackson (hoặc Gson) để map key JSON vào field theo tên. Key kiểu snake_case như <code>total_amount</code> cần <code>@JsonProperty("total_amount")</code> nếu field đặt tên <code>totalAmount</code>. Key thừa trong JSON gây lỗi, trừ khi class có <code>@JsonIgnoreProperties(ignoreUnknown = true)</code>.',
+      wrong:{ 1:'Jackson mặc định tạo object bằng constructor rỗng rồi gán từng field theo tên key, không theo thứ tự.', 2:'Response là phản hồi HTTP, còn POJO chỉ mô tả dữ liệu nghiệp vụ.', 3:'Bạn phải tự viết class Product; REST Assured chỉ đổ dữ liệu vào.' } },
+    { q:'Field <code>price</code> trong <code>Product</code> khai báo kiểu <code>int</code>. Một bản build lỗi trả <code>"price": "149000"</code> (chuỗi). Chuyện gì xảy ra với đoạn code ở câu 1?',
+      opts:['<code>extract().as()</code> vẫn chạy, <code>p.getPrice()</code> là 149000: lỗi kiểu dữ liệu bị che mất','Jackson ném lỗi ngay nên test fail','<code>price</code> nhận giá trị 0','REST Assured tự báo lỗi schema'],
+      a:0, why:'Jackson mặc định cho phép ép chuỗi số sang kiểu số (coercion), nên deserialize vẫn thành công và test pass, trong khi app mobile parse JSON chặt hơn có thể crash. Muốn bắt lỗi kiểu dữ liệu, kiểm tra JSON schema (<code>"type": "number"</code>) hoặc dùng matcher trên body thô trước khi chuyển sang POJO.',
+      wrong:{ 1:'Jackson mặc định khá dễ dãi: chuỗi "149000" vẫn được ép sang int. Đó chính là điểm nguy hiểm.', 2:'Không có giá trị mặc định nào được gán khi ép kiểu thành công.', 3:'REST Assured không tự kiểm tra schema; bạn phải gọi matchesJsonSchemaInClasspath.' } },
+    { q:'Với schema dưới đây, phản hồi nào <b>không</b> đạt schema?',
+      code:'{\n  "type": "object",\n  "required": ["id", "sku", "name", "price", "stock"],\n  "properties": {\n    "id":    { "type": "integer" },\n    "name":  { "type": "string", "minLength": 1 },\n    "price": { "type": "number", "exclusiveMinimum": 0 },\n    "stock": { "type": "integer", "minimum": 0 }\n  }\n}',
+      opts:['<code>{"id":4,"sku":"SN-021","name":"Giày","price":699000,"stock":-2}</code>','<code>{"id":1,"sku":"TS-001","name":"Áo","price":149000,"stock":0}</code>','<code>{"id":2,"sku":"TS-002","name":"Áo đen","price":149000.5,"stock":0}</code>','<code>{"id":1,"sku":"TS-001","name":"Áo","price":149000,"stock":3,"category":"ao"}</code>'],
+      a:0, why:'<code>stock: -2</code> vi phạm <code>"minimum": 0</code>. Các phản hồi còn lại đạt: stock 0 nằm trong khoảng cho phép, <code>"number"</code> nhận cả số thập phân, và schema không có <code>"additionalProperties": false</code> nên trường thừa <code>category</code> vẫn hợp lệ.',
+      wrong:{ 1:'stock = 0 thỏa "minimum": 0 (minimum tính cả giá trị bằng).', 2:'Kiểu "number" nhận cả số thập phân; chỉ "integer" mới bắt buộc số nguyên.', 3:'Schema không cấm trường thừa vì không có "additionalProperties": false.' } },
+    { q:'Đoạn code lấy token để dùng cho các request sau. Điền gì vào <code>path(...)</code>?',
+      code:'String token = given()\n        .baseUri(BASE_URL)\n        .contentType(ContentType.JSON)\n        .body(Map.of("email", "an.nguyen@shopdemo.test",\n                     "password", "Test@1234"))\n    .when()\n        .post("/auth/login")\n    .then()\n        .statusCode(200)\n        .extract().path(______);',
+      req:{ method:'POST', url:'/auth/login', headers:'Content-Type: application/json', body:'{\n  "email": "an.nguyen@shopdemo.test",\n  "password": "Test@1234"\n}' },
+      opts:['<code>"access_token"</code>','<code>"token"</code>','<code>"$.access_token"</code>','<code>"user.access_token"</code>'],
+      a:0, why:'Phản hồi đăng nhập có key <code>access_token</code> ở cấp ngoài cùng. REST Assured dùng cú pháp GPath, không có tiền tố <code>$.</code> như JSONPath của Postman. Chuỗi request: lấy token → gắn vào header <code>Authorization: Bearer ...</code> của request sau.',
+      wrong:{ 1:'Gửi request tương ứng để xem tên key thật trong phản hồi.', 2:'Tiền tố $. là cú pháp JSONPath; REST Assured dùng GPath nên không có $.', 3:'Object user trong phản hồi chỉ có id, email, full_name.' } },
+    { q:'Test hồi quy cho bug IDOR (bài 8): An không được xem đơn 102 của Bình. Phần <code>then()</code> nào đúng?',
+      code:'given()\n    .baseUri(BASE_URL)\n    .header("Authorization", "Bearer " + tokenAn)\n.when()\n    .get("/orders/102")\n.then()\n    ______;',
+      req:{ method:'GET', url:'/orders/102', headers:'Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.dWlkOjE.an_k7Qw2', body:'' },
+      opts:['<code>.statusCode(200).body("id", equalTo(102))</code>','<code>.statusCode(403).body("error.code", equalTo("FORBIDDEN"))</code>','<code>.body("customer_id", notNullValue())</code>','<code>.time(lessThan(500L))</code>'],
+      a:1, why:'Test hồi quy phải kiểm tra hành vi đúng theo spec (403 FORBIDDEN). Trên build v1.0 còn bug, test fail; trên bản đã sửa, test pass. Bấm Gửi request tương ứng: staging v1.0 trả 200, đúng là bug.',
+      wrong:{ 0:'Đây là kiểm tra hành vi đang lỗi: test sẽ pass khi bug còn, và fail khi dev đã sửa.', 2:'Assertion này pass dù An xem được đơn của Bình, nên không bắt được bug.', 3:'Thời gian phản hồi không liên quan tới phân quyền.' } },
+    { q:'Bước xác minh DB dùng JDBC như dưới. Vì sao <code>DB_URL</code>, <code>DB_USER</code>, <code>DB_PASSWORD</code> lấy từ config hoặc biến môi trường thay vì ghi thẳng trong code?',
+      code:'try (Connection c = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);\n     PreparedStatement ps = c.prepareStatement(\n         "SELECT status, total_amount FROM orders WHERE id = ?")) {\n    ps.setInt(1, orderId);\n    ResultSet rs = ps.executeQuery();\n    assertTrue(rs.next());\n    assertEquals(rs.getInt("total_amount"), 178200);\n}',
+      opts:['Mật khẩu không bị commit lên Git, và đổi môi trường (staging, UAT, CI) không phải sửa code','JDBC bắt buộc đọc thông tin kết nối từ biến môi trường','Đọc từ biến môi trường giúp truy vấn chạy nhanh hơn','Để REST Assured dùng chung kết nối DB'],
+      a:0, why:'Đây là tiêu chí đạt của buổi 12: thông tin kết nối lấy từ config hoặc biến môi trường. Ở GitHub Actions, đặt giá trị vào secret. <code>PreparedStatement</code> với dấu <code>?</code> tránh nối chuỗi SQL, vừa an toàn vừa đúng kiểu dữ liệu.',
+      wrong:{ 1:'JDBC nhận chuỗi kết nối từ đâu cũng được; đây là quy ước tốt, không phải bắt buộc kỹ thuật.', 2:'Cách đọc config không ảnh hưởng tốc độ truy vấn.', 3:'REST Assured không dùng kết nối DB.' } },
+  ],
+  hints:['Câu 2: thử nghĩ xem Jackson có chặt với kiểu dữ liệu không. Câu 3: đọc kỹ từ khóa minimum và additionalProperties.','Câu 4 và 5: bấm Gửi request tương ứng để xem phản hồi thật của API giả lập.','Test hồi quy luôn kiểm tra hành vi đúng theo spec, không kiểm tra hành vi đang lỗi.'],
+  lessons:[
+    { k:'POJO & extract()', d:'extract() lấy dữ liệu khỏi phản hồi để dùng tiếp: path("key") lấy một giá trị, as(Class) đổ cả body vào POJO.', ex:'int id = given()...post("/orders").then().statusCode(201)\n        .extract().path("id");\nOrder o = given()...get("/orders/" + id).then()\n        .extract().as(Order.class);', n:'POJO giúp code dễ đọc, nhưng che lỗi kiểu dữ liệu. Kết hợp với kiểm tra schema.' },
+    { k:'JDBC', d:'Kết nối DB từ code Java để đối chiếu dữ liệu sau khi gọi API: DriverManager.getConnection → PreparedStatement → ResultSet.', ex:'PreparedStatement ps = c.prepareStatement(\n    "SELECT status FROM orders WHERE id = ?");\nps.setInt(1, id);', n:'Luôn dùng tham số ? thay vì nối chuỗi SQL. Thông tin kết nối lấy từ config.' },
+  ],
+  qc:`<p>Đọc code test của người khác là việc hằng ngày của automation tester. Câu hỏi cần đặt cho mỗi assertion: "nếu API sai kiểu X, dòng này có fail không?". Câu 2 và câu 5 là hai cái bẫy hay gặp nhất: POJO che lỗi kiểu, và test hồi quy kiểm tra ngược hành vi.</p>` },
+
+{ id:'E3', phase:'E', key:'Bài 18', type:'db', bug:true, name:'Đối chiếu API ↔ DB', skills:['POST','PATCH','SQL','JDBC'], build:'Staging · build v1.2',
+  title:'API trả đúng, nhưng DB lưu có đúng không?',
+  context:`<p>Build v1.2 thêm mã giảm giá vào luồng tạo đơn. Ở buổi 12, sau khi gọi API, test dùng <b>JDBC</b> truy vấn DB để chắc dữ liệu thật sự được lưu đúng. Ở đây API giả lập ghi vào một DB SQLite chạy trong trình duyệt; ô <b>SQL</b> bên phải đóng vai bước JDBC.</p><p>Bảng: <code>customers</code>(id, email, full_name), <code>products</code>(id, sku, name, price, stock), <code>orders</code>(id, code, customer_id, status, voucher_code, discount_amount, total_amount, created_at), <code>order_items</code>(id, order_id, product_id, qty, unit_price).</p>`,
+  task:`<ol><li>Đăng nhập bằng An, tạo đơn 2 "Mũ lưỡi trai" (product_id 6) kèm <code>"voucher_code": "SALE10"</code>. Ghi lại <code>id</code>, <code>discount_amount</code>, <code>total_amount</code> trong phản hồi.</li><li>Truy vấn <code>orders</code> và <code>order_items</code> của đơn đó; so từng trường với phản hồi API.</li><li>Hủy đơn bằng <code>PATCH /orders/{id}</code> với body <code>{"status": "cancelled"}</code>, rồi truy vấn lại <code>status</code> trong DB.</li><li>Chọn kết luận: trường nào lệch giữa API và DB.</li></ol>`,
+  expect:'Tạo đơn có mã giảm giá và hủy đơn qua API; đã truy vấn orders và order_items của đơn đó; kết luận đúng trường bị lệch.',
+  grade: (h, x) => { const created = h.filter(e => e.req.method === 'POST' && e.req.path === '/orders' && e.res.status === 201); const ids = created.map(e => e.res.body.id);
+    const withV = created.filter(e => e.res.body.voucher_code);
+    const patched = h.filter(e => e.req.method === 'PATCH' && /^\/orders\/\d+$/.test(e.req.path) && e.res.status === 200 && e.res.body.status === 'cancelled');
+    const hit = (re, col) => (x.sql || []).some(q => re.test(q.sql) && q.rows.some(r => q.cols.some((c, ci) => (!col || col.test(c)) && ids.includes(Number(r[ci])))));
+    return [[withV.length > 0, 'Tạo được đơn có mã giảm giá qua API'], [patched.length > 0, 'Hủy được đơn qua PATCH (status cancelled)'], [hit(/\borders\b/i, /^(id|order_id)$/i), 'Đã truy vấn bảng orders và thấy đơn vừa tạo'], [hit(/\border_items\b/i, /^order_id$/i), 'Đã truy vấn order_items của đơn vừa tạo'], [x.concl === 'total', 'Kết luận đúng trường bị lệch' + (x.concl && x.concl !== 'total' ? ' (lựa chọn hiện tại chưa đúng)' : '')]]; },
+  answer:{ method:'POST', url:'/orders', headers:'Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.dWlkOjE.an_k7Qw2\nContent-Type: application/json', body:'{\n  "items": [ { "product_id": 6, "qty": 2 } ],\n  "voucher_code": "SALE10"\n}',
+    patch:{ method:'PATCH', url:'/orders/104', headers:'Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.dWlkOjE.an_k7Qw2\nContent-Type: application/json', body:'{ "status": "cancelled" }' },
+    sql:'SELECT o.id, o.status, o.discount_amount, o.total_amount,\n       i.order_id, i.product_id, i.qty, i.unit_price\nFROM orders o\nJOIN order_items i ON i.order_id = o.id\nWHERE o.id = 104;' },
+  hints:['Phản hồi API: 2 × 99.000 = 198.000, giảm 10% là 19.800, nên <code>total_amount</code> phải là 178.200.','<code>SELECT * FROM orders WHERE id = 104;</code> và <code>SELECT * FROM order_items WHERE order_id = 104;</code> (thay 104 bằng id đơn của bạn).','So <code>total_amount</code> trong DB với <code>total_amount</code> trong phản hồi API.'],
+  lessons:[
+    { k:'Đối chiếu từng tầng', d:'API trả dữ liệu tính trong bộ nhớ; DB là thứ còn lại sau khi request kết thúc. Báo cáo doanh thu, đối soát thanh toán, email xác nhận đều đọc từ DB.', ex:'API  : total_amount = 178200\nDB   : SELECT total_amount FROM orders WHERE id = 104;  → ?', n:'Lỗi chỉ nằm ở tầng lưu không làm hỏng phản hồi API, nên test chỉ nhìn API sẽ bỏ lọt.' },
+    { k:'JDBC trong test', d:'Trong framework Java, bước này viết bằng JDBC ngay sau lời gọi REST Assured.', ex:'int id = given()...post("/orders").then().statusCode(201)\n        .extract().path("id");\n\ntry (Connection c = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);\n     PreparedStatement ps = c.prepareStatement(\n         "SELECT total_amount FROM orders WHERE id = ?")) {\n    ps.setInt(1, id);\n    ResultSet rs = ps.executeQuery();\n    assertTrue(rs.next());\n    assertEquals(rs.getInt("total_amount"), 178200);\n}', n:'Thông tin kết nối DB lấy từ config hoặc biến môi trường, không ghi cứng trong code (tiêu chí đạt buổi 12).' },
+  ],
+  qc:`<p><b>Bug:</b> với đơn có mã giảm giá, DB lưu <code>total_amount</code> = 198.000 (chưa trừ <code>discount_amount</code> 19.800) trong khi API trả 178.200. Status sau khi hủy được lưu đúng.</p><p>Bug report: <i>Tiêu đề</i> "orders.total_amount lưu giá trước giảm giá khi đơn có voucher". <i>Bằng chứng</i>: request/response của POST /orders và kết quả câu SQL. <i>Ảnh hưởng</i>: báo cáo doanh thu và đối soát thanh toán sai. Mức High.</p>` },
+];
+
+/* ===================== Gợi ý trong form theo từng bài =====================
+   Chuỗi: bấm Tab ở ô trống để điền thành chữ thật. { note }: chỉ là lời nhắc, Tab không điền. */
+/* Chỉ là khuôn mẫu: chỗ <...> là phần bạn tự tìm trong đề bài và tab Tài liệu API. Không chứa đáp án. */
+const AUTH = '<Header xác thực>: <Kiểu token> <access_token>';
+const JSONH = '<Header khai báo kiểu dữ liệu>: <kiểu dữ liệu của body>';
+const NOH = { note:'Bài này có cần header không? Xem tab Tài liệu API' };
+const PH = {
+  A1:{ url:'/<tài nguyên>?<tham số lọc>=<giá trị>&<tham số sắp xếp>=<giá trị>', headers:NOH },
+  A2:{ url:'/<tài nguyên>/<id>', headers:NOH },
+  A3:{ url:'/<nhóm endpoint>/<hành động>', headers:JSONH },
+  A4:{ url:'/<tài nguyên đơn hàng>', headers:AUTH + '\n' + JSONH },
+  B1:{ url:'/<tài nguyên đơn hàng>', headers:AUTH + '\n' + JSONH },
+  B2:{ url:'/<endpoint đăng ký>', headers:JSONH },
+  B3:{ url:'/<endpoint danh sách đơn>', headers:{ note:'So sánh: có token và không có token thì API trả gì?' } },
+  B4:{ url:'/<tài nguyên đơn hàng>/<id đơn>', headers:AUTH },
+  B5:{ url:'/<tài nguyên đơn hàng>', headers:AUTH + '\n' + JSONH + '\n<Header chống tạo trùng>: <chuỗi tự đặt>' },
+  E3:{ url:'/<tài nguyên đơn hàng>', headers:AUTH + '\n' + JSONH },
+};
+/* Ô Body ở mọi bài chỉ gợi ý {}: tự điền các trường theo tab Tài liệu API. */
+const phText = v => typeof v === 'string' ? v : v ? v.note : '';
+const phAttr = v => ' placeholder="' + esc(phText(v)).replace(/\n/g, '&#10;') + '"' + (typeof v === 'string' ? '' : ' data-nofill="1"');
+
+/* ===================== Tài liệu API ===================== */
+const DOCS = [
+  { m:'POST', p:'/auth/login', d:'Đăng nhập, lấy access token', body:'{ "email": string, "password": string }', rules:['200: { access_token, token_type: "Bearer", expires_in, user }','400 VALIDATION_ERROR: thiếu email hoặc password','401 INVALID_CREDENTIALS: sai email hoặc mật khẩu'] },
+  { m:'GET', p:'/me', d:'Thông tin người đang đăng nhập', auth:true, rules:['200: { id, email, full_name }','401 UNAUTHORIZED: thiếu, sai hoặc hết hạn token'] },
+  { m:'POST', p:'/users', d:'Đăng ký tài khoản (không cần token)', body:'{ "email": string, "password": string, "full_name": string }', rules:['Cả 3 trường bắt buộc; password ≥ 8 ký tự; email đúng định dạng, không phân biệt hoa thường','201 + header Location: tài khoản mới (không trả password)','400 VALIDATION_ERROR (có field); 409 EMAIL_EXISTS'] },
+  { m:'GET', p:'/products', d:'Danh sách sản phẩm', rules:['Query: category (ao, quan, giay, phu-kien); sort (price, -price, name); page ≥ 1 (mặc định 1); limit 1–50 (mặc định 20)','200: { data: Product[], page, limit, total }','Product: { id: integer, sku: string, name: string, category: string, price: number > 0, stock: integer ≥ 0 }','400 VALIDATION_ERROR khi query sai','Thời gian phản hồi < 500 ms; Content-Type: application/json'] },
+  { m:'GET', p:'/products/{id}', d:'Chi tiết một sản phẩm', rules:['200: Product','400 INVALID_ID: id không phải số nguyên dương','404 PRODUCT_NOT_FOUND'] },
+  { m:'GET', p:'/orders', d:'Đơn hàng của người đang đăng nhập', auth:true, rules:['200: { data: Order[] } (chỉ đơn của chính mình)','401 UNAUTHORIZED: thiếu hoặc sai token'] },
+  { m:'POST', p:'/orders', d:'Tạo đơn hàng', auth:true, body:'{ "items": [ { "product_id": integer, "qty": integer } ], "voucher_code"?: string }', rules:['items: ít nhất 1 phần tử; qty là số nguyên từ 1 đến 10','Header tùy chọn Idempotency-Key: gửi lại cùng key → không tạo đơn mới, trả 200 với đơn đã tạo','201 + header Location: Order với status = pending_payment','total_amount = Σ(qty × unit_price) − discount_amount; voucher SALE10 giảm 10%','400 VALIDATION_ERROR / VOUCHER_INVALID; 401; 409 OUT_OF_STOCK; 422 PRODUCT_NOT_FOUND'] },
+  { m:'GET', p:'/orders/{id}', d:'Chi tiết đơn hàng', auth:true, rules:['200: Order (chỉ khi đơn là của chính mình)','401 UNAUTHORIZED; 403 FORBIDDEN: đơn của người khác; 404 ORDER_NOT_FOUND'] },
+  { m:'PATCH', p:'/orders/{id}', d:'Hủy đơn hàng', auth:true, body:'{ "status": "cancelled" }', rules:['Chỉ hủy được đơn của chính mình, đang ở trạng thái pending_payment','200: Order với status = cancelled','400 VALIDATION_ERROR: status khác cancelled; 409 INVALID_STATUS: đơn không còn chờ thanh toán','401; 403 FORBIDDEN; 404 ORDER_NOT_FOUND'] },
+];
+
+/* ===================== Trạng thái ===================== */
+const STORE = 'apiqa.v1';
+let S = { done:{}, current:'A1', drafts:{}, hist:{}, forms:{}, build:'v11', envs:{}, quiz:{}, sql:{}, sqlDraft:{}, concl:{} };
+let view = 'ticket';   /* 'ticket' hoặc 'crit' (bảng tiêu chí đạt buổi 11–12) */
+/* Mỗi bài có form request, kết quả chạy và kết quả chấm riêng: sang bài mới thì trống, mở lại bài cũ thì thấy lại bài làm cũ. */
+const BLANK_FORM = { method:'GET', url:'', headers:'', body:'' };
+const formOf = id => S.forms[id] || BLANK_FORM;
+const lastRun = {}, lastGrade = {};
+try { const s = JSON.parse(localStorage.getItem(STORE) || 'null'); if (s) S = Object.assign(S, s); } catch(e) {}
+const save = () => { try { localStorage.setItem(STORE, JSON.stringify(S)); } catch(e) {} };
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const cur = () => TICKETS.find(t => t.id === S.current) || TICKETS[0];
+let staging = makeServer(BUGS_V10);
+const hintsShown = {}, answerArmed = {};
+
+/* ===================== Tô màu ===================== */
+const KW = new Set('const let var await async function return for of in if else new true false null undefined typeof test expect api request pm'.split(' '));
+const JAVA_KW = new Set('public private protected class void static final new return import extends implements int long double boolean String var true false null given when then and extract try'.split(' '));
+function highlight(src, kw){
+  kw = kw || KW;
+  let out = '', i = 0; const n = src.length;
+  const span = (c, s) => '<span class="hl-' + c + '">' + esc(s) + '</span>';
+  while (i < n){
+    const c = src[i];
+    if (c === '/' && src[i+1] === '/'){ let j = src.indexOf('\n', i); if (j < 0) j = n; out += span('c', src.slice(i, j)); i = j; continue; }
+    if (c === "'" || c === '"'){ let j = i + 1; while (j < n && src[j] !== c && src[j] !== '\n'){ if (src[j] === '\\') j++; j++; } out += span('s', src.slice(i, Math.min(j+1, n))); i = j + 1; continue; }
+    if (/[0-9]/.test(c) && !/[A-Za-z_$]/.test(src[i-1] || '')){ let j = i; while (j < n && /[0-9._]/.test(src[j])) j++; out += span('n', src.slice(i, j)); i = j; continue; }
+    if (/[A-Za-z_$]/.test(c)){ let j = i; while (j < n && /[A-Za-z0-9_$]/.test(src[j])) j++; const w = src.slice(i, j); out += kw.has(w) ? span('k', w) : esc(w); i = j; continue; }
+    out += esc(c); i++;
+  }
+  return out + '\n';
+}
+const jsonHL = v => highlight(JSON.stringify(v, null, 2));
+
+/* ===================== Danh sách & đề bài ===================== */
+function renderQueue(){
+  const ct = critTotals();
+  $('queue').innerHTML = '<button type="button" class="crit-btn" id="critBtn"' + (view === 'crit' ? ' aria-current="true"' : '') + '><span>Tiêu chí đạt buổi 11–12</span><span class="n">' + ct.done + '/' + ct.total + '</span></button>' +
+    PHASES.map(p => '<div class="phase"><h2><span>' + p.id + ' · ' + esc(p.name) + '</span><span class="bu">' + esc(p.buoi) + '</span></h2>' +
+    TICKETS.filter(t => t.phase === p.id).map(t => '<button type="button" class="qitem' + (S.done[t.id] ? ' done' : '') + '" data-id="' + t.id + '"' + (view !== 'crit' && t.id === S.current ? ' aria-current="true"' : '') + '><span class="dot"></span><span><span class="k">' + t.key + '</span><span class="s">' + esc(t.name) + '</span><span class="t">' + esc(t.title) + '</span></span></button>').join('') + '</div>').join('');
+  const n = TICKETS.filter(t => S.done[t.id]).length;
+  $('progText').textContent = n + '/' + TICKETS.length + ' bài';
+  $('progBar').style.width = (n / TICKETS.length * 100) + '%';
+}
+$('queue').addEventListener('click', e => { if (e.target.closest('#critBtn')) return showCriteria(); const b = e.target.closest('.qitem'); if (b) openTicket(b.dataset.id); });
+
+/* ===================== Tiêu chí đạt buổi 11–12 (theo kế hoạch Automation v2) ===================== */
+const CRIT = [
+  { buoi:'Buổi 11', title:'Test API với Postman và Newman', items:[
+    { k:'Gửi request đúng method, query, path param, header, body JSON', ids:['A1','A2','A3','A4'] },
+    { k:'Có case âm đủ 401, 404 và body sai', ids:['A2','B2','B3','D2'] },
+    { k:'Tìm bug API và viết được bug report', ids:['B1','B2','B3','B4','B5'] },
+    { k:'Test script kiểm tra status, field, schema, header, chuỗi request', ids:['C1','C2','C3','C4'] },
+    { k:'Mỗi request ít nhất 2 assertion, token không hard-code', ids:['D2'] },
+    { k:'Chạy cả collection kiểu Newman, hồi quy chạy được trong CI', ids:['D1','D2'] },
+  ], submit:'Bài nộp thật của buổi: collection + environment + kết quả chạy Newman.' },
+  { buoi:'Buổi 12', title:'API automation bằng REST Assured và xác minh DB', items:[
+    { k:'Viết test REST Assured: given/when/then, status, field', ids:['E1'] },
+    { k:'Kiểm tra JSON schema, hiểu giới hạn của POJO', ids:['E1','E2'] },
+    { k:'Đối chiếu dữ liệu UI/API với DB bằng SQL (bước JDBC)', ids:['E3'] },
+    { k:'Thông tin kết nối DB lấy từ config, không ghi cứng trong code', ids:['E2'] },
+  ], submit:'Bài nộp thật của buổi: package api trong framework, ít nhất 5 test API và 1 test đối chiếu DB, chạy được trong CI.' },
+];
+const uniq = a => [...new Set(a)];
+const critIds = c => uniq(c.items.flatMap(i => i.ids));
+function critTotals(){ const ids = uniq(CRIT.flatMap(critIds)); return { done: ids.filter(id => S.done[id]).length, total: ids.length }; }
+function showCriteria(){
+  view = 'crit'; renderQueue();
+  const tk = id => TICKETS.find(t => t.id === id);
+  let h = '<div class="tk-head"><span class="tk-key">Kế hoạch Automation v2</span><span class="chip buoi">Buổi 11–12</span></div><h2 class="title">Tiêu chí đạt buổi 11–12</h2><p class="subtitle">Tiến độ tính từ các bài đã đạt trên trang này</p>';
+  h += CRIT.map(c => { const ids = critIds(c), d = ids.filter(id => S.done[id]).length, pct = Math.round(d / ids.length * 100);
+    return '<section class="crit-sec"><div class="crit-head"><div><span class="eyebrow">' + c.buoi + '</span><h3>' + esc(c.title) + '</h3></div><div class="crit-pct"><div class="bar"><i style="width:' + pct + '%"></i></div>' + d + '/' + ids.length + ' bài</div></div>' +
+      c.items.map(it => { const n = it.ids.filter(id => S.done[id]).length, st = n === it.ids.length ? ['ok', 'Đạt'] : n ? ['part', 'Đang làm'] : ['no', 'Chưa làm'];
+        return '<div class="crit-row"><span class="lbl">' + esc(it.k) + '</span><span class="pill ' + st[0] + '">' + st[1] + '</span><div class="src">' + it.ids.map(id => '<button type="button" class="tk-link' + (S.done[id] ? ' ok' : '') + '" data-open="' + id + '" title="' + esc(tk(id).name) + '">' + esc(tk(id).key) + (S.done[id] ? ' ✓' : '') + '</button>').join('') + '</div></div>'; }).join('') +
+      '<p class="crit-sub">' + esc(c.submit) + '</p></section>'; }).join('');
+  h += '<p class="kw-note" style="max-width:70ch">Trang chỉ đo phần luyện tập trên API giả lập. Bài nộp thật làm trong Postman và project Java của bạn, theo tiêu chí ở từng buổi trong kế hoạch.</p>';
+  $('ticket').innerHTML = h; $('ticket').scrollTop = 0;
+  $('ticket').querySelectorAll('[data-open]').forEach(b => b.onclick = () => openTicket(b.dataset.open));
+  document.querySelector('.work').className = 'work mode-crit';
+  $('toolbar').innerHTML = '<span class="msg" style="margin:0">Chọn một bài ở cột trái, hoặc bấm mã bài trong bảng tiêu chí để làm tiếp.</span>';
+  $('workspace').innerHTML = '';
+  $('out-resp').innerHTML = '<p class="msg">Bảng tiêu chí lấy từ kế hoạch học Automation v2: buổi 11 (Postman/Newman) và buổi 12 (REST Assured + đối chiếu DB).</p>';
+  $('out-hist').innerHTML = ''; $('out-grade').innerHTML = '<p class="msg">Mở một bài để chấm.</p>'; setBadge(null); showTab('resp');
+}
+
+function renderTicket(){
+  const t = cur(), shown = hintsShown[t.id] || 0, done = !!S.done[t.id];
+  const TYPE_CHIP = { script:['auto', 'Test tự động'], collection:['auto', 'Collection · Newman'], code:['auto', 'REST Assured'], quiz:['req', 'Trắc nghiệm'], db:['bug', 'Đối chiếu DB'] };
+  const tc = TYPE_CHIP[t.type] || (t.bug ? ['bug', 'Tìm bug'] : ['req', 'Gửi request']);
+  const ph = PHASES.find(p => p.id === t.phase);
+  let h = '<div class="tk-head"><span class="tk-key">' + t.key + '</span><span class="chip ' + tc[0] + '">' + tc[1] + '</span><span class="chip buoi">' + esc(ph.buoi) + '</span><span class="chip">' + (t.build || (t.type === 'script' ? 'Build v1.1' : 'Staging · build v1.0')) + '</span></div>';
+  h += '<h2 class="title">' + esc(t.name) + '</h2><p class="subtitle">' + esc(t.title) + '</p>';
+  h += '<div class="practice"><b>Thực hành:</b>' + t.skills.map(s => '<code>' + esc(s) + '</code>').join(' · ') + '</div>';
+  h += '<div class="meta"><span>Trạng thái: ' + (done ? 'Đã xong' : 'Đang làm') + '</span></div>';
+  h += '<div class="field"><h3>Bối cảnh</h3>' + t.context + '</div>';
+  h += '<div class="field"><h3>Việc cần làm</h3>' + t.task + '</div>';
+  h += '<div class="field"><h3>Điều kiện đạt</h3><div class="expect">' + esc(t.expect) + '</div></div>';
+  h += '<div class="field lesson"><h3>Kiến thức dùng trong bài</h3>' + t.lessons.map((x, i) => '<details class="kw"' + (i === 0 ? ' open' : '') + '><summary><code>' + esc(x.k) + '</code></summary><div class="kw-body"><p>' + x.d + '</p><div class="kw-label">Ví dụ</div><pre class="syn">' + esc(x.ex) + '</pre><p class="kw-note"><b>Lưu ý:</b> ' + x.n + '</p></div></details>').join('') + '</div>';
+  h += '<div class="field"><h3>Gợi ý</h3><div class="hints">' + t.hints.slice(0, shown).map((x, i) => '<div class="hint"><b>Gợi ý ' + (i+1) + '</b>' + x + '</div>').join('') +
+       '<div><button type="button" class="linkbtn" id="hintBtn"' + (shown >= t.hints.length ? ' disabled' : '') + '>' + (shown >= t.hints.length ? 'Đã hiện hết gợi ý' : 'Hiện gợi ý ' + (shown + 1) + '/' + t.hints.length) + '</button></div></div></div>';
+  const showAns = done || answerArmed[t.id] === 2;
+  if (done) h += '<div class="field qc"><h3>Góc QC</h3>' + t.qc + '</div>';
+  if (showAns){
+    h += '<div class="field"><h3>Đáp án tham khảo</h3>';
+    if (t.type === 'script' || t.type === 'code') h += '<pre class="syn">' + highlight(t.answer, t.type === 'code' ? JAVA_KW : KW) + '</pre><p><button type="button" class="linkbtn" id="fillAns">Chép đáp án vào editor</button></p>';
+    else if (t.type === 'collection') h += '<p class="kw-note">Environment:</p><pre class="syn">' + esc(t.env) + '</pre><p class="kw-note">Collection:</p><pre class="syn">' + highlight(t.answer) + '</pre><p><button type="button" class="linkbtn" id="fillAns">Chép đáp án vào editor</button></p>';
+    else if (t.type === 'quiz') h += '<ul>' + t.questions.map((q, i) => '<li>Câu ' + (i + 1) + ': ' + String.fromCharCode(65 + q.a) + '. ' + q.opts[q.a] + '</li>').join('') + '</ul>';
+    else if (t.type === 'db'){ const a = t.answer;
+      h += '<p class="kw-note">1. Tạo đơn có mã giảm giá (đăng nhập bằng An trước):</p><pre class="syn">' + esc(a.method + ' ' + a.url + '\n' + a.headers + '\n\n' + a.body) + '</pre>' +
+        '<p class="kw-note">2. Đối chiếu DB (thay 104 bằng id đơn của bạn):</p><pre class="syn">' + esc(a.sql) + '</pre>' +
+        '<p class="kw-note">3. Hủy đơn rồi truy vấn lại status:</p><pre class="syn">' + esc(a.patch.method + ' ' + a.patch.url + '\n' + a.patch.headers + '\n\n' + a.patch.body) + '</pre>' +
+        '<p class="kw-note">4. Kết luận: orders.total_amount trong DB chưa trừ giảm giá.</p>' +
+        '<p><button type="button" class="linkbtn" id="fillAns">Điền request tạo đơn</button> · <button type="button" class="linkbtn" id="fillPatch">Điền request hủy đơn</button> · <button type="button" class="linkbtn" id="fillSql">Điền câu SQL</button></p>'; }
+    else { const a = t.answer; if (a.pre) h += '<p class="kw-note">Bước trước:</p><pre class="syn">' + esc(a.pre.method + ' ' + a.pre.url + '\n' + a.pre.headers + '\n\n' + a.pre.body) + '</pre>';
+      h += '<pre class="syn">' + esc(a.method + ' ' + a.url + (a.headers ? '\n' + a.headers : '') + (a.body ? '\n\n' + a.body : '')) + '</pre><p><button type="button" class="linkbtn" id="fillAns">Điền request này vào form</button>' + (a.pre ? ' · <button type="button" class="linkbtn" id="fillPre">Điền bước trước</button>' : '') + '</p>'; }
+    h += '</div>';
+  } else h += '<div class="field"><button type="button" class="linkbtn" id="ansBtn">' + (answerArmed[t.id] === 1 ? 'Bấm lần nữa để xem đáp án (nên thử thêm trước)' : 'Xem đáp án') + '</button></div>';
+  $('ticket').innerHTML = h;
+  const hb = $('hintBtn'); if (hb) hb.onclick = () => { hintsShown[t.id] = shown + 1; renderTicket(); };
+  const ab = $('ansBtn'); if (ab) ab.onclick = () => { answerArmed[t.id] = (answerArmed[t.id] || 0) + 1; renderTicket(); };
+  const fa = $('fillAns'); if (fa) fa.onclick = () => {
+    if (t.type === 'script' || t.type === 'code') setEditor(t.answer);
+    else if (t.type === 'collection'){ S.envs[t.id] = t.env; if ($('envIn')) $('envIn').value = t.env; setEditor(t.answer); }
+    else fillForm(t.answer); };
+  const fp = $('fillPre'); if (fp) fp.onclick = () => fillForm(t.answer.pre);
+  const fpa = $('fillPatch'); if (fpa) fpa.onclick = () => fillForm(t.answer.patch);
+  const fs = $('fillSql'); if (fs) fs.onclick = () => { S.sqlDraft[t.id] = t.answer.sql; save(); if ($('sqlIn')) $('sqlIn').value = t.answer.sql; };
+}
+
+/* ===================== Workspace ===================== */
+function renderWorkspace(){
+  const t = cur();
+  document.querySelector('.work').className = 'work mode-' + t.type;
+  if (t.type === 'quiz'){
+    $('toolbar').innerHTML = '<button class="btn primary" id="checkBtn" type="button">Kiểm tra bài</button><span class="kbd">Chọn đáp án để xem giải thích</span>';
+    $('checkBtn').onclick = gradeQuiz;
+    renderQuiz(t);
+    $('out-resp').innerHTML = '<p class="msg">Bấm <b>Gửi request tương ứng</b> ở câu hỏi để xem phản hồi thật của API giả lập (staging, build v1.0).</p>';
+  } else if (t.type === 'script' || t.type === 'collection' || t.type === 'code'){
+    const runLabel = t.type === 'collection' ? 'Chạy collection' : 'Chạy test';
+    $('toolbar').innerHTML = '<button class="btn primary" id="runBtn" type="button">' + runLabel + '</button><button class="btn" id="checkBtn" type="button">Kiểm tra bài</button><button class="btn" id="resetBtn" type="button">Khôi phục code gốc</button>' +
+      '<select id="buildSel" aria-label="Build để chạy"><option value="v11">Chạy trên build v1.1 (đã sửa)</option><option value="v10">Chạy trên build v1.0 (có bug)</option></select><span class="kbd">Ctrl+Enter chạy</span>';
+    const envHtml = t.type === 'collection' ? '<div class="reqform"><label for="envIn">Environment <span>mỗi dòng: tên = giá trị</span></label><textarea id="envIn" spellcheck="false" autocapitalize="off" autocomplete="off"></textarea></div>' : '';
+    $('workspace').innerHTML = envHtml + '<div class="editor-wrap"><pre id="hl" aria-hidden="true"></pre><textarea id="editor" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="' + (t.type === 'code' ? 'Code Java REST Assured' : t.type === 'collection' ? 'Collection' : 'Test script') + '"></textarea></div>';
+    if (t.type === 'collection'){ const en = $('envIn'); en.value = S.envs[t.id] != null ? S.envs[t.id] : t.env; en.addEventListener('input', () => { S.envs[t.id] = en.value; save(); }); }
+    $('buildSel').value = S.build; $('buildSel').onchange = e => { S.build = e.target.value; save(); };
+    const run = t.type === 'collection' ? runCollUI : t.type === 'code' ? runJavaUI : runScriptUI;
+    const ed = $('editor'); ed.value = S.drafts[t.id] != null ? S.drafts[t.id] : t.starter; syncHL();
+    ed.addEventListener('input', () => { syncHL(); S.drafts[t.id] = ed.value; save(); });
+    ed.addEventListener('scroll', () => { $('hl').scrollTop = ed.scrollTop; });
+    ed.addEventListener('keydown', e => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter'){ e.preventDefault(); run(); }
+      if (e.key === 'Tab' && !e.shiftKey){ e.preventDefault(); const s = ed.selectionStart, ind = t.type === 'code' ? '    ' : '  '; ed.value = ed.value.slice(0, s) + ind + ed.value.slice(ed.selectionEnd); ed.selectionStart = ed.selectionEnd = s + ind.length; syncHL(); S.drafts[t.id] = ed.value; save(); }
+    });
+    $('runBtn').onclick = run; $('checkBtn').onclick = t.type === 'collection' ? gradeColl : t.type === 'code' ? gradeCode : gradeScript;
+    $('resetBtn').onclick = () => { delete S.drafts[t.id]; if (t.type === 'collection'){ delete S.envs[t.id]; $('envIn').value = t.env; } save(); setEditor(t.starter); };
+    $('out-resp').innerHTML = t.type === 'collection' ? '<p class="msg">Sửa Environment và collection rồi bấm <b>Chạy collection</b>: các request chạy lần lượt như <code>newman run</code>, kết quả từng assertion hiện ở đây.</p>'
+      : t.type === 'code' ? '<p class="msg">Viết test Java rồi bấm <b>Chạy test</b>. Trang đọc code theo tập con cú pháp REST Assured, gửi request tương ứng tới API giả lập và hiện kết quả từng method @Test.</p>'
+      : '<p class="msg">Viết test rồi bấm <b>Chạy test</b>. Kết quả từng test hiện ở đây. Bấm <b>Kiểm tra bài</b> để chấm trên v1.1 và các bản lỗi bí mật.</p>';
+  } else {
+    const isDb = t.type === 'db';
+    $('toolbar').innerHTML = '<button class="btn primary" id="sendBtn" type="button">Gửi</button>' + (isDb ? '<button class="btn" id="sqlBtn" type="button">Chạy SQL</button>' : '') + '<button class="btn" id="checkBtn" type="button">Kiểm tra bài</button><button class="btn" id="resetSrv" type="button">' + (isDb ? 'Reset API và DB' : 'Reset dữ liệu staging') + '</button><span class="kbd">Ctrl+Enter gửi</span>';
+    const f = formOf(t.id);
+    $('workspace').innerHTML = '<div class="reqform"><div class="urlrow"><select id="rqMethod" aria-label="Method">' + ['GET','POST','PUT','PATCH','DELETE'].map(m => '<option' + (m === f.method ? ' selected' : '') + '>' + m + '</option>').join('') + '</select><input id="rqUrl" spellcheck="false" aria-label="URL"' + phAttr((PH[t.id] || {}).url || '/products') + ' value="' + esc(f.url) + '"></div>' +
+      '<div class="base">Base URL: ' + BASE + ' · Ô trống: bấm <b>Tab</b> để chép khuôn gợi ý, rồi thay các chỗ &lt;...&gt;</div>' +
+      '<label for="rqHeaders">Headers <span>mỗi dòng một header, dạng Tên: giá trị</span></label><textarea id="rqHeaders" spellcheck="false"' + phAttr((PH[t.id] || {}).headers || AUTH + '\n' + JSONH) + '>' + esc(f.headers) + '</textarea>' +
+      '<label for="rqBody">Body <span>JSON</span></label><textarea id="rqBody" spellcheck="false"' + phAttr('{}') + '>' + esc(f.body) + '</textarea></div>' +
+      (isDb ? '<div class="sqlbox"><label for="sqlIn">SQL <span>đóng vai bước JDBC · SQLite</span></label><textarea id="sqlIn" spellcheck="false" autocapitalize="off" autocomplete="off" placeholder="SELECT * FROM orders WHERE id = ...;">' + esc(S.sqlDraft[t.id] || '') + '</textarea>' +
+        '<label for="conclSel">Kết luận <span>trường nào lệch giữa API và DB?</span></label><select id="conclSel"><option value="">Chưa chọn</option><option value="none">Không có trường nào lệch</option><option value="status">orders.status</option><option value="total">orders.total_amount</option><option value="discount">orders.discount_amount</option><option value="qty">order_items.qty</option></select></div>' : '');
+    if (isDb){
+      $('conclSel').value = S.concl[t.id] || '';
+      $('conclSel').onchange = e => { S.concl[t.id] = e.target.value; save(); };
+      $('sqlIn').addEventListener('input', e => { S.sqlDraft[t.id] = e.target.value; save(); });
+      $('sqlIn').addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && e.key === 'Enter'){ e.preventDefault(); runSqlUI(); } });
+      $('sqlBtn').onclick = runSqlUI;
+    }
+    /* Ô đang trống: bấm Tab để điền gợi ý (placeholder) thành chữ thật, rồi sửa tiếp. Ô đã có chữ: Tab chuyển ô như bình thường. */
+    ['rqUrl','rqHeaders','rqBody'].forEach(id => $(id).addEventListener('keydown', e => {
+      const el = e.target;
+      if (e.key !== 'Tab' || e.shiftKey || e.ctrlKey || e.altKey || el.value || !el.placeholder || el.dataset.nofill) return;
+      e.preventDefault();
+      el.value = el.placeholder;
+      el.setSelectionRange(el.value.length, el.value.length);
+      readForm();
+    }));
+    ['rqMethod','rqUrl','rqHeaders','rqBody'].forEach(id => { $(id).addEventListener('input', readForm); $(id).addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && e.key === 'Enter'){ e.preventDefault(); send(); } }); });
+    $('sendBtn').onclick = send; $('checkBtn').onclick = gradeReq;
+    $('resetSrv').onclick = () => {
+      if (isDb){ dbLab = null; ensureDbLab().then(() => { $('out-resp').innerHTML = '<p class="msg">Đã reset API và DB về dữ liệu ban đầu. Lịch sử request và SQL vẫn giữ.</p>'; showTab('resp'); }, () => {}); return; }
+      staging = makeServer(BUGS_V10); $('out-resp').innerHTML = '<p class="msg">Đã reset dữ liệu staging: các đơn và tài khoản bạn tạo đã bị xóa. Lịch sử request vẫn giữ.</p>'; showTab('resp'); };
+    $('out-resp').innerHTML = '<p class="msg">Điền request rồi bấm <b>Gửi</b>. Tham khảo tab <b>Tài liệu API</b> để biết endpoint và quy tắc. Tài khoản test: <code>an.nguyen@shopdemo.test</code> / <code>Test@1234</code>.</p>' +
+      (isDb ? '<p class="msg">API và DB ở bài này chạy trong trình duyệt: tải lại trang thì dữ liệu quay về ban đầu (lịch sử bài làm vẫn giữ).</p>' : '');
+    if (isDb) ensureDbLab().catch(() => {});
+  }
+  renderHist();
+}
+function syncHL(){ const ed = $('editor'); if (!ed) return; $('hl').innerHTML = highlight(ed.value, cur().type === 'code' ? JAVA_KW : KW); $('hl').scrollTop = ed.scrollTop; }
+function setEditor(v){ const ed = $('editor'); if (!ed) return; ed.value = v; S.drafts[cur().id] = v; save(); syncHL(); }
+function readForm(){ S.forms[cur().id] = { method: $('rqMethod').value, url: $('rqUrl').value, headers: $('rqHeaders').value, body: $('rqBody').value }; save(); }
+function fillForm(a){ S.forms[cur().id] = { method:a.method, url:a.url, headers:a.headers, body:a.body }; save(); renderWorkspace(); restoreOutputs(); }
+
+/* ===================== Gửi request ===================== */
+const stCls = s => s < 300 ? 's2' : s < 500 ? 's4' : 's5';
+const STATUS_TEXT = { 200:'OK', 201:'Created', 400:'Bad Request', 401:'Unauthorized', 403:'Forbidden', 404:'Not Found', 405:'Method Not Allowed', 409:'Conflict', 422:'Unprocessable Entity', 500:'Internal Server Error' };
+async function send(){
+  readForm();
+  const f = formOf(cur().id), u = parseUrl(f.url);
+  if (!f.url.trim()){ $('out-resp').innerHTML = '<p class="msg err">Chưa nhập URL. Ví dụ: /products</p>'; showTab('resp'); return; }
+  const req = { method: f.method, path: u.path, query: u.query, headers: parseHeaders(f.headers), bodyText: f.method === 'GET' ? '' : f.body };
+  let server = staging;
+  if (cur().type === 'db'){
+    try { server = (await ensureDbLab()).server; }
+    catch(e){ $('out-resp').innerHTML = '<p class="msg err">Chưa tải được SQLite (sql.js) nên chưa gửi được request ở bài này. Kiểm tra kết nối mạng rồi bấm Gửi lại.</p>'; showTab('resp'); return; }
+  }
+  $('sendBtn').disabled = true;
+  const res = await server(req);
+  await new Promise(r => setTimeout(r, Math.min(res.time, 250)));
+  $('sendBtn').disabled = false;
+  const t = cur(); (S.hist[t.id] = S.hist[t.id] || []).push({ req, res, url: f.url, at: Date.now() });
+  if (S.hist[t.id].length > 60) S.hist[t.id] = S.hist[t.id].slice(-60);
+  save(); showResp(req, res); renderHist();
+}
+function showResp(req, res){
+  const hdr = Object.entries(res.headers).map(([k, v]) => k + ': ' + v).join('\n');
+  $('out-resp').innerHTML = '<div class="status"><span class="m ' + req.method + '">' + req.method + '</span><span style="font-family:var(--f-mono)">' + esc(req.path + (Object.keys(req.query).length ? '?' + Object.entries(req.query).map(([k, v]) => k + '=' + v).join('&') : '')) + '</span><span class="st ' + stCls(res.status) + '">' + res.status + ' ' + (STATUS_TEXT[res.status] || '') + '</span><span class="msg" style="margin:0">' + res.time + ' ms</span></div>' +
+    '<div class="kw-label">Headers</div><pre class="hdrs">' + esc(hdr) + '</pre><div class="kw-label">Body</div><pre class="json">' + jsonHL(res.body) + '</pre>';
+  showTab('resp');
+}
+function renderHist(){
+  const t = cur(), list = (S.hist[t.id] || []).slice().reverse();
+  if (t.type !== 'req' && t.type !== 'db'){ $('out-hist').innerHTML = '<p class="msg">' + (t.type === 'quiz' ? 'Bài trắc nghiệm không lưu lịch sử request.' : 'Bài viết test tự động không lưu lịch sử request.') + ' Kết quả mỗi lần chạy hiện ở tab Phản hồi.</p>'; return; }
+  $('out-hist').innerHTML = list.length ? '<p class="msg">Request đã gửi trong bài này (mới nhất trên cùng). Bấm để xem lại phản hồi.</p><div class="hist">' + list.map((e, i) => '<button type="button" class="hrow" data-i="' + i + '"><span class="m ' + e.req.method + '">' + e.req.method + '</span><span class="p">' + esc(e.url) + (e.req.headers['authorization'] ? ' 🔑' : '') + '</span><span class="st ' + stCls(e.res.status) + '">' + e.res.status + '</span><span class="ms">' + e.res.time + ' ms</span></button>').join('') + '</div><p style="margin-top:10px"><button type="button" class="linkbtn" id="clearHist">Xóa lịch sử bài này</button></p>' : '<p class="msg">Chưa có request nào trong bài này.</p>';
+  $('out-hist').querySelectorAll('.hrow').forEach(b => b.onclick = () => { const e = list[+b.dataset.i]; showResp(e.req, e.res); });
+  const ch = $('clearHist'); if (ch) ch.onclick = () => { S.hist[t.id] = []; save(); renderHist(); };
+}
+
+/* ===================== Chạy test script ===================== */
+function deepEq(a, b){ return JSON.stringify(a) === JSON.stringify(b); }
+const show = v => { try { const s = JSON.stringify(v); return s === undefined ? String(v) : s; } catch(e){ return String(v); } };
+const short = (s, n) => (s = String(s), s.length > (n || 80) ? s.slice(0, (n || 80) - 1) + '…' : s);
+/* rec (tùy chọn): ghi nhận từng assertion thay vì dừng ở assertion sai đầu tiên, giống báo cáo của Newman. */
+function makeExpect(rec){
+  return function expect(actual){
+    const mk = neg => {
+      const chk = (ok, msg, m, e) => {
+        const pass = neg ? !ok : !!ok, text = (neg ? 'Không mong đợi: ' : '') + msg;
+        if (rec){ rec({ ok: pass, msg: text, m, e, a: actual, neg }); return; }
+        if (!pass) throw new Error(text);
+      };
+      return {
+        toBe: e => chk(Object.is(actual, e), 'mong đợi ' + show(e) + ', thực tế ' + show(actual), 'toBe', e),
+        toEqual: e => chk(deepEq(actual, e), 'mong đợi ' + show(e) + ', thực tế ' + show(actual), 'toEqual', e),
+        toBeGreaterThan: e => chk(actual > e, 'mong đợi > ' + show(e) + ', thực tế ' + show(actual), 'toBeGreaterThan', e),
+        toBeGreaterThanOrEqual: e => chk(actual >= e, 'mong đợi ≥ ' + show(e) + ', thực tế ' + show(actual), 'toBeGreaterThanOrEqual', e),
+        toBeLessThan: e => chk(actual < e, 'mong đợi < ' + show(e) + ', thực tế ' + show(actual), 'toBeLessThan', e),
+        toBeLessThanOrEqual: e => chk(actual <= e, 'mong đợi ≤ ' + show(e) + ', thực tế ' + show(actual), 'toBeLessThanOrEqual', e),
+        toContain: e => chk(actual != null && actual.includes && actual.includes(e), 'mong đợi chứa ' + show(e) + ', thực tế ' + show(actual), 'toContain', e),
+        toHaveProperty: k => chk(actual != null && typeof actual === 'object' && k in actual, 'mong đợi có trường "' + k + '", thực tế ' + show(actual), 'toHaveProperty', k),
+        toMatch: re => chk(typeof actual === 'string' && new RegExp(re).test(actual), 'mong đợi khớp ' + re + ', thực tế ' + show(actual), 'toMatch', String(re)),
+        toBeDefined: () => chk(actual !== undefined, 'mong đợi có giá trị, thực tế undefined', 'toBeDefined'),
+        toBeTruthy: () => chk(!!actual, 'mong đợi giá trị đúng, thực tế ' + show(actual), 'toBeTruthy'),
+        toBeFalsy: () => chk(!actual, 'mong đợi giá trị sai, thực tế ' + show(actual), 'toBeFalsy'),
+      };
+    };
+    const m = mk(false); m.not = mk(true); return m;
+  };
+}
+
+/* ===================== Collection kiểu Postman, chạy như Newman ===================== */
+function parseEnv(text){
+  const env = {};
+  String(text || '').split('\n').forEach(l => { const m = l.match(/^\s*([A-Za-z_][\w.-]*)\s*[=:]\s*(.*?)\s*$/); if (m) env[m[1]] = m[2]; });
+  return env;
+}
+const subst = (v, env) => typeof v === 'string' ? v.replace(/\{\{\s*([\w.-]+)\s*\}\}/g, (m, k) => (k in env && env[k] !== '') ? env[k] : m)
+  : Array.isArray(v) ? v.map(x => subst(x, env)) : v && typeof v === 'object' ? Object.fromEntries(Object.entries(v).map(([k, x]) => [k, subst(x, env)])) : v;
+async function runCollection(code, envText, bugs){
+  const server = makeServer(bugs), env = parseEnv(envText), reqs = [];
+  const request = (name, spec) => { reqs.push({ name: String(name), spec: spec || {} }); };
+  const pm = { environment: { get: k => env[k], set: (k, v) => { env[k] = v == null ? '' : String(v); }, unset: k => { delete env[k]; } } };
+  let sink = null;
+  const expect = makeExpect(a => { if (sink) sink.push(a); });
+  const AsyncFn = Object.getPrototypeOf(async function(){}).constructor;
+  let error = null;
+  try { await new AsyncFn('request', 'pm', 'expect', code)(request, pm, expect); } catch(e){ error = e.message; }
+  const runs = [];
+  for (const r of reqs){
+    const sp = r.spec, method = String(sp.method || 'GET').toUpperCase(), rawUrl = String(sp.url || '');
+    const url = subst(rawUrl, env), headers = {};
+    Object.entries(subst(sp.headers || {}, env)).forEach(([k, v]) => { headers[k.toLowerCase()] = String(v); });
+    let bodyText = '';
+    if (sp.body !== undefined && sp.body !== null){ bodyText = typeof sp.body === 'string' ? subst(sp.body, env) : JSON.stringify(subst(sp.body, env)); if (!headers['content-type']) headers['content-type'] = 'application/json'; }
+    const unresolved = uniq((url + ' ' + Object.values(headers).join(' ') + ' ' + bodyText).match(/\{\{[^}]+\}\}/g) || []);
+    const u = parseUrl(url);
+    const res = await server({ method, path: u.path, query: u.query, headers, bodyText: method === 'GET' ? '' : bodyText });
+    const asserts = []; let terr = null;
+    sink = asserts;
+    if (typeof sp.tests === 'function'){ try { await sp.tests({ status: res.status, headers: res.headers, body: res.body, time: res.time }, pm); } catch(e){ terr = e.message; } }
+    sink = null;
+    runs.push({ name: r.name, method, rawUrl, url, rawHeaders: sp.headers || {}, unresolved, res, asserts, terr });
+  }
+  return { error, runs, env };
+}
+const aLabel = a => 'expect(' + short(show(a.a), 48) + ')' + (a.neg ? '.not' : '') + '.' + a.m + '(' + (a.e === undefined ? '' : short(show(a.e), 40)) + ')';
+function newmanHTML(r){
+  let h = r.error ? '<p class="msg err">Lỗi khi đọc collection: ' + esc(r.error) + '</p>' : '';
+  if (!r.runs.length) return h + '<p class="msg">Collection chưa có request nào. Khai báo bằng <code>request(tên, { method, url, headers, body, tests })</code>.</p>';
+  let nA = 0, fA = 0, fR = 0;
+  h += r.runs.map(x => {
+    const fails = x.asserts.filter(a => !a.ok).length + (x.terr ? 1 : 0); nA += x.asserts.length; fA += fails; if (fails) fR++;
+    return '<div class="nm-req"><div class="nm-name">→ ' + esc(x.name) + '</div><div class="ln"><span class="m ' + x.method + '">' + x.method + '</span><span class="p">' + esc(x.url) + '</span><span class="st ' + stCls(x.res.status) + '">' + x.res.status + ' ' + (STATUS_TEXT[x.res.status] || '') + '</span><span class="ms">' + x.res.time + ' ms</span></div>' +
+      (x.unresolved.length ? '<p class="msg err">Biến chưa có giá trị: ' + esc(x.unresolved.join(', ')) + '</p>' : '') +
+      '<ul class="tres">' + x.asserts.map(a => '<li><span class="' + (a.ok ? 'ok' : 'no') + '">' + (a.ok ? '✓' : '✕') + '</span><span>' + esc(aLabel(a)) + (a.ok ? '' : '<small>' + esc(a.msg) + '</small>') + '</span></li>').join('') +
+      (x.terr ? '<li><span class="no">✕</span><span>Lỗi trong tests<small>' + esc(x.terr) + '</small></span></li>' : '') +
+      (x.asserts.length || x.terr ? '' : '<li><span class="wn">!</span><span>Request này chưa có assertion nào</span></li>') + '</ul></div>';
+  }).join('');
+  h += '<div class="tbl-wrap"><table class="res"><thead><tr><th></th><th>Đã chạy</th><th>Fail</th></tr></thead><tbody><tr><td>requests</td><td>' + r.runs.length + '</td><td>' + fR + '</td></tr><tr><td>assertions</td><td>' + nA + '</td><td>' + fA + '</td></tr></tbody></table></div>';
+  return h;
+}
+const buildLabel = () => S.build === 'v10' ? 'build v1.0 (có bug)' : 'build v1.1 (đã sửa)';
+async function runCollUI(){
+  const t = cur(), r = await runCollection($('editor').value, $('envIn').value, S.build === 'v10' ? BUGS_V10 : []);
+  $('out-resp').innerHTML = lastRun[t.id] = '<p class="msg"><code>newman run</code> trên <b>' + buildLabel() + '</b></p>' + newmanHTML(r);
+  showTab('resp');
+}
+async function gradeColl(){
+  const t = cur(), code = $('editor').value, envText = $('envIn').value;
+  const r = await runCollection(code, envText, []), runs = r.runs;
+  const hard = USERS.some(u => code.includes(u.token) || envText.includes(u.token)) || /eyJ[\w-]+\.[\w-]+\./.test(code + '\n' + envText);
+  const neg = st => runs.some(x => x.res.status === st && x.asserts.some(a => a.ok && a.m === 'toBe' && !a.neg && a.e === st));
+  const few = runs.filter(x => x.asserts.length < 2).map(x => x.name);
+  const failed = runs.filter(x => x.terr || x.asserts.some(a => !a.ok)).map(x => x.name);
+  const checks = [
+    [!r.error && runs.length > 0, r.error ? 'Collection lỗi khi đọc: ' + esc(r.error) : 'Collection có ' + runs.length + ' request'],
+    [!!(r.env.baseUrl || parseEnv(envText).baseUrl), 'Environment có biến baseUrl'],
+    [runs.length > 0 && runs.every(x => /^\{\{\s*baseUrl\s*\}\}/.test(x.rawUrl)), 'Mọi URL bắt đầu bằng {{baseUrl}}'],
+    [!hard && /pm\.environment\.set\(\s*['"]token['"]/.test(code) && runs.some(x => /\{\{\s*token\s*\}\}/.test(JSON.stringify(x.rawHeaders))), 'Token lấy từ request đăng nhập và dùng qua {{token}}' + (hard ? ' (đang có token chép cứng)' : '')],
+    [neg(401), 'Có case âm 401 với assertion kiểm tra status 401'],
+    [neg(404), 'Có case âm 404 với assertion kiểm tra status 404'],
+    [neg(400), 'Có case body sai (400) với assertion kiểm tra status 400'],
+    [runs.length > 0 && !few.length, 'Mỗi request có ít nhất 2 assertion' + (few.length ? ' (chưa đủ: ' + esc(few.join(', ')) + ')' : '')],
+    [runs.length > 0 && !failed.length, 'Không assertion nào fail trên build v1.1' + (failed.length ? ' (fail ở: ' + esc(failed.join(', ')) + ')' : '')],
+  ];
+  finish(checks.every(c => c[0]), checks, '<div class="build">Lần chạy trên build v1.1</div>' + newmanHTML(r));
+}
+
+/* ===================== REST Assured mô phỏng =====================
+   Đọc một tập con cú pháp Java + REST Assured + Hamcrest, chạy trên API giả lập. Không phải trình biên dịch Java. */
+const SCH_PRODUCT = { type:'object', required:['id','sku','name','category','price','stock'], properties:{ id:{ type:'integer' }, sku:{ type:'string', minLength:1 }, name:{ type:'string', minLength:1 }, category:{ type:'string', enum:['ao','quan','giay','phu-kien'] }, price:{ type:'number', exclusiveMinimum:0 }, stock:{ type:'integer', minimum:0 } } };
+const SCHEMAS = {
+  'product.json': SCH_PRODUCT,
+  'product-list.json': { type:'object', required:['data','page','limit','total'], properties:{ data:{ type:'array', items:SCH_PRODUCT }, page:{ type:'integer', minimum:1 }, limit:{ type:'integer', minimum:1, maximum:50 }, total:{ type:'integer', minimum:0 } } },
+  'order.json': { type:'object', required:['id','code','customer_id','status','items','discount_amount','total_amount','created_at'], properties:{ id:{ type:'integer' }, code:{ type:'string' }, customer_id:{ type:'integer' }, status:{ type:'string', enum:['pending_payment','paid','delivered','cancelled'] }, items:{ type:'array', items:{ type:'object', required:['product_id','qty','unit_price'], properties:{ product_id:{ type:'integer' }, qty:{ type:'integer', minimum:1, maximum:10 }, unit_price:{ type:'number', exclusiveMinimum:0 } } } }, discount_amount:{ type:'number', minimum:0 }, total_amount:{ type:'number', minimum:0 }, created_at:{ type:'string' } } },
+};
+function validateSchema(s, v, path, errs){
+  const ty = v === null ? 'null' : Array.isArray(v) ? 'array' : typeof v;
+  if (s.type){ const ok = s.type === 'integer' ? Number.isInteger(v) : s.type === 'number' ? typeof v === 'number' : s.type === ty; if (!ok){ errs.push(path + ': mong đợi kiểu ' + s.type + ', thực tế ' + ty + ' ' + short(show(v), 30)); return; } }
+  if (s.enum && !s.enum.includes(v)) errs.push(path + ': giá trị ' + show(v) + ' không thuộc ' + show(s.enum));
+  if (s.minLength != null && typeof v === 'string' && v.length < s.minLength) errs.push(path + ': chuỗi ngắn hơn ' + s.minLength + ' ký tự');
+  if (s.minimum != null && typeof v === 'number' && v < s.minimum) errs.push(path + ': ' + v + ' nhỏ hơn minimum ' + s.minimum);
+  if (s.maximum != null && typeof v === 'number' && v > s.maximum) errs.push(path + ': ' + v + ' lớn hơn maximum ' + s.maximum);
+  if (s.exclusiveMinimum != null && typeof v === 'number' && v <= s.exclusiveMinimum) errs.push(path + ': ' + v + ' phải lớn hơn ' + s.exclusiveMinimum);
+  if (s.required && v && typeof v === 'object') s.required.forEach(k => { if (!(k in v)) errs.push(path + ': thiếu trường bắt buộc "' + k + '"'); });
+  if (s.properties && v && typeof v === 'object') Object.entries(s.properties).forEach(([k, ps]) => { if (k in v) validateSchema(ps, v[k], path + '.' + k, errs); });
+  if (s.items && Array.isArray(v)) v.forEach((x, i) => validateSchema(s.items, x, path + '[' + i + ']', errs));
+}
+function gpath(obj, p){
+  if (p === '' || p === '$') return obj;
+  const parts = String(p).match(/[^.\[\]]+|\[-?\d+\]/g) || [];
+  let c = obj;
+  for (const part of parts){
+    if (c === undefined || c === null) return null;
+    if (part === 'size()'){ c = Array.isArray(c) || typeof c === 'string' ? c.length : typeof c === 'object' ? Object.keys(c).length : null; continue; }
+    const m = part.match(/^\[(-?\d+)\]$/);
+    if (m){ const i = +m[1]; c = Array.isArray(c) ? c[i < 0 ? c.length + i : i] : null; continue; }
+    c = Array.isArray(c) ? c.map(x => x == null || x[part] === undefined ? null : x[part]) : (c[part] === undefined ? null : c[part]);
+  }
+  return c === undefined ? null : c;
+}
+const MT = (desc, test, why) => ({ kind:'matcher', desc, test, why });
+const toM = x => x && x.kind === 'matcher' ? x : MATCHERS.equalTo(x);
+const numOk = v => typeof v === 'number';
+const MATCHERS = {
+  equalTo: x => MT('equalTo(' + show(x) + ')', v => deepEq(v, x)),
+  is: x => x && x.kind === 'matcher' ? x : MATCHERS.equalTo(x),
+  not: m => { m = toM(m); return MT('not(' + m.desc + ')', v => !m.test(v)); },
+  notNullValue: () => MT('notNullValue()', v => v !== null && v !== undefined),
+  nullValue: () => MT('nullValue()', v => v === null || v === undefined),
+  anything: () => MT('anything()', () => true),
+  greaterThan: x => MT('greaterThan(' + x + ')', v => numOk(v) && v > x),
+  greaterThanOrEqualTo: x => MT('greaterThanOrEqualTo(' + x + ')', v => numOk(v) && v >= x),
+  lessThan: x => MT('lessThan(' + x + ')', v => numOk(v) && v < x),
+  lessThanOrEqualTo: x => MT('lessThanOrEqualTo(' + x + ')', v => numOk(v) && v <= x),
+  hasSize: n => MT('hasSize(' + n + ')', v => (Array.isArray(v) || typeof v === 'string') && v.length === n),
+  hasItem: x => { const m = toM(x); return MT('hasItem(' + m.desc + ')', v => Array.isArray(v) && v.some(i => m.test(i))); },
+  hasItems: (...xs) => { const ms = xs.map(toM); return MT('hasItems(' + ms.map(m => m.desc).join(', ') + ')', v => Array.isArray(v) && ms.every(m => v.some(i => m.test(i)))); },
+  hasKey: k => MT('hasKey(' + show(k) + ')', v => !!v && typeof v === 'object' && !Array.isArray(v) && k in v),
+  containsString: s => MT('containsString(' + show(s) + ')', v => typeof v === 'string' && v.includes(s)),
+  startsWith: s => MT('startsWith(' + show(s) + ')', v => typeof v === 'string' && v.startsWith(s)),
+  everyItem: m => { m = toM(m); return MT('everyItem(' + m.desc + ')', v => Array.isArray(v) && v.length > 0 && v.every(i => m.test(i))); },
+  matchesJsonSchemaInClasspath: p => {
+    const sch = SCHEMAS[String(p).split('/').pop()];
+    if (!sch) throw new Error('Không có file schema "' + p + '". Có sẵn: schemas/product.json, schemas/product-list.json, schemas/order.json');
+    const errsOf = v => { const e = []; validateSchema(sch, v, '$', e); return e; };
+    return MT('matchesJsonSchemaInClasspath(' + show(p) + ')', v => !errsOf(v).length, v => errsOf(v)[0]);
+  },
+};
+const JCONST = { BASE_URL: BASE, 'ContentType.JSON': { kind:'ct', v:'application/json' }, 'ContentType.TEXT': { kind:'ct', v:'text/plain' }, 'TimeUnit.MILLISECONDS': { kind:'tu', v:1 }, 'TimeUnit.SECONDS': { kind:'tu', v:1000 } };
+const isP = (t, ch) => !!t && t.k === 'p' && t.v === ch;
+function jtok(src){
+  const t = []; let i = 0; const n = src.length;
+  while (i < n){
+    const c = src[i];
+    if (/\s/.test(c)){ i++; continue; }
+    if (c === '/' && src[i+1] === '/'){ while (i < n && src[i] !== '\n') i++; continue; }
+    if (c === '/' && src[i+1] === '*'){ const j = src.indexOf('*/', i + 2); i = j < 0 ? n : j + 2; continue; }
+    if (src.startsWith('"""', i)){
+      const j = src.indexOf('"""', i + 3); if (j < 0) throw new Error('Text block """ chưa đóng');
+      const lines = src.slice(i + 3, j).replace(/^[ \t]*\n/, '').split('\n');
+      const ind = Math.min(...lines.filter(l => l.trim()).map(l => l.match(/^[ \t]*/)[0].length).concat([1e9]));
+      t.push({ k:'str', v: lines.map(l => l.slice(Math.min(ind, l.length))).join('\n').replace(/\n[ \t]*$/, '\n') }); i = j + 3; continue;
+    }
+    if (c === '"' || c === "'"){
+      let j = i + 1, s = '';
+      while (j < n && src[j] !== c){ if (src[j] === '\n') throw new Error('Chuỗi chưa đóng dấu ' + c); if (src[j] === '\\'){ const e = src[j+1]; s += e === 'n' ? '\n' : e === 't' ? '\t' : e; j += 2; } else s += src[j++]; }
+      if (j >= n) throw new Error('Chuỗi chưa đóng dấu ' + c);
+      t.push({ k:'str', v:s }); i = j + 1; continue;
+    }
+    if (/[0-9]/.test(c)){ let j = i; while (j < n && /[0-9._]/.test(src[j])) j++; const v = Number(src.slice(i, j).replace(/_/g, '')); if (/[LlDdFf]/.test(src[j] || '')) j++; t.push({ k:'num', v }); i = j; continue; }
+    if (/[A-Za-z_$@]/.test(c)){ let j = i + 1; while (j < n && /[A-Za-z0-9_$]/.test(src[j])) j++; t.push({ k:'id', v: src.slice(i, j) }); i = j; continue; }
+    t.push({ k:'p', v:c }); i++;
+  }
+  return t;
+}
+function findTests(toks){
+  const out = [];
+  for (let i = 0; i < toks.length; i++){
+    if (!(toks[i].k === 'id' && toks[i].v === '@Test')) continue;
+    let j = i + 1;
+    if (isP(toks[j], '(')){ let d = 0; do { if (isP(toks[j], '(')) d++; else if (isP(toks[j], ')')) d--; j++; } while (j < toks.length && d > 0); }
+    while (j < toks.length && !isP(toks[j], '(')) j++;
+    if (j >= toks.length) throw new Error('Không đọc được khai báo method sau @Test');
+    const name = toks[j - 1] && toks[j - 1].k === 'id' ? toks[j - 1].v : 'test';
+    let d = 0; do { if (isP(toks[j], '(')) d++; else if (isP(toks[j], ')')) d--; j++; } while (j < toks.length && d > 0);
+    while (j < toks.length && !isP(toks[j], '{')) j++;
+    if (j >= toks.length) throw new Error('Không tìm thấy thân method ' + name);
+    let k = j + 1; d = 1;
+    while (k < toks.length && d > 0){ if (isP(toks[k], '{')) d++; else if (isP(toks[k], '}')) d--; k++; }
+    if (d > 0) throw new Error('Thiếu dấu } đóng method ' + name);
+    out.push({ name, body: toks.slice(j + 1, k - 1) });
+    i = k - 1;
+  }
+  return out;
+}
+function splitStmts(body){
+  const out = []; let cur = [], d = 0;
+  for (const t of body){
+    if (isP(t, '{') || isP(t, '}')) throw new Error('Trang mô phỏng chỉ chạy các câu lệnh tuần tự trong method @Test (chưa hỗ trợ if, for, try).');
+    if (isP(t, '(')) d++; else if (isP(t, ')')) d--;
+    if (isP(t, ';') && d === 0){ if (cur.length) out.push(cur); cur = []; } else cur.push(t);
+  }
+  if (cur.length) throw new Error('Thiếu dấu ; ở cuối câu lệnh');
+  return out;
+}
+const tokText = ts => ts.map(x => x.k === 'str' ? '"' + x.v + '"' : x.v).join(' ');
+function jparse(toks){
+  const P = { t: toks, i: 0 };
+  const n = pExpr(P);
+  if (P.i < toks.length) throw new Error('Không hiểu đoạn: ' + short(tokText(toks.slice(P.i, P.i + 5)), 60));
+  return n;
+}
+function pExpr(P){ let a = pPost(P); while (isP(P.t[P.i], '+')){ P.i++; a = { t:'add', a, b: pPost(P) }; } return a; }
+function pPost(P){
+  let n = pPrim(P);
+  while (isP(P.t[P.i], '.') && P.t[P.i+1] && P.t[P.i+1].k === 'id'){
+    const name = P.t[P.i+1].v;
+    if (!isP(P.t[P.i+2], '(')) throw new Error('Trang mô phỏng chưa hỗ trợ truy cập .' + name + ' (chỉ hỗ trợ gọi method)');
+    P.i += 3; n = { t:'call', name, args: pArgs(P), target: n };
+  }
+  return n;
+}
+function pArgs(P){
+  const args = [];
+  if (isP(P.t[P.i], ')')){ P.i++; return args; }
+  for (;;){
+    args.push(pExpr(P));
+    if (isP(P.t[P.i], ',')){ P.i++; continue; }
+    if (isP(P.t[P.i], ')')){ P.i++; return args; }
+    throw new Error('Thiếu dấu ) hoặc dấu phẩy giữa các tham số');
+  }
+}
+function pPrim(P){
+  const t = P.t[P.i];
+  if (!t) throw new Error('Câu lệnh chưa hoàn chỉnh');
+  if (t.k === 'str' || t.k === 'num'){ P.i++; return { t:'lit', v:t.v }; }
+  if (isP(t, '-') && P.t[P.i+1] && P.t[P.i+1].k === 'num'){ P.i += 2; return { t:'lit', v: -P.t[P.i-1].v }; }
+  if (isP(t, '(')){ P.i++; const e = pExpr(P); if (!isP(P.t[P.i], ')')) throw new Error('Thiếu dấu )'); P.i++; return e; }
+  if (t.k === 'id'){
+    if (t.v === 'true' || t.v === 'false'){ P.i++; return { t:'lit', v: t.v === 'true' }; }
+    if (t.v === 'null'){ P.i++; return { t:'lit', v:null }; }
+    if (t.v === 'new') throw new Error('Trang mô phỏng chưa hỗ trợ tạo object bằng new; dùng Map.of(...) cho body');
+    let name = t.v; P.i++;
+    while (/^[A-Z]/.test(name.split('.').pop()) && isP(P.t[P.i], '.') && P.t[P.i+1] && P.t[P.i+1].k === 'id'){ name += '.' + P.t[P.i+1].v; P.i += 2; if (isP(P.t[P.i], '(')) break; }
+    if (isP(P.t[P.i], '(')){ P.i++; return { t:'call', name, args: pArgs(P) }; }
+    return { t:'name', name };
+  }
+  throw new Error('Không hiểu ký tự "' + t.v + '"');
+}
+class AssertFail extends Error {}
+function jassert(ctx, ok, msg){ ctx.asserts.push({ ok, msg }); if (!ok) throw new AssertFail(msg); }
+async function jeval(n, ctx){
+  if (n.t === 'lit') return n.v;
+  if (n.t === 'add'){ const a = await jeval(n.a, ctx), b = await jeval(n.b, ctx); return typeof a === 'string' || typeof b === 'string' ? String(a) + String(b) : a + b; }
+  if (n.t === 'name'){
+    if (n.name in ctx.vars) return ctx.vars[n.name];
+    if (n.name in JCONST) return JCONST[n.name];
+    if (/\.class$/.test(n.name)) return { kind:'class', name: n.name.slice(0, -6) };
+    throw new Error('Chưa khai báo biến hoặc hằng: ' + n.name);
+  }
+  const args = []; for (const a of n.args) args.push(await jeval(a, ctx));
+  if (n.target) return jcallOn(await jeval(n.target, ctx), n.name, args, ctx);
+  return jcallStatic(n.name.replace(/^(RestAssured|Matchers|JsonSchemaValidator|Assert|Assertions)\./, ''), args, ctx);
+}
+function jcallStatic(name, args, ctx){
+  if (name === 'given' || name === 'with' || name === 'when') return { kind:'spec', headers:{}, query:{}, pp:{}, body:null };
+  if (MATCHERS[name]) return MATCHERS[name](...args);
+  if (name === 'Map.of'){ const o = {}; for (let i = 0; i + 1 < args.length; i += 2) o[args[i]] = args[i+1] && args[i+1].kind === 'pojo' ? args[i+1].data : args[i+1]; return o; }
+  if (name === 'List.of' || name === 'Arrays.asList') return args.slice();
+  if (name === 'assertEquals'){ jassert(ctx, deepEq(args[0], args[1]), 'assertEquals: ' + show(args[0]) + ' khác ' + show(args[1])); return; }
+  if (name === 'assertNotNull'){ jassert(ctx, args[0] != null, 'assertNotNull: giá trị là null'); return; }
+  if (name === 'assertTrue'){ jassert(ctx, args[0] === true, 'assertTrue: giá trị là ' + show(args[0])); return; }
+  if (name === 'assertFalse'){ jassert(ctx, args[0] === false, 'assertFalse: giá trị là ' + show(args[0])); return; }
+  throw new Error('Trang mô phỏng chưa hỗ trợ ' + name + '()');
+}
+const pojoGet = (data, name) => { const k = name.replace(/^(get|is)/, ''); const camel = k.charAt(0).toLowerCase() + k.slice(1), snake = camel.replace(/[A-Z]/g, c => '_' + c.toLowerCase()); return data && (camel in data) ? data[camel] : data && (snake in data) ? data[snake] : null; };
+async function jsend(spec, method, args, ctx){
+  let path = String(args[0] == null ? '' : args[0]), k = 1;
+  path = path.replace(/\{(\w+)\}/g, (m, p) => p in spec.pp ? spec.pp[p] : (k < args.length ? args[k++] : m));
+  const u = parseUrl(path);
+  const query = Object.assign({}, u.query, spec.query);
+  const res = await ctx.server({ method, path: u.path, query, headers: Object.assign({}, spec.headers), bodyText: method === 'GET' ? '' : (spec.body || '') });
+  ctx.log.push({ method, path: u.path + (Object.keys(query).length ? '?' + Object.entries(query).map(([a, b]) => a + '=' + b).join('&') : ''), status: res.status, time: res.time });
+  return { kind:'resp', res };
+}
+async function jcallOn(o, name, args, ctx){
+  if (o && o.kind === 'spec'){
+    switch (name){
+      case 'baseUri': if (args[0] !== BASE) throw new Error('Trang chỉ gọi được API giả lập: dùng baseUri(BASE_URL)'); return o;
+      case 'basePath': case 'port': case 'relaxedHTTPSValidation': case 'urlEncodingEnabled': case 'accept': return o;
+      case 'given': case 'when': case 'and': case 'with': return o;
+      case 'header': o.headers[String(args[0]).toLowerCase()] = String(args[1]); return o;
+      case 'headers': Object.entries(args[0] || {}).forEach(([a, b]) => { o.headers[a.toLowerCase()] = String(b); }); return o;
+      case 'contentType': o.headers['content-type'] = args[0] && args[0].kind === 'ct' ? args[0].v : String(args[0]); return o;
+      case 'queryParam': case 'param': o.query[args[0]] = String(args[1]); return o;
+      case 'queryParams': Object.entries(args[0] || {}).forEach(([a, b]) => { o.query[a] = String(b); }); return o;
+      case 'pathParam': o.pp[args[0]] = args[1]; return o;
+      case 'pathParams': Object.assign(o.pp, args[0] || {}); return o;
+      case 'body': o.body = typeof args[0] === 'string' ? args[0] : JSON.stringify(args[0] && args[0].kind === 'pojo' ? args[0].data : args[0]); return o;
+      case 'auth': return { kind:'auth', spec:o };
+      case 'log': return { kind:'log', owner:o };
+      case 'get': case 'post': case 'put': case 'patch': case 'delete': return jsend(o, name.toUpperCase(), args, ctx);
+    }
+  }
+  if (o && o.kind === 'auth'){
+    if (name === 'oauth2'){ o.spec.headers['authorization'] = 'Bearer ' + args[0]; return o.spec; }
+    if (name === 'preemptive') return o;
+    if (name === 'basic'){ o.spec.headers['authorization'] = 'Basic ' + btoa(args[0] + ':' + args[1]); return o.spec; }
+  }
+  if (o && o.kind === 'log' && ['all', 'ifValidationFails', 'body', 'everything', 'ifError'].includes(name)) return o.owner;
+  if (o && (o.kind === 'resp' || o.kind === 'ext')){
+    const r = o.res;
+    switch (name){
+      case 'then': if (o.kind === 'resp') return { kind:'vr', res:r }; break;
+      case 'path': return gpath(r.body, args[0]);
+      case 'as': return { kind:'pojo', cls: args[0] && args[0].name, data: clone(r.body) };
+      case 'response': return { kind:'resp', res:r };
+      case 'statusCode': case 'getStatusCode': return r.status;
+      case 'time': case 'getTime': return r.time;
+      case 'getHeader': case 'header': return r.headers[String(args[0]).toLowerCase()] || null;
+      case 'asString': return JSON.stringify(r.body);
+      case 'jsonPath': return { kind:'jp', body:r.body };
+    }
+  }
+  if (o && o.kind === 'jp' && /^get(String|Int|Long|Double|Boolean|List|Map)?$/.test(name)){ const v = gpath(o.body, args[0]); return name === 'getString' && v != null ? String(v) : v; }
+  if (o && o.kind === 'pojo' && /^(get|is)[A-Z]/.test(name)) return pojoGet(o.data, name);
+  if (o && o.kind === 'vr'){
+    const r = o.res;
+    switch (name){
+      case 'statusCode': { const m = toM(args[0]); jassert(ctx, m.test(r.status), 'statusCode: mong đợi ' + m.desc + ', thực tế ' + r.status); return o; }
+      case 'body': {
+        if (args.length === 1){ const m = toM(args[0]); const ok = m.test(r.body); jassert(ctx, ok, 'body: không khớp ' + m.desc + (m.why && !ok ? ' · ' + m.why(r.body) : '')); return o; }
+        for (let i = 0; i + 1 < args.length; i += 2){ const v = gpath(r.body, args[i]), m = toM(args[i+1]); jassert(ctx, m.test(v), 'JSON path "' + args[i] + '": mong đợi ' + m.desc + ', thực tế ' + short(show(v), 60)); }
+        return o;
+      }
+      case 'header': { const v = r.headers[String(args[0]).toLowerCase()]; const m = toM(args[1]); jassert(ctx, m.test(v === undefined ? null : v), 'header ' + args[0] + ': mong đợi ' + m.desc + ', thực tế ' + show(v === undefined ? null : v)); return o; }
+      case 'contentType': { const exp = args[0] && args[0].kind === 'ct' ? args[0].v : String(args[0]), v = r.headers['content-type'] || ''; jassert(ctx, v.includes(exp), 'contentType: mong đợi ' + exp + ', thực tế ' + v); return o; }
+      case 'time': { const m = toM(args[0]), unit = args[1] && args[1].kind === 'tu' ? args[1].v : 1; jassert(ctx, m.test(r.time / unit), 'time: mong đợi ' + m.desc + ', thực tế ' + r.time + ' ms'); return o; }
+      case 'log': return { kind:'log', owner:o };
+      case 'and': case 'assertThat': return o;
+      case 'extract': return { kind:'ext', res:r };
+    }
+  }
+  throw new Error('Không gọi được .' + name + '() ở chỗ này (trang chỉ mô phỏng một phần REST Assured)');
+}
+async function runJava(code, bugs){
+  const server = makeServer(bugs);
+  let methods;
+  try { methods = findTests(jtok(code)); } catch(e){ return { error: e.message, results: [] }; }
+  const results = [];
+  for (const m of methods){
+    const ctx = { vars:{}, server, asserts:[], log:[] };
+    try {
+      for (const st of splitStmts(m.body)){
+        let eq = -1, d = 0;
+        for (let i = 0; i < st.length; i++){ if (isP(st[i], '(')) d++; else if (isP(st[i], ')')) d--; else if (d === 0 && isP(st[i], '=') && !isP(st[i+1], '=') && !['=', '!', '<', '>'].some(c => isP(st[i-1], c))){ eq = i; break; } }
+        if (eq >= 0){ const lhs = st.slice(0, eq), v = await jeval(jparse(st.slice(eq + 1)), ctx); if (!lhs.some(x => isP(x, '.')) && lhs.length && lhs[lhs.length-1].k === 'id') ctx.vars[lhs[lhs.length-1].v] = v; }
+        else await jeval(jparse(st), ctx);
+      }
+      results.push({ name:m.name, ok:true, n:ctx.asserts.length, log:ctx.log });
+    } catch(e){ results.push({ name:m.name, ok:false, assert: e instanceof AssertFail, msg: (e instanceof AssertFail ? '' : 'Lỗi: ') + e.message, n:ctx.asserts.length, log:ctx.log }); }
+  }
+  return { error: methods.length ? null : 'Không tìm thấy method nào có @Test', results };
+}
+function javaHTML(r){
+  let h = r.error ? '<p class="msg err">' + esc(r.error) + '</p>' : '';
+  return h + (r.results.length ? '<ul class="tres">' + r.results.map(x => '<li><span class="' + (x.ok ? 'ok' : 'no') + '">' + (x.ok ? '✓' : '✕') + '</span><span>' + esc(x.name) + '() · ' + x.n + ' assertion' + (x.ok ? '' : '<small>' + esc(x.msg) + '</small>') +
+    x.log.map(l => '<small>' + l.method + ' ' + esc(l.path) + ' → ' + l.status + ' (' + l.time + ' ms)</small>').join('') + '</span></li>').join('') + '</ul>' : '');
+}
+async function runJavaUI(){
+  const t = cur(), r = await runJava($('editor').value, S.build === 'v10' ? BUGS_V10 : []);
+  const pass = r.results.filter(x => x.ok).length;
+  $('out-resp').innerHTML = lastRun[t.id] = '<p class="msg">Chạy trên <b>' + buildLabel() + '</b>: ' + pass + '/' + r.results.length + ' test pass.</p>' + javaHTML(r);
+  showTab('resp');
+}
+async function gradeCode(){
+  const t = cur(), code = $('editor').value, good = await runJava(code, []);
+  const nA = good.results.reduce((s, x) => s + x.n, 0), allPass = good.results.length > 0 && good.results.every(x => x.ok);
+  const checks = [
+    [!good.error && good.results.every(x => x.ok || x.assert), good.error ? esc(good.error) : good.results.some(x => !x.ok && !x.assert) ? 'Có method lỗi khi đọc code: xem chi tiết bên dưới' : 'Code đọc được, không lỗi cú pháp'],
+    [good.results.length >= t.minTests, 'Có ít nhất ' + t.minTests + ' method @Test (hiện có ' + good.results.length + ')'],
+    [nA >= t.minAsserts, 'Có ít nhất ' + t.minAsserts + ' assertion (đã chạy ' + nA + ')'],
+  ];
+  if (t.needSchema) checks.push([/matchesJsonSchemaInClasspath\s*\(/.test(code.replace(/\/\/.*$/gm, '')), 'Có kiểm tra JSON schema']);
+  checks.push([allPass, allPass ? 'Mọi test pass trên build v1.1' : 'Có test fail trên build v1.1 (bản đúng)']);
+  let extra = '<div class="build">Build v1.1 (đúng)</div>' + javaHTML(good);
+  for (const [bug, desc] of t.mutants){
+    const r = await runJava(code, [bug]);
+    const caught = !!r.error || r.results.some(x => !x.ok);
+    checks.push([caught, (caught ? 'Bắt được bản lỗi: ' : 'Chưa bắt được bản lỗi: ') + desc]);
+    extra += '<div class="build">Bản lỗi: ' + esc(desc) + '</div>' + javaHTML(r);
+  }
+  finish(checks.every(c => c[0]), checks, extra);
+}
+
+/* ===================== Trắc nghiệm đọc code ===================== */
+function renderQuiz(t){
+  const st = S.quiz[t.id] || {}, ws = $('workspace'), top = ws.scrollTop;
+  ws.innerHTML = '<div class="quiz">' + t.questions.map((q, qi) => {
+    const ch = st[qi], answered = ch != null;
+    return '<section class="qz"><h4>Câu ' + (qi + 1) + '. ' + q.q + '</h4>' + (q.code ? '<pre class="syn">' + highlight(q.code, JAVA_KW) + '</pre>' : '') +
+      (q.req ? '<p style="margin:8px 0 0"><button type="button" class="linkbtn" data-req="' + qi + '">Gửi request tương ứng: ' + esc(q.req.method + ' ' + q.req.url) + '</button></p>' : '') +
+      '<div class="opts" role="radiogroup" aria-label="Câu ' + (qi + 1) + '">' + q.opts.map((o, oi) => '<label for="q' + qi + 'o' + oi + '" class="' + (answered && oi === ch ? (oi === q.a ? 'right' : 'wrong') : '') + '"><input type="radio" id="q' + qi + 'o' + oi + '" name="q' + qi + '" value="' + oi + '"' + (oi === ch ? ' checked' : '') + '><span>' + String.fromCharCode(65 + oi) + '. ' + o + '</span></label>').join('') + '</div>' +
+      (answered ? '<div class="why"><b>' + (ch === q.a ? 'Đúng.' : 'Chưa đúng.') + '</b> ' + (ch === q.a ? q.why : ((q.wrong && q.wrong[ch]) || 'Đọc lại đoạn code rồi chọn lại.')) + '</div>' : '') + '</section>';
+  }).join('') + '</div>';
+  ws.scrollTop = top;
+  ws.querySelectorAll('input[type=radio]').forEach(inp => inp.onchange = () => { const qi = +inp.name.slice(1); (S.quiz[t.id] = S.quiz[t.id] || {})[qi] = +inp.value; save(); renderQuiz(t); });
+  ws.querySelectorAll('[data-req]').forEach(b => b.onclick = async () => {
+    const q = t.questions[+b.dataset.req], u = parseUrl(q.req.url);
+    const req = { method: q.req.method, path: u.path, query: u.query, headers: parseHeaders(q.req.headers), bodyText: q.req.body };
+    const res = await staging(req); showResp(req, res); lastRun[t.id] = $('out-resp').innerHTML;
+  });
+}
+function gradeQuiz(){
+  const t = cur(), st = S.quiz[t.id] || {};
+  finish(t.questions.every((q, i) => st[i] === q.a), t.questions.map((q, i) => [st[i] === q.a, 'Câu ' + (i + 1) + ': ' + (st[i] == null ? 'chưa trả lời' : st[i] === q.a ? 'đúng' : 'chưa đúng')]));
+}
+
+/* ===================== Đối chiếu API ↔ DB (SQLite trong trình duyệt bằng sql.js) ===================== */
+let SQLLIB = null, sqlLoading = null, dbLab = null;
+function loadSqlJs(){
+  if (SQLLIB) return Promise.resolve(SQLLIB);
+  if (!sqlLoading) sqlLoading = new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.12.0/sql-asm.js';
+    s.onload = () => initSqlJs().then(x => { SQLLIB = x; resolve(x); }, reject);
+    s.onerror = () => reject(new Error('Không tải được sql.js'));
+    document.head.appendChild(s);
+  }).catch(e => { sqlLoading = null; throw e; });
+  return sqlLoading;
+}
+async function ensureDbLab(){
+  if (dbLab) return dbLab;
+  const SQL = await loadSqlJs();
+  if (dbLab) return dbLab;
+  const db = new SQL.Database();
+  db.run('CREATE TABLE customers (id INTEGER PRIMARY KEY, email TEXT, full_name TEXT);' +
+    'CREATE TABLE products (id INTEGER PRIMARY KEY, sku TEXT, name TEXT, price INTEGER, stock INTEGER);' +
+    'CREATE TABLE orders (id INTEGER PRIMARY KEY, code TEXT, customer_id INTEGER, status TEXT, voucher_code TEXT, discount_amount INTEGER, total_amount INTEGER, created_at TEXT);' +
+    'CREATE TABLE order_items (id INTEGER PRIMARY KEY AUTOINCREMENT, order_id INTEGER, product_id INTEGER, qty INTEGER, unit_price INTEGER);');
+  USERS.forEach(u => db.run('INSERT INTO customers VALUES (?,?,?)', [u.id, u.email, u.full_name]));
+  PRODUCTS.forEach(p => db.run('INSERT INTO products VALUES (?,?,?,?,?)', [p.id, p.sku, p.name, p.price, p.stock]));
+  const putOrder = (o, B) => {
+    db.run('INSERT INTO orders VALUES (?,?,?,?,?,?,?,?)', [o.id, o.code, o.customer_id, o.status, o.voucher_code || null, o.discount_amount, B && B.has('dbNoDiscount') ? o.total_amount + o.discount_amount : o.total_amount, o.created_at]);
+    o.items.forEach(i => db.run('INSERT INTO order_items (order_id, product_id, qty, unit_price) VALUES (?,?,?,?)', [o.id, i.product_id, i.qty, i.unit_price]));
+  };
+  SEED_ORDERS.forEach(o => putOrder(o));
+  const server = makeServer(['dbNoDiscount'], {
+    orderCreated: putOrder,
+    orderUpdated: o => db.run('UPDATE orders SET status = ? WHERE id = ?', [o.status, o.id]),
+    userCreated: u => db.run('INSERT INTO customers VALUES (?,?,?)', [u.id, u.email, u.full_name]),
+  });
+  dbLab = { db, server };
+  return dbLab;
+}
+async function runSqlUI(){
+  const t = cur(), q = $('sqlIn').value.trim();
+  if (!q){ $('out-resp').innerHTML = '<p class="msg err">Chưa nhập câu SQL. Ví dụ: SELECT * FROM orders WHERE id = 104;</p>'; showTab('resp'); return; }
+  let lab;
+  try { lab = await ensureDbLab(); } catch(e){ $('out-resp').innerHTML = '<p class="msg err">Chưa tải được SQLite (sql.js). Kiểm tra kết nối mạng rồi chạy lại.</p>'; showTab('resp'); return; }
+  let r;
+  try { r = lab.db.exec(q); } catch(e){ $('out-resp').innerHTML = '<p class="msg err">Lỗi SQL: ' + esc(e.message) + '</p>'; showTab('resp'); return; }
+  const last = r[r.length - 1] || { columns: [], values: [] };
+  const entry = { sql: q, cols: last.columns, rows: last.values.slice(0, 50), at: Date.now() };
+  (S.sql[t.id] = S.sql[t.id] || []).push(entry);
+  if (S.sql[t.id].length > 30) S.sql[t.id] = S.sql[t.id].slice(-30);
+  save();
+  $('out-resp').innerHTML = '<div class="status"><span class="m GET">SQL</span><span class="msg" style="margin:0">' + last.values.length + ' dòng' + (last.values.length > 50 ? ' (hiện 50 dòng đầu)' : '') + '</span></div>' +
+    (last.columns.length ? '<div class="tbl-wrap"><table class="res"><thead><tr>' + last.columns.map(c => '<th>' + esc(c) + '</th>').join('') + '</tr></thead><tbody>' +
+      entry.rows.map(row => '<tr>' + row.map(v => '<td>' + esc(v === null ? 'NULL' : v) + '</td>').join('') + '</tr>').join('') + '</tbody></table></div>'
+      : '<p class="msg">Câu lệnh chạy xong, không trả về dòng nào.</p>');
+  showTab('resp');
+}
+async function runScript(code, bugs){
+  const server = makeServer(bugs);
+  const call = async (method, path, body, opts) => {
+    const u = parseUrl(path), headers = {};
+    Object.entries((opts && opts.headers) || {}).forEach(([k, v]) => headers[k.toLowerCase()] = String(v));
+    if (body !== undefined && body !== null && !headers['content-type']) headers['content-type'] = 'application/json';
+    const r = await server({ method, path: u.path, query: u.query, headers, bodyText: body == null ? '' : JSON.stringify(body) });
+    return { status: r.status, headers: r.headers, body: r.body, time: r.time };
+  };
+  const api = { get:(p, o) => call('GET', p, null, o), post:(p, b, o) => call('POST', p, b, o), put:(p, b, o) => call('PUT', p, b, o), patch:(p, b, o) => call('PATCH', p, b, o), delete:(p, o) => call('DELETE', p, null, o) };
+  const tests = [];
+  const test = (name, fn) => tests.push({ name, fn });
+  const AsyncFn = Object.getPrototypeOf(async function(){}).constructor;
+  let error = null;
+  try { await new AsyncFn('api', 'test', 'expect', code)(api, test, makeExpect()); } catch(e){ error = e.message; }
+  const results = [];
+  for (const t of tests){ try { await t.fn(); results.push({ name:t.name, ok:true }); } catch(e){ results.push({ name:t.name, ok:false, msg:e.message }); } }
+  return { error, results };
+}
+const resHTML = r => (r.error ? '<p class="msg err">Lỗi khi chạy script: ' + esc(r.error) + '</p>' : '') + (r.results.length ? '<ul class="tres">' + r.results.map(x => '<li><span class="' + (x.ok ? 'ok' : 'no') + '">' + (x.ok ? '✓' : '✕') + '</span><span>' + esc(x.name) + (x.ok ? '' : '<small>' + esc(x.msg) + '</small>') + '</span></li>').join('') + '</ul>' : '<p class="msg">Chưa có test nào được khai báo bằng test().</p>');
+async function runScriptUI(){
+  const code = $('editor').value, bugs = S.build === 'v10' ? BUGS_V10 : [];
+  const r = await runScript(code, bugs);
+  const pass = r.results.filter(x => x.ok).length;
+  $('out-resp').innerHTML = lastRun[cur().id] = '<p class="msg">Chạy trên <b>' + (S.build === 'v10' ? 'build v1.0 (có bug)' : 'build v1.1 (đã sửa)') + '</b>: ' + pass + '/' + r.results.length + ' test pass.</p>' + resHTML(r);
+  showTab('resp');
+}
+
+/* ===================== Chấm bài ===================== */
+const li = (ok, text) => '<li class="' + (ok ? 'ok' : 'no') + '"><span class="ic">' + (ok ? '✓' : '✕') + '</span><span>' + text + '</span></li>';
+function setBadge(p){ const b = $('gradeBadge'); if (p === null){ b.hidden = true; return; } b.hidden = false; b.className = 'badge ' + (p ? 'pass' : 'fail'); b.textContent = p ? 'Đạt' : 'Chưa đạt'; }
+function finish(pass, checks, extra){
+  const t = cur();
+  $('out-grade').innerHTML = '<div class="verdict ' + (pass ? 'pass' : 'fail') + '">' + (pass ? 'Đạt. Xem "Góc QC" ở đề bài để biết làm gì tiếp.' : 'Chưa đạt. Xem các mục ✕ bên dưới.') + '</div><ul class="checks">' + checks.map(c => li(c[0], c[1])).join('') + '</ul>' + (extra || '');
+  lastGrade[t.id] = { html: $('out-grade').innerHTML, pass };
+  setBadge(pass); showTab('grade');
+  if (pass && !S.done[t.id]){ S.done[t.id] = true; save(); renderQueue(); }
+  if (pass) renderTicket();
+}
+function gradeReq(){
+  const t = cur(), checks = t.grade(S.hist[t.id] || [], { sql: S.sql[t.id] || [], concl: S.concl[t.id] || '' });
+  finish(checks.every(c => c[0]), checks, (S.hist[t.id] || []).length ? '' : '<p class="msg">Chấm dựa trên lịch sử request của bài này. Hãy gửi request trước.</p>');
+}
+async function gradeScript(){
+  const t = cur(), code = $('editor').value;
+  const good = await runScript(code, []);
+  const checks = [];
+  checks.push([!good.error, good.error ? 'Script lỗi khi chạy: ' + esc(good.error) : 'Script chạy không lỗi']);
+  checks.push([good.results.length >= t.minTests, 'Có ít nhất ' + t.minTests + ' test (hiện có ' + good.results.length + ')']);
+  const allPass = good.results.length > 0 && good.results.every(x => x.ok);
+  checks.push([allPass, allPass ? 'Mọi test pass trên build v1.1' : !good.results.length ? 'Chưa có test nào để chạy trên build v1.1' : 'Có test fail trên build v1.1 (bản đúng): test đang kiểm tra sai mong đợi']);
+  let extra = '<div class="build">Build v1.1 (đúng)</div>' + resHTML(good);
+  for (const [bug, desc] of t.mutants){
+    const r = await runScript(code, [bug]);
+    const caught = !!r.error || r.results.some(x => !x.ok);
+    checks.push([caught, (caught ? 'Bắt được bản lỗi: ' : 'Chưa bắt được bản lỗi: ') + desc]);
+    extra += '<div class="build">Bản lỗi: ' + esc(desc) + '</div>' + resHTML(r);
+  }
+  finish(checks.every(c => c[0]), checks, extra);
+}
+
+/* ===================== Tài liệu API ===================== */
+function renderDocs(){
+  $('out-docs').innerHTML = '<p class="msg">Base URL <code>' + BASE + '</code>. Endpoint có 🔑 cần header <code>Authorization: Bearer &lt;access_token&gt;</code>. Lỗi luôn có dạng <code>{ "error": { "code", "message", "field"? } }</code>.</p>' +
+    '<p class="msg">Tài khoản test: <code>an.nguyen@shopdemo.test</code> và <code>binh.tran@shopdemo.test</code>, mật khẩu đều là <code>Test@1234</code>.</p>' +
+    DOCS.map((d, i) => '<details class="doc-ep"' + (i < 1 ? ' open' : '') + '><summary><span class="m ' + d.m + '">' + d.m + '</span><span class="p">' + d.p + (d.auth ? ' 🔑' : '') + '</span><span class="d">' + esc(d.d) + '</span></summary><div class="doc-body">' + (d.body ? '<div><b>Body:</b> <code>' + esc(d.body) + '</code></div>' : '') + '<ul>' + d.rules.map(r => '<li>' + esc(r) + '</li>').join('') + '</ul></div></details>').join('');
+}
+
+/* ===================== Điều khiển chung ===================== */
+function showTab(name){
+  document.querySelectorAll('.tab').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === name)));
+  ['resp','hist','grade','docs'].forEach(n => $('out-' + n).hidden = n !== name);
+}
+document.querySelectorAll('.tab').forEach(b => b.addEventListener('click', () => showTab(b.dataset.tab)));
+function openTicket(id){
+  view = 'ticket';
+  if (!TICKETS.some(t => t.id === id)) id = TICKETS[0].id;
+  S.current = id; save();
+  renderQueue(); renderTicket(); renderWorkspace(); restoreOutputs();
+  showTab('resp'); $('ticket').scrollTop = 0;
+}
+function restoreOutputs(){
+  const t = cur(), h = S.hist[t.id] || [];
+  if (t.type !== 'req' && t.type !== 'db'){ if (lastRun[t.id]) $('out-resp').innerHTML = lastRun[t.id]; }
+  else if (h.length){ const e = h[h.length - 1]; showResp(e.req, e.res); }
+  const g = lastGrade[t.id];
+  if (g){ $('out-grade').innerHTML = g.html; setBadge(g.pass); }
+  else { $('out-grade').innerHTML = '<p class="msg">Bấm <b>Kiểm tra bài</b> để chấm.</p>'; setBadge(null); }
+}
+$('themeBtn').onclick = () => {
+  const root = document.documentElement;
+  const dark = root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+  root.dataset.theme = dark ? 'light' : 'dark';
+  try { localStorage.setItem('apiqa.theme', root.dataset.theme); } catch(e) {}
+};
+try { const th = localStorage.getItem('apiqa.theme'); if (th) document.documentElement.dataset.theme = th; } catch(e) {}
+renderDocs();
+openTicket(S.current);
+</script>
+
+</html>

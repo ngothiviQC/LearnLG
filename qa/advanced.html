@@ -1,0 +1,2067 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><script>(function(){var e=false;try{e=window.top!==window}catch(x){e=true}if(e)document.documentElement.classList.add("embedded")})()</script><style>html.embedded nav.switch{display:none!important}</style>
+<title>Luyện Appium · Playwright · K6 · Final Project</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Cùng bố cục với trang Luyện Selenium + TestNG: danh sách bài bên trái, đề bài ở giữa, khu làm bài bên phải.
+   Thêm: Locator Lab mobile (page source UiAutomator2 + màn hình điện thoại mô phỏng), chấm code TypeScript / JavaScript. */
+:root{
+  --bg:#f3f7f6; --surface:#ffffff; --sunken:#e7efed; --ink:#14201e; --muted:#566663; --line:#d6e2df;
+  --accent:#00796b; --accent-ink:#ffffff; --accent-soft:#dff2ef;
+  --pass:#1d7a46; --pass-soft:#e1f3e7; --fail:#b3261e; --fail-soft:#fbe7e5; --warn:#8a5a00; --warn-soft:#fbf0d6;
+  --code-bg:#f8fbfa; --kw:#7b1fa2; --str:#9a4b00; --num:#1f5fae; --cmt:#7d8a87; --ann:#00796b;
+  --f-display:"Be Vietnam Pro", "Segoe UI", system-ui, sans-serif;
+  --f-body:"Inter", "Segoe UI", system-ui, sans-serif;
+  --f-mono:"JetBrains Mono", Consolas, "Courier New", monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f1514; --surface:#161e1d; --sunken:#0b100f; --ink:#e4eeec; --muted:#93a6a2; --line:#283432;
+  --accent:#4db6ac; --accent-ink:#06201d; --accent-soft:#16312e;
+  --pass:#5fd08e; --pass-soft:#163322; --fail:#ff8a80; --fail-soft:#3a1a18; --warn:#f0c35a; --warn-soft:#352a12;
+  --code-bg:#121918; --kw:#ce93d8; --str:#f0b070; --num:#8db8f2; --cmt:#73827f; --ann:#4db6ac; color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0f1514; --surface:#161e1d; --sunken:#0b100f; --ink:#e4eeec; --muted:#93a6a2; --line:#283432;
+  --accent:#4db6ac; --accent-ink:#06201d; --accent-soft:#16312e;
+  --pass:#5fd08e; --pass-soft:#163322; --fail:#ff8a80; --fail-soft:#3a1a18; --warn:#f0c35a; --warn-soft:#352a12;
+  --code-bg:#121918; --kw:#ce93d8; --str:#f0b070; --num:#8db8f2; --cmt:#73827f; --ann:#4db6ac; color-scheme:dark;
+}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:14px;line-height:1.55;display:flex;flex-direction:column}
+*{box-sizing:border-box}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0}
+code,pre,textarea,input,select{font-family:var(--f-mono)}
+code{font-size:.9em;background:var(--sunken);padding:1px 5px;border-radius:4px}
+button{font:inherit;cursor:pointer;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.top{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding-block:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));border-bottom:1px solid var(--line);background:var(--surface)}
+.brand{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;min-width:0}
+.brand h1{font-size:18px;font-weight:700;letter-spacing:-.01em}
+.brand h1 span{color:var(--accent)}
+.brand p{margin:0;color:var(--muted);font-size:12.5px}
+.progress{margin-left:auto;display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--muted)}
+.bar{width:120px;height:6px;border-radius:3px;background:var(--sunken);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);width:0;transition:width .3s}
+.theme-btn{border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:6px;padding:4px 8px;font-size:12px}
+
+.app{flex:1;min-height:0;display:grid;grid-template-columns:250px minmax(0,1fr) minmax(0,1.25fr)}
+.pane{min-height:0;overflow:auto}
+.queue{border-right:1px solid var(--line);background:var(--surface);padding:12px 10px 24px}
+.phase{margin-bottom:14px}
+.phase h2{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:4px 8px 6px;display:flex;justify-content:space-between;gap:6px}
+.phase h2 span{font-family:var(--f-mono);letter-spacing:0}
+.qitem{display:grid;grid-template-columns:18px 1fr;gap:8px;align-items:start;width:100%;text-align:left;border:0;background:transparent;padding:7px 8px;border-radius:6px}
+.qitem:hover{background:var(--sunken)}
+.qitem[aria-current="true"]{background:var(--accent-soft)}
+.qitem .dot{width:14px;height:14px;margin-top:3px;border-radius:50%;border:1.5px solid var(--line)}
+.qitem.done .dot{background:var(--pass);border-color:var(--pass)}
+.qitem .k{font-family:var(--f-mono);font-size:11px;color:var(--accent);font-weight:500;display:block}
+.qitem .t{font-size:12.5px;line-height:1.35;display:block;color:var(--ink)}
+
+.ticket{padding:20px 24px 40px;border-right:1px solid var(--line)}
+.tk-head{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:8px}
+.tk-key{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.chip{font-size:11.5px;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--sunken);color:var(--muted)}
+.chip.acc{background:var(--accent-soft);color:var(--accent)}
+.chip.ok{background:var(--pass-soft);color:var(--pass)}
+.chip.cp{background:var(--warn-soft);color:var(--warn)}
+.ticket h2.title{font-size:21px;font-weight:700;line-height:1.3;margin-bottom:10px}
+.field{margin-bottom:18px;max-width:72ch}
+.field h3{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.field p,.field ul,.field ol{margin:0 0 8px}
+.field ul,.field ol{padding-left:20px}
+.field li{margin-bottom:3px}
+.expect{border:1px dashed var(--line);border-radius:8px;padding:10px 12px;background:var(--surface)}
+.lesson{display:flex;flex-direction:column;gap:8px}
+.kw{border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+.kw summary{cursor:pointer;padding:8px 12px;font-weight:600}
+.kw-body{padding:0 12px 12px;display:flex;flex-direction:column;gap:8px}
+.kw-body p{margin:0}
+.kw-body ul{margin:0;padding-left:20px}
+.tbl{border-collapse:collapse;font-size:13px;width:100%}
+.tbl th,.tbl td{border:1px solid var(--line);padding:5px 8px;text-align:left;vertical-align:top}
+.tbl th{background:var(--sunken);font-weight:600}
+pre.syn{margin:0;background:var(--code-bg);border:1px solid var(--line);border-radius:6px;padding:8px 10px;overflow-x:auto;font-size:12.5px;line-height:1.55;white-space:pre}
+.hl-k{color:var(--kw);font-weight:500}.hl-s{color:var(--str)}.hl-n{color:var(--num)}.hl-c{color:var(--cmt);font-style:italic}.hl-a{color:var(--ann)}
+.hl-t{color:var(--kw)}.hl-at{color:var(--num)}
+.hints{display:flex;flex-direction:column;gap:8px}
+.hint{background:var(--warn-soft);border-radius:8px;padding:8px 12px;font-size:13.5px}
+.hint b{color:var(--warn);font-weight:600;margin-right:4px}
+.linkbtn{border:0;background:none;color:var(--accent);font-weight:600;padding:0;font-size:13px}
+.linkbtn:disabled{color:var(--muted);cursor:default}
+.donebox{border-radius:8px;padding:10px 14px;background:var(--pass-soft);color:var(--pass);font-weight:600;max-width:72ch;margin-bottom:16px}
+
+.work{display:flex;flex-direction:column;min-height:0;overflow:auto;background:var(--surface)}
+.toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:10px 14px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--surface);z-index:2}
+.toolbar .ttl{font-weight:600;font-size:13px;margin-right:auto}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:7px;padding:6px 12px;font-weight:500;font-size:13px}
+.btn:hover{background:var(--sunken)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn:disabled{opacity:.55;cursor:default}
+.sec{padding:12px 14px;border-bottom:1px solid var(--line)}
+.sec h4{margin:0 0 8px;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.locrow{display:grid;grid-template-columns:auto auto minmax(0,1fr) auto;gap:6px;align-items:center;font-family:var(--f-mono);font-size:13px}
+.locrow select,.locrow input{border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink);font-size:13px;padding:6px 8px;min-width:0}
+.locrow .pre{color:var(--muted);white-space:nowrap}
+.locrow input{width:100%}
+.editor{display:block;width:100%;min-height:340px;resize:vertical;border:0;border-bottom:1px solid var(--line);background:var(--code-bg);color:var(--ink);font-size:13px;line-height:1.6;padding:12px 14px;tab-size:4;white-space:pre;overflow:auto}
+.editor:focus{outline:none;box-shadow:inset 0 0 0 2px var(--accent)}
+.res{display:flex;flex-direction:column;gap:6px}
+.chk{display:grid;grid-template-columns:20px 1fr;gap:6px;font-size:13.5px;align-items:start}
+.chk .ic{font-weight:700;text-align:center}
+.chk.ok .ic{color:var(--pass)}.chk.no .ic{color:var(--fail)}
+.chk .why{display:block;color:var(--muted);font-size:12.5px}
+.verdict{border-radius:8px;padding:8px 12px;font-weight:600;margin-bottom:4px}
+.verdict.ok{background:var(--pass-soft);color:var(--pass)}
+.verdict.no{background:var(--fail-soft);color:var(--fail)}
+.msg{color:var(--muted);font-size:13px;margin:0}
+.found{font-family:var(--f-mono);font-size:12.5px;background:var(--code-bg);border:1px solid var(--line);border-radius:6px;padding:8px 10px;white-space:pre-wrap;word-break:break-word}
+
+/* Trình duyệt mô phỏng */
+.browser{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}
+.bbar{display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--sunken);border-bottom:1px solid var(--line)}
+.bbar i{width:9px;height:9px;border-radius:50%;background:var(--line);display:inline-block}
+.bbar .url{flex:1;font-family:var(--f-mono);font-size:12px;color:var(--muted);background:var(--surface);border-radius:5px;padding:2px 8px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.vtabs{display:flex;gap:2px;border:1px solid var(--line);border-radius:7px;padding:2px;background:var(--bg);width:max-content;margin-bottom:8px}
+.vtabs button{border:0;background:transparent;border-radius:5px;padding:3px 10px;font-size:12.5px;color:var(--muted)}
+.vtabs button[aria-selected="true"]{background:var(--accent);color:var(--accent-ink)}
+pre.insp{margin:0;background:var(--code-bg);border:1px solid var(--line);border-radius:8px;padding:10px 12px;overflow:auto;font-size:12px;line-height:1.55;max-height:460px;white-space:pre}
+pre.insp .hit{background:rgba(255,193,7,.35);outline:1px solid #f0a500;border-radius:2px}
+
+.quiz{display:flex;flex-direction:column;gap:14px}
+.qq{border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:var(--surface)}
+.qq p.q{margin:0 0 8px;font-weight:600}
+.opt{display:grid;grid-template-columns:20px 1fr;gap:8px;align-items:start;padding:6px 8px;border-radius:7px;cursor:pointer;font-size:13.5px}
+.opt:hover{background:var(--sunken)}
+.opt input{margin-top:4px}
+.opt.right{background:var(--pass-soft)}
+.opt.wrong{background:var(--fail-soft)}
+.expl{font-size:13px;color:var(--muted);margin:6px 0 0;padding-left:10px;border-left:3px solid var(--line)}
+.rv{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font-size:13.5px}
+.rv .seg{display:flex;gap:2px;border:1px solid var(--line);border-radius:7px;padding:2px;background:var(--bg)}
+.rv .seg button{border:0;background:transparent;border-radius:5px;padding:3px 10px;font-size:12.5px;color:var(--muted)}
+.rv .seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.rv.right{border-color:var(--pass);background:var(--pass-soft)}
+.rv.wrong{border-color:var(--fail);background:var(--fail-soft)}
+.rv .ex{grid-column:1/-1;font-size:12.5px;color:var(--muted)}
+.selfck{display:grid;grid-template-columns:20px 1fr;gap:8px;align-items:start;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font-size:13.5px;cursor:pointer}
+.selfck input{margin-top:4px}
+
+@media (max-width:1100px){ .app{grid-template-columns:220px minmax(0,1fr);align-items:start;overflow:auto} .pane,.work{overflow:visible;min-height:auto} .work{grid-column:1/-1;border-top:1px solid var(--line)} .ticket{border-right:0} }
+@media (max-width:720px){ .app{grid-template-columns:1fr} .queue{border-right:0;border-bottom:1px solid var(--line)} .ticket{border-right:0} }
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+/* Màn hình điện thoại mô phỏng (Locator Lab mobile) */
+.phone{width:290px;max-width:100%;margin:0 auto;border:10px solid #1d2422;border-radius:28px;background:#f6f8f7;color:#1b1b1b;overflow:hidden;font-family:var(--f-body)}
+.phone .sb{height:20px;background:#e3e8e6;font-size:10px;color:#566663;display:flex;align-items:center;justify-content:space-between;padding:0 12px}
+.ph-box{display:flex;flex-direction:column;gap:7px;padding:8px}
+.ph-row{display:flex;align-items:center;gap:8px;padding:4px 2px 8px;border-bottom:1px solid #dde3e1}
+.ph-row .ph-title{margin-right:auto}
+.ph-card{border:1px solid #dde3e1;border-radius:8px;padding:8px;display:grid;grid-template-columns:1fr auto;gap:2px 8px;align-items:center;background:#fff}
+.ph-card .ph-btn{grid-column:2;grid-row:1/3;font-size:11px;padding:6px 8px}
+.ph-text{font-size:13px}
+.ph-title{font-size:16px;font-weight:700}
+.ph-err{color:#b3261e;font-size:12.5px}
+.ph-badge{background:#b3261e;color:#fff;border-radius:999px;font-size:11px;padding:0 7px}
+.ph-input{border:1px solid #b9c4c1;border-radius:6px;padding:8px;color:#3b4644;font-size:13px;background:#fff}
+.ph-btn{background:#00796b;color:#fff;border-radius:6px;padding:8px;text-align:center;font-weight:600;font-size:12.5px}
+.ph-icon{font-size:11.5px;color:#566663;border:1px dashed #b9c4c1;border-radius:6px;padding:4px 6px;text-align:center}
+.ph-link{font-size:12.5px;color:#00796b;text-decoration:underline}
+.sx-hit{outline:3px solid #f0a500!important;outline-offset:1px;background-color:rgba(255,193,7,.28)!important}
+pre.insp .ln.hit{background:rgba(255,193,7,.35);outline:1px solid #f0a500;border-radius:2px}
+pre.doc{margin:0;background:var(--code-bg);border:1px solid var(--line);border-radius:6px;padding:10px 12px;overflow-x:auto;font-size:12.5px;line-height:1.6;white-space:pre-wrap;font-family:var(--f-body)}
+</style>
+
+<header class="top">
+  <div class="brand">
+    <h1>Luyện <span>Appium · Playwright · K6 · Final Project</span></h1>
+    <p>Giai đoạn D–G · Buổi 13–22 · Mobile, TypeScript + Playwright, Performance, AI và dự án cuối khóa</p>
+  </div>
+  <div class="progress"><span id="progText">0 bài</span><div class="bar"><i id="progBar"></i></div>
+    <button class="theme-btn" id="themeBtn" type="button" aria-label="Đổi giao diện sáng/tối">Sáng/Tối</button></div>
+</header>
+
+<div class="app">
+  <nav class="pane queue" id="queue" aria-label="Danh sách bài"></nav>
+  <article class="pane ticket" id="ticket"></article>
+  <section class="work" id="work" aria-label="Khu làm bài"></section>
+</div>
+
+<script>
+// Viết code mẫu trong template literal: § { (viết liền) = ${ ; ´ = dấu backtick (để code JavaScript/YAML có ${...} và `...`).
+const C = (s, ...v) => String.raw(s, ...v).replace(/§\{/g, '${').replace(/´/g, '`').replace(/^\n/, '');
+
+/* ===================== Ứng dụng Android mô phỏng: ShopDemo (page source kiểu UiAutomator2) ===================== */
+const PKG = 'com.shopdemo.app', RID = n => PKG + ':id/' + n;
+const N = (cls, a, kids) => ({ cls: cls.includes('.') ? cls : 'android.widget.' + cls, a: a || {}, kids: kids || [] });
+const item = (name, price) => N('android.view.ViewGroup', { id:'item_container', clickable:'true' }, [N('TextView', { id:'item_name', text:name }), N('TextView', { id:'item_price', text:price }), N('Button', { id:'btn_add', text:'THÊM VÀO GIỎ', clickable:'true' })]);
+const SCREENS = {
+  login:{ name:'Đăng nhập', note:'sau khi bấm Đăng nhập với mật khẩu sai', act:'.LoginActivity', root: N('FrameLayout', {}, [N('LinearLayout', { id:'login_root' }, [
+    N('ImageView', { id:'logo', desc:'Logo ShopDemo' }),
+    N('EditText', { id:'input_username', desc:'input-username', text:'an_user', clickable:'true' }),
+    N('EditText', { id:'input_password', desc:'input-password', text:'••••••••', clickable:'true', password:'true' }),
+    N('Button', { id:'btn_login', text:'ĐĂNG NHẬP', clickable:'true' }),
+    N('TextView', { id:'txt_error', text:'Sai tên đăng nhập hoặc mật khẩu' }),
+    N('TextView', { text:'Quên mật khẩu?', clickable:'true' }),
+  ])]) },
+  products:{ name:'Sản phẩm', note:'đã có 2 sản phẩm trong giỏ', act:'.ProductsActivity', root: N('FrameLayout', {}, [N('LinearLayout', { id:'products_root' }, [
+    N('LinearLayout', { id:'toolbar' }, [N('TextView', { id:'toolbar_title', text:'Sản phẩm' }), N('ImageButton', { id:'btn_cart', desc:'Giỏ hàng', clickable:'true' }), N('TextView', { id:'cart_badge', text:'2' })]),
+    N('androidx.recyclerview.widget.RecyclerView', { id:'product_list', scrollable:'true' }, [item('Áo thun cotton', '149.000 ₫'), item('Quần jeans slim', '459.000 ₫'), item('Giày sneaker canvas', '690.000 ₫'), item('Mũ lưỡi trai', '99.000 ₫')]),
+  ])]) },
+};
+const xesc = s => String(s).replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
+function toXml(n, idx){
+  const a = n.a, at = { index:String(idx), package:PKG, class:n.cls, text:a.text || '', 'resource-id':a.id ? RID(a.id) : '', 'content-desc':a.desc || '', clickable:a.clickable || 'false', scrollable:a.scrollable || 'false', password:a.password || 'false', enabled:'true' };
+  const s = Object.entries(at).map(([k, v]) => k + '="' + xesc(v) + '"').join(' ');
+  return '<' + n.cls + ' ' + s + (n.kids.length ? '>' + n.kids.map((k, i) => toXml(k, i)).join('') + '</' + n.cls + '>' : '/>');
+}
+const docCache = {};
+function screenDoc(key){
+  if (!docCache[key]){
+    const d = new DOMParser().parseFromString('<hierarchy rotation="0">' + toXml(SCREENS[key].root, 0) + '</hierarchy>', 'application/xml');
+    let i = 0; [...d.getElementsByTagName('*')].forEach(el => { if (el.tagName !== 'hierarchy') el.setAttribute('data-sx', String(i++)); });
+    docCache[key] = d;
+  }
+  return docCache[key];
+}
+const SHOWN = ['index', 'text', 'resource-id', 'content-desc'];
+function sourceHtml(key){
+  const lines = [];
+  const walk = (el, d) => {
+    const pad = '  '.repeat(d), sx = el.getAttribute('data-sx');
+    const at = SHOWN.map(k => k + '="' + el.getAttribute(k) + '"').concat(['clickable', 'scrollable', 'password'].filter(k => el.getAttribute(k) === 'true').map(k => k + '="true"')).join(' ');
+    const kids = [...el.children];
+    lines.push('<span class="ln" data-sx="' + sx + '">' + esc(pad + '<' + el.tagName + ' ' + at + (kids.length ? '>' : '/>')) + '</span>');
+    if (kids.length){ kids.forEach(k => walk(k, d + 1)); lines.push(esc(pad + '</' + el.tagName + '>')); }
+  };
+  const d = screenDoc(key); lines.push(esc('<hierarchy rotation="0">')); [...d.documentElement.children].forEach(k => walk(k, 1)); lines.push(esc('</hierarchy>'));
+  return '<pre class="insp">' + lines.join('\n') + '</pre>';
+}
+function mock(el){
+  const c = el.getAttribute('class'), id = (el.getAttribute('resource-id') || '').split('/').pop(), t = el.getAttribute('text'), d = el.getAttribute('content-desc'), A = ' data-sx="' + el.getAttribute('data-sx') + '"', kids = [...el.children];
+  if (kids.length) return '<div class="' + (id === 'item_container' ? 'ph-card' : id === 'toolbar' ? 'ph-row' : 'ph-box') + '"' + A + '>' + kids.map(mock).join('') + '</div>';
+  if (/EditText/.test(c)) return '<div class="ph-input"' + A + '>' + esc(t) + '</div>';
+  if (/\.Button$/.test(c)) return '<div class="ph-btn"' + A + '>' + esc(t) + '</div>';
+  if (/Image/.test(c)) return '<div class="ph-icon"' + A + '>' + esc(d) + '</div>';
+  const k = id === 'txt_error' ? ' ph-err' : id === 'toolbar_title' ? ' ph-title' : id === 'cart_badge' ? ' ph-badge' : el.getAttribute('clickable') === 'true' ? ' ph-link' : '';
+  return '<div class="ph-text' + k + '"' + A + '>' + esc(t) + '</div>';
+}
+
+/* ===================== Bài học (lý thuyết ngắn) ===================== */
+// [tiêu đề, html, code mẫu, ngôn ngữ của code mẫu]
+const LESSONS = {
+  appium:['Kiến trúc Appium 2 (Appium architecture)',
+    '<p>Code test (Java + <code>io.appium:java-client</code>) gửi lệnh theo giao thức <b>W3C WebDriver</b> tới <b>Appium server</b> (Node.js, cổng mặc định 4723) → server chuyển cho <b>driver</b> của nền tảng: <b>UiAutomator2</b> (Android) hoặc XCUITest (iOS) → driver điều khiển app trên emulator hoặc thiết bị thật.</p><ul><li>Appium 2 tách driver khỏi server: cài bằng <code>appium driver install uiautomator2</code>, xem bằng <code>appium driver list --installed</code>.</li><li>Đường dẫn gốc là <code>http://127.0.0.1:4723</code> — <b>không</b> còn <code>/wd/hub</code> như Appium 1.</li><li>Kiểm tra máy đủ điều kiện: <code>appium driver doctor uiautomator2</code> (JDK, ANDROID_HOME, adb).</li><li>So với Selenium: cùng giao thức, cùng ý tưởng locator / wait / POM; khác ở chỗ điều khiển app native, có thao tác cử chỉ (gesture), bàn phím, quyền hệ điều hành.</li></ul>',
+    C`npm install -g appium
+appium driver install uiautomator2
+appium            # chạy server, lắng nghe http://127.0.0.1:4723`, 'sh'],
+  caps:['Capabilities và UiAutomator2Options',
+    '<p>Capabilities mô tả phiên cần mở: nền tảng, thiết bị, app. Chuẩn W3C yêu cầu capability riêng của Appium có tiền tố <code>appium:</code> (<code>appium:automationName</code>, <code>appium:app</code>…); <code>platformName</code> không cần tiền tố. Trong java-client 9 dùng lớp <b>Options</b> (<code>UiAutomator2Options</code>) — tự đặt platformName=Android, automationName=UiAutomator2 và tự thêm tiền tố; <code>DesiredCapabilities</code> là cách cũ.</p><table class="tbl"><tr><th>Hàm</th><th>Ý nghĩa</th></tr><tr><td><code>setUdid(...)</code> / <code>setDeviceName(...)</code></td><td>Chọn thiết bị (udid lấy từ <code>adb devices</code>)</td></tr><tr><td><code>setApp(path)</code></td><td>Đường dẫn tuyệt đối tới file .apk — dựng từ thư mục project, không hard-code C:\\Users\\...</td></tr><tr><td><code>setAppPackage</code> / <code>setAppActivity</code></td><td>Mở app đã cài sẵn thay vì cài từ .apk</td></tr><tr><td><code>setAutoGrantPermissions(true)</code></td><td>Tự cấp quyền khi cài app → không hiện popup xin quyền</td></tr><tr><td><code>setNoReset</code> / <code>setFullReset</code></td><td>Chiến lược reset dữ liệu app giữa các phiên</td></tr></table>',
+    C`UiAutomator2Options options = new UiAutomator2Options()
+    .setUdid("emulator-5554")
+    .setApp(Paths.get("apps/shopdemo.apk").toAbsolutePath().toString());
+AndroidDriver driver = new AndroidDriver(new URL("http://127.0.0.1:4723"), options);`, 'java'],
+  adb:['adb: lệnh hay dùng khi test Android',
+    '<table class="tbl"><tr><th>Lệnh</th><th>Dùng để</th></tr><tr><td><code>adb devices</code></td><td>Liệt kê thiết bị; trạng thái <code>unauthorized</code> = chưa bấm “Cho phép gỡ lỗi USB” trên máy</td></tr><tr><td><code>adb install -r app.apk</code></td><td>Cài đè, giữ dữ liệu app</td></tr><tr><td><code>adb shell pm clear com.shopdemo.app</code></td><td>Xóa dữ liệu app (như cài mới)</td></tr><tr><td><code>adb logcat *:E</code></td><td>Chỉ xem log mức Error</td></tr><tr><td><code>adb logcat --pid=$(adb shell pidof -s com.shopdemo.app)</code></td><td>Chỉ xem log của app đang test</td></tr><tr><td><code>adb shell dumpsys window | grep mCurrentFocus</code></td><td>Xem activity đang hiển thị (lấy appActivity)</td></tr></table>', null],
+  inspector:['Appium Inspector và page source',
+    '<p>Appium Inspector mở một phiên với capabilities của bạn, chụp màn hình và hiện <b>page source</b> dạng XML. Mỗi thẻ là một view Android: tên thẻ = <code>class</code>; thuộc tính hay dùng làm locator:</p><ul><li><code>content-desc</code> — accessibility id (dev đặt bằng <code>contentDescription</code> hoặc <code>testID</code> của React Native). Ổn định nhất nếu dev đặt riêng cho test.</li><li><code>resource-id</code> — dạng <code>com.shopdemo.app:id/btn_login</code>, đặt trong layout XML của app.</li><li><code>text</code> — chữ hiển thị; đổi khi đổi ngôn ngữ hoặc nội dung.</li></ul><p>Inspector có nút “Search for element” để thử locator trước khi đưa vào code — tab <b>Page source</b> ở khu làm bài là phiên bản rút gọn của màn này.</p>', null],
+  mloc:['Locator trên mobile và thứ tự ưu tiên',
+    '<table class="tbl"><tr><th>AppiumBy</th><th>Khớp với</th><th>Ghi chú</th></tr><tr><td><code>accessibilityId</code></td><td><code>content-desc</code></td><td>Ưu tiên 1, chạy được cả Android và iOS</td></tr><tr><td><code>id</code></td><td><code>resource-id</code></td><td>Ưu tiên 2. UiAutomator2 tự thêm <code>&lt;package&gt;:id/</code> nếu bạn chỉ ghi <code>btn_login</code></td></tr><tr><td><code>androidUIAutomator</code></td><td>Biểu thức <code>new UiSelector()...</code></td><td>Mạnh, nhanh hơn XPath; chỉ có trên Android</td></tr><tr><td><code>className</code></td><td><code>class</code></td><td>Thường khớp nhiều phần tử</td></tr><tr><td><code>xpath</code></td><td>Cây page source</td><td>Chậm trên mobile (phải dựng cả cây XML); chỉ dùng khi phần tử không có id, và luôn viết tương đối</td></tr></table><p><b>Tránh:</b> XPath tuyệt đối, chỉ số vị trí (<code>[2]</code>, <code>.instance(1)</code>), tọa độ màn hình.</p>',
+    C`By username = AppiumBy.accessibilityId("input-username");
+By login = AppiumBy.id("com.shopdemo.app:id/btn_login");
+By error = AppiumBy.androidUIAutomator("new UiSelector().resourceId(\"com.shopdemo.app:id/txt_error\")");`, 'java'],
+  uisel:['UiSelector (AppiumBy.androidUIAutomator)',
+    '<ul><li><code>new UiSelector().text("…")</code>, <code>.textContains("…")</code>, <code>.textStartsWith("…")</code></li><li><code>.resourceId("com.shopdemo.app:id/…")</code>, <code>.description("…")</code> (content-desc), <code>.className("android.widget.Button")</code></li><li>Nối nhiều điều kiện: <code>new UiSelector().className("android.widget.Button").text("ĐĂNG NHẬP")</code></li><li><code>.instance(n)</code> / <code>.index(n)</code> chọn theo vị trí → dễ vỡ, tránh.</li><li>Trong Java, dấu nháy kép bên trong chuỗi phải viết <code>\\"</code>.</li></ul>', null],
+  mscreen:['Screen Object cho mobile (POM) và BaseScreen',
+    '<p>Giống POM bên web: mỗi màn hình một class giữ <b>locator private</b> và <b>hành động</b>; test chỉ gọi hành động và assert. <code>BaseScreen</code> giữ <code>AndroidDriver</code>, <code>WebDriverWait</code> và các hàm <code>tap</code>, <code>type</code>, <code>textOf</code> đã có explicit wait.</p>',
+    C`public abstract class BaseScreen {
+    protected final AndroidDriver driver;
+    protected final WebDriverWait wait;
+
+    protected BaseScreen(AndroidDriver driver) {
+        this.driver = driver;
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+    }
+
+    protected void tap(By by) {
+        wait.until(ExpectedConditions.elementToBeClickable(by)).click();
+    }
+
+    protected void type(By by, String text) {
+        WebElement el = wait.until(ExpectedConditions.visibilityOfElementLocated(by));
+        el.clear();
+        el.sendKeys(text);
+    }
+
+    protected String textOf(By by) {
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(by)).getText();
+    }
+}`, 'java'],
+  gesture:['Cuộn và vuốt (gesture)',
+    '<ul><li><b>Cuộn tới phần tử</b> (Android): <code>new UiScrollable(new UiSelector().scrollable(true)).scrollIntoView(new UiSelector().text("…"))</code> qua <code>AppiumBy.androidUIAutomator</code>.</li><li><b>Lệnh mobile của UiAutomator2</b>: <code>driver.executeScript("mobile: scrollGesture", Map.of(...))</code>, <code>mobile: swipeGesture</code>, <code>mobile: clickGesture</code> — tính theo phần tử hoặc vùng, không theo tọa độ tuyệt đối.</li><li><code>TouchAction</code> / <code>MultiTouchAction</code> đã bị <b>bỏ</b> trong java-client 9. Cần cử chỉ đặc biệt thì dùng W3C Actions (<code>PointerInput</code>, <code>Sequence</code>), nhưng tọa độ phải tính từ kích thước màn hình hoặc phần tử, không ghi số cứng.</li></ul>',
+    C`WebElement el = driver.findElement(AppiumBy.androidUIAutomator(
+    "new UiScrollable(new UiSelector().scrollable(true)).scrollIntoView(new UiSelector().text(\"Mũ lưỡi trai\"))"));
+
+driver.executeScript("mobile: swipeGesture", Map.of(
+    "elementId", ((RemoteWebElement) list).getId(),
+    "direction", "up",
+    "percent", 0.75));`, 'java'],
+  mreset:['Reset app, quyền, bàn phím và vòng đời driver',
+    '<ul><li>Mặc định (<code>noReset=false</code>) mỗi phiên mới xóa dữ liệu app → test bắt đầu sạch. <code>noReset=true</code>: giữ dữ liệu (nhanh hơn nhưng test phụ thuộc nhau). <code>fullReset=true</code>: gỡ và cài lại app (chậm nhất).</li><li>Popup xin quyền (vị trí, thông báo): <code>setAutoGrantPermissions(true)</code>; hoặc xử lý như một màn hình riêng nếu chính popup là đối tượng cần test.</li><li>Bàn phím che nút: <code>driver.hideKeyboard()</code> sau khi nhập.</li><li>Tạo driver trong <code>@BeforeMethod(alwaysRun = true)</code>, chụp ảnh khi fail rồi <code>quit()</code> trong <code>@AfterMethod(alwaysRun = true)</code>. Mở phiên Appium tốn vài giây → nhóm test hợp lý, nhưng không đánh đổi tính độc lập.</li></ul>', null],
+  mvsweb:['Test mobile khác test web ở đâu',
+    '<ul><li>Thiết bị đa dạng: kích thước màn hình, phiên bản Android, hãng (popup riêng của Xiaomi, Samsung…).</li><li>Trạng thái hệ điều hành: quyền, thông báo, mạng yếu/mất mạng, xoay màn hình, app chạy nền rồi quay lại.</li><li>Chậm hơn web: mỗi lệnh đi qua Appium server và driver; XPath phải dựng cả cây page source.</li><li>Cử chỉ thay cho chuột: vuốt, cuộn, giữ lâu; bàn phím ảo che giao diện.</li><li>Cài đặt và cập nhật app (upgrade từ bản cũ) cũng là một loại test.</li></ul>', null],
+  node:['Node.js, npm và package.json',
+    '<ul><li><code>npm init -y</code> tạo <code>package.json</code>; <code>npm install -D @playwright/test typescript</code> thêm vào <code>devDependencies</code> (thư viện chỉ dùng để phát triển/test).</li><li><code>package-lock.json</code> ghi chính xác phiên bản đã cài → <b>commit</b> file này. Trên CI dùng <code>npm ci</code>: cài đúng theo lock, xóa node_modules cũ, báo lỗi nếu lock lệch với package.json.</li><li><code>scripts</code> trong package.json: <code>"test": "playwright test"</code> → chạy bằng <code>npm test</code>.</li><li>Không commit <code>node_modules/</code>, <code>playwright-report/</code>, <code>test-results/</code>.</li></ul>',
+    C`{
+  "name": "shopdemo-e2e",
+  "scripts": { "test": "playwright test" },
+  "devDependencies": {
+    "@playwright/test": "^1.49.0",
+    "typescript": "^5.6.0"
+  }
+}`, 'ts'],
+  ts:['TypeScript cơ bản: kiểu, interface, import/export',
+    '<ul><li>Khai báo kiểu: <code>let price: number = 149000;</code>, <code>const names: string[] = []</code>.</li><li><code>interface</code> mô tả hình dạng object; tham số và giá trị trả về của hàm nên có kiểu.</li><li><code>any</code> tắt kiểm tra kiểu — hạn chế dùng. Chưa biết kiểu thì dùng <code>unknown</code> rồi kiểm tra trước khi dùng.</li><li><code>export</code> để file khác <code>import { CartItem } from \'./types\'</code> được.</li><li>Hàm mảng hay dùng: <code>map</code>, <code>filter</code>, <code>reduce</code>, <code>find</code>, <code>some</code>, <code>every</code>.</li></ul>',
+    C`export interface Product {
+  name: string;
+  price: number;
+}
+
+export function cheapest(products: Product[]): Product | undefined {
+  return [...products].sort((a, b) => a.price - b.price)[0];
+}`, 'ts'],
+  async:['Promise và async/await',
+    '<ul><li>Hàm <code>async</code> luôn trả về <code>Promise</code>. <code>await</code> dừng hàm hiện tại tới khi Promise xong.</li><li>Gần như mọi lệnh Playwright (<code>goto</code>, <code>click</code>, <code>fill</code>, <code>expect(locator)…</code>) trả về Promise → <b>phải await</b>. Quên await: lệnh sau chạy khi lệnh trước chưa xong → test chập chờn hoặc “pass” mà không kiểm tra gì.</li><li><code>array.forEach(async x => …)</code> <b>không chờ</b> các lệnh bên trong. Chạy lần lượt: <code>for (const x of arr) { await … }</code>. Chạy song song và chờ tất cả: <code>await Promise.all(arr.map(async x => …))</code>.</li><li>Bắt lỗi của <code>await</code> bằng <code>try { … } catch (e) { … }</code>.</li></ul>',
+    C`async function layGia(api: ApiClient, ids: number[]): Promise<number[]> {
+  const prices: number[] = [];
+  for (const id of ids) {
+    const p = await api.getProduct(id);
+    prices.push(p.price);
+  }
+  return prices;
+}`, 'ts'],
+  pwloc:['Locator của Playwright và thứ tự ưu tiên',
+    '<ol><li><code>page.getByRole(\'button\', { name: \'Đăng nhập\' })</code> — theo vai trò và tên mà người dùng/trình đọc màn hình thấy.</li><li><code>page.getByLabel(\'Mật khẩu\')</code> — ô nhập theo nhãn.</li><li><code>page.getByPlaceholder</code>, <code>page.getByText</code>, <code>page.getByAltText</code>.</li><li><code>page.getByTestId(\'error\')</code> — theo <code>data-testid</code> (đổi tên thuộc tính bằng <code>testIdAttribute</code> trong config, ví dụ <code>data-test</code>).</li><li>CSS/XPath qua <code>page.locator(...)</code> — cuối cùng mới dùng.</li></ol><p><b>Strict mode:</b> locator khớp nhiều phần tử mà gọi <code>click()</code> sẽ báo lỗi thay vì bấm bừa phần tử đầu. Thu hẹp bằng <code>filter({ hasText })</code>, chuỗi locator, hoặc tên cụ thể hơn.</p><p><b>Auto-wait:</b> trước khi click/fill, Playwright tự chờ phần tử gắn vào DOM, hiển thị, ổn định, nhận sự kiện, enabled → không cần sleep.</p>',
+    C`const row = page.getByTestId('inventory-item').filter({ hasText: 'Giày sneaker canvas' });
+await row.getByRole('button', { name: /Thêm/ }).click();`, 'ts'],
+  pwassert:['Web-first assertion',
+    '<p><code>await expect(locator).toHaveText(\'2\')</code> <b>tự thử lại</b> cho tới khi đúng hoặc hết timeout (mặc định 5 giây). Ngược lại <code>expect(await locator.textContent()).toBe(\'2\')</code> chỉ đọc <b>một lần</b> — trang chưa cập nhật kịp là fail.</p><table class="tbl"><tr><th>Assertion</th><th>Kiểm tra</th></tr><tr><td><code>toBeVisible()</code> / <code>toBeHidden()</code></td><td>Hiển thị / không hiển thị</td></tr><tr><td><code>toHaveText</code>, <code>toContainText</code></td><td>Chữ đúng / chứa chữ</td></tr><tr><td><code>toHaveCount(n)</code></td><td>Số phần tử</td></tr><tr><td><code>toHaveValue</code>, <code>toBeEnabled</code>, <code>toBeChecked</code></td><td>Trạng thái ô nhập</td></tr><tr><td><code>expect(page).toHaveURL(/inventory/)</code>, <code>toHaveTitle</code></td><td>Trang</td></tr></table><p>Assertion trên giá trị thường (<code>expect(res.status()).toBe(201)</code>) không cần await vì không chờ gì.</p>', null],
+  pwconfig:['playwright.config.ts',
+    '<ul><li><code>use.baseURL</code>: test gọi <code>page.goto(\'/login\')</code>; đổi môi trường bằng biến <code>BASE_URL</code>.</li><li><code>projects</code>: chạy cùng bộ test trên chromium, firefox, webkit (<code>devices[\'Desktop Chrome\']</code>…).</li><li><code>retries: process.env.CI ? 2 : 0</code> — chỉ thử lại trên CI; <code>trace: \'on-first-retry\'</code> ghi trace khi chạy lại.</li><li><code>reporter: \'html\'</code> tạo <code>playwright-report/</code>; <code>fullyParallel: true</code> chạy song song từng test.</li></ul>', null],
+  pwcli:['Lệnh Playwright hay dùng',
+    '<table class="tbl"><tr><th>Lệnh</th><th>Dùng để</th></tr><tr><td><code>npm init playwright@latest</code></td><td>Tạo project mẫu</td></tr><tr><td><code>npx playwright test</code></td><td>Chạy toàn bộ</td></tr><tr><td><code>npx playwright test --project=firefox</code></td><td>Chỉ một trình duyệt</td></tr><tr><td><code>npx playwright test -g "đăng nhập"</code></td><td>Lọc theo tên test</td></tr><tr><td><code>npx playwright test --ui</code></td><td>UI mode: chạy, xem từng bước, time-travel</td></tr><tr><td><code>npx playwright test --headed --debug</code></td><td>Mở trình duyệt và dừng từng bước</td></tr><tr><td><code>npx playwright codegen https://qa.shopdemo.test</code></td><td>Ghi thao tác thành code (cần sửa lại locator/assertion)</td></tr><tr><td><code>npx playwright show-report</code></td><td>Mở HTML report</td></tr><tr><td><code>npx playwright show-trace trace.zip</code></td><td>Xem trace</td></tr></table>', null],
+  pwpom:['Page Object Model trong Playwright',
+    '<p>Class nhận <code>page: Page</code> trong constructor, khai báo các <code>Locator</code> (tạo locator không tốn gì vì Playwright chỉ tìm khi dùng), và các hàm <code>async</code> cho hành động. Không đặt <code>expect</code> trong page object — trả dữ liệu hoặc locator cho test tự kiểm tra.</p>',
+    C`import { type Page, type Locator } from '@playwright/test';
+
+export class InventoryPage {
+  readonly page: Page;
+  readonly cartBadge: Locator;
+
+  constructor(page: Page) {
+    this.page = page;
+    this.cartBadge = page.getByTestId('cart-badge');
+  }
+
+  async addToCart(name: string) {
+    await this.page.getByRole('button', { name: ´Thêm §{name} vào giỏ´ }).click();
+  }
+}`, 'ts'],
+  fixture:['Fixture tự định nghĩa (test.extend)',
+    '<p>Fixture là thứ test nhận qua tham số (<code>{ page, request }</code>). Tự định nghĩa bằng <code>base.extend</code>: phần trước <code>await use(x)</code> là chuẩn bị, phần sau là dọn dẹp. Test chỉ cần khai báo <code>{ loginPage }</code> là có page object đã sẵn sàng — không lặp code chuẩn bị trong từng test.</p>', null],
+  auth:['Đăng nhập một lần với storageState',
+    '<p>Project <code>setup</code> chạy file <code>auth.setup.ts</code>: đăng nhập, chờ đăng nhập xong, lưu cookie + localStorage vào <code>playwright/.auth/user.json</code>. Các project khác khai báo <code>dependencies: [\'setup\']</code> và <code>use: { storageState: \'playwright/.auth/user.json\' }</code> → mọi test bắt đầu ở trạng thái đã đăng nhập. Thêm <code>playwright/.auth</code> vào <code>.gitignore</code>; tài khoản lấy từ biến môi trường / secret.</p>',
+    C`// playwright.config.ts (trích)
+projects: [
+  { name: 'setup', testMatch: /.*\.setup\.ts/ },
+  {
+    name: 'chromium',
+    use: { ...devices['Desktop Chrome'], storageState: 'playwright/.auth/user.json' },
+    dependencies: ['setup'],
+  },
+],`, 'ts'],
+  pwapi:['Gọi API trong test: request và page.request',
+    '<ul><li>Fixture <code>request</code> (APIRequestContext) gọi API độc lập, dùng <code>baseURL</code> của config.</li><li><code>page.request</code> dùng <b>chung cookie</b> với trình duyệt của test — tạo dữ liệu qua API rồi kiểm tra trên giao diện cùng phiên.</li><li><code>const res = await request.post(\'/api/cart\', { data: {...} })</code>; <code>res.status()</code>, <code>res.ok()</code>, <code>await res.json()</code>.</li><li>Chuẩn bị dữ liệu bằng API nhanh và ổn định hơn bấm qua giao diện — giao diện chỉ dùng cho phần thật sự cần kiểm tra.</li></ul>', null],
+  visual:['Visual test, trace viewer và chạy song song',
+    '<ul><li><code>await expect(page).toHaveScreenshot(\'trang-chu.png\')</code>: lần đầu chưa có ảnh gốc (baseline) → test <b>fail</b> và ghi ảnh mới; chạy lại thì so sánh với ảnh đó. Cập nhật baseline có chủ đích: <code>--update-snapshots</code>, review ảnh rồi commit.</li><li>Ảnh khác nhau giữa hệ điều hành / trình duyệt (font, khử răng cưa) → tạo baseline trên cùng môi trường với CI (thường là Docker/Linux).</li><li>Che phần thay đổi liên tục (giờ, quảng cáo): <code>mask: [page.getByTestId(\'clock\')]</code>; cho phép lệch nhỏ: <code>maxDiffPixelRatio</code>.</li><li><b>Trace</b>: ghi từng bước, DOM, mạng, console → mở bằng <code>show-trace</code> hoặc từ HTML report.</li><li><code>workers</code>: số tiến trình chạy song song. Mỗi test có <b>browser context riêng</b> → test phải tự chuẩn bị dữ liệu, không dựa vào test khác.</li></ul>', null],
+  pwci:['Playwright trên GitHub Actions',
+    '<p>Các bước: checkout → <code>actions/setup-node</code> (có cache npm) → <code>npm ci</code> → <code>npx playwright install --with-deps</code> (tải trình duyệt và thư viện hệ thống) → <code>npx playwright test</code> → lưu <code>playwright-report/</code> bằng <code>actions/upload-artifact</code> với <code>if: always()</code>. Có thể thêm job này cạnh job Maven của framework Selenium ở buổi 10.</p>', null],
+  perf:['Các loại performance test và chỉ số',
+    '<table class="tbl"><tr><th>Loại</th><th>Cách chạy</th><th>Trả lời câu hỏi</th></tr><tr><td>Load</td><td>Tải bình thường/kỳ vọng trong thời gian vừa đủ</td><td>Đạt mục tiêu thời gian phản hồi ở tải dự kiến?</td></tr><tr><td>Stress</td><td>Tăng dần vượt mức kỳ vọng</td><td>Giới hạn ở đâu, hỏng theo kiểu gì, có tự phục hồi?</td></tr><tr><td>Spike</td><td>Tăng đột ngột rồi giảm</td><td>Chịu được đợt tăng bất ngờ (flash sale)?</td></tr><tr><td>Soak (endurance)</td><td>Tải bình thường trong nhiều giờ</td><td>Rò bộ nhớ, đầy ổ đĩa, kết nối không được trả?</td></tr></table><ul><li><b>p95 = 480 ms</b>: 95% request xong trong ≤ 480 ms. Trung bình (avg) che mất các request rất chậm → dùng percentile.</li><li><b>Throughput</b>: số request mỗi giây (<code>http_reqs</code> /s). <b>Error rate</b>: tỉ lệ request lỗi (<code>http_req_failed</code>).</li><li><b>VU</b> (virtual user): người dùng ảo chạy kịch bản lặp lại.</li></ul>', null],
+  k6:['K6: VU, stages, check, threshold',
+    '<ul><li><code>options.stages</code>: các giai đoạn tăng/giữ/giảm số VU. Luôn có giai đoạn giảm về 0.</li><li><code>check(res, {...})</code> ghi nhận đúng/sai nhưng <b>không</b> làm test fail; <code>thresholds</code> mới quyết định đạt/không đạt (k6 trả mã thoát khác 0 khi vi phạm → CI đỏ).</li><li><code>sleep(1)</code> mô phỏng thời gian người dùng đọc trang; thiếu sleep là đang bắn liên tục, không giống người thật.</li><li>URL lấy từ <code>__ENV.BASE_URL</code> (<code>k6 run -e BASE_URL=... script.js</code>).</li><li><b>Chỉ chạy tải lên hệ thống của dự án, môi trường được phép</b> (staging) — không chạy lên site bên thứ ba.</li></ul>',
+    C`import http from 'k6/http';
+import { check, sleep } from 'k6';
+
+export const options = {
+  vus: 5,
+  duration: '30s',
+  thresholds: { http_req_duration: ['p(95)<800'] },
+};
+
+export default function () {
+  const res = http.get(´§{__ENV.BASE_URL}/´);
+  check(res, { 'status 200': (r) => r.status === 200 });
+  sleep(1);
+}`, 'js'],
+  lighthouse:['Lighthouse và Core Web Vitals',
+    '<ul><li><b>LCP</b> (Largest Contentful Paint): thời gian hiện phần nội dung lớn nhất — tốt ≤ 2,5 s.</li><li><b>CLS</b> (Cumulative Layout Shift): mức xô lệch bố cục khi tải — tốt ≤ 0,1.</li><li><b>INP</b> (Interaction to Next Paint): độ trễ phản hồi thao tác — tốt ≤ 200 ms. Trong Lighthouse (không có người thao tác) xem <b>TBT</b> (Total Blocking Time) thay thế.</li><li>Điểm Lighthouse dao động giữa các lần chạy → chạy vài lần cùng điều kiện (chế độ ẩn danh, cùng máy, cùng throttling mobile) rồi lấy trung vị.</li></ul>', null],
+  ai:['AI hỗ trợ kiểm thử: dùng thế nào cho đúng',
+    '<ul><li>Dùng tốt cho: liệt kê ý tưởng test case, sinh dữ liệu test, giải thích log/lỗi, viết khung code.</li><li>AI có thể <b>bịa quy tắc</b> không có trong yêu cầu, ghi sai kết quả mong đợi, bỏ sót giá trị biên, sinh case trùng hoặc mơ hồ → mọi output phải được người review đối chiếu với yêu cầu.</li><li><b>Không</b> dán dữ liệu khách hàng, spec nội bộ, mật khẩu, token vào công cụ AI chưa được công ty cho phép.</li><li>Ghi rõ phần nào do AI tạo và đã review đến đâu.</li></ul>', null],
+  agents:['Playwright Test Agents: Planner, Generator, Healer',
+    '<ul><li><b>Planner</b>: khám phá ứng dụng và viết kế hoạch test (file Markdown) từ mô tả của bạn.</li><li><b>Generator</b>: biến kế hoạch thành file test Playwright, kiểm tra locator và assertion trên trang thật khi sinh.</li><li><b>Healer</b>: chạy test đang fail, tìm nguyên nhân (thường là locator đổi) và đề xuất bản sửa.</li><li>Tạo cấu hình agent bằng <code>npx playwright init-agents</code> cho công cụ AI bạn dùng.</li><li>Rủi ro của Healer: “sửa” test bằng cách đổi kết quả mong đợi cho khớp với <b>bug</b> — test xanh nhưng sai. Luôn review diff trước khi nhận.</li></ul>', null],
+  plan:['Test Plan rút gọn',
+    '<ul><li><b>Mục tiêu</b> cụ thể, đo được (ví dụ: luồng đặt hàng chạy đúng trên Chrome và Android 14; không còn bug Critical/High).</li><li><b>Phạm vi</b>: trong phạm vi và <b>ngoài phạm vi</b> (ghi rõ để không ai hiểu nhầm là đã test).</li><li><b>Cách tiếp cận</b>: kỹ thuật thiết kế test, phần nào manual, phần nào automation và vì sao.</li><li><b>Môi trường và dữ liệu</b>: URL, trình duyệt, thiết bị, cách tạo dữ liệu.</li><li><b>Tiêu chí bắt đầu / kết thúc</b> (entry / exit criteria).</li><li><b>Rủi ro</b> kèm cách giảm thiểu; lịch và người phụ trách.</li></ul>', null],
+  risk:['Chọn phần automation và regression suite',
+    '<ul><li>Nên automation: luồng chính chạy nhiều lần (đăng nhập, đặt hàng), kiểm tra dữ liệu lặp lại, kiểm tra API, phần ổn định ít đổi giao diện.</li><li>Không nên: test khám phá (exploratory), đánh giá trải nghiệm/giao diện bằng mắt, tính năng chạy một lần, CAPTCHA, phần giao diện còn đổi liên tục.</li><li>Regression suite ưu tiên theo rủi ro = ảnh hưởng × khả năng xảy ra: luồng doanh thu, phần vừa sửa, phần hay lỗi.</li></ul>', null],
+  bug:['Bug report tốt',
+    '<ul><li><b>Tiêu đề</b>: hiện tượng + nơi xảy ra + điều kiện (“Đặt hàng báo lỗi 500 khi giỏ có sản phẩm giảm giá”).</li><li><b>Môi trường</b>: URL/build, trình duyệt/thiết bị, tài khoản test.</li><li><b>Bước tái hiện</b> đánh số, có dữ liệu cụ thể; người khác làm theo phải ra cùng kết quả.</li><li><b>Kết quả thực tế</b> và <b>mong đợi</b> cụ thể, đo được.</li><li><b>Severity</b> (mức ảnh hưởng tới hệ thống) khác <b>Priority</b> (mức gấp phải sửa).</li><li><b>Bằng chứng</b>: ảnh/video, log, request/response.</li></ul>', null],
+  flaky:['Test chập chờn (flaky) trên CI',
+    '<ul><li>Xem bằng chứng trước khi chạy lại: trace, ảnh, video, log của lần fail.</li><li>Nguyên nhân hay gặp: chờ cố định, test phụ thuộc thứ tự/dữ liệu của test khác, dữ liệu dùng chung bị test song song sửa, môi trường chậm, locator khớp nhiều phần tử.</li><li><code>retries</code> giúp CI không đỏ vì lỗi mạng thoáng qua, nhưng test “pass sau khi retry” vẫn là flaky → báo cáo và sửa, hoặc tạm cách ly (quarantine) có theo dõi.</li></ul>', null],
+  demo:['Trình bày và demo cuối khóa',
+    '<ul><li>Bố cục ~15 phút: bối cảnh và phạm vi → chiến lược (manual/automation, vì sao) → kết quả (số case, số bug theo severity, độ phủ automation, tỉ lệ pass) → demo chạy suite trên CI → hạn chế và việc tiếp theo.</li><li>Nói về <b>quyết định</b> và <b>đánh đổi</b>, không chỉ liệt kê công cụ.</li><li>Chuẩn bị phương án dự phòng: link lần chạy CI đã xanh, video quay sẵn.</li></ul>', null],
+};
+
+/* ===================== Danh sách bài ===================== */
+const PHASES = [
+  { k:'I', bus:13, gd:'D', name:'Buổi 13 · Appium: kiến trúc, Inspector, locator' },
+  { k:'M', bus:14, gd:'D', name:'Buổi 14 · Appium: script mobile theo POM' },
+  { k:'J', bus:15, gd:'E', name:'Buổi 15 · JavaScript / TypeScript cho tester' },
+  { k:'L', bus:16, gd:'E', name:'Buổi 16 · Playwright: locator, auto-wait, assertion' },
+  { k:'Q', bus:17, gd:'E', name:'Buổi 17 · Playwright nâng cao: POM, fixture, API, CI' },
+  { k:'K', bus:18, gd:'F', name:'Buổi 18 · Performance: K6 và Lighthouse' },
+  { k:'AI', bus:19, gd:'F', name:'Buổi 19 · AI hỗ trợ kiểm thử, Test Agents' },
+  { k:'F', bus:20, gd:'G', name:'Buổi 20 · Final Project 1: Test Plan, Checkpoint 3' },
+  { k:'R', bus:21, gd:'G', name:'Buổi 21 · Final Project 2: hoàn thiện' },
+  { k:'D', bus:22, gd:'G', name:'Buổi 22 · Demo và đánh giá cuối khóa' },
+];
+const GD = { D:'Giai đoạn D · Mobile', E:'Giai đoạn E · Playwright', F:'Giai đoạn F · Mở rộng', G:'Giai đoạn G · Final Project' };
+const KIND = { mloc:'Locator Lab', code:'Viết code', quiz:'Câu hỏi', review:'Review', self:'Bài nộp' };
+// Quy tắc chấm code: { t: nhãn, re: phải khớp | not: true (không được khớp) | min: số lần tối thiểu | each: chỉ áp cho thân mỗi khối có annotation này | fn(s): hàm tùy chỉnh, why: giải thích khi sai }
+const awaitedAll = s => (s.match(/\bexpect\s*\(\s*(page|this\.\w+|\w+\.(getBy|locator)|page\.(getBy|locator))/g) || []).length <= (s.match(/await\s+expect\s*\(/g) || []).length;
+const actionsAwaited = s => s.split('\n').filter(l => /\.(fill|click|goto|check|selectOption)\s*\(/.test(l)).every(l => /^\s*await\b/.test(l));
+const stepAlways = (s, re) => s.split(/\n\s*- /).some(x => re.test(x) && /if:\s*\$?\{?\{?\s*always\(\)/.test(x));
+const TICKETS = [
+/* ---------- Buổi 13 ---------- */
+{ id:'I1', ph:'I', kind:'quiz', t:'Kiến trúc Appium 2 và capabilities', learn:['appium','caps'],
+  need:['Trả lời đúng cả 4 câu.'],
+  qs:[
+    { q:'Trong Appium 2, driver UiAutomator2 được đưa vào bằng cách nào?', o:['Có sẵn trong Appium server, không cần làm gì', 'Cài riêng bằng appium driver install uiautomator2', 'Tải chromedriver và khai báo System.setProperty', 'Cài Android Studio là đủ'], a:1,
+      w:'Appium 2 tách driver khỏi server: cài, cập nhật, gỡ từng driver bằng lệnh appium driver …' },
+    { q:'Viết capability theo chuẩn W3C (khi không dùng lớp Options), dòng nào đúng?', o:['automationName: UiAutomator2', 'appium:automationName: UiAutomator2', 'platformName: appium:Android', 'w3c:automationName: UiAutomator2'], a:1,
+      w:'Capability riêng của Appium cần tiền tố appium:. platformName là capability chuẩn W3C nên không có tiền tố. UiAutomator2Options tự làm việc này.' },
+    { q:'Appium 2 chạy mặc định, địa chỉ nào truyền vào AndroidDriver là đúng?', o:['http://127.0.0.1:4723/wd/hub', 'http://127.0.0.1:4723', 'http://127.0.0.1:4444/wd/hub', 'adb://emulator-5554'], a:1,
+      w:'/wd/hub là base path của Appium 1 (và Selenium Grid cũ). Appium 2 dùng gốc /; dùng /wd/hub sẽ gặp lỗi 404 khi tạo phiên.' },
+    { q:'Câu nào đúng khi so sánh Appium với Selenium?', o:['Appium dùng giao thức hoàn toàn khác Selenium', 'Appium dùng cùng giao thức W3C WebDriver; java-client mở rộng Selenium nên locator, wait, TestNG, POM vẫn dùng được', 'Appium chỉ test được app web trên điện thoại', 'Appium không hỗ trợ explicit wait'], a:1,
+      w:'Kiến thức giai đoạn B dùng lại gần như nguyên vẹn; phần mới là capabilities, locator mobile và cử chỉ.' },
+  ] },
+{ id:'I2', ph:'I', kind:'quiz', t:'adb cho tester', learn:['adb'],
+  need:['Trả lời đúng cả 4 câu.'],
+  qs:[
+    { q:'<code>adb devices</code> hiện <code>emulator-5554 unauthorized</code>. Cần làm gì?', o:['Cài lại Appium', 'Mở thiết bị và bấm cho phép gỡ lỗi USB (RSA key); với emulator thì khởi động lại adb server hoặc emulator', 'Đổi cổng 4723', 'Không sao, vẫn chạy test được'], a:1,
+      w:'unauthorized nghĩa là máy tính chưa được thiết bị tin cậy — Appium sẽ không tạo được phiên.' },
+    { q:'Cài bản app mới nhưng <b>giữ dữ liệu</b> đăng nhập cũ (để test nâng cấp):', o:['adb install app.apk', 'adb install -r app.apk', 'adb uninstall com.shopdemo.app', 'adb shell pm clear com.shopdemo.app'], a:1,
+      w:'-r = reinstall, giữ dữ liệu. pm clear xóa dữ liệu; uninstall gỡ app.' },
+    { q:'Đưa app về trạng thái như mới cài (xóa dữ liệu, không gỡ app):', o:['adb shell pm clear com.shopdemo.app', 'adb reboot', 'adb install -r app.apk', 'adb logcat -c'], a:0,
+      w:'logcat -c chỉ xóa bộ đệm log.' },
+    { q:'App bị crash khi bấm Thanh toán. Lệnh nào giúp xem lỗi của chính app?', o:['adb devices -l', 'adb logcat --pid=$(adb shell pidof -s com.shopdemo.app) (hoặc adb logcat *:E)', 'adb shell input tap 500 1200', 'adb install -r app.apk'], a:1,
+      w:'Lọc theo pid của app hoặc mức Error giúp tìm stack trace (FATAL EXCEPTION) để đính vào bug report.' },
+  ] },
+{ id:'I3', ph:'I', kind:'mloc', screen:'login', t:'Ô tên đăng nhập bằng accessibility id', learn:['inspector','mloc'],
+  need:['Trên màn hình Đăng nhập, viết locator tìm <b>ô nhập tên đăng nhập</b>.', 'Bắt buộc dùng <code>AppiumBy.accessibilityId</code>.'],
+  target:"//*[@content-desc='input-username']", only:['accessibilityId'], ans:[['accessibilityId','input-username']], bad:[['accessibilityId','Tên đăng nhập'],['accessibilityId','input_username'],['id','input_username'],['accessibilityId','an_user']],
+  hints:['Mở tab <b>Page source</b>, tìm thẻ <code>android.widget.EditText</code> đầu tiên.', 'accessibilityId khớp thuộc tính <code>content-desc</code>, không phải <code>text</code> hay <code>resource-id</code>.'] },
+{ id:'I4', ph:'I', kind:'mloc', screen:'login', t:'Nút Đăng nhập bằng resource-id', learn:['mloc'],
+  need:['Viết locator tìm <b>nút “ĐĂNG NHẬP”</b>.', 'Nút không có content-desc. Dùng <code>AppiumBy.id</code>.'],
+  target:"//*[@resource-id='com.shopdemo.app:id/btn_login']", only:['id'], ans:[['id','com.shopdemo.app:id/btn_login'],['id','btn_login']], bad:[['id','login'],['id','com.shopdemo.app:btn_login'],['id','ĐĂNG NHẬP'],['accessibilityId','btn_login']],
+  hints:['Giá trị đầy đủ có dạng <code>&lt;package&gt;:id/&lt;tên&gt;</code>.', 'UiAutomator2 chấp nhận cả dạng rút gọn <code>btn_login</code> (tự thêm package của app đang test).'] },
+{ id:'I5', ph:'I', kind:'mloc', screen:'products', t:'Nút “Thêm vào giỏ” của một sản phẩm cụ thể', learn:['mloc'],
+  need:['Trên màn hình Sản phẩm, tìm <b>nút THÊM VÀO GIỎ của “Giày sneaker canvas”</b>.', 'Bốn nút giống hệt nhau (cùng id, cùng chữ) nên phải đi từ tên sản phẩm. Không dùng chỉ số vị trí.', 'Dùng <code>AppiumBy.xpath</code> (tương đối).'],
+  target:"//*[@text='Giày sneaker canvas']/../*[@resource-id='com.shopdemo.app:id/btn_add']", only:['xpath'],
+  ans:[['xpath',"//android.widget.TextView[@text='Giày sneaker canvas']/following-sibling::android.widget.Button"],['xpath',"//*[@text='Giày sneaker canvas']/..//*[@resource-id='com.shopdemo.app:id/btn_add']"],['xpath',"//*[@resource-id='com.shopdemo.app:id/item_container'][.//*[@text='Giày sneaker canvas']]//*[@resource-id='com.shopdemo.app:id/btn_add']"]],
+  bad:[['xpath','(//android.widget.Button)[3]'],['xpath',"//android.widget.Button[@text='THÊM VÀO GIỎ']"],['xpath','/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/androidx.recyclerview.widget.RecyclerView/android.view.ViewGroup[3]/android.widget.Button'],['xpath',"//*[@resource-id='com.shopdemo.app:id/item_container'][3]//android.widget.Button"]],
+  hints:['Bắt đầu từ <code>//*[@text=\'Giày sneaker canvas\']</code>.', 'Nút là anh em đứng sau tên trong cùng ô: <code>following-sibling::android.widget.Button</code>; hoặc đi lên cha bằng <code>/..</code> rồi tìm theo resource-id.'] },
+{ id:'I6', ph:'I', kind:'mloc', screen:'login', t:'Thông báo lỗi bằng UiSelector', learn:['uisel'],
+  need:['Viết locator tìm <b>thông báo lỗi</b> màu đỏ trên màn hình Đăng nhập.', 'Dùng <code>AppiumBy.androidUIAutomator</code> với biểu thức <code>new UiSelector()...</code>. Không chọn theo vị trí (<code>.index</code>, <code>.instance</code>).'],
+  target:"//*[@resource-id='com.shopdemo.app:id/txt_error']", only:['uiautomator'],
+  ans:[['uiautomator','new UiSelector().resourceId("com.shopdemo.app:id/txt_error")'],['uiautomator','new UiSelector().textContains("Sai tên đăng nhập")'],['uiautomator','new UiSelector().className("android.widget.TextView").textStartsWith("Sai")']],
+  bad:[['uiautomator','new UiSelector().className("android.widget.TextView")'],['uiautomator','new UiSelector().className("android.widget.TextView").instance(0)'],['uiautomator','new UiSelector().text("Sai tên đăng nhập")'],['uiautomator','UiSelector().resourceId("txt_error")']],
+  hints:['<code>.text(...)</code> phải khớp toàn bộ chữ; <code>.textContains(...)</code> khớp một phần.', 'resourceId trong UiSelector cần giá trị đầy đủ có package.'] },
+{ id:'I7', ph:'I', kind:'code', lang:'java', t:'Mở phiên Appium bằng UiAutomator2Options', learn:['caps','appium'],
+  need:['Viết <code>MobileDriverFactory.createDriver()</code> trả về <code>AndroidDriver</code>:', '• dùng <code>UiAutomator2Options</code> (không dùng DesiredCapabilities);', '• chọn thiết bị bằng udid/deviceName lấy từ <code>ConfigReader</code>;', '• cài app từ <code>apps/shopdemo.apk</code> trong project (đường dẫn tuyệt đối dựng bằng <code>Paths</code>, không hard-code ổ đĩa);', '• tự cấp quyền khi cài app;', '• địa chỉ server lấy từ <code>ConfigReader.get("appium.url")</code> (giá trị: <code>http://127.0.0.1:4723</code>).'],
+  starter:C`import io.appium.java_client.android.AndroidDriver;
+import io.appium.java_client.android.options.UiAutomator2Options;
+import java.net.URL;
+import java.nio.file.Paths;
+
+public class MobileDriverFactory {
+
+    public static AndroidDriver createDriver() throws Exception {
+        // TODO
+        return null;
+    }
+}
+`,
+  rules:[
+    { t:'Dùng UiAutomator2Options', re:/new\s+UiAutomator2Options\s*\(/ },
+    { t:'Không dùng DesiredCapabilities (cách cũ)', not:true, re:/DesiredCapabilities/ },
+    { t:'Chọn thiết bị (setUdid / setDeviceName) từ ConfigReader', re:/\.set(Udid|DeviceName)\s*\(\s*ConfigReader\.get\s*\(/ },
+    { t:'Cài app bằng setApp với đường dẫn tuyệt đối dựng từ Paths', re:/\.setApp\s*\(\s*Paths\.get\s*\([^)]*\)\s*\.toAbsolutePath\s*\(\s*\)/, why:'Paths.get("apps/shopdemo.apk").toAbsolutePath().toString() chạy được trên máy ai cũng như trên CI.' },
+    { t:'Không hard-code ổ đĩa / thư mục người dùng', not:true, re:/"[A-Za-z]:[\\\/]|"\/Users\/|"\/home\// },
+    { t:'Tự cấp quyền: setAutoGrantPermissions(true)', re:/setAutoGrantPermissions\s*\(\s*true\s*\)/ },
+    { t:'Tạo AndroidDriver với URL lấy từ config', re:/new\s+AndroidDriver\s*\(\s*(new\s+URL\s*\(\s*ConfigReader\.get\s*\(\s*"appium\.url"\s*\)\s*\)|URI\.create\s*\(\s*ConfigReader\.get\s*\(\s*"appium\.url"\s*\)\s*\)\s*\.toURL\s*\(\s*\)|\w+)\s*,\s*\w+\s*\)/ },
+    { t:'Địa chỉ server lấy từ ConfigReader.get("appium.url")', re:/ConfigReader\.get\s*\(\s*"appium\.url"\s*\)/ },
+    { t:'Không dùng /wd/hub (Appium 1)', not:true, re:/\/wd\/hub/ },
+    { t:'Trả về driver', re:/return\s+(new\s+AndroidDriver|\w+)\s*[;(]/ },
+  ],
+  answer:C`import io.appium.java_client.android.AndroidDriver;
+import io.appium.java_client.android.options.UiAutomator2Options;
+import java.net.URL;
+import java.nio.file.Paths;
+import java.time.Duration;
+
+public class MobileDriverFactory {
+
+    public static AndroidDriver createDriver() throws Exception {
+        UiAutomator2Options options = new UiAutomator2Options()
+            .setUdid(ConfigReader.get("device.udid"))
+            .setApp(Paths.get("apps/shopdemo.apk").toAbsolutePath().toString())
+            .setAutoGrantPermissions(true)
+            .setNewCommandTimeout(Duration.ofSeconds(60));
+        URL server = new URL(ConfigReader.get("appium.url"));
+        return new AndroidDriver(server, options);
+    }
+}
+`,
+  wrong:[C`public class MobileDriverFactory {
+    public static AndroidDriver createDriver() throws Exception {
+        DesiredCapabilities caps = new DesiredCapabilities();
+        caps.setCapability("platformName", "Android");
+        caps.setCapability("appium:app", "C:/Users/an/shopdemo.apk");
+        return new AndroidDriver(new URL("http://127.0.0.1:4723/wd/hub"), caps);
+    }
+}`, C`public class MobileDriverFactory {
+    public static AndroidDriver createDriver() throws Exception {
+        UiAutomator2Options options = new UiAutomator2Options()
+            .setUdid(ConfigReader.get("device.udid"))
+            .setApp("C:/Users/an/shopdemo.apk");
+        return new AndroidDriver(new URL(ConfigReader.get("appium.url")), options);
+    }
+}`],
+  hints:['Các hàm set… của Options trả về chính options nên viết nối tiếp được.', '<code>new URL(String)</code> ném <code>MalformedURLException</code> — hàm đã khai báo <code>throws Exception</code>.'] },
+{ id:'I8', ph:'I', kind:'self', t:'Bài nộp buổi 13: Inspector và bảng locator', learn:['inspector','mloc'],
+  need:['Tự kiểm tra bài nộp và đánh dấu từng mục. Đủ các mục thì bài được tính hoàn thành.', 'Dùng app mẫu công khai hoặc app của dự án đã được phép — không dùng app/dữ liệu thật của khách hàng.'],
+  items:['Appium server chạy được, appium driver doctor uiautomator2 không còn lỗi bắt buộc', 'Ảnh chụp Appium Inspector đã kết nối với emulator/thiết bị', 'Bảng locator cho ít nhất 2 màn hình (tên phần tử, chiến lược, giá trị, lý do chọn)', 'Mọi locator ưu tiên accessibility id / resource-id; không có XPath theo vị trí', 'Đã thử từng locator bằng Search for element trong Inspector'] },
+
+/* ---------- Buổi 14 ---------- */
+{ id:'M1', ph:'M', kind:'code', lang:'java', t:'Screen Object cho màn hình Đăng nhập', learn:['mscreen','mloc'],
+  need:['Viết <code>LoginScreen extends BaseScreen</code> (BaseScreen xem phần kiến thức) cho màn hình ở bài I3–I6:', '• 4 locator <code>private final By</code>: ô tên đăng nhập, ô mật khẩu (accessibility id), nút đăng nhập, thông báo lỗi (resource-id);', '• constructor nhận <code>AndroidDriver</code> và gọi <code>super(driver)</code>;', '• <code>login(String user, String pass)</code> dùng <code>type</code>/<code>tap</code> của BaseScreen;', '• <code>getErrorText()</code> trả chữ của thông báo lỗi;', '• không assert trong screen object, không gọi <code>driver.findElement</code> trực tiếp, không XPath.'],
+  starter:C`import io.appium.java_client.AppiumBy;
+import io.appium.java_client.android.AndroidDriver;
+import org.openqa.selenium.By;
+
+public class LoginScreen extends BaseScreen {
+
+}
+`,
+  rules:[
+    { t:'LoginScreen extends BaseScreen', re:/class\s+LoginScreen\s+extends\s+BaseScreen/ },
+    { t:'Constructor nhận AndroidDriver và gọi super(driver)', re:/LoginScreen\s*\(\s*AndroidDriver\s+(\w+)\s*\)\s*\{\s*super\s*\(\s*\1\s*\)/ },
+    { t:'Có ít nhất 4 locator private final By', re:/private\s+final\s+By\s+\w+\s*=/, min:4 },
+    { t:'Hai ô nhập dùng AppiumBy.accessibilityId', re:/AppiumBy\.accessibilityId\s*\(\s*"input-(username|password)"\s*\)/, min:2 },
+    { t:'Nút đăng nhập và thông báo lỗi dùng resource-id', fn:s => /(AppiumBy|By)\.id\s*\(\s*"(com\.shopdemo\.app:id\/)?btn_login"\s*\)/.test(s) && /(AppiumBy|By)\.id\s*\(\s*"(com\.shopdemo\.app:id\/)?txt_error"\s*\)/.test(s) },
+    { t:'Có hàm login(String, String) dùng type và tap', re:/public\s+\w+\s+login\s*\(\s*String\s+\w+\s*,\s*String\s+\w+\s*\)\s*\{[\s\S]*?\btype\s*\([\s\S]*?\btap\s*\(/ },
+    { t:'Có hàm getErrorText() trả về String', re:/public\s+String\s+getErrorText\s*\(\s*\)\s*\{[\s\S]*?return\s+textOf\s*\(/ },
+    { t:'Không gọi driver.findElement trực tiếp', not:true, re:/\.findElements?\s*\(/, why:'Đi qua tap/type/textOf của BaseScreen để có sẵn explicit wait.' },
+    { t:'Không assert trong screen object', not:true, re:/Assert\.|assert\s/ },
+    { t:'Không dùng XPath', not:true, re:/\.xpath\s*\(/ },
+  ],
+  answer:C`import io.appium.java_client.AppiumBy;
+import io.appium.java_client.android.AndroidDriver;
+import org.openqa.selenium.By;
+
+public class LoginScreen extends BaseScreen {
+    private final By username = AppiumBy.accessibilityId("input-username");
+    private final By password = AppiumBy.accessibilityId("input-password");
+    private final By loginButton = AppiumBy.id("com.shopdemo.app:id/btn_login");
+    private final By error = AppiumBy.id("com.shopdemo.app:id/txt_error");
+
+    public LoginScreen(AndroidDriver driver) {
+        super(driver);
+    }
+
+    public ProductsScreen login(String user, String pass) {
+        type(username, user);
+        type(password, pass);
+        driver.hideKeyboard();
+        tap(loginButton);
+        return new ProductsScreen(driver);
+    }
+
+    public String getErrorText() {
+        return textOf(error);
+    }
+}
+`,
+  wrong:[C`public class LoginScreen extends BaseScreen {
+    private final By username = AppiumBy.accessibilityId("input-username");
+    private final By password = AppiumBy.accessibilityId("input-password");
+    private final By loginButton = AppiumBy.xpath("//android.widget.Button[1]");
+    private final By error = AppiumBy.id("txt_error");
+    public LoginScreen(AndroidDriver driver) { super(driver); }
+    public void login(String user, String pass) { type(username, user); type(password, pass); tap(loginButton); }
+    public String getErrorText() { return textOf(error); }
+}`, C`public class LoginScreen extends BaseScreen {
+    private final By username = AppiumBy.accessibilityId("input-username");
+    private final By password = AppiumBy.accessibilityId("input-password");
+    private final By loginButton = AppiumBy.id("btn_login");
+    private final By error = AppiumBy.id("txt_error");
+    public LoginScreen(AndroidDriver driver) { super(driver); }
+    public void login(String user, String pass) { driver.findElement(username).sendKeys(user); type(password, pass); tap(loginButton); }
+    public String getErrorText() { String e = textOf(error); Assert.assertFalse(e.isEmpty()); return e; }
+}`],
+  hints:['Hàm login có thể trả về <code>ProductsScreen</code> (màn tiếp theo) — gọi là fluent screen.', 'Bàn phím ảo có thể che nút: gọi <code>driver.hideKeyboard()</code> trước khi bấm.'] },
+{ id:'M2', ph:'M', kind:'code', lang:'java', snippet:true, t:'Cuộn tới sản phẩm cuối danh sách và thêm vào giỏ', learn:['gesture','uisel'],
+  need:['Danh sách sản phẩm dài, “Áo khoác gió” nằm ở cuối, chưa hiện trên màn hình.', 'Viết test: cuộn tới sản phẩm này bằng <code>UiScrollable</code> (hoặc lệnh <code>mobile: scrollGesture</code>), bấm nút thêm vào giỏ của <b>đúng</b> sản phẩm đó, kiểm tra số trên biểu tượng giỏ (<code>cart_badge</code>) là “1”.', 'Không dùng <code>TouchAction</code> (đã bị bỏ), không vuốt theo tọa độ ghi cứng, không <code>Thread.sleep</code>. Giả định class đã có <code>driver</code> và <code>wait</code>.'],
+  starter:C`@Test
+public void themSanPhamCuoiDanhSach() {
+    // TODO
+}
+`,
+  rules:[
+    { t:'Cuộn bằng UiScrollable…scrollIntoView hoặc mobile: scrollGesture', fn:s => (/new\s+UiScrollable\s*\(/.test(s) && /scrollIntoView\s*\(/.test(s)) || /"mobile:\s*scrollGesture"/.test(s) },
+    { t:'Tìm đúng chữ “Áo khoác gió”', re:/Áo khoác gió/ },
+    { t:'Không dùng TouchAction / PointOption (đã bị bỏ)', not:true, re:/TouchAction|PointOption/ },
+    { t:'Không vuốt theo tọa độ ghi cứng', not:true, re:/createPointerMove\s*\([^;]*,\s*\d{2,}\s*,\s*\d{2,}\s*\)|"(startX|startY|endX|endY|left|top)"\s*,\s*\d{2,}/, why:'Tọa độ đúng trên máy này sẽ sai trên máy có màn hình khác.' },
+    { t:'Bấm nút thêm của đúng sản phẩm (đi từ tên, không theo vị trí)', fn:s => /Áo khoác gió[\s\S]*btn_add[\s\S]*\.click\s*\(|Áo khoác gió[^;]*following-sibling[\s\S]*\.click\s*\(/.test(s) && !/\[\s*\d+\s*\]|\.instance\s*\(|\.get\s*\(\s*\d+\s*\)/.test(s) },
+    { t:'Kiểm tra cart_badge là "1"', re:/cart_badge[\s\S]*Assert\.assertEquals\s*\([^;]*"1"|Assert\.assertEquals\s*\([^;]*cart_badge[^;]*"1"|textToBe\s*\([^;]*cart_badge[^;]*"1"/ },
+    { t:'Không dùng Thread.sleep', not:true, re:/Thread\.sleep/ },
+  ],
+  answer:C`@Test
+public void themSanPhamCuoiDanhSach() {
+    driver.findElement(AppiumBy.androidUIAutomator(
+        "new UiScrollable(new UiSelector().scrollable(true)).scrollIntoView(new UiSelector().text(\"Áo khoác gió\"))"));
+
+    driver.findElement(AppiumBy.xpath(
+        "//*[@text='Áo khoác gió']/following-sibling::*[@resource-id='com.shopdemo.app:id/btn_add']")).click();
+
+    String badge = wait.until(ExpectedConditions.visibilityOfElementLocated(
+        AppiumBy.id("com.shopdemo.app:id/cart_badge"))).getText();
+    Assert.assertEquals(badge, "1");
+}
+`,
+  wrong:[C`@Test
+public void x() {
+    new TouchAction<>(driver).press(PointOption.point(540, 1800)).moveTo(PointOption.point(540, 400)).release().perform();
+    driver.findElement(AppiumBy.xpath("//*[@text='Áo khoác gió']/following-sibling::*[@resource-id='com.shopdemo.app:id/btn_add']")).click();
+    Assert.assertEquals(driver.findElement(AppiumBy.id("com.shopdemo.app:id/cart_badge")).getText(), "1");
+}`, C`@Test
+public void x() {
+    driver.findElement(AppiumBy.androidUIAutomator("new UiScrollable(new UiSelector().scrollable(true)).scrollIntoView(new UiSelector().text(\"Áo khoác gió\"))"));
+    driver.findElements(AppiumBy.id("com.shopdemo.app:id/btn_add")).get(4).click();
+    Assert.assertEquals(driver.findElement(AppiumBy.id("com.shopdemo.app:id/cart_badge")).getText(), "1");
+}`],
+  hints:['Trong chuỗi Java, dấu nháy kép bên trong biểu thức UiSelector viết là <code>\\"</code>.', 'Nút thêm nằm cùng ô với tên: <code>following-sibling::*[@resource-id=\'...btn_add\']</code>.'] },
+{ id:'M3', ph:'M', kind:'code', lang:'java', t:'BaseMobileTest: tạo phiên, chụp ảnh khi fail, đóng phiên', learn:['mreset'],
+  need:['Viết <code>BaseMobileTest</code> để mọi test mobile kế thừa:', '• field <code>protected AndroidDriver driver</code> (không static);', '• <code>@BeforeMethod(alwaysRun = true)</code> tạo driver bằng <code>MobileDriverFactory.createDriver()</code> (bài I7);', '• <code>@AfterMethod(alwaysRun = true)</code> nhận <code>ITestResult</code>: nếu test fail thì chụp màn hình vào <code>target/screenshots/&lt;tên test&gt;.png</code> <b>trước</b>, rồi <code>quit()</code> driver.'],
+  starter:C`public abstract class BaseMobileTest {
+
+}
+`,
+  rules:[
+    { t:'Field AndroidDriver không static', fn:s => /protected\s+AndroidDriver\s+\w+\s*;/.test(s) && !/static\s+AndroidDriver/.test(s) },
+    { t:'@BeforeMethod(alwaysRun = true) tạo driver bằng MobileDriverFactory', re:/@BeforeMethod\s*\(\s*alwaysRun\s*=\s*true\s*\)[\s\S]*?MobileDriverFactory\.createDriver\s*\(\s*\)/, why:'alwaysRun = true để setup vẫn chạy khi chạy theo group.' },
+    { t:'@AfterMethod(alwaysRun = true) nhận ITestResult', re:/@AfterMethod\s*\(\s*alwaysRun\s*=\s*true\s*\)\s*public\s+void\s+\w+\s*\(\s*ITestResult\s+\w+\s*\)/ },
+    { t:'Kiểm tra test fail (ITestResult.FAILURE hoặc !isSuccess())', re:/getStatus\s*\(\s*\)\s*==\s*ITestResult\.FAILURE|!\s*\w+\.isSuccess\s*\(\s*\)/ },
+    { t:'Chụp màn hình bằng getScreenshotAs', re:/getScreenshotAs\s*\(\s*OutputType\.(FILE|BYTES)\s*\)/ },
+    { t:'Lưu vào target/screenshots với tên test', re:/"target\/screenshots"[\s\S]*?getName\s*\(\s*\)|getName\s*\(\s*\)[\s\S]*?"target\/screenshots/ },
+    { t:'Chụp ảnh trước rồi mới quit()', re:/getScreenshotAs[\s\S]*?\.quit\s*\(\s*\)/ },
+    { t:'Kiểm tra driver != null trước khi dùng', re:/driver\s*!=\s*null/ },
+  ],
+  answer:C`public abstract class BaseMobileTest {
+    protected AndroidDriver driver;
+
+    @BeforeMethod(alwaysRun = true)
+    public void setUp() throws Exception {
+        driver = MobileDriverFactory.createDriver();
+    }
+
+    @AfterMethod(alwaysRun = true)
+    public void tearDown(ITestResult result) throws IOException {
+        if (driver == null) return;
+        try {
+            if (result.getStatus() == ITestResult.FAILURE) {
+                File src = driver.getScreenshotAs(OutputType.FILE);
+                Path dest = Paths.get("target/screenshots", result.getName() + ".png");
+                Files.createDirectories(dest.getParent());
+                Files.copy(src.toPath(), dest, StandardCopyOption.REPLACE_EXISTING);
+            }
+        } finally {
+            if (driver != null) driver.quit();
+        }
+    }
+}
+`,
+  wrong:[C`public abstract class BaseMobileTest {
+    protected static AndroidDriver driver;
+    @BeforeMethod(alwaysRun = true)
+    public void setUp() throws Exception { driver = MobileDriverFactory.createDriver(); }
+    @AfterMethod(alwaysRun = true)
+    public void tearDown(ITestResult result) throws IOException {
+        if (driver != null) {
+            if (result.getStatus() == ITestResult.FAILURE) { File f = driver.getScreenshotAs(OutputType.FILE); Files.copy(f.toPath(), Paths.get("target/screenshots", result.getName() + ".png")); }
+            driver.quit();
+        }
+    }
+}`, C`public abstract class BaseMobileTest {
+    protected AndroidDriver driver;
+    @BeforeMethod
+    public void setUp() throws Exception { driver = MobileDriverFactory.createDriver(); }
+    @AfterMethod(alwaysRun = true)
+    public void tearDown(ITestResult result) throws IOException {
+        if (driver != null) {
+            driver.quit();
+            if (result.getStatus() == ITestResult.FAILURE) { File f = driver.getScreenshotAs(OutputType.FILE); Files.copy(f.toPath(), Paths.get("target/screenshots", result.getName() + ".png")); }
+        }
+    }
+}`],
+  hints:['Sau <code>quit()</code> thì không chụp được nữa — thứ tự quan trọng.', 'Đặt <code>quit()</code> trong <code>finally</code> để lỗi khi lưu ảnh không làm treo phiên Appium.'] },
+{ id:'M4', ph:'M', kind:'quiz', t:'Khác biệt khi test mobile', learn:['mreset','mvsweb'],
+  need:['Trả lời đúng cả 4 câu.'],
+  qs:[
+    { q:'Bật <code>noReset=true</code> để test chạy nhanh hơn. Rủi ro là gì?', o:['Không có rủi ro', 'Dữ liệu app (đăng nhập, giỏ hàng) còn từ test trước → kết quả phụ thuộc thứ tự chạy', 'App bị gỡ sau mỗi test', 'Không cài được app'], a:1,
+      w:'Nếu dùng noReset thì từng test phải tự đưa app về trạng thái cần (đăng xuất, xóa giỏ) hoặc gọi pm clear.' },
+    { q:'Vì sao không nên vuốt/bấm theo tọa độ ghi cứng (540, 1800)?', o:['Appium không hỗ trợ tọa độ', 'Màn hình khác kích thước/mật độ điểm ảnh hoặc bố cục đổi là bấm trượt; test không còn ý nghĩa', 'Tọa độ chỉ chạy trên iOS', 'Vì chậm hơn locator'], a:1,
+      w:'Dùng locator; cần cử chỉ thì tính theo phần tử hoặc phần trăm kích thước màn hình.' },
+    { q:'Bàn phím ảo che nút Đăng nhập nên click báo lỗi. Cách xử lý hợp lý nhất?', o:['Thread.sleep(3000)', 'driver.hideKeyboard() sau khi nhập, rồi bấm nút', 'Bấm vào tọa độ của nút', 'Bỏ bước đăng nhập'], a:1,
+      w:'Một số app có nút Done/Next trên bàn phím cũng dùng được, nhưng hideKeyboard đơn giản và rõ nghĩa nhất.' },
+    { q:'App xin quyền thông báo ngay lần mở đầu, popup chặn mọi test. Cách nào phù hợp khi popup <b>không phải</b> đối tượng cần test?', o:['setAutoGrantPermissions(true) trong capabilities', 'Bấm Allow bằng tọa độ', 'Tắt Appium Inspector', 'Gỡ app sau mỗi test'], a:0,
+      w:'Khi chính luồng xin quyền là đối tượng test (từ chối quyền thì app xử lý thế nào), viết test riêng và tắt autoGrant cho test đó.' },
+  ] },
+{ id:'M5', ph:'M', kind:'review', lang:'java', files:'Pull request: CartMobileTest.java', okMsg:'Đạt — bạn nhận ra đúng các lỗi hay gặp của test mobile.', t:'Review test mobile của bạn cùng nhóm', learn:['mloc','gesture','mreset'],
+  need:['Đọc pull request bên phải và đánh giá từng mục: <b>Đạt</b> hay <b>Vi phạm</b>.', 'Đạt bài khi đánh giá đúng tất cả các mục. Mỗi mục sai sẽ có giải thích.'],
+  code:C`public class CartMobileTest extends BaseMobileTest {
+
+    @Test
+    public void themSanPhamVaoGio() throws InterruptedException {
+        new LoginScreen(driver).login("an_user", "Demo@123");
+        Thread.sleep(4000);
+        driver.findElement(AppiumBy.xpath("//android.widget.Button[2]")).click();
+        new TouchAction<>(driver).tap(PointOption.point(980, 140)).perform();
+
+        CartScreen cart = new CartScreen(driver);
+        Assert.assertEquals(cart.countItems(), 1);
+    }
+
+    @Test
+    public void xoaSanPhamKhoiGio() {
+        CartScreen cart = new CartScreen(driver);
+        cart.removeFirst();
+        Assert.assertEquals(cart.countItems(), 0);
+    }
+}
+`,
+  items:[
+    ['Locator ưu tiên accessibility id / resource-id, không theo vị trí', 1, 'Vi phạm: <code>//android.widget.Button[2]</code> chọn nút thứ 2 trong cả màn hình — thêm một nút là bấm nhầm.'],
+    ['Không chờ bằng Thread.sleep', 1, 'Vi phạm: <code>Thread.sleep(4000)</code>. Chờ màn Sản phẩm bằng explicit wait trong ProductsScreen.'],
+    ['Không bấm theo tọa độ / không dùng TouchAction', 1, 'Vi phạm: <code>TouchAction</code> đã bị bỏ trong java-client 9, và tọa độ (980, 140) chỉ đúng trên một kích thước màn hình. Mở giỏ bằng <code>AppiumBy.accessibilityId("Giỏ hàng")</code>.'],
+    ['Mỗi test có assertion', 0, 'Đạt: cả hai test đều assertEquals với số lượng cụ thể.'],
+    ['Test độc lập, chạy được sau khi app được reset', 1, 'Vi phạm: test 2 không đăng nhập, không thêm sản phẩm — chỉ pass nếu chạy sau test 1 với noReset. Test 2 phải tự chuẩn bị giỏ hàng.'],
+    ['Driver được tạo và đóng ở lớp cha, không tạo trong test', 0, 'Đạt: driver đến từ BaseMobileTest.'],
+    ['Tên test mô tả hành vi được kiểm tra', 0, 'Đạt: themSanPhamVaoGio, xoaSanPhamKhoiGio rõ nghĩa.'],
+  ] },
+{ id:'M6', ph:'M', kind:'self', t:'Bài nộp buổi 14: 3 test mobile theo POM', learn:['mscreen'],
+  need:['Tự kiểm tra repository của bạn và đánh dấu từng mục.'],
+  items:['Package screens có BaseScreen và ít nhất 2 screen object', 'Ít nhất 3 test mobile kế thừa BaseMobileTest, chạy bằng mvn test', 'Không có Thread.sleep, TouchAction hay tọa độ cứng', 'Chạy lại cả bộ sau khi pm clear (hoặc phiên mới) vẫn pass', 'Có bảng/ghi chú kết quả pass/fail và ảnh chụp của test fail (nếu có)'] },
+
+/* ---------- Buổi 15 ---------- */
+{ id:'J1', ph:'J', kind:'quiz', t:'Promise và async/await', learn:['async'],
+  need:['Trả lời đúng cả 4 câu.'],
+  qs:[
+    { q:'Hàm <code>async function layTen() { return \'An\'; }</code> trả về gì?', o:['Chuỗi \'An\'', 'Promise sẽ hoàn thành với giá trị \'An\'', 'undefined', 'Lỗi biên dịch'], a:1,
+      w:'Hàm async luôn trả về Promise; muốn lấy \'An\' phải await layTen().' },
+    { q:'Trong Playwright viết <code>page.getByRole(\'button\', { name: \'Thanh toán\' }).click();</code> mà quên await. Điều gì có thể xảy ra?', o:['Không ảnh hưởng gì', 'Lệnh sau chạy khi click chưa xong; test chập chờn, lỗi có thể bị nuốt hoặc báo ở chỗ khác', 'Playwright tự await giúp', 'Trình duyệt bị đóng ngay'], a:1,
+      w:'Bật rule ESLint @typescript-eslint/no-floating-promises để bắt lỗi này khi viết code.' },
+    { q:'Cần tạo 3 user qua API, không phụ thuộc nhau, và chờ cả 3 xong. Cách nào gọn và nhanh nhất?', o:['names.forEach(async n => await api.createUser(n))', 'await Promise.all(names.map(n => api.createUser(n)))', 'Gọi api.createUser 3 lần không await', 'setTimeout 3 giây rồi đọc kết quả'], a:1,
+      w:'Promise.all chạy song song và chờ tất cả; forEach không chờ.' },
+    { q:'Bắt lỗi khi <code>await api.login()</code> bị từ chối (reject) như thế nào?', o:['if (api.login() == null)', 'try { await api.login(); } catch (e) { ... }', 'Không bắt được', 'Dùng finally là đủ'], a:1,
+      w:'await biến Promise bị reject thành exception ném ra tại dòng đó.' },
+  ] },
+{ id:'J2', ph:'J', kind:'code', lang:'ts', t:'Interface và hàm tính tổng giỏ hàng', learn:['ts'],
+  need:['Trong file <code>cart.ts</code>:', '• khai báo và export <code>interface CartItem</code> có <code>name</code> (chuỗi), <code>price</code> (số), <code>qty</code> (số);', '• export hàm <code>cartTotal(items: CartItem[]): number</code> trả tổng <code>price × qty</code> của mọi sản phẩm;', '• không dùng <code>any</code>.'],
+  starter:C`// cart.ts
+
+export interface CartItem {
+  // TODO
+}
+
+// TODO: cartTotal
+`,
+  rules:[
+    { t:'export interface CartItem', re:/export\s+interface\s+CartItem\s*\{/ },
+    { t:'Đủ 3 thuộc tính có kiểu: name: string, price: number, qty: number', fn:s => /name\s*:\s*string/.test(s) && /price\s*:\s*number/.test(s) && /qty\s*:\s*number/.test(s) },
+    { t:'Hàm cartTotal được export, tham số CartItem[] và trả về number', re:/export\s+(function\s+cartTotal\s*\(|const\s+cartTotal\s*=\s*\()\s*items\s*:\s*(CartItem\[\]|Array<CartItem>|readonly\s+CartItem\[\])\s*\)\s*:\s*number/ },
+    { t:'Nhân giá với số lượng', re:/\.price\s*\*\s*\w+\.qty|\.qty\s*\*\s*\w+\.price|\bprice\s*\*\s*qty\b|\bqty\s*\*\s*price\b/ },
+    { t:'Duyệt mảng bằng reduce hoặc for…of', re:/\.reduce\s*\(|for\s*\(\s*const\s+\w+\s+of\s+/ },
+    { t:'Không dùng any', not:true, re:/:\s*any\b|<any>|as\s+any\b/ },
+  ],
+  answer:C`// cart.ts
+
+export interface CartItem {
+  name: string;
+  price: number;
+  qty: number;
+}
+
+export function cartTotal(items: CartItem[]): number {
+  return items.reduce((sum, item) => sum + item.price * item.qty, 0);
+}
+`,
+  wrong:[C`export interface CartItem { name: string; price: number; qty: number; }
+export function cartTotal(items: any): number {
+  let t = 0;
+  for (const i of items) t += i.price * i.qty;
+  return t;
+}`, C`export interface CartItem { name: string; price: number; qty: number; }
+export function cartTotal(items: CartItem[]): number {
+  return items.reduce((sum, item) => sum + item.price, 0);
+}`],
+  hints:['<code>reduce((tong, sp) => tong + ..., 0)</code> — số 0 là giá trị ban đầu.', 'Kiểu trả về đặt sau dấu đóng ngoặc tham số: <code>(...): number</code>.'] },
+{ id:'J3', ph:'J', kind:'code', lang:'ts', t:'Sửa lỗi forEach với async', learn:['async'],
+  need:['Hàm dưới đây luôn trả về mảng rỗng: <code>forEach</code> không chờ các lệnh await bên trong.', 'Sửa để hàm trả về <b>đủ id</b> của các user đã tạo, dùng <code>for…of</code> + <code>await</code> hoặc <code>await Promise.all(names.map(...))</code>. Giữ nguyên chữ ký hàm.'],
+  starter:C`async function taoNhieuUser(api: ApiClient, names: string[]): Promise<number[]> {
+  const ids: number[] = [];
+  names.forEach(async (name) => {
+    const user = await api.createUser(name);
+    ids.push(user.id);
+  });
+  return ids;
+}
+`,
+  rules:[
+    { t:'Không còn forEach với hàm async', not:true, re:/\.forEach\s*\(\s*async/ },
+    { t:'Chờ từng lệnh createUser (for…of + await) hoặc chờ tất cả (await Promise.all)', fn:s => /for\s*\(\s*const\s+\w+\s+of\s+names\s*\)[\s\S]*?await\s+api\.createUser\s*\(/.test(s) || /await\s+Promise\.all\s*\(\s*names\.map\s*\([\s\S]*?api\.createUser\s*\(/.test(s) },
+    { t:'Không dùng .then() lồng thay cho await', not:true, re:/createUser\s*\([^)]*\)\s*\.then\s*\(/ },
+    { t:'Giữ chữ ký hàm: Promise<number[]>', re:/async\s+function\s+taoNhieuUser\s*\(\s*api\s*:\s*ApiClient\s*,\s*names\s*:\s*string\[\]\s*\)\s*:\s*Promise<number\[\]>/ },
+    { t:'Trả về danh sách id', re:/return\s+(ids|\w+\.map\s*\(|users\.map|\(await\s+Promise\.all)/ },
+  ],
+  answer:C`async function taoNhieuUser(api: ApiClient, names: string[]): Promise<number[]> {
+  const ids: number[] = [];
+  for (const name of names) {
+    const user = await api.createUser(name);
+    ids.push(user.id);
+  }
+  return ids;
+}
+`,
+  wrong:[C`async function taoNhieuUser(api: ApiClient, names: string[]): Promise<number[]> {
+  const ids: number[] = [];
+  for (const name of names) {
+    api.createUser(name).then(u => ids.push(u.id));
+  }
+  return ids;
+}`, C`async function taoNhieuUser(api: ApiClient, names: string[]): Promise<number[]> {
+  const ids: number[] = [];
+  names.map(async (name) => { const u = await api.createUser(name); ids.push(u.id); });
+  return ids;
+}`],
+  hints:['Cách song song: <code>const users = await Promise.all(names.map(n => api.createUser(n))); return users.map(u => u.id);</code>', 'Cách lần lượt dễ đọc hơn và giữ thứ tự gọi API.'] },
+{ id:'J4', ph:'J', kind:'quiz', t:'npm, package.json và kiểu dữ liệu', learn:['node','ts'],
+  need:['Trả lời đúng cả 4 câu.'],
+  qs:[
+    { q:'Trên CI nên cài thư viện bằng lệnh nào?', o:['npm install', 'npm ci', 'npm update', 'npx install'], a:1,
+      w:'npm ci cài đúng phiên bản trong package-lock.json và báo lỗi nếu lock lệch — kết quả lặp lại được giữa các lần chạy.' },
+    { q:'<code>@playwright/test</code> nên nằm trong mục nào của package.json?', o:['dependencies', 'devDependencies', 'scripts', 'peerDependencies'], a:1,
+      w:'Thư viện test không cần khi chạy sản phẩm thật → npm install -D.' },
+    { q:'Biến nhận JSON từ API chưa rõ cấu trúc. Khai báo nào an toàn hơn?', o:['const body: any = await res.json();', 'const body: unknown = await res.json(); rồi kiểm tra/ép kiểu theo interface trước khi dùng', 'Không khai báo kiểu gì cả', 'const body: string = await res.json();'], a:1,
+      w:'any tắt kiểm tra kiểu — gõ sai tên thuộc tính cũng không báo. unknown buộc kiểm tra trước khi dùng.' },
+    { q:'File nào <b>nên</b> commit lên Git?', o:['node_modules/', 'package-lock.json', 'playwright-report/', 'test-results/'], a:1,
+      w:'Lock file giúp mọi máy cài cùng phiên bản. Ba thư mục còn lại là kết quả sinh ra — đưa vào .gitignore.' },
+  ] },
+{ id:'J5', ph:'J', kind:'self', t:'Bài nộp buổi 15: repository TypeScript nhỏ', learn:['node','ts'],
+  need:['Tự kiểm tra repository và đánh dấu từng mục.'],
+  items:['Có package.json, package-lock.json, tsconfig.json; .gitignore có node_modules', 'Ít nhất 3 bài TypeScript chạy được (npx tsx hoặc tsc rồi node)', 'Mọi hàm có kiểu tham số và kiểu trả về; hạn chế any', 'Có ít nhất 1 bài dùng async/await đúng cách (for…of hoặc Promise.all)', 'README ghi lệnh cài đặt và lệnh chạy'] },
+
+/* ---------- Buổi 16 ---------- */
+{ id:'L1', ph:'L', kind:'quiz', t:'Locator, auto-wait và web-first assertion', learn:['pwloc','pwassert'],
+  need:['Trả lời đúng cả 4 câu.'],
+  qs:[
+    { q:'Theo khuyến nghị của Playwright, locator nào nên thử <b>đầu tiên</b> cho nút “Thanh toán”?', o:['page.locator(\'#btn-checkout\')', 'page.getByRole(\'button\', { name: \'Thanh toán\' })', 'page.locator(\'//div[3]/button\')', 'page.locator(\'.btn.btn-primary\')'], a:1,
+      w:'getByRole dựa trên cách người dùng nhận biết phần tử, ít đổi theo cấu trúc HTML, đồng thời kiểm tra luôn khả năng tiếp cận (accessibility).' },
+    { q:'Trước khi <code>click()</code>, Playwright tự chờ những gì?', o:['Không chờ gì, phải tự thêm waitForTimeout', 'Phần tử gắn vào DOM, hiển thị, đứng yên (không đang chuyển động), nhận được sự kiện, đang enabled', 'Chỉ chờ trang tải xong (load)', 'Chờ cố định 1 giây'], a:1,
+      w:'Đó là actionability checks (auto-wait). Hết timeout mà chưa đạt thì báo lỗi rõ điều kiện nào chưa đạt.' },
+    { q:'Câu nào chờ cho tới khi biểu tượng giỏ hiện “2”?', o:['expect(await badge.textContent()).toBe(\'2\')', 'await expect(badge).toHaveText(\'2\')', 'expect(badge.textContent()).toBe(\'2\')', 'await page.waitForTimeout(2000); expect(await badge.innerText()).toBe(\'2\')'], a:1,
+      w:'Web-first assertion thử lại tới khi đúng hoặc hết timeout. Hai cách đọc chữ một lần rồi so sánh sẽ fail nếu giao diện cập nhật chậm.' },
+    { q:'<code>page.getByRole(\'button\', { name: \'Thêm vào giỏ\' }).click()</code> báo “strict mode violation: resolved to 4 elements”. Nghĩa là gì?', o:['Playwright bị lỗi', 'Locator khớp 4 nút; Playwright từ chối bấm bừa — cần thu hẹp (filter theo ô sản phẩm, tên cụ thể hơn)', 'Cần thêm .first() cho mọi locator', 'Trang chưa tải xong'], a:1,
+      w:'.first()/.nth() làm test phụ thuộc thứ tự — chỉ dùng khi thứ tự chính là điều cần kiểm tra.' },
+  ] },
+{ id:'L2', ph:'L', kind:'code', lang:'ts', t:'Bài đầu tiên: 2 test đăng nhập', learn:['pwloc','pwassert'],
+  need:['Viết <code>tests/login.spec.ts</code> cho trang <code>/login</code> (baseURL đã cấu hình là <code>https://qa.shopdemo.test</code>):', '① đăng nhập đúng (<code>an_user</code> / <code>Demo@123</code>) → URL chứa <code>/inventory</code> và thấy tiêu đề (heading) “Sản phẩm”;', '② sai mật khẩu → phần tử <code>data-testid="error"</code> có chữ “Sai tên đăng nhập hoặc mật khẩu”.', 'Ô nhập có nhãn “Tên đăng nhập”, “Mật khẩu”; nút có tên “Đăng nhập”. Dùng getByLabel/getByRole/getByTestId, không dùng CSS id/XPath, không <code>waitForTimeout</code>; mọi lệnh và assertion phải <code>await</code>.'],
+  starter:C`import { test, expect } from '@playwright/test';
+
+test('đăng nhập thành công', async ({ page }) => {
+  // TODO
+});
+`,
+  rules:[
+    { t:'Import test và expect từ @playwright/test', re:/import\s*\{[^}]*\btest\b[^}]*\bexpect\b[^}]*\}\s*from\s*['"]@playwright\/test['"]|import\s*\{[^}]*\bexpect\b[^}]*\btest\b[^}]*\}\s*from\s*['"]@playwright\/test['"]/ },
+    { t:'Có ít nhất 2 test', re:/\btest\s*\(\s*['"`]/, min:2 },
+    { t:'Mở trang bằng đường dẫn tương đối (dùng baseURL)', fn:s => /page\.goto\s*\(\s*['"`]\/login/.test(s) && !/\.goto\s*\(\s*['"`]https?:/.test(s), why:'page.goto(\'/login\') — đổi môi trường chỉ cần đổi baseURL, không ghi URL đầy đủ.' },
+    { t:'Nhập bằng getByLabel', re:/getByLabel\s*\(\s*['"]Tên đăng nhập['"]\s*\)[\s\S]*getByLabel\s*\(\s*['"]Mật khẩu['"]\s*\)/ },
+    { t:'Bấm nút bằng getByRole(\'button\', { name })', re:/getByRole\s*\(\s*['"]button['"]\s*,\s*\{\s*name\s*:\s*['"]Đăng nhập['"]/ },
+    { t:'Kiểm tra URL bằng expect(page).toHaveURL', re:/await\s+expect\s*\(\s*page\s*\)\s*\.toHaveURL\s*\(/ },
+    { t:'Kiểm tra heading “Sản phẩm” hiển thị', re:/getByRole\s*\(\s*['"]heading['"]\s*,\s*\{\s*name\s*:\s*['"]Sản phẩm['"][\s\S]*?\.toBeVisible\s*\(|getByRole\s*\(\s*['"]heading['"][^;]*\)\s*\)\s*\.toHaveText\s*\(\s*['"]Sản phẩm/ },
+    { t:'Kiểm tra lỗi bằng getByTestId(\'error\') + toHaveText', re:/getByTestId\s*\(\s*['"]error['"]\s*\)\s*\)\s*\.to(Have|Contain)Text\s*\(/ },
+    { t:'Mọi lệnh goto/fill/click đều await', fn:actionsAwaited, why:'Thiếu await thì lệnh sau chạy khi lệnh trước chưa xong.' },
+    { t:'Mọi assertion trên page/locator đều await', fn:awaitedAll },
+    { t:'Không dùng waitForTimeout', not:true, re:/waitForTimeout/ },
+    { t:'Không dùng CSS id / XPath', not:true, re:/locator\s*\(\s*['"`](#|\/\/|xpath=|\/html)|page\.\$\$?\s*\(/ },
+  ],
+  answer:C`import { test, expect } from '@playwright/test';
+
+test('đăng nhập thành công thì vào trang Sản phẩm', async ({ page }) => {
+  await page.goto('/login');
+  await page.getByLabel('Tên đăng nhập').fill('an_user');
+  await page.getByLabel('Mật khẩu').fill('Demo@123');
+  await page.getByRole('button', { name: 'Đăng nhập' }).click();
+
+  await expect(page).toHaveURL(/\/inventory/);
+  await expect(page.getByRole('heading', { name: 'Sản phẩm' })).toBeVisible();
+});
+
+test('sai mật khẩu thì hiện thông báo lỗi', async ({ page }) => {
+  await page.goto('/login');
+  await page.getByLabel('Tên đăng nhập').fill('an_user');
+  await page.getByLabel('Mật khẩu').fill('sai_mat_khau');
+  await page.getByRole('button', { name: 'Đăng nhập' }).click();
+
+  await expect(page.getByTestId('error')).toHaveText('Sai tên đăng nhập hoặc mật khẩu');
+});
+`,
+  wrong:[C`import { test, expect } from '@playwright/test';
+test('a', async ({ page }) => {
+  await page.goto('https://qa.shopdemo.test/login');
+  await page.getByLabel('Tên đăng nhập').fill('an_user');
+  await page.getByLabel('Mật khẩu').fill('Demo@123');
+  await page.getByRole('button', { name: 'Đăng nhập' }).click();
+  await expect(page).toHaveURL(/inventory/);
+  await expect(page.getByRole('heading', { name: 'Sản phẩm' })).toBeVisible();
+});
+test('b', async ({ page }) => {
+  await page.goto('/login');
+  await page.getByLabel('Tên đăng nhập').fill('an_user');
+  await page.getByLabel('Mật khẩu').fill('x');
+  await page.getByRole('button', { name: 'Đăng nhập' }).click();
+  await expect(page.getByTestId('error')).toHaveText('Sai tên đăng nhập hoặc mật khẩu');
+});`, C`import { test, expect } from '@playwright/test';
+test('a', async ({ page }) => {
+  await page.goto('/login');
+  await page.getByLabel('Tên đăng nhập').fill('an_user');
+  await page.getByLabel('Mật khẩu').fill('Demo@123');
+  page.getByRole('button', { name: 'Đăng nhập' }).click();
+  await page.waitForTimeout(2000);
+  await expect(page).toHaveURL(/inventory/);
+  await expect(page.getByRole('heading', { name: 'Sản phẩm' })).toBeVisible();
+});
+test('b', async ({ page }) => {
+  await page.goto('/login');
+  await page.getByLabel('Tên đăng nhập').fill('an_user');
+  await page.getByLabel('Mật khẩu').fill('x');
+  await page.getByRole('button', { name: 'Đăng nhập' }).click();
+  expect(page.getByTestId('error')).toHaveText('Sai tên đăng nhập hoặc mật khẩu');
+});`],
+  hints:['<code>toHaveURL</code> nhận chuỗi đầy đủ hoặc biểu thức chính quy: <code>/\\/inventory/</code>.', 'Tên test nên mô tả kết quả mong đợi — đọc report là hiểu.'] },
+{ id:'L3', ph:'L', kind:'code', lang:'ts', t:'Sửa test chập chờn: bỏ chờ cố định', learn:['pwassert'],
+  need:['Test dưới đây lúc pass lúc fail trên CI. Sửa để:', '• bỏ <code>waitForTimeout</code>;', '• kiểm tra biểu tượng giỏ (<code>getByTestId(\'cart-badge\')</code>) có chữ “2” bằng web-first assertion;', '• kiểm tra nút “Xóa Áo thun cotton khỏi giỏ” hiển thị bằng <code>toBeVisible()</code>;', '• không đọc chữ một lần bằng <code>textContent()</code> / <code>isVisible()</code> để so sánh.'],
+  starter:C`test('thêm 2 sản phẩm vào giỏ', async ({ page }) => {
+  await page.goto('/inventory');
+  await page.getByRole('button', { name: 'Thêm Áo thun cotton vào giỏ' }).click();
+  await page.getByRole('button', { name: 'Thêm Quần jeans slim vào giỏ' }).click();
+  await page.waitForTimeout(3000);
+  const badge = await page.getByTestId('cart-badge').textContent();
+  expect(badge).toBe('2');
+  expect(await page.getByRole('button', { name: 'Xóa Áo thun cotton khỏi giỏ' }).isVisible()).toBe(true);
+});
+`,
+  rules:[
+    { t:'Không còn waitForTimeout', not:true, re:/waitForTimeout/ },
+    { t:'Không đọc chữ bằng textContent()/innerText() để so sánh', not:true, re:/\.(textContent|innerText)\s*\(\s*\)/ },
+    { t:'Không dùng isVisible() trong assertion', not:true, re:/\.isVisible\s*\(\s*\)/, why:'isVisible() trả kết quả ngay, không chờ — dùng await expect(locator).toBeVisible().' },
+    { t:'await expect(cart-badge).toHaveText(\'2\')', re:/await\s+expect\s*\(\s*page\.getByTestId\s*\(\s*['"]cart-badge['"]\s*\)\s*\)\s*\.toHaveText\s*\(\s*['"]2['"]\s*\)/ },
+    { t:'await expect(nút Xóa …).toBeVisible()', re:/await\s+expect\s*\(\s*page\.getByRole\s*\(\s*['"]button['"]\s*,\s*\{\s*name\s*:\s*['"]Xóa Áo thun cotton khỏi giỏ['"]\s*\}\s*\)\s*\)\s*\.toBeVisible\s*\(/ },
+    { t:'Vẫn thêm đủ 2 sản phẩm', re:/\.click\s*\(\s*\)/, min:2 },
+    { t:'Mọi lệnh goto/fill/click đều await', fn:actionsAwaited },
+  ],
+  answer:C`test('thêm 2 sản phẩm thì giỏ hiện số 2', async ({ page }) => {
+  await page.goto('/inventory');
+  await page.getByRole('button', { name: 'Thêm Áo thun cotton vào giỏ' }).click();
+  await page.getByRole('button', { name: 'Thêm Quần jeans slim vào giỏ' }).click();
+
+  await expect(page.getByTestId('cart-badge')).toHaveText('2');
+  await expect(page.getByRole('button', { name: 'Xóa Áo thun cotton khỏi giỏ' })).toBeVisible();
+});
+`,
+  wrong:[C`test('x', async ({ page }) => {
+  await page.goto('/inventory');
+  await page.getByRole('button', { name: 'Thêm Áo thun cotton vào giỏ' }).click();
+  await page.getByRole('button', { name: 'Thêm Quần jeans slim vào giỏ' }).click();
+  await expect(page.getByTestId('cart-badge')).toHaveText('2');
+  expect(await page.getByRole('button', { name: 'Xóa Áo thun cotton khỏi giỏ' }).isVisible()).toBe(true);
+});`, C`test('x', async ({ page }) => {
+  await page.goto('/inventory');
+  await page.getByRole('button', { name: 'Thêm Áo thun cotton vào giỏ' }).click();
+  await page.getByRole('button', { name: 'Thêm Quần jeans slim vào giỏ' }).click();
+  await page.waitForTimeout(1000);
+  await expect(page.getByTestId('cart-badge')).toHaveText('2');
+  await expect(page.getByRole('button', { name: 'Xóa Áo thun cotton khỏi giỏ' })).toBeVisible();
+});`],
+  hints:['Web-first assertion: <code>await expect(locator).toHaveText(...)</code> — expect nhận <b>locator</b>, không nhận chữ đã đọc.', 'Không cần biến <code>badge</code> nữa.'] },
+{ id:'L4', ph:'L', kind:'code', lang:'ts', t:'playwright.config.ts cho 3 trình duyệt', learn:['pwconfig'],
+  need:['Viết <code>playwright.config.ts</code>:', '• <code>testDir</code> là <code>./tests</code>, chạy song song toàn bộ;', '• <code>baseURL</code> lấy từ biến môi trường <code>BASE_URL</code>, mặc định <code>https://qa.shopdemo.test</code>;', '• thử lại 2 lần <b>chỉ khi chạy trên CI</b>, ghi trace khi thử lại lần đầu;', '• report HTML;', '• 3 project: chromium, firefox, webkit dùng <code>devices</code>.'],
+  starter:C`import { defineConfig, devices } from '@playwright/test';
+
+export default defineConfig({
+  // TODO
+});
+`,
+  rules:[
+    { t:'export default defineConfig({...})', re:/export\s+default\s+defineConfig\s*\(\s*\{/ },
+    { t:'testDir: ./tests', re:/testDir\s*:\s*['"]\.\/tests['"]/ },
+    { t:'fullyParallel: true', re:/fullyParallel\s*:\s*true/ },
+    { t:'baseURL lấy từ process.env.BASE_URL có giá trị mặc định', re:/baseURL\s*:\s*process\.env\.BASE_URL\s*(\?\?|\|\|)\s*['"]https:\/\/qa\.shopdemo\.test['"]/ },
+    { t:'retries chỉ bật trên CI', re:/retries\s*:\s*process\.env\.CI\s*\?\s*2\s*:\s*0/ },
+    { t:'trace: on-first-retry', re:/trace\s*:\s*['"]on-first-retry['"]/ },
+    { t:'reporter HTML', re:/reporter\s*:\s*(['"]html['"]|\[\s*\[\s*['"]html['"])/ },
+    { t:'3 project chromium, firefox, webkit dùng devices', fn:s => ['chromium', 'firefox', 'webkit'].every(n => new RegExp("name\\s*:\\s*['\"]" + n + "['\"]").test(s)) && (s.match(/devices\s*\[\s*['"]Desktop (Chrome|Firefox|Safari)['"]\s*\]/g) || []).length >= 3 },
+  ],
+  answer:C`import { defineConfig, devices } from '@playwright/test';
+
+export default defineConfig({
+  testDir: './tests',
+  fullyParallel: true,
+  retries: process.env.CI ? 2 : 0,
+  reporter: [['html', { open: 'never' }]],
+  use: {
+    baseURL: process.env.BASE_URL ?? 'https://qa.shopdemo.test',
+    trace: 'on-first-retry',
+    screenshot: 'only-on-failure',
+  },
+  projects: [
+    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+    { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
+    { name: 'webkit', use: { ...devices['Desktop Safari'] } },
+  ],
+});
+`,
+  wrong:[C`import { defineConfig, devices } from '@playwright/test';
+export default defineConfig({
+  testDir: './tests',
+  fullyParallel: true,
+  retries: 2,
+  reporter: 'html',
+  use: { baseURL: 'https://qa.shopdemo.test', trace: 'on-first-retry' },
+  projects: [
+    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+    { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
+    { name: 'webkit', use: { ...devices['Desktop Safari'] } },
+  ],
+});`, C`import { defineConfig, devices } from '@playwright/test';
+export default defineConfig({
+  testDir: './tests',
+  fullyParallel: true,
+  retries: process.env.CI ? 2 : 0,
+  reporter: 'html',
+  use: { baseURL: process.env.BASE_URL ?? 'https://qa.shopdemo.test', trace: 'on' },
+  projects: [ { name: 'chromium', use: { ...devices['Desktop Chrome'] } } ],
+});`],
+  hints:['<code>??</code> lấy vế phải khi vế trái là undefined/null.', 'Trên CI, GitHub Actions tự đặt biến môi trường <code>CI=true</code>.'] },
+{ id:'L5', ph:'L', kind:'quiz', t:'Lệnh Playwright hay dùng', learn:['pwcli'],
+  need:['Trả lời đúng cả 4 câu.'],
+  qs:[
+    { q:'Chỉ chạy bộ test trên Firefox:', o:['npx playwright test --browser=firefox', 'npx playwright test --project=firefox', 'npx playwright firefox', 'npm test firefox'], a:1,
+      w:'Tên sau --project là name trong mục projects của config.' },
+    { q:'Muốn xem từng bước, chạy lại một test, xem DOM tại từng bước (time-travel):', o:['npx playwright test --ui', 'npx playwright show-report', 'npx playwright install', 'npx playwright test --reporter=line'], a:0,
+      w:'UI mode rất hợp khi viết và sửa test; --debug mở Playwright Inspector và dừng ở từng lệnh.' },
+    { q:'<code>npx playwright codegen</code> dùng để làm gì và cần lưu ý gì?', o:['Sinh test hoàn chỉnh, dùng ngay không cần sửa', 'Ghi lại thao tác thành code; vẫn phải xem lại locator, thêm assertion, tách POM, bỏ bước thừa', 'Biên dịch TypeScript sang JavaScript', 'Tạo file config'], a:1,
+      w:'codegen là điểm khởi đầu nhanh để tìm locator, không phải test hoàn chỉnh.' },
+    { q:'Chạy xong muốn mở báo cáo HTML:', o:['npx playwright show-report', 'npx playwright open', 'npx playwright test --report', 'Mở file test-results.json'], a:0,
+      w:'Report nằm trong playwright-report/; trên CI tải về từ artifact rồi mở bằng show-report.' },
+  ] },
+{ id:'L6', ph:'L', kind:'self', t:'Bài nộp buổi 16: 5 test E2E trên 3 trình duyệt', learn:['pwloc','pwassert'],
+  need:['Tự kiểm tra repository và đánh dấu từng mục. Chạy trên site luyện tập công khai hoặc môi trường dự án được phép.'],
+  items:['Ít nhất 5 test E2E cho luồng mua hàng (đăng nhập, thêm giỏ, xóa giỏ, thanh toán, đăng xuất…)', 'npx playwright test pass trên cả chromium, firefox, webkit', 'Không có waitForTimeout; mọi assertion là web-first (await expect(locator)…)', 'Locator ưu tiên getByRole/getByLabel/getByTestId', 'Mỗi test tự chuẩn bị dữ liệu, chạy riêng lẻ được (npx playwright test -g "...")'] },
+
+/* ---------- Buổi 17 ---------- */
+{ id:'Q1', ph:'Q', kind:'code', lang:'ts', t:'Page object LoginPage', learn:['pwpom'],
+  need:['Viết <code>pages/login-page.ts</code>:', '• export class <code>LoginPage</code>, constructor nhận <code>page: Page</code>;', '• ít nhất 3 thuộc tính kiểu <code>Locator</code>: ô tên đăng nhập, ô mật khẩu, nút đăng nhập (getByLabel / getByRole), thêm thông báo lỗi nếu muốn;', '• <code>async goto()</code> mở <code>/login</code>; <code>async login(user: string, pass: string)</code>;', '• không có <code>expect</code> trong page object.'],
+  starter:C`import { type Page, type Locator } from '@playwright/test';
+
+export class LoginPage {
+  // TODO
+}
+`,
+  rules:[
+    { t:'export class LoginPage', re:/export\s+class\s+LoginPage\s*\{/ },
+    { t:'constructor(page: Page)', re:/constructor\s*\(\s*(readonly\s+|private\s+|public\s+)?page\s*:\s*Page\s*\)/ },
+    { t:'Ít nhất 3 thuộc tính kiểu Locator', re:/(readonly|private|public)\s+(readonly\s+)?\w+\s*:\s*Locator/, min:3 },
+    { t:'Locator dùng getByLabel / getByRole', fn:s => /getByLabel\s*\(/.test(s) && /getByRole\s*\(\s*['"]button['"]/.test(s) },
+    { t:'async goto() mở /login', re:/async\s+goto\s*\(\s*\)\s*\{[\s\S]*?await\s+this\.page\.goto\s*\(\s*['"]\/login['"]/ },
+    { t:'async login(user: string, pass: string)', re:/async\s+login\s*\(\s*\w+\s*:\s*string\s*,\s*\w+\s*:\s*string\s*\)/ },
+    { t:'login() await đủ fill, fill, click', re:/async\s+login[\s\S]*?await\s+this\.\w+\.fill\s*\([\s\S]*?await\s+this\.\w+\.fill\s*\([\s\S]*?await\s+this\.\w+\.click\s*\(/ },
+    { t:'Không có expect trong page object', not:true, re:/\bexpect\s*\(/ },
+    { t:'Không dùng waitForTimeout', not:true, re:/waitForTimeout/ },
+  ],
+  answer:C`import { type Page, type Locator } from '@playwright/test';
+
+export class LoginPage {
+  readonly page: Page;
+  readonly username: Locator;
+  readonly password: Locator;
+  readonly loginButton: Locator;
+  readonly error: Locator;
+
+  constructor(page: Page) {
+    this.page = page;
+    this.username = page.getByLabel('Tên đăng nhập');
+    this.password = page.getByLabel('Mật khẩu');
+    this.loginButton = page.getByRole('button', { name: 'Đăng nhập' });
+    this.error = page.getByTestId('error');
+  }
+
+  async goto() {
+    await this.page.goto('/login');
+  }
+
+  async login(user: string, pass: string) {
+    await this.username.fill(user);
+    await this.password.fill(pass);
+    await this.loginButton.click();
+  }
+}
+`,
+  wrong:[C`export class LoginPage {
+  readonly page: Page;
+  readonly username: Locator;
+  readonly password: Locator;
+  readonly loginButton: Locator;
+  constructor(page: Page) {
+    this.page = page;
+    this.username = page.getByLabel('Tên đăng nhập');
+    this.password = page.getByLabel('Mật khẩu');
+    this.loginButton = page.getByRole('button', { name: 'Đăng nhập' });
+  }
+  async goto() { await this.page.goto('/login'); }
+  async login(user: string, pass: string) {
+    await this.username.fill(user);
+    await this.password.fill(pass);
+    await this.loginButton.click();
+    await expect(this.page).toHaveURL(/inventory/);
+  }
+}`, C`export class LoginPage {
+  readonly page: Page;
+  readonly username: Locator;
+  readonly password: Locator;
+  readonly loginButton: Locator;
+  constructor(page: Page) {
+    this.page = page;
+    this.username = page.getByLabel('Tên đăng nhập');
+    this.password = page.getByLabel('Mật khẩu');
+    this.loginButton = page.getByRole('button', { name: 'Đăng nhập' });
+  }
+  async goto() { await this.page.goto('/login'); }
+  async login(user: string, pass: string) {
+    this.username.fill(user);
+    await this.password.fill(pass);
+    await this.loginButton.click();
+  }
+}`],
+  hints:['Tạo Locator trong constructor không tìm phần tử ngay — Playwright chỉ tìm khi bạn thao tác.', 'Kiểm tra đăng nhập thành công là việc của test, không phải của LoginPage.'] },
+{ id:'Q2', ph:'Q', kind:'code', lang:'ts', t:'Fixture loginPage bằng test.extend', learn:['fixture'],
+  need:['Viết <code>fixtures.ts</code>: mở rộng <code>test</code> của Playwright thêm fixture <code>loginPage</code> — tạo <code>LoginPage</code> từ <code>page</code>, mở sẵn trang đăng nhập, rồi trao cho test bằng <code>use</code>.', 'Export <code>test</code> mới và <code>expect</code> để file test import từ <code>./fixtures</code>.'],
+  starter:C`import { test as base } from '@playwright/test';
+import { LoginPage } from './pages/login-page';
+
+// TODO
+`,
+  rules:[
+    { t:'Khai báo kiểu fixture có loginPage: LoginPage', re:/loginPage\s*:\s*LoginPage/ },
+    { t:'export const test = base.extend<…>({ … })', re:/export\s+const\s+test\s*=\s*base\.extend\s*<[^>]+>\s*\(\s*\{/ },
+    { t:'Fixture nhận ({ page }, use)', re:/loginPage\s*:\s*async\s*\(\s*\{\s*page\s*\}\s*,\s*use\s*\)\s*=>/ },
+    { t:'Tạo new LoginPage(page) và mở trang', re:/new\s+LoginPage\s*\(\s*page\s*\)[\s\S]*?await\s+\w+\.goto\s*\(\s*\)/ },
+    { t:'Trao cho test bằng await use(...)', re:/await\s+use\s*\(\s*\w+\s*\)/ },
+    { t:'Export expect', re:/export\s*\{\s*expect\s*\}\s*from\s*['"]@playwright\/test['"]|export\s+const\s+expect\s*=|export\s*\{[^}]*\bexpect\b[^}]*\}/ },
+  ],
+  answer:C`import { test as base } from '@playwright/test';
+import { LoginPage } from './pages/login-page';
+
+type Fixtures = {
+  loginPage: LoginPage;
+};
+
+export const test = base.extend<Fixtures>({
+  loginPage: async ({ page }, use) => {
+    const loginPage = new LoginPage(page);
+    await loginPage.goto();
+    await use(loginPage);
+  },
+});
+
+export { expect } from '@playwright/test';
+`,
+  wrong:[C`import { test as base } from '@playwright/test';
+import { LoginPage } from './pages/login-page';
+type Fixtures = { loginPage: LoginPage };
+export const test = base.extend<Fixtures>({
+  loginPage: async ({ page }, use) => {
+    const loginPage = new LoginPage(page);
+    await loginPage.goto();
+    use(loginPage);
+  },
+});
+export { expect } from '@playwright/test';`, C`import { test as base } from '@playwright/test';
+import { LoginPage } from './pages/login-page';
+type Fixtures = { loginPage: LoginPage };
+export const test = base.extend<Fixtures>({
+  loginPage: async ({ page }, use) => {
+    await use(new LoginPage(page));
+  },
+});`],
+  hints:['Trong test: <code>test(\'...\', async ({ loginPage }) => { await loginPage.login(...) })</code>.', 'Code đặt sau <code>await use(...)</code> chạy khi test xong — chỗ để dọn dẹp.'] },
+{ id:'Q3', ph:'Q', kind:'code', lang:'ts', t:'Đăng nhập một lần, lưu storageState', learn:['auth'],
+  need:['Viết <code>tests/auth.setup.ts</code>:', '• đăng nhập qua giao diện bằng tài khoản lấy từ biến môi trường <code>SHOP_USER</code>, <code>SHOP_PASS</code> (không ghi mật khẩu trong code);', '• <b>chờ</b> đăng nhập xong (URL chứa <code>/inventory</code>) rồi mới lưu;', '• lưu trạng thái vào <code>playwright/.auth/user.json</code> bằng <code>storageState</code>.'],
+  starter:C`import { test as setup, expect } from '@playwright/test';
+
+const authFile = 'playwright/.auth/user.json';
+
+setup('đăng nhập một lần', async ({ page }) => {
+  // TODO
+});
+`,
+  rules:[
+    { t:'Lấy tài khoản từ process.env', fn:s => /process\.env\.SHOP_USER/.test(s) && /process\.env\.SHOP_PASS/.test(s) },
+    { t:'Không ghi mật khẩu trong code', not:true, re:/['"`]Demo@123['"`]/ },
+    { t:'Chờ đăng nhập xong (toHaveURL / waitForURL) trước khi lưu', re:/(toHaveURL|waitForURL)\s*\([^)]*inventory[\s\S]*?storageState\s*\(/ },
+    { t:'Lưu bằng page.context().storageState({ path })', re:/await\s+page\.context\s*\(\s*\)\s*\.storageState\s*\(\s*\{\s*path\s*:\s*authFile\s*\}\s*\)/ },
+    { t:'Mọi lệnh goto/fill/click đều await', fn:actionsAwaited },
+  ],
+  answer:C`import { test as setup, expect } from '@playwright/test';
+
+const authFile = 'playwright/.auth/user.json';
+
+setup('đăng nhập một lần', async ({ page }) => {
+  await page.goto('/login');
+  await page.getByLabel('Tên đăng nhập').fill(process.env.SHOP_USER!);
+  await page.getByLabel('Mật khẩu').fill(process.env.SHOP_PASS!);
+  await page.getByRole('button', { name: 'Đăng nhập' }).click();
+
+  await expect(page).toHaveURL(/\/inventory/);
+  await page.context().storageState({ path: authFile });
+});
+`,
+  wrong:[C`import { test as setup, expect } from '@playwright/test';
+const authFile = 'playwright/.auth/user.json';
+setup('x', async ({ page }) => {
+  await page.goto('/login');
+  await page.getByLabel('Tên đăng nhập').fill(process.env.SHOP_USER!);
+  await page.getByLabel('Mật khẩu').fill(process.env.SHOP_PASS!);
+  await page.getByRole('button', { name: 'Đăng nhập' }).click();
+  await page.context().storageState({ path: authFile });
+});`, C`import { test as setup, expect } from '@playwright/test';
+const authFile = 'playwright/.auth/user.json';
+setup('x', async ({ page }) => {
+  await page.goto('/login');
+  await page.getByLabel('Tên đăng nhập').fill('an_user');
+  await page.getByLabel('Mật khẩu').fill('Demo@123');
+  await page.getByRole('button', { name: 'Đăng nhập' }).click();
+  await expect(page).toHaveURL(/\/inventory/);
+  await page.context().storageState({ path: authFile });
+});`],
+  hints:['Lưu ngay sau khi bấm nút thì cookie đăng nhập có thể chưa được đặt → file trạng thái rỗng.', 'Dấu <code>!</code> sau <code>process.env.SHOP_USER</code> báo với TypeScript là biến chắc chắn có giá trị.'] },
+{ id:'Q4', ph:'Q', kind:'code', lang:'ts', t:'Tạo dữ liệu qua API, kiểm tra trên giao diện', learn:['pwapi','pwassert'],
+  need:['Viết test (đã đăng nhập sẵn nhờ storageState):', '① gọi <code>POST /api/cart</code> với body <code>{ productId: 4, qty: 1 }</code> bằng <code>page.request</code> (dùng chung cookie với trình duyệt);', '② kiểm tra status 201 và trong JSON trả về <code>items</code> có 1 phần tử;', '③ mở <code>/cart</code> và kiểm tra có đúng 1 dòng <code>getByTestId(\'cart-item\')</code>.'],
+  starter:C`import { test, expect } from '@playwright/test';
+
+test('thêm vào giỏ qua API thì giỏ hiện 1 sản phẩm', async ({ page }) => {
+  // TODO
+});
+`,
+  rules:[
+    { t:'Gọi POST /api/cart bằng page.request', re:/await\s+page\.request\.post\s*\(\s*['"]\/api\/cart['"]/ },
+    { t:'Gửi body bằng data: { productId: 4, qty: 1 }', re:/data\s*:\s*\{\s*productId\s*:\s*4\s*,\s*qty\s*:\s*1\s*\}/ },
+    { t:'Kiểm tra status 201', re:/expect\s*\(\s*\w+\.status\s*\(\s*\)\s*\)\s*\.toBe\s*\(\s*201\s*\)/ },
+    { t:'Đọc JSON bằng await res.json()', re:/await\s+\w+\.json\s*\(\s*\)/ },
+    { t:'Kiểm tra items có 1 phần tử', re:/expect\s*\(\s*\w+\.items\s*\)\s*\.toHaveLength\s*\(\s*1\s*\)|expect\s*\(\s*\w+\.items\.length\s*\)\s*\.toBe\s*\(\s*1\s*\)/ },
+    { t:'Mở /cart và kiểm tra bằng toHaveCount(1)', re:/page\.goto\s*\(\s*['"]\/cart['"][\s\S]*?await\s+expect\s*\(\s*page\.getByTestId\s*\(\s*['"]cart-item['"]\s*\)\s*\)\s*\.toHaveCount\s*\(\s*1\s*\)/ },
+    { t:'Mọi lệnh goto/fill/click đều await', fn:actionsAwaited },
+  ],
+  answer:C`import { test, expect } from '@playwright/test';
+
+test('thêm vào giỏ qua API thì giỏ hiện 1 sản phẩm', async ({ page }) => {
+  const res = await page.request.post('/api/cart', { data: { productId: 4, qty: 1 } });
+  expect(res.status()).toBe(201);
+  const body = await res.json();
+  expect(body.items).toHaveLength(1);
+
+  await page.goto('/cart');
+  await expect(page.getByTestId('cart-item')).toHaveCount(1);
+});
+`,
+  wrong:[C`test('x', async ({ page, request }) => {
+  const res = await request.post('/api/cart', { data: { productId: 4, qty: 1 } });
+  expect(res.ok()).toBeTruthy();
+  await page.goto('/cart');
+  await expect(page.getByTestId('cart-item')).toHaveCount(1);
+});`, C`test('x', async ({ page }) => {
+  const res = await page.request.post('/api/cart', { data: { productId: 4, qty: 1 } });
+  expect(res.status()).toBe(201);
+  const body = await res.json();
+  expect(body.items).toHaveLength(1);
+  await page.goto('/cart');
+  expect(await page.getByTestId('cart-item').count()).toBe(1);
+});`],
+  hints:['<code>res.ok()</code> chỉ cho biết status 2xx — đề yêu cầu đúng 201 (Created).', 'Số dòng trên giao diện: <code>await expect(locator).toHaveCount(1)</code>.'] },
+{ id:'Q5', ph:'Q', kind:'code', lang:'yaml', t:'Job Playwright trên GitHub Actions', learn:['pwci'],
+  need:['Viết <code>.github/workflows/e2e.yml</code>:', '• chạy khi push lên main và khi có pull request; máy <code>ubuntu-latest</code>;', '• checkout, cài Node 20 bằng <code>actions/setup-node</code> có cache npm;', '• <code>npm ci</code>, cài trình duyệt kèm thư viện hệ thống, chạy <code>npx playwright test</code>;', '• <b>luôn</b> lưu thư mục <code>playwright-report</code> làm artifact.'],
+  starter:C`name: E2E tests
+
+`,
+  rules:[
+    { t:'Không dùng tab để thụt lề', not:true, re:/\t/ },
+    { t:'Kích hoạt khi push lên main', re:/^on:\s*\n(\s+)push:\s*\n\s+branches:\s*\[?\s*-?\s*["']?main["']?/m },
+    { t:'Kích hoạt khi pull_request', re:/^\s+pull_request:/m },
+    { t:'runs-on: ubuntu-latest', re:/runs-on:\s*ubuntu-latest/ },
+    { t:'Lấy code bằng actions/checkout', re:/uses:\s*actions\/checkout@v\d+/ },
+    { t:'Cài Node 20 bằng actions/setup-node có cache npm', re:/uses:\s*actions\/setup-node@v\d+[\s\S]*?node-version:\s*['"]?20[\s\S]*?cache:\s*['"]?npm|uses:\s*actions\/setup-node@v\d+[\s\S]*?cache:\s*['"]?npm['"]?[\s\S]*?node-version:\s*['"]?20/ },
+    { t:'Cài thư viện bằng npm ci', re:/run:\s*npm\s+ci\b/, why:'npm ci cài đúng theo package-lock.json — kết quả giống nhau giữa các lần chạy.' },
+    { t:'Cài trình duyệt: npx playwright install --with-deps', re:/run:\s*npx\s+playwright\s+install\s+--with-deps/ },
+    { t:'Chạy npx playwright test', re:/run:\s*npx\s+playwright\s+test\b/ },
+    { t:'Lưu report bằng actions/upload-artifact', re:/uses:\s*actions\/upload-artifact@v\d+/ },
+    { t:'Bước lưu report có if: always()', fn:s => stepAlways(s, /upload-artifact/), why:'Không có if: always() thì test fail làm các bước sau bị bỏ qua → mất report.' },
+    { t:'Đường dẫn playwright-report', re:/path:\s*['"]?playwright-report/ },
+  ],
+  answer:C`name: E2E tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - run: npx playwright install --with-deps
+
+      - name: Chạy test
+        run: npx playwright test
+        env:
+          BASE_URL: §{{ vars.BASE_URL }}
+
+      - name: Lưu report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 14
+`,
+  wrong:[C`name: E2E tests
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm install
+      - run: npx playwright install --with-deps
+      - run: npx playwright test
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+`, C`name: E2E tests
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npx playwright test
+      - uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+`],
+  hints:['Giống workflow Maven ở bài C2 (Selenium), chỉ thay phần cài Java bằng Node.', '<code>--with-deps</code> cài cả thư viện hệ điều hành mà trình duyệt cần trên Ubuntu.'] },
+{ id:'Q6', ph:'Q', kind:'quiz', t:'Visual test, trace và chạy song song', learn:['visual'],
+  need:['Trả lời đúng cả 4 câu.'],
+  qs:[
+    { q:'Lần đầu chạy <code>await expect(page).toHaveScreenshot(\'trang-chu.png\')</code> khi chưa có ảnh gốc. Kết quả?', o:['Test pass và không lưu gì', 'Test fail, Playwright ghi ảnh hiện tại làm baseline; chạy lại thì so sánh với ảnh đó', 'Playwright tải ảnh mẫu từ internet', 'Báo lỗi cú pháp'], a:1,
+      w:'Review ảnh baseline trước khi commit — nếu chụp lúc giao diện đang lỗi thì lỗi thành “chuẩn”.' },
+    { q:'Đồng hồ trên trang thay đổi mỗi giây làm visual test luôn fail. Cách đúng?', o:['Tăng maxDiffPixelRatio lên 0.5', 'mask: [page.getByTestId(\'clock\')] cho vùng đó', 'Bỏ visual test', 'Chạy --update-snapshots mỗi lần'], a:1,
+      w:'Tăng ngưỡng quá lớn thì lỗi thật cũng lọt.' },
+    { q:'Baseline tạo trên Windows, CI chạy Ubuntu, ảnh lệch vài pixel ở chữ. Hướng xử lý?', o:['Tắt visual test trên CI', 'Tạo và cập nhật baseline trên cùng môi trường với CI (ví dụ Docker image của Playwright)', 'Đổi font trang web', 'Chạy test 3 lần lấy lần pass'], a:1,
+      w:'Font và khử răng cưa khác nhau giữa hệ điều hành; Playwright còn gắn tên nền tảng vào tên file ảnh.' },
+    { q:'Bật <code>fullyParallel: true</code> và 4 workers thì test cần thỏa điều kiện gì?', o:['Phải chạy theo thứ tự tên file', 'Độc lập: mỗi test có context riêng, tự tạo dữ liệu, không sửa dữ liệu test khác đang dùng', 'Dùng chung một tài khoản và một giỏ hàng', 'Không dùng fixture'], a:1,
+      w:'Hai test song song cùng xóa/sửa giỏ hàng của một user là nguồn flaky kinh điển — tạo dữ liệu riêng qua API.' },
+  ] },
+{ id:'Q7', ph:'Q', kind:'self', t:'Bài nộp buổi 17: project Playwright hoàn chỉnh', learn:['pwpom','pwci'],
+  need:['Tự kiểm tra repository và đánh dấu từng mục.'],
+  items:['Có thư mục pages với ít nhất 2 page object và một file fixtures.ts', 'Đăng nhập một lần bằng project setup + storageState; playwright/.auth nằm trong .gitignore', 'Ít nhất 1 test dùng request/page.request để chuẩn bị dữ liệu', 'Ít nhất 1 visual test, ảnh baseline đã review và commit', 'Job GitHub Actions chạy xanh, tải được HTML report và trace từ artifact', 'Chạy song song (workers > 1) nhiều lần không lỗi'] },
+
+/* ---------- Buổi 18 ---------- */
+{ id:'K1', ph:'K', kind:'quiz', t:'Các loại performance test và chỉ số', learn:['perf'],
+  need:['Trả lời đúng cả 5 câu.'],
+  qs:[
+    { q:'Tăng từ 10 lên 500 VU trong 10 giây, giữ 1 phút rồi giảm ngay — mô phỏng mở bán flash sale. Đây là loại nào?', o:['Load test', 'Spike test', 'Soak test', 'Smoke test'], a:1 , w:'Spike: tăng đột ngột. Stress: tăng dần vượt ngưỡng để tìm giới hạn.' },
+    { q:'Chạy 50 VU (mức bình thường) liên tục 6 giờ để tìm rò bộ nhớ. Đây là loại nào?', o:['Spike test', 'Stress test', 'Soak (endurance) test', 'Load test 1 phút'], a:2, w:'Các lỗi như rò bộ nhớ, đầy log, cạn kết nối chỉ lộ ra sau thời gian dài.' },
+    { q:'Báo cáo ghi <b>p(95) = 480 ms</b>. Nghĩa là gì?', o:['Trung bình mọi request là 480 ms', '95% request xong trong ≤ 480 ms; 5% còn lại chậm hơn', '95 request đầu tiên mất 480 ms', 'Có 95% request bị lỗi'], a:1, w:'Percentile cho biết trải nghiệm của phần lớn người dùng mà trung bình che mất.' },
+    { q:'Vì sao không nên lấy thời gian phản hồi <b>trung bình</b> làm tiêu chí đạt/không đạt?', o:['Vì k6 không tính trung bình', 'Vì vài request rất nhanh kéo trung bình xuống, che các request rất chậm mà người dùng thật gặp', 'Vì trung bình luôn lớn hơn p95', 'Không có lý do'], a:1, w:'Đặt threshold trên p(95)/p(99) và error rate.' },
+    { q:'<b>Throughput</b> là gì?', o:['Số request hệ thống xử lý được mỗi giây', 'Thời gian phản hồi lớn nhất', 'Số VU tối đa', 'Dung lượng RAM của server'], a:0, w:'Trong k6 là chỉ số http_reqs (đếm và tốc độ /s).' },
+  ] },
+{ id:'K2', ph:'K', kind:'code', lang:'js', t:'Script K6 có stages và threshold', learn:['k6','perf'],
+  need:['Viết <code>load-products.js</code> kiểm tra API danh sách sản phẩm trên <b>staging của dự án</b>:', '• URL gốc lấy từ <code>__ENV.BASE_URL</code> (mặc định <code>https://staging.shopdemo.test</code>);', '• stages: tăng lên 20 VU, giữ 20 VU, rồi giảm về 0 (ít nhất 3 giai đoạn);', '• threshold: <code>p(95)</code> của <code>http_req_duration</code> dưới 500 ms; <code>http_req_failed</code> dưới 1%;', '• mỗi vòng: GET <code>/api/products</code>, <code>check</code> status 200, nghỉ 1 giây.'],
+  starter:C`import http from 'k6/http';
+import { check, sleep } from 'k6';
+
+export const options = {
+  // TODO
+};
+
+export default function () {
+  // TODO
+}
+`,
+  rules:[
+    { t:'Import http từ k6/http, check và sleep từ k6', fn:s => /import\s+http\s+from\s+['"]k6\/http['"]/.test(s) && /import\s*\{[^}]*\bcheck\b[^}]*\bsleep\b[^}]*\}\s*from\s*['"]k6['"]|import\s*\{[^}]*\bsleep\b[^}]*\bcheck\b[^}]*\}\s*from\s*['"]k6['"]/.test(s) },
+    { t:'URL gốc lấy từ __ENV.BASE_URL', re:/__ENV\.BASE_URL/ },
+    { t:'Có ít nhất 3 stages { duration, target }', re:/\{\s*duration\s*:\s*['"]\d+[smh]['"]\s*,\s*target\s*:\s*\d+\s*\}/, min:3 },
+    { t:'Tăng lên 20 VU', re:/target\s*:\s*20\b/ },
+    { t:'Giai đoạn cuối giảm về 0', re:/target\s*:\s*0\s*\}\s*,?\s*\]/ },
+    { t:'Threshold p(95) của http_req_duration < 500', re:/http_req_duration\s*:\s*\[\s*['"]p\(95\)\s*<\s*500['"]/ },
+    { t:'Threshold http_req_failed < 1%', re:/http_req_failed\s*:\s*\[\s*['"]rate\s*<\s*0?\.01['"]/ },
+    { t:'GET /api/products', re:/http\.get\s*\(\s*(´|`)\$\{\s*\w+\s*\}\/api\/products(´|`)|http\.get\s*\(\s*\w+\s*\+\s*['"]\/api\/products['"]/ },
+    { t:'check status 200', re:/check\s*\(\s*\w+\s*,\s*\{[\s\S]*?\.status\s*===?\s*200/ },
+    { t:'Nghỉ sleep(1) mỗi vòng', re:/sleep\s*\(\s*1\s*\)/ },
+    { t:'Chỉ gọi tới staging của dự án (không site bên thứ ba)', fn:s => (s.match(/https?:\/\/[^\s'"`\/]+/g) || []).every(u => /\.shopdemo\.test$/.test(u)) },
+  ],
+  answer:C`import http from 'k6/http';
+import { check, sleep } from 'k6';
+
+const BASE_URL = __ENV.BASE_URL || 'https://staging.shopdemo.test';
+
+export const options = {
+  stages: [
+    { duration: '1m', target: 20 },
+    { duration: '3m', target: 20 },
+    { duration: '1m', target: 0 },
+  ],
+  thresholds: {
+    http_req_duration: ['p(95)<500'],
+    http_req_failed: ['rate<0.01'],
+  },
+};
+
+export default function () {
+  const res = http.get(´§{BASE_URL}/api/products´);
+  check(res, {
+    'status là 200': (r) => r.status === 200,
+  });
+  sleep(1);
+}
+`,
+  wrong:[C`import http from 'k6/http';
+import { check, sleep } from 'k6';
+const BASE_URL = __ENV.BASE_URL || 'https://staging.shopdemo.test';
+export const options = {
+  stages: [ { duration: '1m', target: 20 }, { duration: '3m', target: 20 }, { duration: '1m', target: 0 } ],
+};
+export default function () {
+  const res = http.get(´§{BASE_URL}/api/products´);
+  check(res, { 'ok': (r) => r.status === 200 });
+  sleep(1);
+}`, C`import http from 'k6/http';
+import { check, sleep } from 'k6';
+const BASE_URL = __ENV.BASE_URL || 'https://www.saucedemo.com';
+export const options = {
+  stages: [ { duration: '1m', target: 20 }, { duration: '3m', target: 20 }, { duration: '1m', target: 0 } ],
+  thresholds: { http_req_duration: ['p(95)<500'], http_req_failed: ['rate<0.01'] },
+};
+export default function () {
+  const res = http.get(´§{BASE_URL}/api/products´);
+  check(res, { 'ok': (r) => r.status === 200 });
+}`],
+  hints:['<code>check</code> không làm k6 fail — chỉ <code>thresholds</code> quyết định đạt/không đạt (mã thoát khác 0).', 'Chạy: <code>k6 run -e BASE_URL=https://staging.shopdemo.test load-products.js</code>.'] },
+{ id:'K3', ph:'K', kind:'quiz', t:'Đọc kết quả K6 và kết luận', learn:['k6','perf'],
+  need:['Đọc kết quả bên dưới (threshold đặt trước khi chạy: <code>p(95)&lt;500</code>, <code>rate&lt;0.01</code>) và trả lời đúng cả 3 câu.', '<pre class="syn">✓ checks.........................: 97.60% 11712 out of 12000\n✗ http_req_duration..............: avg=210ms med=180ms p(90)=390ms p(95)=620ms max=4.1s\n✗ http_req_failed................: 2.40%  288 out of 12000\n  http_reqs......................: 12000  40/s\n  vus_max........................: 20</pre>'],
+  qs:[
+    { q:'Kết luận nào đúng?', o:['Đạt, vì thời gian trung bình 210 ms rất tốt', 'Không đạt: p(95) = 620 ms vượt 500 ms và tỉ lệ lỗi 2,4% vượt 1%', 'Đạt, vì checks 97,6%', 'Chưa kết luận được'], a:1, w:'Kết luận dựa trên threshold đã đặt trước, không chọn chỉ số đẹp sau khi chạy.' },
+    { q:'Bước tiếp theo hợp lý nhất?', o:['Nâng threshold lên p(95)<700 cho đạt', 'Báo cáo không đạt; phân tích 288 request lỗi (status code, thời điểm, endpoint) và các request chậm, phối hợp dev xem log/metric server', 'Chạy lại tới khi đạt', 'Giảm số VU xuống 5 rồi báo đạt'], a:1, w:'Đổi điều kiện cho “đạt” là làm sai mục đích của test.' },
+    { q:'Throughput của lần chạy này là bao nhiêu?', o:['20 request/giây', '40 request/giây', '12000 request/giây', '210 request/giây'], a:1, w:'http_reqs: 12000 request, tốc độ 40/s. 20 là số VU tối đa.' },
+  ] },
+{ id:'K4', ph:'K', kind:'quiz', t:'Lighthouse, Core Web Vitals và đạo đức khi chạy tải', learn:['lighthouse','k6'],
+  need:['Trả lời đúng cả 4 câu.'],
+  qs:[
+    { q:'<b>LCP</b> đo gì và mức “tốt” là bao nhiêu?', o:['Thời gian hiện phần nội dung lớn nhất; ≤ 2,5 giây', 'Số request của trang; ≤ 50', 'Độ xô lệch bố cục; ≤ 0,1', 'Kích thước trang; ≤ 2,5 MB'], a:0, w:'≤ 0,1 là ngưỡng tốt của CLS.' },
+    { q:'Ảnh sản phẩm tải chậm làm nút “Thêm vào giỏ” bị đẩy xuống khi người dùng sắp bấm. Chỉ số nào phản ánh vấn đề này?', o:['LCP', 'CLS', 'TTFB', 'Throughput'], a:1, w:'Khắc phục: khai báo width/height cho ảnh, giữ chỗ trước cho nội dung tải sau.' },
+    { q:'Có nên chạy script K6 50 VU vào một website luyện tập công khai của người khác?', o:['Có, vì site công khai', 'Không. Chỉ chạy tải lên hệ thống của dự án/môi trường được phép; site công khai chỉ để thử script với vài VU nếu chủ site cho phép', 'Có, nếu chạy ban đêm', 'Có, nếu dưới 10 phút'], a:1, w:'Chạy tải trái phép có thể làm sập dịch vụ của người khác và vi phạm điều khoản sử dụng.' },
+    { q:'Điểm Lighthouse lần 1 là 72, lần 2 là 81 trên cùng trang. Nên làm gì?', o:['Báo cáo điểm cao nhất', 'Chạy nhiều lần cùng điều kiện (ẩn danh, cùng máy, cùng throttling) và dùng trung vị; ghi rõ điều kiện', 'Báo cáo điểm thấp nhất', 'Bỏ Lighthouse vì không chính xác'], a:1, w:'Extension trình duyệt, máy bận, mạng dao động đều làm điểm thay đổi.' },
+  ] },
+{ id:'K5', ph:'K', kind:'self', t:'Bài nộp buổi 18: script K6 và báo cáo 1 trang', learn:['k6','lighthouse'],
+  need:['Tự kiểm tra bài nộp và đánh dấu từng mục.'],
+  items:['Script K6 có stages (có giai đoạn giảm về 0) và thresholds đặt trước khi chạy', 'Chỉ chạy lên môi trường được phép (staging/local); URL lấy từ biến môi trường', 'Báo cáo 1 trang: mục tiêu, kịch bản, kết quả p95/error rate/throughput, kết luận đạt/không đạt', 'Lighthouse report của 1 trang, chạy nhiều lần cùng điều kiện, ghi LCP/CLS/TBT', 'Ghi ít nhất 1 đề xuất cải thiện dựa trên số liệu'] },
+
+/* ---------- Buổi 19 ---------- */
+{ id:'AI1', ph:'AI', kind:'review', lang:'text', labels:['Dùng được', 'Có vấn đề'], files:'Test case do AI sinh — chức năng đặt mật khẩu', okMsg:'Đạt — bạn lọc đúng các case AI sinh.', t:'Review test case do AI sinh', learn:['ai'],
+  need:['Yêu cầu: <b>Mật khẩu khi đăng ký dài 8–20 ký tự, có ít nhất 1 chữ hoa và 1 chữ số, không chứa khoảng trắng.</b>', 'Một công cụ AI sinh 9 test case bên phải. Đánh giá từng case: <b>Dùng được</b> hay <b>Có vấn đề</b> (bịa quy tắc, sai kết quả mong đợi, không phải giá trị biên, trùng, mơ hồ).'],
+  code:C`TC01  Mật khẩu "Abcdefg1" (8 ký tự)          → Đăng ký thành công
+TC02  Mật khẩu "Abcdef1" (7 ký tự)           → Báo lỗi độ dài tối thiểu 8
+TC03  Mật khẩu dài 25 ký tự hợp lệ           → Báo lỗi độ dài tối đa 20
+TC04  Mật khẩu "abcdefg1" (không có chữ hoa) → Đăng ký thành công
+TC05  Mật khẩu "Abcdefg1" thiếu ký tự đặc biệt → Báo lỗi "cần ít nhất 1 ký tự đặc biệt"
+TC06  Mật khẩu "Abc 1defg" (có khoảng trắng) → Báo lỗi không được chứa khoảng trắng
+TC07  Kiểm tra mật khẩu hoạt động tốt         → Hệ thống hoạt động bình thường
+TC08  Mật khẩu "Abcdefg1"                     → Đăng ký thành công
+TC09  Mật khẩu "ABCDEFGH" (không có chữ số)  → Báo lỗi cần ít nhất 1 chữ số`,
+  items:[
+    ['TC01 — 8 ký tự hợp lệ → thành công', 0, 'Dùng được: giá trị biên dưới hợp lệ.'],
+    ['TC02 — 7 ký tự → lỗi độ dài', 0, 'Dùng được: ngay dưới biên dưới.'],
+    ['TC03 — 25 ký tự → lỗi độ dài', 1, 'Có vấn đề: không phải giá trị biên. Cần 20 ký tự (thành công) và 21 ký tự (lỗi); bộ case đang thiếu hẳn biên trên.'],
+    ['TC04 — không có chữ hoa → thành công', 1, 'Có vấn đề: kết quả mong đợi sai yêu cầu — thiếu chữ hoa phải báo lỗi.'],
+    ['TC05 — thiếu ký tự đặc biệt → lỗi', 1, 'Có vấn đề: AI bịa quy tắc “ký tự đặc biệt” không có trong yêu cầu. Nếu nghi yêu cầu thiếu, ghi câu hỏi cho BA thay vì tự thêm.'],
+    ['TC06 — có khoảng trắng → lỗi', 0, 'Dùng được: đúng quy tắc không chứa khoảng trắng.'],
+    ['TC07 — “mật khẩu hoạt động tốt”', 1, 'Có vấn đề: mơ hồ, không có dữ liệu, kết quả mong đợi không đo được.'],
+    ['TC08 — "Abcdefg1" → thành công', 1, 'Có vấn đề: trùng TC01 (cùng dữ liệu, cùng kết quả).'],
+    ['TC09 — không có chữ số → lỗi', 0, 'Dùng được: đúng quy tắc cần ít nhất 1 chữ số.'],
+  ] },
+{ id:'AI2', ph:'AI', kind:'quiz', t:'Giới hạn của AI và Playwright Test Agents', learn:['ai','agents'],
+  need:['Trả lời đúng cả 4 câu.'],
+  qs:[
+    { q:'Bạn muốn AI phân tích log lỗi có chứa email và số điện thoại khách hàng thật. Nên làm gì?', o:['Dán nguyên log vào bất kỳ chatbot nào', 'Chỉ dùng công cụ AI công ty đã cho phép; xóa/ẩn dữ liệu cá nhân trước khi đưa vào', 'Gửi log qua email cá nhân rồi hỏi AI', 'Không sao vì AI không lưu dữ liệu'], a:1, w:'Dữ liệu khách hàng và spec nội bộ thuộc phạm vi bảo mật của dự án.' },
+    { q:'Trong Playwright Test Agents, agent nào biến kế hoạch test (Markdown) thành file test?', o:['Planner', 'Generator', 'Healer', 'Reporter'], a:1, w:'Planner viết kế hoạch; Generator sinh test; Healer sửa test đang fail.' },
+    { q:'Healer “sửa” test fail bằng cách đổi kết quả mong đợi từ “Tổng: 598.000 ₫” thành “Tổng: 0 ₫” cho khớp với trang. Bạn làm gì?', o:['Nhận bản sửa vì test đã xanh', 'Từ chối: đây có thể là bug thật (tổng tiền sai); kiểm tra thủ công, ghi bug nếu đúng là lỗi', 'Xóa test', 'Tắt Healer vĩnh viễn'], a:1, w:'Mọi thay đổi của agent phải được review như pull request của người khác.' },
+    { q:'Cách ghi nhận phần việc có AI hỗ trợ trong bài nộp?', o:['Không cần ghi', 'Ghi rõ phần nào AI tạo, đã review gì, sửa gì và các lỗi AI mắc phải', 'Ghi “AI làm hết”', 'Chỉ ghi tên công cụ'], a:1, w:'Người review cần biết mức độ tin cậy của từng phần.' },
+  ] },
+{ id:'AI3', ph:'AI', kind:'review', lang:'ts', files:'Test do Generator agent sinh: checkout.spec.ts', okMsg:'Đạt — bạn review test do AI sinh như review code của đồng nghiệp.', t:'Review test Playwright do agent sinh', learn:['agents','pwloc','pwassert'],
+  need:['Đọc test bên phải do agent sinh và đánh giá từng mục: <b>Đạt</b> hay <b>Vi phạm</b>.'],
+  code:C`test('checkout', async ({ page }) => {
+  await page.goto('https://qa.shopdemo.test/login');
+  await page.locator('#user-name').fill('an_user');
+  await page.locator('#password').fill('Demo@123');
+  await page.locator('#ember-1482').click();
+  await page.waitForTimeout(2000);
+  await page.getByRole('button', { name: 'Thêm Áo thun cotton vào giỏ' }).click();
+  await page.getByTestId('cart-link').click();
+  await page.getByRole('button', { name: 'Thanh toán' }).click();
+  await page.getByLabel('Họ').fill('Nguyễn');
+  await page.getByLabel('Tên').fill('An');
+  await page.getByLabel('Mã bưu chính').fill('700000');
+  await page.getByRole('button', { name: 'Hoàn tất' }).click();
+  expect(await page.getByRole('heading').textContent()).toContain('Cảm ơn');
+});
+`,
+  items:[
+    ['Locator ổn định (không id tự sinh, ưu tiên role/label/test id)', 1, 'Vi phạm: <code>#ember-1482</code> là id tự sinh, đổi sau mỗi lần build. Dùng <code>getByRole(\'button\', { name: \'Đăng nhập\' })</code>.'],
+    ['Không chờ cố định', 1, 'Vi phạm: <code>waitForTimeout(2000)</code> — Playwright đã auto-wait; cần chờ trang thì dùng <code>await expect(page).toHaveURL(...)</code>.'],
+    ['Assertion là web-first (await expect(locator)…)', 1, 'Vi phạm: <code>expect(await ….textContent())</code> chỉ đọc một lần. Viết <code>await expect(page.getByRole(\'heading\', { name: /Cảm ơn/ })).toBeVisible()</code>.'],
+    ['Không hard-code URL môi trường', 1, 'Vi phạm: dùng <code>page.goto(\'/login\')</code> với baseURL.'],
+    ['Không ghi mật khẩu trong code; đăng nhập dùng lại được', 1, 'Vi phạm: mật khẩu nằm trong code và bước đăng nhập lặp lại ở mọi test — dùng storageState (bài Q3) và biến môi trường.'],
+    ['Đủ các bước nghiệp vụ của luồng đặt hàng theo đúng thứ tự', 0, 'Đạt: đăng nhập → thêm giỏ → giỏ hàng → thanh toán → nhập thông tin → hoàn tất.'],
+    ['Tên test mô tả kết quả mong đợi', 1, 'Vi phạm: “checkout” không cho biết kiểm tra gì. Ví dụ: “đặt hàng 1 sản phẩm thành công thì hiện lời cảm ơn”.'],
+    ['Có kiểm tra kết quả cuối cùng của luồng', 0, 'Đạt: có assertion lời cảm ơn (dù cách viết cần sửa ở mục 3).'],
+  ] },
+{ id:'AI4', ph:'AI', kind:'self', t:'Bài nộp buổi 19: so sánh case AI và test do agent tạo', learn:['ai','agents'],
+  need:['Tự kiểm tra bài nộp và đánh dấu từng mục.'],
+  items:['Bảng so sánh test case do AI sinh: hợp lệ / sai / bỏ sót / trùng, đối chiếu với yêu cầu', 'Chỉ ra được ít nhất 2 lỗi cụ thể của AI (bịa quy tắc, sai kết quả mong đợi, thiếu biên…)', 'Ít nhất 1 test Playwright do agent (Generator) tạo, kèm ghi chú review và phần đã sửa', 'Không đưa dữ liệu/spec thật của dự án vào công cụ AI chưa được phép', 'Mọi output AI trong bài có ghi chú “đã review”'] },
+
+/* ---------- Buổi 20 ---------- */
+{ id:'F1', ph:'F', kind:'quiz', t:'Test Plan, phạm vi và chiến lược', learn:['plan','risk'],
+  need:['Trả lời đúng cả 4 câu.'],
+  qs:[
+    { q:'Tiêu chí kết thúc (exit criteria) nào đo được?', o:['Khi test xong', 'Khi app chạy ổn định', '100% test case mức ưu tiên cao đã chạy; không còn bug Critical/High đang mở; regression suite xanh trên CI', 'Khi hết thời gian dự án'], a:2, w:'Exit criteria phải kiểm tra được bằng số liệu, không phải cảm nhận.' },
+    { q:'Thời gian có hạn. Nên ưu tiên test phần nào trước?', o:['Phần dễ test nhất', 'Phần có rủi ro cao: ảnh hưởng lớn (thanh toán, đăng nhập) và dễ lỗi (vừa sửa, phức tạp)', 'Theo thứ tự menu', 'Phần giao diện đẹp nhất'], a:1, w:'Risk-based testing: rủi ro = ảnh hưởng × khả năng xảy ra.' },
+    { q:'Phần nào <b>không</b> nên đưa vào automation?', o:['Luồng đăng nhập chạy mỗi lần release', 'Kiểm tra API giỏ hàng', 'Đánh giá trải nghiệm và cảm nhận giao diện mới thiết kế, test khám phá', 'Luồng đặt hàng chính'], a:2, w:'Phần cần con người quan sát, đánh giá và tìm lỗi bất ngờ làm manual (exploratory).' },
+    { q:'Vì sao phải ghi rõ mục <b>ngoài phạm vi</b> trong Test Plan?', o:['Cho tài liệu dài hơn', 'Để mọi người biết phần nào không được test, tránh hiểu nhầm là đã được kiểm tra và để chấp nhận rủi ro có chủ đích', 'Không cần thiết', 'Để tester được nghỉ'], a:1, w:'Ví dụ: “Không test trên iOS, không test tải trên production”.' },
+  ] },
+{ id:'F2', ph:'F', kind:'review', lang:'text', labels:['Đạt', 'Cần sửa'], files:'Test Plan rút gọn (bản nháp)', okMsg:'Đạt — bạn chỉ ra đúng chỗ cần sửa của Test Plan.', t:'Review bản nháp Test Plan', learn:['plan','risk'],
+  need:['Đọc bản nháp Test Plan của Final Project bên phải, đánh giá từng mục: <b>Đạt</b> hay <b>Cần sửa</b>.'],
+  code:C`TEST PLAN RÚT GỌN – ShopDemo (bản nháp)
+
+1. Mục tiêu: Đảm bảo ứng dụng chạy tốt.
+
+2. Phạm vi: Đăng nhập, giỏ hàng, thanh toán, lịch sử đơn hàng (web và Android).
+   Ngoài phạm vi: (để trống)
+
+3. Cách tiếp cận: Automation 100% test case, không test thủ công.
+
+4. Môi trường và dữ liệu: qa.shopdemo.test, Chrome 131, Firefox 133;
+   Android 14 (emulator Pixel 7). Dữ liệu tạo qua API trước mỗi test.
+
+5. Tiêu chí kết thúc: 100% test case ưu tiên cao đã chạy; không còn bug
+   Critical/High đang mở; regression suite xanh 3 lần liên tiếp trên CI.
+
+6. Rủi ro: Cổng thanh toán sandbox hay chậm → dùng stub cho test giao diện,
+   giữ 1 test E2E qua cổng thật chạy hằng đêm.`,
+  items:[
+    ['Mục tiêu cụ thể, đo được', 1, 'Cần sửa: “chạy tốt” không đo được. Ví dụ: luồng đặt hàng đúng trên Chrome/Firefox và Android 14; không còn bug Critical/High.'],
+    ['Ghi rõ phần ngoài phạm vi', 1, 'Cần sửa: để trống. Ví dụ: iOS, Safari, tải trên production, bảo mật chuyên sâu.'],
+    ['Chiến lược manual/automation hợp lý', 1, 'Cần sửa: automation 100% bỏ mất test khám phá và đánh giá trải nghiệm; nhiều case chạy một lần không đáng automation.'],
+    ['Môi trường và dữ liệu test cụ thể', 0, 'Đạt: có URL, trình duyệt, thiết bị và cách tạo dữ liệu.'],
+    ['Tiêu chí kết thúc đo được', 0, 'Đạt: có số liệu kiểm tra được.'],
+    ['Rủi ro có cách giảm thiểu', 0, 'Đạt: rủi ro cổng thanh toán có phương án stub + test đêm.'],
+  ] },
+{ id:'F3', ph:'F', kind:'self', cp:'Checkpoint 3', t:'Checkpoint 3: rà deliverable 02, 04, 05 và Test Plan', learn:['plan'],
+  need:['Đầu buổi 20: tự rà và đánh dấu. Mục nào chưa đạt thì ghi kế hoạch bù trước buổi 21.', 'Muốn được góp ý, gửi link repository/tài liệu cho Claude trong tab Code để review theo checklist.'],
+  items:['Deliverable 02: có bộ test scenario và test case (kỹ thuật thiết kế rõ, có case biên)', 'Deliverable 04: framework automation chạy trên CI (Selenium và/hoặc Playwright)', 'Deliverable 05: ít nhất 5 test API và bằng chứng đối chiếu DB', 'Deliverable 01: Test Plan rút gọn đủ mục tiêu, phạm vi (cả ngoài phạm vi), cách tiếp cận, môi trường, exit criteria, rủi ro', 'Đã chọn regression suite theo rủi ro và ghi lý do', 'Có danh sách việc còn lại cho buổi 21 (người làm, hạn)'] },
+
+/* ---------- Buổi 21 ---------- */
+{ id:'R1', ph:'R', kind:'review', lang:'text', labels:['Đạt', 'Cần sửa'], files:'Bug report: BUG-031', okMsg:'Đạt — bug report của bạn sẽ khiến dev cảm ơn.', t:'Review bug report', learn:['bug'],
+  need:['Đọc bug report bên phải và đánh giá từng mục: <b>Đạt</b> hay <b>Cần sửa</b>.'],
+  code:C`BUG-031
+Tiêu đề: Lỗi thanh toán
+Môi trường: qa.shopdemo.test, build 2026.11.20, Chrome 131, Windows 11
+Bước tái hiện:
+  1. Đăng nhập an_user
+  2. Thêm sản phẩm vào giỏ, thanh toán
+Kết quả thực tế: Không được
+Kết quả mong đợi: Đặt hàng thành công, hiện "Cảm ơn bạn đã đặt hàng!"
+Severity: Thấp
+Priority: Cao
+Bằng chứng: video checkout.mp4; console có lỗi 500 từ POST /api/orders`,
+  items:[
+    ['Tiêu đề nêu rõ hiện tượng và điều kiện', 1, 'Cần sửa: “Lỗi thanh toán” quá chung. Ví dụ: “Bấm Hoàn tất báo lỗi 500, không tạo đơn khi giỏ có sản phẩm giảm giá”.'],
+    ['Môi trường đủ thông tin', 0, 'Đạt: URL, build, trình duyệt, hệ điều hành.'],
+    ['Bước tái hiện chi tiết, có dữ liệu cụ thể', 1, 'Cần sửa: sản phẩm nào, số lượng, thông tin giao hàng nhập gì, bấm nút nào — người khác phải làm lại được y hệt.'],
+    ['Kết quả thực tế cụ thể', 1, 'Cần sửa: “Không được” không mô tả gì. Ghi rõ: trang hiện gì, thông báo gì, đơn có được tạo không.'],
+    ['Kết quả mong đợi rõ ràng', 0, 'Đạt: có kết quả cụ thể, kiểm tra được.'],
+    ['Severity phù hợp', 1, 'Cần sửa: không đặt được hàng chặn luồng doanh thu → Severity Critical/High, không phải Thấp.'],
+    ['Có bằng chứng', 0, 'Đạt: video và lỗi 500 của API — nên đính kèm thêm response body/thời điểm để dev tra log.'],
+  ] },
+{ id:'R2', ph:'R', kind:'quiz', t:'Regression trên CI và test chập chờn', learn:['flaky'],
+  need:['Trả lời đúng cả 3 câu.'],
+  qs:[
+    { q:'Test pass trên máy bạn nhưng fail trên CI. Việc đầu tiên nên làm?', o:['Bấm chạy lại tới khi xanh', 'Mở trace/ảnh/log của lần fail trên CI để xem khác biệt (tốc độ, dữ liệu, kích thước màn hình, headless)', 'Xóa test', 'Tăng timeout lên 5 phút'], a:1, w:'Chạy lại mà không xem bằng chứng thì không sửa được gì, chỉ che lỗi.' },
+    { q:'Report ghi 3 test “flaky” (fail rồi pass khi retry). Cách xử lý đúng?', o:['Coi như pass, không cần làm gì', 'Ghi nhận, tìm nguyên nhân và sửa; nếu chưa sửa ngay thì cách ly có theo dõi, không để retry che mãi', 'Tăng retries lên 10', 'Tắt chạy song song cho mọi test'], a:1, w:'Test flaky làm mọi người mất niềm tin vào suite — lúc fail thật cũng bị bỏ qua.' },
+    { q:'Tiêu chí “regression xanh 3 lần liên tiếp trên CI” nhằm mục đích gì?', o:['Cho CI chạy nhiều hơn', 'Chứng minh suite ổn định, không phụ thuộc may rủi', 'Để có 3 file report', 'Không có ý nghĩa'], a:1, w:'Một lần xanh có thể là may mắn; ba lần liên tiếp cho thấy test ổn định.' },
+  ] },
+{ id:'R3', ph:'R', kind:'self', t:'Bài nộp buổi 21: bản nháp đủ 6 deliverable', learn:['bug','flaky'],
+  need:['Tự kiểm tra và đánh dấu từng mục.'],
+  items:['Đã chạy manual test theo test case, ghi kết quả từng case', 'Bug report đủ: tiêu đề rõ, bước tái hiện có dữ liệu, thực tế/mong đợi, severity/priority, bằng chứng', 'Regression suite xanh 3 lần liên tiếp trên CI', 'Đã review code theo checklist 9 mục và sửa các mục vi phạm', 'Có bản nháp đủ 6 deliverable (01–06)'] },
+
+/* ---------- Buổi 22 ---------- */
+{ id:'D1', ph:'D', kind:'quiz', t:'Chuẩn bị trình bày và demo', learn:['demo'],
+  need:['Trả lời đúng cả 3 câu.'],
+  qs:[
+    { q:'Bố cục trình bày 15 phút nào hợp lý nhất?', o:['Đọc lần lượt từng test case', 'Bối cảnh và phạm vi → chiến lược và lý do → kết quả bằng số liệu → demo CI → hạn chế và việc tiếp theo', 'Chỉ demo code', 'Giới thiệu công cụ đã học'], a:1, w:'Người nghe cần hiểu bạn đã quyết định gì và vì sao, không chỉ bạn đã dùng gì.' },
+    { q:'Câu nào phù hợp để báo cáo kết quả?', o:['“100% test pass nên ứng dụng không còn bug”', '“Chạy 86 case (52 automation); 7 bug: 1 Critical, 2 High đã sửa, 4 Medium còn mở; regression xanh 3 lần; chưa test iOS và tải trên production”', '“Test khá tốt”', '“Đã dùng Selenium, Playwright, K6”'], a:1, w:'Test chỉ cho thấy có lỗi hay không trong phạm vi đã test, không chứng minh không còn lỗi.' },
+    { q:'Lúc demo, CI chạy chậm/không kết nối được. Bạn chuẩn bị gì trước?', o:['Không cần chuẩn bị', 'Link lần chạy CI đã xanh gần nhất và video quay sẵn; giải thích ngắn gọn nếu sự cố xảy ra', 'Hủy buổi demo', 'Chạy trên máy cá nhân và nói là CI'], a:1, w:'Trung thực về sự cố và có phương án dự phòng thể hiện sự chuyên nghiệp.' },
+  ] },
+{ id:'D2', ph:'D', kind:'self', t:'Bài nộp cuối khóa', learn:['demo'],
+  need:['Đánh dấu khi đã hoàn thành. Đủ các mục là xong lộ trình Automation.'],
+  items:['Bộ 6 deliverable bản cuối và link repository', 'Slide/tài liệu trình bày ~15 phút: phạm vi, chiến lược, kết quả, hạn chế', 'Demo chạy suite trên CI (có link lần chạy xanh dự phòng)', 'README repository: cấu trúc, cách cài, cách chạy từng bộ test', 'Ghi nhận góp ý theo rubric và kế hoạch bổ sung portfolio'] },
+];
+
+/* ===================== Chấm Locator Lab mobile ===================== */
+const STRATS = [['accessibilityId','AppiumBy.accessibilityId'],['id','AppiumBy.id'],['uiautomator','AppiumBy.androidUIAutomator'],['className','AppiumBy.className'],['xpath','AppiumBy.xpath']];
+const stratName = k => (STRATS.find(x => x[0] === k) || [k, k])[1];
+const allEls = doc => [...doc.getElementsByTagName('*')].filter(e => e.tagName !== 'hierarchy');
+function uiSelector(doc, v){
+  const src = v.trim().replace(/;$/, '');
+  const m = src.match(/^new\s+UiSelector\s*\(\s*\)((?:\s*\.\s*\w+\s*\(\s*(?:"[^"]*"|'[^']*'|true|false|\d+)\s*\))+)$/);
+  if (!m) return { err:'Biểu thức UiSelector không hợp lệ — phải có dạng new UiSelector().hàm("giá trị")...' };
+  const calls = [...m[1].matchAll(/\.\s*(\w+)\s*\(\s*(?:"([^"]*)"|'([^']*)'|(true|false|\d+))\s*\)/g)].map(x => [x[1], x[2] != null ? x[2] : x[3] != null ? x[3] : x[4]]);
+  let els = allEls(doc), inst = null;
+  const A = (e, k) => e.getAttribute(k) || '';
+  for (const [fn, a] of calls){
+    switch (fn){
+      case 'text': els = els.filter(e => A(e, 'text') === a); break;
+      case 'textContains': els = els.filter(e => A(e, 'text').includes(a)); break;
+      case 'textStartsWith': els = els.filter(e => A(e, 'text').startsWith(a)); break;
+      case 'textMatches': { let r; try { r = new RegExp('^(?:' + a + ')$'); } catch(e){ return { err:'textMatches: biểu thức chính quy không hợp lệ.' }; } els = els.filter(e => r.test(A(e, 'text'))); break; }
+      case 'resourceId': els = els.filter(e => A(e, 'resource-id') === a); break;
+      case 'description': els = els.filter(e => A(e, 'content-desc') === a); break;
+      case 'descriptionContains': els = els.filter(e => A(e, 'content-desc').includes(a)); break;
+      case 'className': els = els.filter(e => A(e, 'class') === a); break;
+      case 'clickable': case 'scrollable': case 'enabled': els = els.filter(e => A(e, fn) === a); break;
+      case 'index': els = els.filter(e => A(e, 'index') === a); break;
+      case 'instance': inst = +a; break;
+      default: return { err:'UiSelector không có hàm ' + fn + '().' };
+    }
+  }
+  if (inst != null) els = els[inst] ? [els[inst]] : [];
+  return { els };
+}
+function findMobile(doc, strat, v){
+  if (!v.trim()) return { err:'Giá trị locator đang trống.' };
+  const A = (e, k) => e.getAttribute(k) || '';
+  switch (strat){
+    case 'accessibilityId': return { els:allEls(doc).filter(e => A(e, 'content-desc') === v) };
+    case 'id': {
+      if (/:id\//.test(v)) return { els:allEls(doc).filter(e => A(e, 'resource-id') === v) };
+      if (/[:\/]/.test(v)) return { els:[] };
+      return { els:allEls(doc).filter(e => A(e, 'resource-id') === PKG + ':id/' + v) };
+    }
+    case 'className': return { els:allEls(doc).filter(e => A(e, 'class') === v.trim()) };
+    case 'uiautomator': return uiSelector(doc, v);
+    case 'xpath': {
+      try {
+        const r = doc.evaluate(v, doc, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null), els = [];
+        for (let i = 0; i < r.snapshotLength; i++){ const n = r.snapshotItem(i); if (n.nodeType !== 1) return { err:'InvalidSelectorException: XPath phải trả về phần tử, không phải chữ hay thuộc tính.' }; els.push(n); }
+        return { els };
+      } catch(e){ return { err:'InvalidSelectorException: XPath không hợp lệ — kiểm tra dấu ngoặc và dấu nháy.' }; }
+    }
+  }
+  return { err:'Chiến lược không hỗ trợ.' };
+}
+function gradeMloc(t, strat, v){
+  const doc = screenDoc(t.screen), r = findMobile(doc, strat, v), checks = [];
+  checks.push({ t:'Locator hợp lệ', ok:!r.err, why:r.err });
+  if (r.err) return { pass:false, checks, els:[] };
+  const els = r.els, tr = doc.evaluate(t.target, doc, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null), target = [];
+  for (let i = 0; i < tr.snapshotLength; i++) target.push(tr.snapshotItem(i));
+  checks.push({ t:'Khớp duy nhất 1 phần tử', ok:els.length === 1, why:els.length ? 'Đang khớp ' + els.length + ' phần tử — findElement lấy phần tử đầu tiên, dễ bấm nhầm.' : 'Không khớp phần tử nào → NoSuchElementException.' });
+  checks.push({ t:'Đúng phần tử cần tìm', ok:els.length > 0 && els.length === target.length && els.every(e => target.includes(e)), why:'Phần tử khớp (tô vàng) không phải phần tử đề bài yêu cầu.' });
+  if (t.only) checks.push({ t:'Dùng ' + t.only.map(stratName).join(' hoặc '), ok:t.only.includes(strat), why:'Đề bài yêu cầu chiến lược này.' });
+  if (strat === 'xpath'){
+    checks.push({ t:'Không dùng XPath tuyệt đối', ok:!/^\s*\(?\s*\/(?!\/)/.test(v), why:'Bắt đầu bằng một dấu / là đi từ gốc cây — thêm một view là hỏng.' });
+    checks.push({ t:'Không dựa vào chỉ số vị trí', ok:!/\[\s*\d+\s*\]|position\s*\(/.test(v), why:'[3] đổi nghĩa khi danh sách được sắp xếp lại hoặc thêm phần tử.' });
+  }
+  if (strat === 'uiautomator') checks.push({ t:'Không chọn theo vị trí (.index / .instance)', ok:!/\.(index|instance)\s*\(/.test(v), why:'Vị trí đổi khi giao diện thêm/bớt view.' });
+  return { pass:checks.every(c => c.ok), checks, els };
+}
+
+/* ===================== Chấm code (Java / TypeScript / JavaScript / YAML) ===================== */
+const CLIKE = { java:1, ts:1, js:1 };
+function stripC(src){
+  let out = '', i = 0; const n = src.length;
+  while (i < n){
+    const c = src[i], d = src[i + 1];
+    if (c === '/' && d === '/'){ while (i < n && src[i] !== '\n') i++; continue; }
+    if (c === '/' && d === '*'){ i += 2; while (i < n && !(src[i] === '*' && src[i + 1] === '/')){ if (src[i] === '\n') out += '\n'; i++; } i += 2; out += ' '; continue; }
+    if (c === '"' || c === "'" || c === '`'){ out += c; i++; while (i < n && src[i] !== c && (c === '`' || src[i] !== '\n')){ if (src[i] === '\\'){ out += src[i] + (src[i + 1] || ''); i += 2; continue; } out += src[i++]; } if (i < n && src[i] === c) out += src[i++]; continue; }
+    out += c; i++;
+  }
+  return out;
+}
+const STR_RE = /"(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)*'|`(?:[^`\\]|\\.)*`/g;
+const maskStr = s => s.replace(STR_RE, m => m[0] + m.slice(1, -1).replace(/[^\n]/g, ' ') + m[0]);
+function balance(s){
+  const m = maskStr(s), st = [], pair = { ')':'(', ']':'[', '}':'{' }; let line = 1;
+  for (const ch of m){
+    if (ch === '\n') line++;
+    if ('([{'.includes(ch)) st.push([ch, line]);
+    else if (pair[ch]){ if (!st.length || st[st.length - 1][0] !== pair[ch]) return 'Dấu ' + ch + ' ở dòng ' + line + ' không khớp với dấu mở nào.'; st.pop(); }
+  }
+  if (/["`]/.test(s.replace(STR_RE, ''))) return 'Có chuỗi chưa đóng dấu nháy.';
+  return st.length ? 'Thiếu dấu đóng cho “' + st[st.length - 1][0] + '” mở ở dòng ' + st[st.length - 1][1] + '.' : '';
+}
+function matchBrace(m, open){ let d = 0; for (let i = open; i < m.length; i++){ if (m[i] === '{') d++; else if (m[i] === '}'){ d--; if (!d) return i; } } return -1; }
+function bodyFrom(s, m, from){
+  let i = from;
+  while (i < m.length && /\s/.test(m[i])) i++;
+  if (m[i] === '('){ let d = 0; for (; i < m.length; i++){ if (m[i] === '(') d++; else if (m[i] === ')'){ d--; if (!d){ i++; break; } } } }
+  const o = m.indexOf('{', i); if (o < 0) return null;
+  const c = matchBrace(m, o); return c < 0 ? null : s.slice(o, c + 1);
+}
+function annotatedBodies(s, re){
+  const m = maskStr(s), g = new RegExp(re.source, 'g'), out = []; let x;
+  while ((x = g.exec(m))){ const b = bodyFrom(s, m, x.index + x[0].length); if (b != null) out.push(b); }
+  return out;
+}
+function yamlCheck(src){
+  const lines = src.split('\n');
+  for (let i = 0; i < lines.length; i++){
+    if (/\t/.test(lines[i])) return 'Dòng ' + (i + 1) + ' có ký tự tab — YAML chỉ thụt lề bằng dấu cách.';
+    const ind = lines[i].match(/^( *)\S/); if (ind && ind[1].length % 2) return 'Dòng ' + (i + 1) + ' thụt lề ' + ind[1].length + ' dấu cách — dùng bội số của 2 cho thẳng hàng.';
+  }
+  return '';
+}
+function stripCode(src, lang){
+  if (lang === 'yaml') return src.split('\n').map(l => l.replace(/(^|\s)#.*$/, '')).join('\n');
+  return stripC(src);
+}
+function evalRule(r, s){
+  if (r.each){ const bodies = annotatedBodies(s, r.each); return bodies.length > 0 && bodies.every(b => r.re.test(b)); }
+  if (r.fn){ const ok = !!r.fn(s); return r.not ? !ok : ok; }
+  if (r.min){ const g = new RegExp(r.re.source, r.re.flags.includes('g') ? r.re.flags : r.re.flags + 'g'); return (s.match(g) || []).length >= r.min; }
+  const hit = r.re.test(s);
+  return r.not ? !hit : hit;
+}
+function gradeCode(t, src){
+  const s = stripCode(src, t.lang), checks = [];
+  const syn = t.lang === 'yaml' ? yamlCheck(src) : balance(s);
+  checks.push({ t:t.lang === 'yaml' ? 'YAML thụt lề hợp lệ' : 'Cú pháp: ngoặc và dấu nháy cân bằng', ok:!syn, why:syn });
+  t.rules.forEach(r => { let ok; try { ok = evalRule(r, s); } catch(e){ ok = false; } checks.push({ t:r.t, ok, why:r.why }); });
+  return { pass:checks.every(c => c.ok), checks };
+}
+
+/* ===================== Trạng thái ===================== */
+const STORE = 'advqc.v1';
+let S = { done:{}, current:'I1', code:{}, loc:{}, quiz:{}, rev:{}, self:{}, tries:{} };
+try { const s = JSON.parse(localStorage.getItem(STORE) || 'null'); if (s) S = Object.assign(S, s); } catch(e) {}
+const save = () => { try { localStorage.setItem(STORE, JSON.stringify(S)); } catch(e) {} };
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
+const cur = () => TICKETS.find(t => t.id === S.current) || TICKETS[0];
+const phaseOf = t => PHASES.find(p => p.k === t.ph);
+const hintsShown = {}, lastRes = {};
+
+/* ===================== Tô màu ===================== */
+const KW = {
+  java:new Set('abstract boolean break case catch class default do double else extends final finally for if implements import int interface long new null package private protected public return static super switch this throw throws true false try void while var byte char float short'.split(' ')),
+  ts:new Set('abstract as async await break case catch class const continue default delete do else enum export extends false finally for from function if implements import in instanceof interface let new null of private protected public readonly return static super switch this throw true try type typeof undefined var void while'.split(' ')),
+};
+function hlC(src, lang){
+  const kw = KW[lang === 'java' ? 'java' : 'ts'];
+  let out = '', i = 0; const n = src.length, span = (c, s) => '<span class="hl-' + c + '">' + esc(s) + '</span>';
+  while (i < n){
+    const c = src[i];
+    if (c === '/' && src[i + 1] === '/'){ let j = src.indexOf('\n', i); if (j < 0) j = n; out += span('c', src.slice(i, j)); i = j; continue; }
+    if (c === '/' && src[i + 1] === '*'){ let j = src.indexOf('*/', i + 2); j = j < 0 ? n : j + 2; out += span('c', src.slice(i, j)); i = j; continue; }
+    if (c === '"' || c === "'" || c === '`'){ let j = i + 1; while (j < n && src[j] !== c && (c === '`' || src[j] !== '\n')){ if (src[j] === '\\') j++; j++; } out += span('s', src.slice(i, Math.min(j + 1, n))); i = j + 1; continue; }
+    if (lang === 'java' && c === '@' && /[A-Za-z]/.test(src[i + 1] || '')){ let j = i + 1; while (j < n && /\w/.test(src[j])) j++; out += span('a', src.slice(i, j)); i = j; continue; }
+    if (/[0-9]/.test(c) && !/[\w$]/.test(src[i - 1] || '')){ let j = i; while (j < n && /[0-9._]/.test(src[j])) j++; out += span('n', src.slice(i, j)); i = j; continue; }
+    if (/[A-Za-z_$]/.test(c)){ let j = i; while (j < n && /[\w$]/.test(src[j])) j++; const w = src.slice(i, j); out += kw.has(w) ? span('k', w) : esc(w); i = j; continue; }
+    out += esc(c); i++;
+  }
+  return out;
+}
+function hlYaml(src){
+  return src.split('\n').map(l => {
+    const ci = l.search(/(^|\s)#/), code = ci >= 0 ? l.slice(0, ci) : l, cm = ci >= 0 ? l.slice(ci) : '';
+    const c = esc(code).replace(/^(\s*-?\s*)([\w.\/-]+)(:)/, '$1<span class="hl-at">$2</span>$3').replace(/('[^']*')/g, '<span class="hl-s">$1</span>');
+    return c + (cm ? '<span class="hl-c">' + esc(cm) + '</span>' : '');
+  }).join('\n');
+}
+function hlSh(src){ return src.split('\n').map(l => { const ci = l.search(/(^|\s)#/); return ci >= 0 ? esc(l.slice(0, ci)) + '<span class="hl-c">' + esc(l.slice(ci)) + '</span>' : esc(l); }).join('\n'); }
+const hl = (src, lang) => lang === 'yaml' ? hlYaml(src) : lang === 'sh' ? hlSh(src) : lang === 'text' ? esc(src) : hlC(src, lang);
+
+/* ===================== Danh sách bài ===================== */
+function renderQueue(){
+  let lastGd = '';
+  $('queue').innerHTML = PHASES.map(p => {
+    const ts = TICKETS.filter(t => t.ph === p.k), d = ts.filter(t => S.done[t.id]).length;
+    const gdh = p.gd !== lastGd ? '<div class="phase"><h2 style="color:var(--accent)">' + esc(GD[p.gd]) + '</h2></div>' : ''; lastGd = p.gd;
+    return gdh + '<div class="phase"><h2>' + esc(p.name) + '<span>' + d + '/' + ts.length + '</span></h2>' + ts.map(t =>
+      '<button type="button" class="qitem' + (S.done[t.id] ? ' done' : '') + '" data-id="' + t.id + '"' + (t.id === S.current ? ' aria-current="true"' : '') + '><span class="dot"></span><span><span class="k">' + t.id + ' · ' + KIND[t.kind] + '</span><span class="t">' + esc(t.t) + '</span></span></button>').join('') + '</div>';
+  }).join('');
+  $('queue').querySelectorAll('.qitem').forEach(b => b.onclick = () => openTicket(b.dataset.id));
+  const n = TICKETS.filter(t => S.done[t.id]).length;
+  $('progText').textContent = n + '/' + TICKETS.length + ' bài';
+  $('progBar').style.width = (n / TICKETS.length * 100) + '%';
+}
+
+/* ===================== Đề bài ===================== */
+function renderTicket(){
+  const t = cur(), p = phaseOf(t), idx = TICKETS.indexOf(t), sh = hintsShown[t.id] || 0;
+  let h = '<div class="tk-head"><span class="tk-key">' + t.id + '</span><span class="chip acc">' + KIND[t.kind] + '</span><span class="chip">Buổi ' + p.bus + '</span>' +
+    (t.cp ? '<span class="chip cp">' + esc(t.cp) + '</span>' : '') + (S.done[t.id] ? '<span class="chip ok">Đã xong</span>' : '') + '</div>' +
+    '<h2 class="title">' + esc(t.t) + '</h2>' +
+    (S.done[t.id] ? '<div class="donebox">✓ Bạn đã hoàn thành bài này. Có thể làm lại để ôn.</div>' : '') +
+    '<div class="field"><h3>Yêu cầu</h3><div class="expect"><ul>' + t.need.map(x => '<li>' + x + '</li>').join('') + '</ul></div></div>';
+  if (t.learn && t.learn.length){
+    h += '<div class="field"><h3>Kiến thức cần dùng</h3><div class="lesson">' + t.learn.map((k, i) => { const L = LESSONS[k];
+      return '<details class="kw"' + (i === 0 && !S.done[t.id] ? ' open' : '') + '><summary>' + esc(L[0]) + '</summary><div class="kw-body">' + L[1] + (L[2] ? '<pre class="syn">' + hl(L[2], L[3]) + '</pre>' : '') + '</div></details>'; }).join('') + '</div></div>';
+  }
+  if (t.hints && t.hints.length){
+    h += '<div class="field"><h3>Gợi ý</h3><div class="hints">' + t.hints.slice(0, sh).map((x, i) => '<div class="hint"><b>Gợi ý ' + (i + 1) + '</b>' + x + '</div>').join('') + '</div>' +
+      (sh < t.hints.length ? '<button type="button" class="linkbtn" id="moreHint">Xem gợi ý ' + (sh + 1) + '/' + t.hints.length + '</button>' : '') + '</div>';
+  }
+  h += '<div class="field" style="display:flex;gap:8px">' + (idx > 0 ? '<button type="button" class="btn" id="prevT">← ' + TICKETS[idx - 1].id + '</button>' : '') + (idx < TICKETS.length - 1 ? '<button type="button" class="btn" id="nextT">' + TICKETS[idx + 1].id + ' →</button>' : '') + '</div>';
+  $('ticket').innerHTML = h;
+  if ($('moreHint')) $('moreHint').onclick = () => { hintsShown[t.id] = sh + 1; renderTicket(); };
+  if ($('prevT')) $('prevT').onclick = () => openTicket(TICKETS[idx - 1].id);
+  if ($('nextT')) $('nextT').onclick = () => openTicket(TICKETS[idx + 1].id);
+}
+function markDone(t){
+  if (!S.done[t.id]){ S.done[t.id] = true; save(); renderQueue(); renderTicket(); }
+}
+const nextBtn = t => { const i = TICKETS.indexOf(t); return i < TICKETS.length - 1 ? ' <button type="button" class="btn" data-next="' + TICKETS[i + 1].id + '">Bài tiếp theo: ' + TICKETS[i + 1].id + ' →</button>' : ''; };
+function checksHtml(g, okMsg){
+  return '<div class="res"><div class="verdict ' + (g.pass ? 'ok' : 'no') + '">' + (g.pass ? okMsg : 'Chưa đạt: ' + g.checks.filter(c => !c.ok).length + ' tiêu chí cần sửa') + '</div>' +
+    g.checks.map(c => '<div class="chk ' + (c.ok ? 'ok' : 'no') + '"><span class="ic">' + (c.ok ? '✓' : '✗') + '</span><span>' + esc(c.t) + (!c.ok && c.why ? '<span class="why">' + esc(c.why) + '</span>' : '') + '</span></div>').join('') + '</div>';
+}
+function wireNext(root){ root.querySelectorAll('[data-next]').forEach(b => b.onclick = () => openTicket(b.dataset.next)); }
+
+/* ===================== Khu làm bài ===================== */
+function renderWork(){
+  const t = cur(), w = $('work');
+  ({ mloc:workMloc, code:workCode, quiz:workQuiz, review:workReview, self:workSelf })[t.kind](t, w);
+  wireNext(w);
+}
+let locView = 'screen';
+function workMloc(t, w){
+  const st = S.loc[t.id] || { s:(t.only || ['accessibilityId'])[0], v:'' }, sc = SCREENS[t.screen];
+  w.innerHTML = '<div class="toolbar"><span class="ttl">Locator Lab mobile · ' + esc(sc.name) + '</span><button type="button" class="btn primary" id="findBtn">findElement (Enter)</button></div>' +
+    '<div class="sec"><h4>Locator</h4><div class="locrow"><span class="pre">driver.findElement(</span><select id="strat" aria-label="Chiến lược tìm">' + STRATS.map(s => '<option value="' + s[0] + '"' + (s[0] === st.s ? ' selected' : '') + '>' + s[1] + '</option>').join('') + '</select><input id="locv" aria-label="Giá trị locator" placeholder="giá trị locator" value="' + esc(st.v) + '" spellcheck="false" autocomplete="off"><span class="pre">)</span></div></div>' +
+    '<div class="sec" id="locres"><p class="msg">Nhập locator rồi bấm <b>findElement</b>. Phần tử khớp được tô vàng trên màn hình và trong page source.</p></div>' +
+    '<div class="sec"><div class="vtabs" role="tablist"><button type="button" role="tab" data-v="screen" aria-selected="' + (locView === 'screen') + '">Màn hình</button><button type="button" role="tab" data-v="src" aria-selected="' + (locView === 'src') + '">Page source (Inspector)</button></div>' +
+    '<div id="vScreen"' + (locView === 'screen' ? '' : ' hidden') + '><p class="msg" style="margin-bottom:8px">' + esc(PKG + sc.act) + ' · ' + esc(sc.note) + '</p><div class="phone" id="phone"><div class="sb"><span>9:41</span><span>ShopDemo</span></div>' + mock(screenDoc(t.screen).documentElement.firstElementChild) + '</div></div>' +
+    '<div id="vSrc"' + (locView === 'src' ? '' : ' hidden') + '>' + sourceHtml(t.screen) + '</div></div>';
+  w.querySelectorAll('.vtabs button').forEach(b => b.onclick = () => { locView = b.dataset.v; w.querySelectorAll('.vtabs button').forEach(x => x.setAttribute('aria-selected', String(x === b))); $('vScreen').hidden = locView !== 'screen'; $('vSrc').hidden = locView !== 'src'; });
+  const run = () => {
+    const s = $('strat').value, v = $('locv').value; S.loc[t.id] = { s, v, ran:true }; save();
+    const g = gradeMloc(t, s, v);
+    w.querySelectorAll('.sx-hit, .ln.hit').forEach(e => e.classList.remove('sx-hit', 'hit'));
+    g.els.forEach(e => { const k = e.getAttribute('data-sx'); w.querySelectorAll('#phone [data-sx="' + k + '"]').forEach(x => x.classList.add('sx-hit')); w.querySelectorAll('.ln[data-sx="' + k + '"]').forEach(x => x.classList.add('hit')); });
+    const tags = g.els.slice(0, 8).map(e => '<' + e.tagName + ' text="' + e.getAttribute('text') + '" resource-id="' + e.getAttribute('resource-id') + '" content-desc="' + e.getAttribute('content-desc') + '">');
+    const code = 'driver.findElement(' + stratName(s) + '("' + v.replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '"))';
+    $('locres').innerHTML = '<p class="found">' + esc(code) + '</p>' + (g.els.length ? '<p class="msg" style="margin:6px 0">Khớp ' + g.els.length + ' phần tử:</p><div class="found">' + tags.map(esc).join('\n') + (g.els.length > 8 ? '\n…' : '') + '</div>' : '') +
+      '<div style="margin-top:8px">' + checksHtml(g, 'Đạt — locator ổn định và trỏ đúng phần tử.' + nextBtn(t)) + '</div>';
+    wireNext($('locres'));
+    if (g.pass) markDone(t);
+  };
+  $('findBtn').onclick = run;
+  $('locv').addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); run(); } });
+  if (st.ran) run();
+}
+const FILE = { java:'Java', ts:'TypeScript', js:'JavaScript (k6)', yaml:'YAML' };
+function workCode(t, w){
+  const src = S.code[t.id] != null ? S.code[t.id] : t.starter, tries = S.tries[t.id] || 0;
+  w.innerHTML = '<div class="toolbar"><span class="ttl">' + FILE[t.lang] + (t.snippet ? ' · đoạn code trong class test' : '') + '</span><button type="button" class="btn" id="resetBtn">Đặt lại</button><button type="button" class="btn" id="ansBtn"' + (tries || S.done[t.id] ? '' : ' disabled title="Mở sau lần chấm đầu tiên"') + '>Đáp án mẫu</button><button type="button" class="btn primary" id="gradeBtn">Chấm bài (Ctrl+Enter)</button></div>' +
+    '<textarea class="editor" id="ed" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="Trình soạn code"></textarea>' +
+    '<div class="sec" id="coderes">' + (lastRes[t.id] || '<p class="msg">Viết code rồi bấm <b>Chấm bài</b>. Bài được chấm theo tiêu chí của buổi học bằng cách đọc cấu trúc code (không chạy thiết bị hay trình duyệt thật).</p>') + '</div>' +
+    '<div class="sec" id="ansBox" hidden></div>';
+  const ed = $('ed'); ed.value = src;
+  let tm; ed.addEventListener('input', () => { clearTimeout(tm); tm = setTimeout(() => { S.code[t.id] = ed.value; save(); }, 300); });
+  const grade = () => {
+    S.code[t.id] = ed.value; S.tries[t.id] = (S.tries[t.id] || 0) + 1; save();
+    const g = gradeCode(t, ed.value);
+    const html = checksHtml(g, 'Đạt tất cả tiêu chí.' + nextBtn(t));
+    lastRes[t.id] = html; $('coderes').innerHTML = html; wireNext($('coderes'));
+    $('ansBtn').disabled = false; $('ansBtn').removeAttribute('title');
+    if (g.pass) markDone(t);
+  };
+  ed.addEventListener('keydown', e => {
+    if (e.key === 'Tab' && !e.shiftKey){ e.preventDefault(); ed.setRangeText(t.lang === 'java' ? '    ' : '  ', ed.selectionStart, ed.selectionEnd, 'end'); ed.dispatchEvent(new Event('input')); }
+    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)){ e.preventDefault(); grade(); }
+  });
+  $('gradeBtn').onclick = grade;
+  $('resetBtn').onclick = () => { if (ed.value !== t.starter && !confirm('Xóa code đang viết và quay về code ban đầu?')) return; ed.value = t.starter; S.code[t.id] = t.starter; save(); };
+  $('ansBtn').onclick = () => { const b = $('ansBox'); b.hidden = !b.hidden; b.innerHTML = '<h4>Đáp án mẫu — đọc, so sánh, rồi tự gõ lại theo cách hiểu của bạn</h4><pre class="syn">' + hl(t.answer, t.lang) + '</pre>'; };
+}
+function workQuiz(t, w){
+  const ans = S.quiz[t.id] || {}, sub = ans.sub;
+  w.innerHTML = '<div class="toolbar"><span class="ttl">' + t.qs.length + ' câu hỏi</span><button type="button" class="btn primary" id="qSubmit">Nộp bài</button></div><div class="sec quiz">' +
+    t.qs.map((q, i) => '<div class="qq"><p class="q">Câu ' + (i + 1) + '. ' + q.q + '</p>' + q.o.map((o, j) => {
+      const sel = ans.a && ans.a[i] === j, cls = sub ? (j === q.a && sel ? ' right' : sel ? ' wrong' : '') : '';
+      return '<label class="opt' + cls + '"><input type="radio" name="q' + i + '" value="' + j + '"' + (sel ? ' checked' : '') + '><span>' + esc(o) + '</span></label>'; }).join('') +
+      (sub ? '<p class="expl">' + (ans.a && ans.a[i] === q.a ? '✓ Đúng. ' : '✗ Chưa đúng. ') + esc(q.w) + '</p>' : '') + '</div>').join('') +
+    '<div id="qRes"></div></div>';
+  w.querySelectorAll('input[type=radio]').forEach(r => r.onchange = () => { const a = (S.quiz[t.id] && S.quiz[t.id].a) || []; a[+r.name.slice(1)] = +r.value; S.quiz[t.id] = { a, sub:false }; save(); });
+  if (sub){ const right = t.qs.filter((q, i) => ans.a[i] === q.a).length; showQuizRes(t, right); }
+  $('qSubmit').onclick = () => {
+    const a = (S.quiz[t.id] && S.quiz[t.id].a) || [];
+    if (t.qs.some((q, i) => a[i] == null)){ $('qRes').innerHTML = '<p class="msg">Còn câu chưa chọn đáp án.</p>'; return; }
+    S.quiz[t.id] = { a, sub:true }; save();
+    if (t.qs.every((q, i) => a[i] === q.a)) markDone(t);
+    workQuiz(t, w);
+  };
+}
+function showQuizRes(t, right){
+  const ok = right === t.qs.length;
+  $('qRes').innerHTML = '<div class="verdict ' + (ok ? 'ok' : 'no') + '">' + right + '/' + t.qs.length + ' câu đúng' + (ok ? ' — đạt.' + nextBtn(t) : ' — đọc giải thích ở câu tô đỏ, chọn lại rồi nộp lần nữa.') + '</div>';
+  wireNext($('qRes'));
+}
+function workReview(t, w){
+  const st = S.rev[t.id] || { a:[], sub:false }, L = t.labels || ['Đạt', 'Vi phạm'], n = t.items.length;
+  w.innerHTML = '<div class="toolbar"><span class="ttl">' + esc(t.files) + '</span><button type="button" class="btn primary" id="rvSubmit">Nộp đánh giá</button></div>' +
+    '<div class="sec"><pre class="' + (t.lang === 'text' ? 'doc' : 'syn') + '">' + hl(t.code, t.lang) + '</pre></div><div class="sec"><h4>Checklist ' + n + ' mục</h4><div class="res">' +
+    t.items.map((it, i) => { const v = st.a[i], cls = st.sub ? (v === it[1] ? ' right' : ' wrong') : '';
+      return '<div class="rv' + cls + '"><span>' + (i + 1) + '. ' + esc(it[0]) + '</span><span class="seg"><button type="button" data-i="' + i + '" data-v="0" aria-pressed="' + (v === 0) + '">' + L[0] + '</button><button type="button" data-i="' + i + '" data-v="1" aria-pressed="' + (v === 1) + '">' + L[1] + '</button></span>' +
+        (st.sub && (v !== it[1] || st.all) ? '<span class="ex">' + it[2] + '</span>' : '') + '</div>'; }).join('') + '</div><div id="rvRes" style="margin-top:10px"></div></div>';
+  w.querySelectorAll('.seg button').forEach(b => b.onclick = () => { st.a[+b.dataset.i] = +b.dataset.v; st.sub = false; S.rev[t.id] = st; save(); workReview(t, w); });
+  if (st.sub){ const right = t.items.filter((it, i) => st.a[i] === it[1]).length;
+    $('rvRes').innerHTML = '<div class="verdict ' + (st.all ? 'ok' : 'no') + '">' + right + '/' + n + ' mục đánh giá đúng' + (st.all ? ' — ' + esc(t.okMsg || 'đạt.') + nextBtn(t) : ' — đọc giải thích ở các mục tô đỏ rồi đánh giá lại.') + '</div>'; wireNext($('rvRes')); }
+  $('rvSubmit').onclick = () => {
+    if (t.items.some((it, i) => st.a[i] == null)){ $('rvRes').innerHTML = '<p class="msg">Còn mục chưa đánh giá.</p>'; return; }
+    st.sub = true; st.all = t.items.every((it, i) => st.a[i] === it[1]); S.rev[t.id] = st; save();
+    if (st.all) markDone(t);
+    workReview(t, w);
+  };
+}
+function workSelf(t, w){
+  const st = S.self[t.id] || [], bus = phaseOf(t).bus;
+  w.innerHTML = '<div class="toolbar"><span class="ttl">Tự kiểm tra bài nộp</span></div><div class="sec res">' +
+    t.items.map((x, i) => '<label class="selfck"><input type="checkbox" data-i="' + i + '"' + (st[i] ? ' checked' : '') + '><span>' + esc(x) + '</span></label>').join('') + '<div id="selfRes"></div></div>';
+  const upd = () => { const all = t.items.every((x, i) => st[i]);
+    $('selfRes').innerHTML = all ? '<div class="verdict ok">Đã đủ các mục của bài nộp buổi ' + bus + '.' + nextBtn(t) + '</div>' : '<p class="msg">' + t.items.filter((x, i) => st[i]).length + '/' + t.items.length + ' mục đã xong.</p>';
+    wireNext($('selfRes'));
+    if (all) markDone(t); else if (S.done[t.id]){ delete S.done[t.id]; save(); renderQueue(); renderTicket(); } };
+  w.querySelectorAll('input[type=checkbox]').forEach(c => c.onchange = () => { st[+c.dataset.i] = c.checked; S.self[t.id] = st; save(); upd(); });
+  upd();
+}
+
+/* ===================== Tự kiểm tra dữ liệu bài (gọi advSelfTest() trong console) ===================== */
+function advSelfTest(){
+  const bad = [], seen = {};
+  TICKETS.forEach(t => {
+    if (seen[t.id]) bad.push(t.id + ': trùng id'); seen[t.id] = 1;
+    if (!PHASES.some(p => p.k === t.ph)) bad.push(t.id + ': ph không tồn tại');
+    if (t.kind === 'mloc'){
+      const d = screenDoc(t.screen), r = d.evaluate(t.target, d, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+      if (r.snapshotLength !== 1) bad.push(t.id + ': target khớp ' + r.snapshotLength + ' phần tử');
+      (t.ans || []).forEach(a => { const g = gradeMloc(t, a[0], a[1]); if (!g.pass) bad.push(t.id + ' ans ' + a.join(' ') + ' → ' + g.checks.filter(c => !c.ok).map(c => c.t).join('; ')); });
+      (t.bad || []).forEach(a => { if (gradeMloc(t, a[0], a[1]).pass) bad.push(t.id + ' bad passes: ' + a.join(' ')); });
+    }
+    if (t.kind === 'code'){
+      const g = gradeCode(t, t.answer); if (!g.pass) bad.push(t.id + ' answer fails: ' + g.checks.filter(c => !c.ok).map(c => c.t + (c.why ? ' (' + c.why + ')' : '')).join('; '));
+      if (gradeCode(t, t.starter).pass) bad.push(t.id + ' starter passes');
+      (t.wrong || []).forEach((x, i) => { if (gradeCode(t, x).pass) bad.push(t.id + ' wrong#' + i + ' passes'); });
+    }
+    if (t.kind === 'quiz') t.qs.forEach((q, i) => { if (q.a == null || q.a >= q.o.length) bad.push(t.id + ' q' + i + ' đáp án sai chỉ số'); });
+    if (t.kind === 'review') t.items.forEach((it, i) => { if (it[1] !== 0 && it[1] !== 1) bad.push(t.id + ' item' + i); });
+    (t.learn || []).forEach(k => { if (!LESSONS[k]) bad.push(t.id + ': thiếu bài học ' + k); });
+  });
+  return bad.length ? bad : 'all ok (' + TICKETS.length + ' bài)';
+}
+
+/* ===================== Điều khiển chung ===================== */
+function openTicket(id){
+  if (!TICKETS.some(t => t.id === id)) id = TICKETS[0].id;
+  S.current = id; save();
+  renderQueue(); renderTicket(); renderWork();
+  $('ticket').scrollTop = 0; $('work').scrollTop = 0;
+  const q = $('queue').querySelector('[aria-current="true"]'); if (q && q.scrollIntoView) q.scrollIntoView({ block:'nearest' });
+  try { if (location.hash.slice(1) !== id) history.replaceState(null, '', '#' + id); } catch(e) {}
+}
+window.addEventListener('hashchange', () => { const h = location.hash.slice(1); if (TICKETS.some(t => t.id === h) && h !== S.current) openTicket(h); });
+$('themeBtn').onclick = () => {
+  const root = document.documentElement;
+  const dark = root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+  root.dataset.theme = dark ? 'light' : 'dark';
+  try { localStorage.setItem('advqc.theme', root.dataset.theme); } catch(e) {}
+};
+try { const th = localStorage.getItem('advqc.theme'); if (th) document.documentElement.dataset.theme = th; } catch(e) {}
+openTicket(TICKETS.some(t => t.id === location.hash.slice(1)) ? location.hash.slice(1) : S.current);
+</script>
+
+</html>

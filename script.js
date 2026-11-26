@@ -767,13 +767,15 @@ route = parseHash();
 render();
 
 // Lối vào riêng: kéo hình cô gái Việt (màn hình chọn xuất thân) sang trái hoặc sang phải hơn 140px để mở QA Mastery Roadmap ngay trong trang.
-// Không có gợi ý trên màn hình. Chỉ chủ trang (isOwner trên claude.ai) mở được; nơi khác (Firebase, người xem khác) kéo không có tác dụng.
+// Không có gợi ý trên màn hình. Trên claude.ai chỉ chủ trang (isOwner) mở được; trên GitHub Pages (không có claude.ai) ai kéo cũng mở được,
+// khi đó QA lưu tiến độ trong localStorage của trình duyệt (qaLocalDb trong qa/hub.html).
 (() => {
     const img = document.querySelector('.origin[data-ui="vi"] .o-mark'); if (!img) return;
     const card = img.closest('.origin');
     let owner = false;
     (async () => {
-        try { const u = window.claude && window.claude.use ? await window.claude.use('user') : null; owner = !!(u && await u.isOwner()); } catch (e) { }
+        if (!(window.claude && window.claude.use)) { owner = true; return; }   // không chạy trên claude.ai (GitHub Pages)
+        try { const u = await window.claude.use('user'); owner = !!(u && await u.isOwner()); } catch (e) { }
     })();
     let layer = null;
     const closeQA = () => { if (layer) { layer.hidden = true; document.documentElement.style.overflow = ''; } };
