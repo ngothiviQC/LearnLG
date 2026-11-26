@@ -764,6 +764,9 @@ $('goBack').onclick = () => { $('step2').hidden = true; $('step1').hidden = fals
 /* ===================== Khởi động ===================== */
 // Nút Sáng/Tối đã bỏ: giao diện sáng/tối theo cài đặt của máy.
 route = parseHash();
+// Mở đường link gốc (không có #…) thì luôn hiện màn chào trước, kể cả khi đã chọn xuất thân từ lần trước;
+// màn chào có nút "Tiếp tục học" để vào thẳng khóa học. Link có # (vd #lo-trinh, #bai-3) vẫn mở đúng trang đó.
+if (!location.hash || location.hash === '#') helloOn = true;
 render();
 
 // Lối vào riêng: kéo hình cô gái Việt (màn hình chọn xuất thân) sang trái hoặc sang phải hơn 140px để mở QA Mastery Roadmap ngay trong trang.
