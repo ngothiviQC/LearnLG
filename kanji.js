@@ -115,7 +115,6 @@ function kjBody() {
                     (kjPick ? ' aria-pressed="' + on + '"' : '') + ' title="' + esc((x.hv || '') + ' · ' + (x.m || '')) + '"><span class="kj-c jp" lang="ja">' + k + '</span><span class="kj-hv">' + esc(x.hv || '') + '</span></button>';
             }).join('') + '</div>' + (kjSel && arr.includes(kjSel) && !kjPick ? kjDetail(kjSel) : '') + '</section>';
     });
-    h += '<p class="hint">Danh sách ' + ALL.length + ' chữ Kanji ' + kjName() + (rmLv === 4 ? ' theo sách luyện viết hinelearn' : ' thường gặp') + '; số nét và bộ thủ đối chiếu với sách luyện viết hinelearn, nét viết từ KanjiVG (CC BY-SA 3.0); thông tin chữ và từ ví dụ do Claude soạn. Mỗi chữ có ghi trạm tương ứng trong Lộ trình ' + kjName() + '.</p>';
     return h;
 }
 
