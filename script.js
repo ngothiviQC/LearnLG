@@ -442,7 +442,7 @@ function renderWrite(set) {
         if (s.kind === 'nodau') setGrade(set.key, i, pref.nodau ? 'ok' : 'mid'); else if (s.kind) setGrade(set.key, i, 'ok');
         renderNav(); renderWrite(set);
     };
-    const nextW = () => { stopAudio(); if (s.pos + 1 < n) s.pos++; else { s.order = orderFor(set); s.pos = 0; } resetQ(s); renderWrite(set); const x = $('wIn'); if (x) x.focus({ preventScroll: true }); };
+    const nextW = () => { stopAudio(); if (s.pos + 1 < n) s.pos++; else { s.order = orderFor(set); s.pos = 0; } resetQ(s); renderWrite(set); focusIn($('wIn')); };
     const pickMc = k => { if (s.checked) return; s.mc.picked = k; s.checked = true; setGrade(set.key, i, k === i ? 'ok' : 'ng'); renderNav(); renderWrite(set); };
     s.keyFn = e => {
         if (/INPUT|TEXTAREA/.test(e.target.tagName)) return;
@@ -452,7 +452,7 @@ function renderWrite(set) {
     const cb = $('chk'); if (cb) cb.onclick = check;
     const rv = $('reveal'); if (rv) rv.onclick = () => { s.input = val(); s.checked = true; s.kind = null; renderWrite(set); };
     const hb = $('hintBtn'); if (hb) hb.onclick = () => { s.input = val(); s.hint = true; renderWrite(set); };
-    const rt = $('retry'); if (rt) rt.onclick = () => { s.checked = false; s.kind = null; renderWrite(set); const w = $('wIn'); if (w) w.focus(); };
+    const rt = $('retry'); if (rt) rt.onclick = () => { s.checked = false; s.kind = null; renderWrite(set); focusIn($('wIn')); };
     const nx = $('wNext'); if (nx) nx.onclick = nextW;
     $('view').querySelectorAll('[data-mc]').forEach(b => b.onclick = () => pickMc(+b.dataset.mc));
     $('view').querySelectorAll('[data-gr]').forEach(b => b.onclick = () => { setGrade(set.key, i, b.dataset.gr); renderNav(); renderWrite(set); });
@@ -468,8 +468,10 @@ function renderWrite(set) {
         // Câu do Claude soạn lại (it[3] === 1): bản ghi đọc câu gốc khác → dùng giọng của máy
         if (set.no && it[3] !== 1) playClip('ja', set.no, i, tts); else tts();
     });
-    if (inp && !s.checked && document.activeElement === document.body) inp.focus({ preventScroll: true });
+    if (inp && !s.checked && document.activeElement === document.body) focusIn(inp);
 }
+/* Cảm ứng (iPhone/iPad): không tự focus để bàn phím không che đề; chạm vào ô mới mở bàn phím */
+const focusIn = el => { if (el && !(window.matchMedia && matchMedia('(pointer: coarse)').matches)) el.focus({ preventScroll: true }); };
 document.addEventListener('keydown', e => { if (ws && ws.keyFn && /^bai-/.test(route)) ws.keyFn(e); });
 
 /* ===================== Trang khóa học: tổng quan + danh sách chủ đề ===================== */
