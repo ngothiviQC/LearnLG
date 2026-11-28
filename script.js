@@ -265,7 +265,8 @@ function parseHash() {
     const m = h.match(/^bai-(\d+)$/); if (m && +m[1] >= 1 && +m[1] <= LESSONS.length) return h;
     return 'luyen-cau';
 }
-function go(r) { if (location.hash.slice(1) !== r) { try { location.hash = r; } catch (e) { } } route = r; render(); window.scrollTo(0, 0); }
+function go(r) { if (r === 'kanji') { try { rmOpen.kanji = true; } catch (e) { } r = 'lo-trinh'; }   // Kanji N5 nằm trong Lộ trình N5 (giống parseHash)
+    if (location.hash.slice(1) !== r) { try { location.hash = r; } catch (e) { } } route = r; render(); window.scrollTo(0, 0); }
 document.addEventListener('click', e => { const a = e.target.closest('a[href^="#"]'); if (!a || a.target === '_blank') return; e.preventDefault(); stopAudio(); go(a.getAttribute('href').slice(1)); });
 window.addEventListener('hashchange', () => withData(() => { const r = parseHash(); if (r !== route) { route = r; render(); } }));
 // Các nút đổi giao diện, chiều dịch, cách làm (dùng chung cho mọi màn hình)
