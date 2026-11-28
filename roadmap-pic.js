@@ -9,7 +9,8 @@ const rmPicSeen = n => ((rm.pic || {})[n] || []);
 const rmPicScenes = n => {
     const arr = x => !x ? [] : Array.isArray(x) ? x : [x];
     // tranh có chủ đề (nhân vật, cảnh) hiện trước, rồi tới các tranh đồ vật
-    return arr(typeof RM_PICS_THEME === 'object' ? RM_PICS_THEME[n] : null).concat(arr(typeof RM_PICS === 'object' ? RM_PICS[n] : null));
+    const t = arr(typeof RM_PICS_THEME === 'object' ? RM_PICS_THEME[n] : null);
+    return t.length ? t : arr(typeof RM_PICS === 'object' ? RM_PICS[n] : null);
 };
 
 function rmPicSec(n) {
