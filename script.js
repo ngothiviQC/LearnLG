@@ -340,7 +340,7 @@ function renderNav() {
     if (SOLO) { const info = routeInfo(route); $('sub').innerHTML = tab('index.html#lo-trinh', 'Lộ trình N5', false) + tab(route, esc(info.label), true); return; }
     // các mục chính; bấm vào mục khác sẽ về trang bạn xem gần nhất của mục đó, bấm lại mục đang đứng để về đầu mục
     const go1 = k => sec === k ? sectionRoot[k] : (lastIn[k] || sectionRoot[k]);
-    let h = tab('luyen-cau', (route === 'luyen-cau' ? '' : '← ') + t('course') + ' · ' + done + '/' + LESSONS.length * 30, sec === 'course', t('course'));
+    let h = tab('luyen-cau', (JA() ? '文章練習' : 'Luyện câu') + ' · ' + done + '/' + LESSONS.length * 30, sec === 'course', JA() ? '文章練習' : 'Luyện câu song ngữ');
     if (!JA()) h += tab(go1('n5'), 'Lộ trình N5 · ' + rmDoneCount() + '/25', sec === 'n5', 'Lộ trình chinh phục N5') + tab(go1('n4'), 'Lộ trình N4 · ' + rm4DoneCount() + '/25', sec === 'n4', 'Lộ trình chinh phục N4');
     $('sub').innerHTML = h;
     // trên điện thoại thanh tab cuộn ngang: đưa tab đang chọn vào tầm nhìn (chỉ cuộn thanh tab, không cuộn trang)
