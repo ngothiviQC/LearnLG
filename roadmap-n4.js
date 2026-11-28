@@ -24,7 +24,7 @@ function rm4Defaults() {
     let dirty = false;
     if (!rm.start4) { rm.start4 = ymd(new Date()); dirty = true; }
     if (!rm.exam4) { rm.exam4 = '2027-12-05'; dirty = true; }
-    if (!rm.sel4) { rm.sel4 = 26; dirty = true; }
+    if (rm.sel4 === undefined) { rm.sel4 = 26; dirty = true; }   // 0 = đã ẩn bảng trạm, không đặt lại
     if (dirty) rmSave();
 }
 
