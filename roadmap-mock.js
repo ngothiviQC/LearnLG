@@ -2,8 +2,8 @@
    Dữ liệu: data/n5-mock.js (N5_MOCK, N5_MOCK_TYPES). Thẻ “Bộ đề thi thử N5” ở Giai đoạn 2 chỉ liệt kê đề; mỗi lần bấm LÀM BÀI sẽ MỞ TRANG MỚI
    (tab mới, đường dẫn #thi-thu-<số đề>-<all|a|b>) và trang đó vẽ bài thi toàn màn hình (renderMockExam, gọi từ script.js).
    Kết quả lưu ở hvn.rm.mock = { số đề (0-based): [{ d, m: chế độ, c: số câu đúng, n: tổng câu, s: điểm ước tính /120 }] }. Phải nạp SAU roadmap.js. */
-const MK_RE = /^thi-thu-(\d+)-(all|a|b)$/;
-const MK_MODE = { all: 'Làm cả đề', a: 'Chỉ phần A', b: 'Chỉ phần B' };
+const MK_RE = /^thi-thu-(\d+)-(all)$/;   // chỉ làm cả đề (A rồi B), không làm từng phần
+const MK_MODE = { all: 'Làm cả đề' };
 let rmMk = null;
 let rmMkTick = 0;
 const rmMkHist = t => ((rm.mock = rm.mock || {})[t] = rm.mock[t] || []);
@@ -23,8 +23,7 @@ function rmMockCard() {
         const H = rmMkHist(t), last = H[H.length - 1];
         h += '<div class="mk-item"><div><b>' + esc(T.name) + '</b><span class="rm-vi">' + rmMkNq(T) + ' câu · ' + rmMkMin(T) + ' phút' +
             (last ? ' · gần nhất ' + fmtD(parseYmd(last.d)) + ' (' + MK_MODE[last.m] + '): ' + last.c + '/' + last.n + ' ≈ ' + last.s + '/120' : ' · chưa làm') + '</span></div>' +
-            '<div class="mk-go">' + ['all', 'a', 'b'].map((m, i) => '<a class="btn' + (i ? ' sm' : ' pri') + '" href="#thi-thu-' + (t + 1) + '-' + m + '" target="_blank" rel="noopener">' +
-                (i ? 'Chỉ phần ' + m.toUpperCase() + ' (' + T.parts[i - 1].min + '′)' : 'Làm cả đề') + ' ↗</a>').join('') + '</div></div>';
+            '<div class="mk-go"><a class="btn pri" href="#thi-thu-' + (t + 1) + '-all" target="_blank" rel="noopener">' + (H.length ? 'Làm lại' : 'Làm bài') + ' ↗</a></div></div>';
     });
     h += '</div><span class="lbl rm-sub">Đề gồm những dạng câu nào</span><ul class="rm-tips"><li><b>Phần A</b>: ' + ['k', 'w', 'c', 's'].map(k => N5_MOCK_TYPES[k] + ' ' + N5_MOCK[0].parts[0].qs.filter(q => q[0] === k).length).join(' · ') + '</li>' +
         '<li><b>Phần B</b>: ' + ['g', 'o', 'f', 'r', 'm', 'i'].map(k => N5_MOCK_TYPES[k] + ' ' + N5_MOCK[0].parts[1].qs.filter(q => q[0] === k).length).join(' · ') + '</li>' +
