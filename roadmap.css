@@ -385,3 +385,4 @@
 .mk-script { margin-top: 8px; padding: 8px 12px; border-radius: 10px; background: var(--sunken, #f6efe2); font-size: 14px; }
 .mk-script p { margin: 3px 0; }
 .mk-script i { display: inline-block; min-width: 56px; font-style: normal; font-size: 11.5px; font-weight: 700; color: var(--muted, #777); }
+.mk-pic { display: block; width: 100%; max-width: 380px; height: auto; border-radius: 14px; margin: 4px 0 8px; }
