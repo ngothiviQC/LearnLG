@@ -465,6 +465,7 @@ function rmBind() {
     });
     v.querySelectorAll('[data-rmpreset]').forEach(b => b.onclick = () => { const id = rmK(b.dataset.rmpreset); Object.keys(rmPrep).forEach(k => { if (k.startsWith(id + '-')) delete rmPrep[k]; }); rmRe(); });
     v.querySelectorAll('[data-pic]').forEach(b => b.onclick = () => rmPicPick(b.dataset.pic));
+    v.querySelectorAll('[data-picsc]').forEach(b => b.onclick = () => rmPicScene(b.dataset.picsc));
     v.querySelectorAll('[data-pichide]').forEach(b => b.onclick = () => { rmPicHide = !rmPicHide; rmRe(); });
     v.querySelectorAll('[data-ovq]').forEach(b => b.onclick = () => { const [i, oi] = b.dataset.ovq.split(':').map(Number); rmOv[i] = oi; rmMarkDay(); rmRe(); });
     v.querySelectorAll('[data-ovreset]').forEach(b => b.onclick = () => { rmOv = {}; rmRe(); });

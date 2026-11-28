@@ -309,3 +309,6 @@
 .pic-li.seen { border-color: var(--ok, #2e8b57); }
 .pic-li.sel { background: var(--ai-soft, var(--sunken)); }
 .pic-mask { filter: blur(6px); }
+
+.pic-tabs { flex-wrap: wrap; }
+.pic-tabs button { white-space: normal; text-align: left; }

@@ -1,8 +1,8 @@
 /* Tranh từ vựng cho từng trạm của Lộ trình N5 — tranh SVG do Claude vẽ riêng.
-   RM_PICS[số trạm] = { title, svg (viewBox 0 0 400 440), pins: [[chỉ số từ trong RM_LESSONS[n].vocab, x, y, hướng nhãn: r | l | t | b], …] }.
+   RM_PICS[số trạm] = một tranh hoặc MẢNG nhiều tranh (mỗi lần hiện một tranh; tranh sau dùng lại svg của tranh đầu): { title, vb (tùy chọn: vùng cắt 'x y w h'), svg (viewBox 0 0 400 440), pins: [[chỉ số từ trong RM_LESSONS[n].vocab, x, y, hướng nhãn: r | l | t | b], …] }.
    Số trên tranh = thứ tự trong pins. Bố cục tham khảo ý tưởng “bức tranh có đánh số từ” trên hinelearn (thư viện ảnh). */
 const RM_PICS = {
-2: { title: 'Bàn học và đồ dùng hằng ngày',
+2: [{ title: 'Trên bàn học', vb: '0 140 400 190',
   svg: `<rect width="400" height="440" fill="#f4e6cf"/><rect y="326" width="400" height="114" fill="#d9b98c"/><rect y="322" width="400" height="6" fill="#c9a572"/>
 <rect x="24" y="28" width="150" height="112" rx="6" fill="#fff"/><rect x="32" y="36" width="134" height="96" fill="#cfe8f7"/><circle cx="144" cy="58" r="12" fill="#ffd966"/>
 <rect x="32" y="106" width="134" height="26" fill="#9aa3ab"/><path d="M32 119h134" stroke="#fff" stroke-width="2" stroke-dasharray="10 8"/>
@@ -22,9 +22,10 @@ const RM_PICS = {
 <circle cx="186" cy="243" r="5" fill="none" stroke="#c9a227" stroke-width="3"/><path d="M191 243h24M208 243v6M214 243v5" stroke="#c9a227" stroke-width="3" stroke-linecap="round"/>
 <path d="M385 246C372 268 372 300 378 318h14c6-18 6-50-7-72z" fill="#2f4f9a"/><path d="M385 318v30q0 12-12 12" stroke="#5b3a24" stroke-width="5" fill="none" stroke-linecap="round"/>
 <ellipse cx="112" cy="394" rx="52" ry="7" fill="#000" opacity=".1"/><path d="M96 340v-14q16-10 32 0v14" stroke="#5b3a24" stroke-width="5" fill="none"/><rect x="70" y="338" width="84" height="56" rx="9" fill="#8b5a3c"/><rect x="70" y="338" width="84" height="22" rx="9" fill="#a56d48"/><circle cx="112" cy="362" r="4" fill="#e6c34a"/>`,
-  pins: [[0, 78, 204, 't'], [1, 142, 196, 't'], [2, 205, 228, 't'], [3, 275, 226, 't'], [9, 330, 222, 't'], [10, 364, 196, 't'], [11, 144, 243, 'b'], [7, 200, 243, 'b'], [4, 384, 290, 'l'], [5, 112, 368, 'b'], [6, 300, 72, 'r'], [8, 67, 112, 'b']] },
+  pins: [[0, 78, 204, 't'], [1, 142, 196, 't'], [2, 205, 228, 't'], [3, 275, 226, 't'], [9, 330, 222, 't'], [10, 364, 196, 't'], [11, 144, 243, 'b'], [7, 200, 243, 'b']] },
+  { title: 'Trong phòng: đồng hồ, xe, ô, cặp', pins: [[6, 300, 72, 'r'], [8, 67, 112, 'b'], [4, 384, 290, 'l'], [5, 112, 368, 'b']] }],
 
-3: { title: 'Trong tòa nhà công ty',
+3: [{ title: 'Tầng 1: lễ tân, thang máy, nhà ăn', vb: '30 236 340 170',
   svg: `<rect width="400" height="440" fill="#dff0fb"/><rect y="400" width="400" height="40" fill="#9bbf7a"/>
 <rect x="130" y="34" width="140" height="46" rx="7" fill="#2f4f9a"/><text x="200" y="68" text-anchor="middle" font-size="28" font-weight="700" fill="#fff" font-family="sans-serif">会社</text>
 <rect x="30" y="90" width="340" height="310" fill="#efe3cf" stroke="#8a7458" stroke-width="3"/><rect x="30" y="243" width="340" height="6" fill="#8a7458"/>
@@ -37,7 +38,8 @@ const RM_PICS = {
 <rect x="160" y="270" width="68" height="124" rx="3" fill="#c0c6cc" stroke="#8a929a" stroke-width="2"/><path d="M194 282v112" stroke="#8a929a" stroke-width="2"/><rect x="176" y="256" width="36" height="12" rx="2" fill="#222"/><text x="194" y="266" text-anchor="middle" font-size="10" fill="#ff7b54" font-family="sans-serif">▲ 1</text><circle cx="238" cy="330" r="4" fill="#4d9de0"/><circle cx="238" cy="342" r="4" fill="#d9534f"/>
 <rect x="248" y="258" width="112" height="136" fill="#fff8e8"/><text x="276" y="276" text-anchor="middle" font-size="13" font-weight="700" fill="#8a5a35" font-family="sans-serif">食堂</text><g fill="#c9915a"><rect x="254" y="344" width="46" height="6"/><rect x="262" y="350" width="4" height="40"/><rect x="288" y="350" width="4" height="40"/></g><circle cx="268" cy="338" r="6" fill="#fff" stroke="#bbb"/><circle cx="286" cy="338" r="6" fill="#fff" stroke="#bbb"/>
 <rect x="320" y="288" width="34" height="106" rx="3" fill="#d9534f"/><rect x="324" y="294" width="26" height="14" rx="2" fill="#222"/><text x="337" y="305" text-anchor="middle" font-size="9" font-weight="700" fill="#7fff7f" font-family="sans-serif">120円</text><rect x="324" y="314" width="26" height="36" fill="#f4d9d7"/><rect x="326" y="362" width="22" height="10" fill="#7a2e2c"/>`,
-  pins: [[10, 276, 56, 'r'], [3, 98, 148, 'b'], [6, 200, 176, 'b'], [5, 297, 160, 't'], [9, 64, 100, 'r'], [7, 96, 276, 't'], [8, 194, 350, 'b'], [4, 276, 345, 'b'], [12, 337, 300, 't'], [11, 337, 346, 'b']] },
+  pins: [[7, 96, 276, 't'], [8, 194, 350, 'b'], [4, 276, 345, 'b'], [12, 337, 300, 't'], [11, 337, 346, 'b']] },
+  { title: 'Tầng 2 và biển hiệu', vb: '30 30 340 220', pins: [[10, 276, 56, 'r'], [9, 64, 100, 'r'], [3, 98, 148, 'b'], [6, 200, 176, 'b'], [5, 297, 160, 't']] }],
 
 7: { title: 'Bàn ăn và đồ dùng trên bàn',
   svg: `<rect width="400" height="440" fill="#f6ead7"/><rect y="238" width="400" height="202" fill="#cf9a63"/><g stroke="#bd8650" stroke-width="2" opacity=".6"><path d="M0 290h400M0 350h400M0 410h400"/></g><rect y="234" width="400" height="8" fill="#b57a45"/>
@@ -50,7 +52,7 @@ const RM_PICS = {
 <path d="M298 392l30-84M328 392l-28-84" stroke="#8a929a" stroke-width="7" stroke-linecap="round"/><circle cx="296" cy="398" r="11" fill="none" stroke="#d9534f" stroke-width="6"/><circle cx="330" cy="398" r="11" fill="none" stroke="#d9534f" stroke-width="6"/>`,
   pins: [[3, 103, 200, 'b'], [6, 215, 128, 'r'], [5, 337, 226, 'b'], [1, 62, 320, 'b'], [4, 133, 322, 't'], [0, 240, 352, 'b'], [2, 314, 340, 'r']] },
 
-10: { title: 'Trong phòng bếp: ai và cái gì ở đâu',
+10: [{ title: 'Người và thú nuôi (います)',
   svg: `<rect width="400" height="440" fill="#f6ead7"/><rect y="330" width="400" height="110" fill="#d9b98c"/><rect y="326" width="400" height="6" fill="#c9a572"/>
 <rect x="20" y="40" width="140" height="160" rx="6" fill="#fff"/><rect x="28" y="48" width="124" height="144" fill="#cfe8f7"/><rect x="28" y="168" width="124" height="24" fill="#9bbf7a"/><rect x="82" y="120" width="16" height="52" fill="#8a5a35"/><circle cx="90" cy="100" r="32" fill="#5aa469"/><circle cx="66" cy="120" r="22" fill="#5aa469"/><circle cx="114" cy="120" r="22" fill="#4f9660"/><path d="M90 48v144M28 120h124" stroke="#fff" stroke-width="5" opacity=".95"/>
 <rect x="300" y="108" width="88" height="222" rx="7" fill="#e8eef2" stroke="#b8c4cc" stroke-width="2"/><path d="M300 188h88" stroke="#b8c4cc" stroke-width="3"/><rect x="372" y="130" width="6" height="40" rx="3" fill="#98a5af"/><rect x="372" y="204" width="6" height="52" rx="3" fill="#98a5af"/>
@@ -61,7 +63,8 @@ const RM_PICS = {
 <path d="M150 360h22" stroke="#4d9de0" stroke-width="3"/><path d="M154 355l-8 5 8 5zM168 355l8 5-8 5z" fill="#4d9de0"/>
 <rect x="36" y="222" width="44" height="60" rx="14" fill="#e07a9b"/><circle cx="58" cy="206" r="15" fill="#f3cfa5"/><path d="M43 204q15-22 30 0q-2-12-15-12t-15 12z" fill="#4a2f22"/><rect x="42" y="280" width="14" height="52" fill="#3b4a6b"/><rect x="60" y="280" width="14" height="52" fill="#3b4a6b"/>
 <rect x="292" y="212" width="48" height="66" rx="14" fill="#4d9de0"/><circle cx="316" cy="196" r="15" fill="#f3cfa5"/><path d="M301 194q15-18 30 0q-4-4-15-4t-15 4z" fill="#2a2a2a"/><rect x="298" y="276" width="16" height="54" fill="#3b4a6b"/><rect x="318" y="276" width="16" height="54" fill="#3b4a6b"/>`,
-  pins: [[6, 90, 96, 'r'], [8, 344, 138, 't'], [7, 224, 322, 'b'], [5, 224, 266, 't'], [9, 190, 236, 't'], [4, 126, 316, 'l'], [13, 160, 360, 'b'], [3, 58, 250, 'r'], [2, 316, 244, 'l']] },
+  pins: [[3, 58, 250, 'r'], [2, 316, 244, 'l'], [4, 126, 316, 'l'], [5, 224, 266, 't']] },
+  { title: 'Đồ vật và vị trí (あります)', pins: [[6, 90, 96, 'r'], [8, 344, 138, 't'], [7, 224, 322, 'b'], [9, 190, 236, 't'], [13, 160, 360, 'b']] }],
 
 22: { title: 'Trang phục: mặc, đội, đeo',
   svg: `<rect width="400" height="440" fill="#eef4fb"/><rect y="400" width="400" height="40" fill="#cfdceb"/><ellipse cx="200" cy="402" rx="90" ry="9" fill="#000" opacity=".1"/>
