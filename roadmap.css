@@ -440,3 +440,6 @@
 .rm-tv-list li.on { background: #fbd9bf; border-left-color: var(--ai); box-shadow: 0 1px 0 rgba(0, 0, 0, .06); }
 .rm-tv-list li.on .rm-who { color: var(--ai); }
 :root[data-theme="dark"] .rm-tv-list li.on { background: #5a3319; }
+
+.rm-kt .rm-who { font-size: 13px; line-height: 1.5; word-break: keep-all; }
+.rm-kt li { grid-template-columns: 64px minmax(0, 1fr); }
