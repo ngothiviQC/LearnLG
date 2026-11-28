@@ -477,4 +477,4 @@ html.mk-solo .backbar ~ .tabs { top: 0; }
 
 button.tab { background: none; border: 0; border-bottom: 2px solid transparent; font: inherit; font-weight: 600; cursor: pointer; }
 button.tab[aria-current="page"] { color: var(--ai); border-color: var(--ai); }
-.rm-map-card { scroll-margin-top: 110px; }
+.rm-stagebox { scroll-margin-top: 110px; }

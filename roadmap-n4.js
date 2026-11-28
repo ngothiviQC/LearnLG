@@ -84,7 +84,6 @@ function renderRoadmapN4() {
     h += rmStageHead('01', 'Giai đoạn 1 · khoảng 3 tháng', 'Minna no Nihongo bài 26–50: 25 trạm', fmtD(addDays(parseYmd(rm.start4), 7)) + ' → ' + fmtD(rmDue4(50)), done, 25);
     h += '<section class="card rm-map-card"><div class="rm-map">';
     for (let c = 0; c < 5; c++) {
-        if (c !== rmLegNow(4)) continue;   // các nhóm trạm còn lại nằm ở tab khác
         h += '<div class="rm-leg"><span class="rm-leg-n">Trạm ' + (26 + c * 5) + '–' + (30 + c * 5) + '</span><div class="rm-path">';
         for (let i = 26 + c * 5; i <= 30 + c * 5; i++) {
             const dn = rmStationDone(i), part = RM_TASKS.filter(([k]) => rmTaskDone(i, k)).length;
@@ -115,6 +114,7 @@ function renderRoadmapN4() {
         '<div class="topic rm-later"><span class="tp-mark" aria-hidden="true">N3</span><span class="tp-n">Khoảng 8–10 tháng sau N4</span><b>Chinh phục N3</b><span class="tp-d">' +
         'Bộ Shin Kanzen Master hoặc Soumatome N3; đọc NHK News Web Easy, xem anime có phụ đề tiếng Nhật.</span></div></div>';
     h += '<p class="hint">Mẹo: ở N4, kính ngữ (bài 49–50) và các thể bị động / sai khiến (bài 37, 48) là phần dễ mất điểm nhất; hãy đọc to ví dụ mỗi ngày.</p>';
-    $('view').innerHTML = rmWrapStages(h);
+    $('view').innerHTML = rmWrapStages(h, 4);
+    renderNav();
     rmBind();
 }

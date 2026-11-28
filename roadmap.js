@@ -20,7 +20,23 @@ let rmDays = rmLoad('hvn.days', {});
 let rmLv = 5;   // trang đang vẽ: 5 = Lộ trình N5, 4 = Lộ trình N4 (roadmap-n4.js)
 const rmMin = t => rmLv === 4 ? t.replace('20 phút', '25 phút').replace('40 phút', '55 phút').replace('30 phút', '35 phút') : t;   // N4: 25 + 55 + 35 phút
 // Bọc mỗi giai đoạn (đánh dấu bằng <!--stage-->) vào một khung riêng
-const rmWrapStages = h => { const p = h.split('<!--stage-->'); return p[0] + p.slice(1).map(x => '<section class="rm-stagebox">' + x + '</section>').join(''); };
+/* Mỗi giai đoạn là một tab trên thanh cố định (rmStageTabs); trang chỉ hiện phần đầu (tổng quan, kế hoạch, hôm nay) và giai đoạn đang chọn. */
+let rmStageTabs = { 5: [], 4: [] };
+const RM_STAGE_SHORT = { '00': 'Khởi động', '01': '25 trạm', '02': 'Luyện đề' };
+const rmWrapStages = (h, lv) => {
+    lv = lv || rmLv;
+    const p = h.split('<!--stage-->'), tabs = [], boxes = [];
+    p.slice(1).forEach(x => {
+        const sn = x.match(/class="rm-sn">(\d+)</), ov = !sn && /Tổng quan ngữ pháp/.test(x), id = sn ? sn[1] : ov ? 'ov' : 'later';
+        tabs.push([id, ov ? 'Tổng quan ngữ pháp' : sn ? 'Giai đoạn ' + (+sn[1]) + ' · ' + (sn[1] === '00' && lv === 4 ? 'Ôn nền tảng' : RM_STAGE_SHORT[sn[1]] || '') : 'Sau N' + lv]);
+        boxes.push(x);
+    });
+    rmStageTabs[lv] = tabs;
+    let cur = tabs.findIndex(t => t[0] === rm['stab' + lv]); if (cur < 0) cur = tabs.findIndex(t => t[0] === '01'); if (cur < 0) cur = 0;
+    return p[0] + (boxes.length ? '<section class="rm-stagebox">' + boxes[cur] + '</section>' : '');
+};
+const rmStageTabsHtml = lv => { const cur = rm['stab' + lv]; const arr = rmStageTabs[lv] || []; const on = arr.findIndex(t => t[0] === cur) >= 0 ? cur : (arr.find(t => t[0] === '01') || arr[0] || [])[0];
+    return arr.map(([id, label]) => '<button type="button" class="tab" data-rmstab="' + lv + ':' + id + '"' + (id === on ? ' aria-current="page"' : '') + '>' + label + '</button>').join(''); };
 const rmK = id => rmLv === 4 ? 'n4' + id : id;   // mã việc ở Giai đoạn 2 tách riêng theo cấp
 const rmTests = () => rmLv === 4 ? (rm.tests4 = rm.tests4 || []) : rm.tests;
 const rmRender = () => route === 'lo-trinh-n4' && typeof renderRoadmapN4 === 'function' ? renderRoadmapN4() : renderRoadmap();
@@ -169,7 +185,6 @@ function renderRoadmap() {
     h += rmStageHead('01', 'Giai đoạn 1 · khoảng 3 tháng', 'Minna no Nihongo bài 1–25: 25 trạm', fmtD(addDays(parseYmd(rm.start), rmOffset())) + ' → ' + fmtD(rmDue(25)), done, 25);
     h += '<section class="card rm-map-card"><div class="rm-map">';
     for (let c = 0; c < 5; c++) {
-        if (c !== rmLegNow(5)) continue;   // các nhóm trạm còn lại nằm ở tab khác
         h += '<div class="rm-leg"><span class="rm-leg-n">Trạm ' + (c * 5 + 1) + '–' + (c * 5 + 5) + '</span><div class="rm-path">';
         for (let i = c * 5 + 1; i <= c * 5 + 5; i++) {
             const dn = rmStationDone(i), part = RM_TASKS.filter(([k]) => rmTaskDone(i, k)).length;
@@ -202,32 +217,11 @@ function renderRoadmap() {
     h += '<!--stage--><div class="sec-h"><h2>Sau N5</h2><span class="hint">Thời gian là ước tính, tùy tốc độ của bạn.</span></div><div class="topics">' +
         RM_LATER.map(([lv, when, d]) => (lv === 'N4' ? '<a class="topic rm-later" href="#lo-trinh-n4">' : '<div class="topic rm-later">') + '<span class="tp-mark" aria-hidden="true">' + lv + '</span><span class="tp-n">' + when + '</span><b>Chinh phục ' + lv + '</b><span class="tp-d">' + d + (lv === 'N4' ? ' <b>Mở lộ trình N4 →</b>' : '') + '</span>' + (lv === 'N4' ? '</a>' : '</div>')).join('') + '</div>';
     h += '<p class="hint">Mẹo: học cùng một khung giờ mỗi ngày, bật chế độ Không làm phiền, và mỗi tháng ghi âm lại cùng một đoạn để nghe mình tiến bộ.</p>';
-    $('view').innerHTML = rmWrapStages(h);
+    $('view').innerHTML = rmWrapStages(h, 5);
+    renderNav();
     rmBind();
 }
 
-/* ----- Chia bản đồ trạm thành các tab (mỗi tab = 5 trạm), hiển thị trên thanh tab cố định ----- */
-const rmLegPick = {};
-const rmLegLo = lv => lv === 4 ? 26 : 1;
-function rmLegNow(lv) {
-    const sel = lv === 4 ? rm.sel4 : rm.sel, lo = rmLegLo(lv);
-    if (sel) return Math.min(4, Math.max(0, Math.floor((sel - lo) / 5)));
-    if (rmLegPick[lv] != null) return rmLegPick[lv];
-    const cur = lv === 4 ? rm4Current() : rmCurrent();
-    return Math.min(4, Math.max(0, Math.floor((cur - lo) / 5)));
-}
-function rmLegSet(lv, c) {
-    const lo = rmLegLo(lv), sk = lv === 4 ? 'sel4' : 'sel';
-    rmLegPick[lv] = c;
-    if (rm[sk] && Math.floor((rm[sk] - lo) / 5) !== c) { rm[sk] = 0; rmSave(); }   // bảng trạm đang mở thuộc nhóm khác thì ẩn đi
-}
-function rmLegTabs(lv) {
-    const lo = rmLegLo(lv), now = rmLegNow(lv);
-    return [0, 1, 2, 3, 4].map(c => {
-        let all = true; for (let i = lo + c * 5; i < lo + c * 5 + 5; i++) if (!rmStationDone(i)) all = false;
-        return '<button type="button" class="tab" data-rmleg="' + lv + ':' + c + '"' + (c === now ? ' aria-current="page"' : '') + '>Trạm ' + (lo + c * 5) + '–' + (lo + c * 5 + 4) + (all ? ' ✓' : '') + '</button>';
-    }).join('');
-}
 const rmLessonNext = () => LESSON_ORDER.find(no => okCount(keyOf(no)) < 30) || LESSON_ORDER[0];
 const rmStageHead = (no, when, title, range, d, tot) => '<!--stage--><div class="rm-stage"><span class="rm-sn">' + no + '</span><div><span class="lbl">' + when + ' · ' + range + '</span><h2>' + title + '</h2></div>' +
     '<span class="rm-sp num' + (d >= tot ? ' ok-t' : '') + '">' + d + '/' + tot + (d >= tot ? ' ✓' : '') + '</span></div>';
