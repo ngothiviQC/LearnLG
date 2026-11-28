@@ -429,3 +429,7 @@
 .rm-tv-bar i { display: block; height: 100%; width: 0; background: var(--ai); }
 .rm-tv-time { font-size: 12.5px; color: var(--muted); min-width: 34px; text-align: right; }
 @media (prefers-reduced-motion: reduce) { .rm-tv-stage .mk-pp { animation: none !important; } }
+
+.rm-tv-list { margin: 0; padding: 10px 12px; list-style: none; border-top: 1px solid var(--line); }
+.rm-tv-list li { padding: 6px 8px; border-radius: 10px; }
+.rm-tv-list li.on { background: var(--ai-soft, #fbe3d2); }
