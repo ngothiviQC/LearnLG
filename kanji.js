@@ -27,7 +27,7 @@ function kjG() {
         for (let c = 0; c < 5; c++) {
             let chars = '';
             for (let n = 26 + c * 5; n <= 30 + c * 5; n++) (typeof RM_N4 === 'object' && RM_N4[n] ? RM_N4[n].kanji : []).forEach(x => { if (!seen[x[0]] && !KJ_ALL.includes(x[0])) { seen[x[0]] = 1; chars += x[0]; } });
-            if (chars) kj4Groups.push(['Chặng ' + (c + 1) + ' · Bài ' + (26 + c * 5) + '–' + (30 + c * 5), chars]);
+            if (chars) kj4Groups.push(['Trạm ' + (26 + c * 5) + '–' + (30 + c * 5), chars]);
         }
     }
     return kj4Groups;
@@ -91,7 +91,7 @@ function kjBody() {
     if (!kjInfoCache || !kjInfoCache[rmLv === 4 ? 4 : 5]) { }
     const I = kjInfo(), ok = kjOkCount(), ALL = kjAll();
     let h = '';
-    h += '<div class="kj-hero"><div class="kj-hero-t"><p class="hint">Bấm vào một chữ để xem Hán Việt, cách đọc và từ ví dụ; bấm lại để đóng. Thuộc chữ nào thì đánh dấu “Đã thuộc”. Kanji của từng bài cũng nằm trong trạm tương ứng ở trên.' + (rmLv === 4 ? ' Chữ được chia theo 5 chặng của Lộ trình N4.' : '') + '</p>' +
+    h += '<div class="kj-hero"><div class="kj-hero-t"><p class="hint">Bấm vào một chữ để xem Hán Việt, cách đọc và từ ví dụ; bấm lại để đóng. Thuộc chữ nào thì đánh dấu “Đã thuộc”. Kanji của từng bài cũng nằm trong trạm tương ứng ở trên.' + (rmLv === 4 ? ' Chữ được chia theo 5 nhóm trạm của Lộ trình N4.' : '') + '</p>' +
         '<div class="prog"><span class="num">Đã thuộc ' + ok + '/' + ALL.length + '</span><div class="bar"><i style="width:' + (ok / ALL.length * 100) + '%;background:var(--ok)"></i></div></div></div>' +
         '<div class="kj-actions"><button type="button" class="btn pri" data-kj="quiz">⚡ Luyện nhanh 10 câu</button>' +
         '<button type="button" class="btn" data-kj="pick" aria-pressed="' + !!kjPick + '">✍ Tạo file luyện viết</button></div></div>';

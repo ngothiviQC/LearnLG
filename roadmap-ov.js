@@ -114,5 +114,5 @@ function rmOverview() {
     return '<!--stage--><div class="sec-h"><h2>Tổng quan ngữ pháp N5</h2><span class="hint">Xem lại trước khi luyện đề.</span></div>' +
         ovFold('ovP', 'Trợ từ N5', '助詞', nP + ' nhãn · 4 cặp hay nhầm · 10 câu thử tay', ovCount('ov-p-'), nP, ovParticles()) +
         ovFold('ovV', 'Chia động từ N5', '動詞', '3 nhóm · 4 dạng · 34 động từ chia sẵn', ovCount('ov-v-'), nV, ovVerbs()) +
-        ovFold('ovG', 'Toàn bộ mẫu ngữ pháp N5', '文法', nG + ' mẫu · 5 chặng', ovCount('ov-g-'), nG, ovGrammar());
+        ovFold('ovG', 'Toàn bộ mẫu ngữ pháp N5', '文法', nG + ' mẫu · 5 trạm', ovCount('ov-g-'), nG, ovGrammar());
 }

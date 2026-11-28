@@ -36,7 +36,7 @@ function rmCourseCardN4() {
         '<a class="topic rm-card" href="#lo-trinh-n4"><span class="tp-mark jp" lang="ja" aria-hidden="true">進</span>' +
         '<span class="tp-n">Trạm ' + done + '/25 · 🔥 ' + st + ' ngày liên tiếp' + (left >= 0 ? ' · còn ' + left + ' ngày tới ngày thi' : '') + '</span>' +
         '<b>Lộ trình chinh phục N4</b><span class="tp-d">Ôn nền N5 → Minna bài 26–50 (2 bài/tuần) → luyện 14 dạng câu hỏi và đề thi thử.</span>' +
-        '<span class="tp-foot"><span class="num">' + Math.round(done / 25 * 100) + '% chặng chính</span><span class="tp-go">→</span></span>' +
+        '<span class="tp-foot"><span class="num">' + Math.round(done / 25 * 100) + '% đã qua</span><span class="tp-go">→</span></span>' +
         '<span class="bar"><i style="width:' + (done / 25 * 100) + '%"></i></span></a>';
 }
 
@@ -46,7 +46,7 @@ function renderRoadmapN4() {
     const done = rm4DoneCount(), cur = rm4Current(), exp = rm4Expected(), st = rmStreak(), best = rmBest();
     const left = dayDiff(today, parseYmd(rm.exam4));
     const gap = done - exp;
-    const pace = done >= 25 ? '<span class="ok-t">Đã xong chặng chính 🎉 Chuyển sang luyện đề.</span>'
+    const pace = done >= 25 ? '<span class="ok-t">Đã qua đủ 25 trạm 🎉 Chuyển sang luyện đề.</span>'
         : dayDiff(today, parseYmd(rm.start4)) > 0 ? 'Lộ trình bắt đầu ngày ' + fmtD(parseYmd(rm.start4)) + '.'
         : gap >= 0 ? '<span class="ok-t">Đúng tiến độ' + (gap > 0 ? ' (vượt ' + gap + ' trạm)' : '') + '.</span>'
         : '<span class="mid-t">Chậm ' + (-gap) + ' trạm so với kế hoạch — học bù 1 trạm vào cuối tuần nhé.</span>';
@@ -84,7 +84,8 @@ function renderRoadmapN4() {
     h += rmStageHead('01', 'Giai đoạn 1 · khoảng 3 tháng', 'Minna no Nihongo bài 26–50: 25 trạm', fmtD(addDays(parseYmd(rm.start4), 7)) + ' → ' + fmtD(rmDue4(50)), done, 25);
     h += '<section class="card rm-map-card"><div class="rm-map">';
     for (let c = 0; c < 5; c++) {
-        h += '<div class="rm-leg"><span class="rm-leg-n">Chặng ' + (c + 1) + '</span><div class="rm-path">';
+        if (c !== rmLegNow(4)) continue;   // các nhóm trạm còn lại nằm ở tab khác
+        h += '<div class="rm-leg"><span class="rm-leg-n">Trạm ' + (26 + c * 5) + '–' + (30 + c * 5) + '</span><div class="rm-path">';
         for (let i = 26 + c * 5; i <= 30 + c * 5; i++) {
             const dn = rmStationDone(i), part = RM_TASKS.filter(([k]) => rmTaskDone(i, k)).length;
             const cls = 'rm-st' + (dn ? ' done' : '') + (i === cur && !dn ? ' cur' : '') + (RM_BOSS[i] ? ' boss' : '') + (i === rm.sel4 ? ' sel' : '');

@@ -279,6 +279,12 @@ document.addEventListener('click', e => {
     else if (b.dataset.nodau != null) { pref.nodau = !pref.nodau; }
     stopAudio(); savePref(); withData(render);
 });
+// Tab nhóm trạm của Lộ trình N5/N4: chọn nhóm 5 trạm rồi cuộn tới bản đồ
+document.addEventListener('click', e => {
+    const b = e.target.closest('[data-rmleg]'); if (!b) return;
+    const [lv, c] = b.dataset.rmleg.split(':').map(Number); rmLegSet(lv, c); stopAudio(); render();
+    const el = document.querySelector('.rm-map-card'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+});
 // Tốc độ đọc
 document.addEventListener('click', e => {
     const b = e.target.closest('[data-rate]'); if (!b) return;
@@ -341,6 +347,8 @@ function renderNav() {
     // các mục chính; bấm vào mục khác sẽ về trang bạn xem gần nhất của mục đó, bấm lại mục đang đứng để về đầu mục
     const go1 = k => sec === k ? sectionRoot[k] : (lastIn[k] || sectionRoot[k]);
     let h = tab('luyen-cau', (JA() ? '文章練習' : 'Luyện câu') + ' · ' + done + '/' + LESSONS.length * 30, sec === 'course', JA() ? '文章練習' : 'Luyện câu song ngữ');
+    const rmLvNow = route === 'lo-trinh-n4' ? 4 : route === 'lo-trinh' ? 5 : 0;
+    if (rmLvNow && !JA() && typeof rmLegTabs === 'function') { $('sub').innerHTML = rmLegTabs(rmLvNow); const c1 = $('sub').querySelector('[aria-current="page"]'); if (c1) $('sub').scrollLeft = Math.max(0, c1.offsetLeft + c1.offsetWidth - $('sub').clientWidth + 16); return; }
     const tm = route.match(/^chu-de-(\d+)$/), bm = route.match(/^bai-(\d+)$/), curTopic = tm ? +tm[1] : bm ? topicOf(+bm[1]) : 0;
     if (curTopic) {   // đang trong mục Luyện câu: các tab bên cạnh là những chủ đề khác
         h = tab('luyen-cau', (JA() ? '文章練習' : 'Luyện câu') + ' · ' + done + '/' + LESSONS.length * 30, false, JA() ? '文章練習' : 'Luyện câu song ngữ') + TOPICS.map((T, i) => tab('chu-de-' + (i + 1), T.mark + ' ' + esc(topicName(T)), i + 1 === curTopic, JA() ? T.dja : T.dvi)).join('');

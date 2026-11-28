@@ -98,7 +98,7 @@ function rmCourseCard() {
         '<a class="topic rm-card" href="#lo-trinh"><span class="tp-mark jp" lang="ja" aria-hidden="true">道</span>' +
         '<span class="tp-n">Trạm ' + done + '/25 · 🔥 ' + st + ' ngày liên tiếp' + (left >= 0 ? ' · còn ' + left + ' ngày tới ngày thi' : '') + '</span>' +
         '<b>Lộ trình chinh phục N5</b><span class="tp-d">Kana → Minna bài 1–25 (2 bài/tuần) → luyện 14 dạng câu hỏi và đề thi thử.</span>' +
-        '<span class="tp-foot"><span class="num">' + Math.round(done / 25 * 100) + '% chặng chính</span><span class="tp-go">→</span></span>' +
+        '<span class="tp-foot"><span class="num">' + Math.round(done / 25 * 100) + '% đã qua</span><span class="tp-go">→</span></span>' +
         '<span class="bar"><i style="width:' + (done / 25 * 100) + '%"></i></span></a>';
 }
 
@@ -112,7 +112,7 @@ function renderRoadmap() {
     const done = rmDoneCount(), cur = rmCurrent(), exp = rmExpected(), st = rmStreak(), best = rmBest();
     const left = dayDiff(today, parseYmd(rm.exam));
     const gap = done - exp;
-    const pace = done >= 25 ? '<span class="ok-t">Đã xong chặng chính 🎉 Chuyển sang luyện đề.</span>'
+    const pace = done >= 25 ? '<span class="ok-t">Đã qua đủ 25 trạm 🎉 Chuyển sang luyện đề.</span>'
         : dayDiff(today, parseYmd(rm.start)) > 0 ? 'Lộ trình bắt đầu ngày ' + fmtD(parseYmd(rm.start)) + '.'
         : gap >= 0 ? '<span class="ok-t">Đúng tiến độ' + (gap > 0 ? ' (vượt ' + gap + ' trạm)' : '') + '.</span>'
         : '<span class="mid-t">Chậm ' + (-gap) + ' trạm so với kế hoạch — học bù 1 trạm vào cuối tuần nhé.</span>';
@@ -169,7 +169,8 @@ function renderRoadmap() {
     h += rmStageHead('01', 'Giai đoạn 1 · khoảng 3 tháng', 'Minna no Nihongo bài 1–25: 25 trạm', fmtD(addDays(parseYmd(rm.start), rmOffset())) + ' → ' + fmtD(rmDue(25)), done, 25);
     h += '<section class="card rm-map-card"><div class="rm-map">';
     for (let c = 0; c < 5; c++) {
-        h += '<div class="rm-leg"><span class="rm-leg-n">Chặng ' + (c + 1) + '</span><div class="rm-path">';
+        if (c !== rmLegNow(5)) continue;   // các nhóm trạm còn lại nằm ở tab khác
+        h += '<div class="rm-leg"><span class="rm-leg-n">Trạm ' + (c * 5 + 1) + '–' + (c * 5 + 5) + '</span><div class="rm-path">';
         for (let i = c * 5 + 1; i <= c * 5 + 5; i++) {
             const dn = rmStationDone(i), part = RM_TASKS.filter(([k]) => rmTaskDone(i, k)).length;
             const cls = 'rm-st' + (dn ? ' done' : '') + (i === cur && !dn ? ' cur' : '') + (RM_BOSS[i] ? ' boss' : '') + (i === rm.sel ? ' sel' : '');
@@ -205,6 +206,28 @@ function renderRoadmap() {
     rmBind();
 }
 
+/* ----- Chia bản đồ trạm thành các tab (mỗi tab = 5 trạm), hiển thị trên thanh tab cố định ----- */
+const rmLegPick = {};
+const rmLegLo = lv => lv === 4 ? 26 : 1;
+function rmLegNow(lv) {
+    const sel = lv === 4 ? rm.sel4 : rm.sel, lo = rmLegLo(lv);
+    if (sel) return Math.min(4, Math.max(0, Math.floor((sel - lo) / 5)));
+    if (rmLegPick[lv] != null) return rmLegPick[lv];
+    const cur = lv === 4 ? rm4Current() : rmCurrent();
+    return Math.min(4, Math.max(0, Math.floor((cur - lo) / 5)));
+}
+function rmLegSet(lv, c) {
+    const lo = rmLegLo(lv), sk = lv === 4 ? 'sel4' : 'sel';
+    rmLegPick[lv] = c;
+    if (rm[sk] && Math.floor((rm[sk] - lo) / 5) !== c) { rm[sk] = 0; rmSave(); }   // bảng trạm đang mở thuộc nhóm khác thì ẩn đi
+}
+function rmLegTabs(lv) {
+    const lo = rmLegLo(lv), now = rmLegNow(lv);
+    return [0, 1, 2, 3, 4].map(c => {
+        let all = true; for (let i = lo + c * 5; i < lo + c * 5 + 5; i++) if (!rmStationDone(i)) all = false;
+        return '<button type="button" class="tab" data-rmleg="' + lv + ':' + c + '"' + (c === now ? ' aria-current="page"' : '') + '>Trạm ' + (lo + c * 5) + '–' + (lo + c * 5 + 4) + (all ? ' ✓' : '') + '</button>';
+    }).join('');
+}
 const rmLessonNext = () => LESSON_ORDER.find(no => okCount(keyOf(no)) < 30) || LESSON_ORDER[0];
 const rmStageHead = (no, when, title, range, d, tot) => '<!--stage--><div class="rm-stage"><span class="rm-sn">' + no + '</span><div><span class="lbl">' + when + ' · ' + range + '</span><h2>' + title + '</h2></div>' +
     '<span class="rm-sp num' + (d >= tot ? ' ok-t' : '') + '">' + d + '/' + tot + (d >= tot ? ' ✓' : '') + '</span></div>';
@@ -325,12 +348,12 @@ function rmStationPanel(n) {
     if (RM_BOSS[n]) {
         const [task, prize] = RM_BOSS[n];
         const L = rmL(n);
-        h += '<div class="rm-bossbox"><span class="lbl">👹 Boss lớn sau chặng ' + (n - lo + 1) / 5 + '</span>' + rmCheck('b' + n, rmBossDone(n), task, 'Ghi âm hoặc viết ra, tự chấm. Qua boss thì nhận thưởng.') +
+        h += '<div class="rm-bossbox"><span class="lbl">👹 Boss lớn sau trạm ' + n + '</span>' + rmCheck('b' + n, rmBossDone(n), task, 'Ghi âm hoặc viết ra, tự chấm. Qua boss thì nhận thưởng.') +
             (L && L.boss ? rmSec('boss', 'Bài mẫu để tham khảo (' + L.boss.length + ' câu)', '<p class="hint">Thay tên, nghề, giờ giấc… bằng thông tin của bạn. Đạt khi nói trôi chảy mà không nhìn giấy.</p>' +
                 '<ol class="rm-lines">' + L.boss.map(([ja, vi]) => '<li>' + rmSay(ja) + '<div>' + rmJa(ja) + '<span class="rm-vi">' + esc(vi) + '</span></div></li>').join('') + '</ol>') : '') +
             '<p class="rm-prize">🎁 Phần thưởng gợi ý: <b>' + prize + '</b></p></div>';
     }
-    if (rmStationDone(n)) h += '<p class="rm-clear ok-t">✓ Đã qua trạm ' + n + (n < hi ? '. Tiếp tục trạm ' + (n + 1) + '!' : '. Hoàn thành chặng chính!') + '</p>';
+    if (rmStationDone(n)) h += '<p class="rm-clear ok-t">✓ Đã qua trạm ' + n + (n < hi ? '. Tiếp tục trạm ' + (n + 1) + '!' : '. Hoàn thành cả 25 trạm!') + '</p>';
     return h + '</div>';
 }
 
