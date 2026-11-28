@@ -237,9 +237,9 @@ function rmStationKanji(list) {
 const RM_KAIWA = ["1JQ1goNMyYztv-NG6RcA4hKCeEYdU_XuU","14ZE_GTybnyPkvcpEeJNV3lhljCOZ8t7c","1AVtLGNMnSY9dD9hVOJSHHG_o4ZGIZGq8","1A2Sh33OtyNqX5KsJRsIPJwZ7T2r5M--L","1ghleB88oynjO-yCNXj8hf3hcqTg0r8re","13xCLhuJ5QSnfHcrEABxmXPMW7pPuQr92","1QAQDczMPJbjzVKsYFO9Vcs0KfVJiiRjA","1TEumP60p-D-mZ3gK0u2I_sgHvMwsSA1t","1dRZasKxxob8lAtFG7C9cCnrrN7_gnADb","1X5RxPrv2QKRtVjBBhn9L66QxcEDYfrf_","1sCjQ1wXKPraeromairCVZR-Iw5xNPBz9","1XWeftdFKhzuJCQUdlLbk4Mymqi3sS5Ah","1eZprkuVZLYxG1mPagafTTPyGNYLYCXPD","1N-OsRoNxqyApJDkNikfxsxtBA2meQOLe","1uTMt3Xj_BsENvf19q-LkOXNiRKSix9_m","1Yn49q9eXnWH7WSCwQGXcWLxfK8kcD8uU","1zrpPlM-nqKjKgUjzncER_69PUNdO6PeF","1ZHc1QaONKYh3pYF-qZgq2Jd0i6Sc_BJ_","18MFK7Oa9T81vus_-MuTedKqmU5E-trJK","1GZUA9EKd63IQ5XWRMHu1RCKVrHshDqKx","1ncshjYMsdSCqVVpGKaMPx6txi6gDk9FX","1QIUquQdmiR8XuEV1y7cU8-juiYw3D2WP","1FjBbCpVhoD1mWVD2bBRqysQkLu1cybQL","1bJczbK1kptNiVkYJdOOYyZJpVXjrHMtB","14uFvRa4a8CxihE5HGRL44CcjF6XDI1Zp"];
 const rmKaiwaSec = n => {
     const id = n >= 1 && n <= 25 ? RM_KAIWA[n - 1] : null; if (!id) return '';
-    return rmSec('kv', 'Video hội thoại (Kaiwa)', '<p class="hint">Xem video hội thoại bài ' + n + ', nghe và nói theo (shadowing). Video lấy từ thư mục Google Drive đã chia sẻ.</p>' +
-        '<div class="rm-kv" data-rmkvbox="' + id + '"><button type="button" class="btn pri" data-rmkv="' + id + '">▶ Xem video bài ' + n + '</button> ' +
-        '<a class="btn sm" href="https://drive.google.com/file/d/' + id + '/view" target="_blank" rel="noopener">Mở trong Google Drive ↗</a></div>');
+    return '<div class="rm-kaiwa"><div class="rm-kaiwa-h"><span class="rm-kaiwa-ico" aria-hidden="true">🎬</span><div><b>Video hội thoại (Kaiwa) · bài ' + n + '</b><span class="rm-vi">Xem, nghe rồi nói theo (shadowing).</span></div></div>' +
+        '<div class="rm-kv" data-rmkvbox="' + id + '"><button type="button" class="btn pri" data-rmkv="' + id + '">▶ Xem video</button> ' +
+        '<a class="btn sm" href="https://drive.google.com/file/d/' + id + '/view" target="_blank" rel="noopener">Mở trong Google Drive ↗</a></div></div>';
 };
 const rmLessonNext = () => LESSON_ORDER.find(no => okCount(keyOf(no)) < 30) || LESSON_ORDER[0];
 const rmStageHead = (no, when, title, range, d, tot) => '<!--stage--><div class="rm-stage"><span class="rm-sn">' + no + '</span><div><span class="lbl">' + when + ' · ' + range + '</span><h2>' + title + '</h2></div>' +
@@ -261,7 +261,7 @@ function rmLessonContent(n) {
     const L = rmL(n); if (!L) return '';
     const gi = typeof GRAMMAR === 'object' ? GRAMMAR.find(G => G.no === n) : null;
     let h = '<div class="rm-goalline"><span class="lbl">Học xong trạm này bạn có thể</span><p>' + esc(L.goal) + '</p>' +
-        (gi ? '<p class="hint">Chủ đề ngữ pháp: <b>' + esc(gi.vi) + '</b> — ' + gi.items.map(it => rmJa(it.p)).join('、') + '</p>' : '') + '</div>';
+        (gi ? '<p class="hint">Chủ đề ngữ pháp: <b>' + esc(gi.vi) + '</b> — ' + gi.items.map(it => rmJa(it.p)).join('、') + '</p>' : '') + '</div>' + (rmLv !== 4 ? rmKaiwaSec(n) : '');
     if (L.gram) h += rmSec('gm', 'Ngữ pháp chính (' + L.gram.length + ' mẫu)', '<ul class="rm-gram">' + L.gram.map(([p, e, ja, vi]) =>
         '<li><b class="jp" lang="ja">' + rubyHtml(p) + '</b><span class="rm-gx">' + esc(plainJa(e)) + '</span><span class="rm-ex">' + rmJa(ja) + ' — ' + esc(vi) + '</span></li>').join('') + '</ul>');
     if (typeof rmPicSec === 'function') h += rmPicSec(n);   // tranh từ vựng (roadmap-pic.js)
@@ -271,7 +271,6 @@ function rmLessonContent(n) {
     h += rmSec('t', 'Hội thoại mẫu', '<ol class="rm-lines rm-talk">' + L.talk.map(([who, ja, vi]) =>
         '<li>' + rmSay(ja) + '<span class="rm-who jp" lang="ja">' + rubyHtml(who) + '</span><div>' + rmJa(ja) + '<span class="rm-vi">' + esc(vi) + '</span></div></li>').join('') + '</ol>' +
         '<p class="hint">Shadowing: bấm 🔊, nghe rồi nói đuổi theo từng câu. Nút nghe dùng giọng đọc của máy.</p>');
-    if (rmLv !== 4) h += rmKaiwaSec(n);
     const ok = L.quiz.filter((q, qi) => rmQuiz[n + '-' + qi] === 0).length, done = L.quiz.filter((q, qi) => rmQuiz[n + '-' + qi] != null).length;
     h += rmSec('q', 'Tự kiểm tra nhanh' + (done ? ' · đúng ' + ok + '/' + L.quiz.length : ''), L.quiz.map(([q, opts, , why], qi) => {
         const pick = rmQuiz[n + '-' + qi];
