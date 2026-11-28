@@ -231,3 +231,11 @@
 .rm-fold.done { border-color: var(--ok); }
 .rm-s2hint { margin-top: -4px; }
 .rm-pickhint { text-align: center; padding-top: 6px; }
+
+/* ===== Lộ trình N4 ===== */
+.rm-today.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+@media (max-width: 720px) { .rm-today.three { grid-template-columns: 1fr; } }
+.rm-gram { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.rm-gram li { display: flex; flex-direction: column; gap: 3px; padding: 8px 12px; border-left: 3px solid var(--ai); background: var(--sunken); border-radius: 0 8px 8px 0; }
+.rm-gram li > b.jp { font-size: 16px; line-height: 1.9; }
+.rm-gx { font-size: 13.5px; color: var(--muted); }

@@ -14,7 +14,7 @@ const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } cat
 // Dữ liệu lớn (1500 câu, ghi chú ngữ pháp, file nghe, Lộ trình, Kanji) không nạp sẵn trong index.html:
 // chỉ tải khi rời màn chào (Tiếp tục học, chọn xuất thân) hoặc khi mở link có #. Tải song song, chạy theo đúng thứ tự.
 const DATA_FILES = ['data/lessons.js', 'data/grammar.js'].concat([1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(n => 'data/notes-' + n + '.js'),
-    ['data/clips.js', 'data/clips-vi.js', 'data/roadmap-lessons.js', 'data/roadmap-audio.js', 'data/roadmap-listen-audio.js', 'data/kanji-story.js']);
+    ['data/clips.js', 'data/clips-vi.js', 'data/roadmap-lessons.js', 'data/roadmap-n4.js', 'data/roadmap-audio.js', 'data/roadmap-listen-audio.js', 'data/kanji-story.js']);
 const DATA_VER = (() => { try { const s = document.currentScript && document.currentScript.src; return s && s.includes('?') ? s.slice(s.indexOf('?')) : ''; } catch (e) { return ''; } })();
 const dataReady = () => typeof LESSONS !== 'undefined';
 let dataP = null;
@@ -258,7 +258,7 @@ const diffVi = (mine, ans) => diffTokens(words(mine), words(ans), (x, y) => wkey
 let route = 'luyen-cau';
 function parseHash() {
     const h = location.hash.slice(1);
-    if (h === 'ngu-phap' || h === 'lo-trinh') return h;
+    if (h === 'ngu-phap' || h === 'lo-trinh' || h === 'lo-trinh-n4') return h;
     if (h === 'kanji') { try { rmOpen.kanji = true; } catch (e) { } return 'lo-trinh'; }   // Kanji N5 nằm trong Lộ trình N5
     if (h === 'kana') return 'ngu-phap';   // link cũ của mục Bảng Kana
     const tp = h.match(/^chu-de-(\d+)$/); if (tp && +tp[1] >= 1 && +tp[1] <= TOPICS.length) return h;
@@ -292,8 +292,8 @@ $('goResume').onclick = () => withData(() => { helloOn = false; render(); window
 function renderHeader() {
     document.documentElement.lang = JA() ? 'ja' : 'vi';
     // Trang Lộ trình N5 có tiêu đề riêng (roadmap.js)
-    const own = !JA() && pref.ui && !helloOn, rmPage = own && route === 'lo-trinh', kjPage = own && route === 'kanji';   // trang Kanji N5: kanji.js
-    $('kicker').textContent = rmPage || kjPage ? 'Luyện thi JLPT' : t('kicker'); $('h1').textContent = rmPage ? 'Lộ trình chinh phục N5' : kjPage ? 'Kanji N5 · 103 chữ' : t('h1');
+    const own = !JA() && pref.ui && !helloOn, rmPage = own && (route === 'lo-trinh' || route === 'lo-trinh-n4'), kjPage = own && route === 'kanji';   // trang Kanji N5: kanji.js
+    $('kicker').textContent = rmPage || kjPage ? 'Luyện thi JLPT' : t('kicker'); $('h1').textContent = rmPage ? (route === 'lo-trinh-n4' ? 'Lộ trình chinh phục N4' : 'Lộ trình chinh phục N5') : kjPage ? 'Kanji N5 · 103 chữ' : t('h1');
     $('homeTxt').textContent = t('home');
 }
 function renderNav() {
@@ -301,7 +301,8 @@ function renderNav() {
     const done = LESSONS.reduce((n, L) => n + okCount(keyOf(L[0])), 0);
     const tab = (href, label, on) => '<a class="tab" href="#' + href + '"' + (on ? ' aria-current="page"' : '') + '>' + label + '</a>';
     // Chỉ còn một tab Khóa học; chủ đề, bài và ngữ pháp nằm bên trong (có đường dẫn ở đầu trang).
-    $('sub').innerHTML = route === 'lo-trinh' && !JA() ? tab('lo-trinh', 'Lộ trình N5 · đã qua ' + rmDoneCount() + '/25 trạm', true)
+    $('sub').innerHTML = route === 'lo-trinh-n4' && !JA() ? tab('lo-trinh-n4', 'Lộ trình N4 · đã qua ' + rm4DoneCount() + '/25 trạm', true)
+        : route === 'lo-trinh' && !JA() ? tab('lo-trinh', 'Lộ trình N5 · đã qua ' + rmDoneCount() + '/25 trạm', true)
         : route === 'kanji' && !JA() ? tab('kanji', 'Kanji N5 · đã thuộc ' + kjOkCount() + '/' + KJ_ALL.length, true)
         : tab('luyen-cau', t('course') + ' · ' + t('reached', done, LESSONS.length * 30), true);
     // trên điện thoại thanh tab cuộn ngang: đưa tab đang chọn vào tầm nhìn (chỉ cuộn thanh tab, không cuộn trang)
@@ -326,6 +327,7 @@ function render() {
     if (route === 'luyen-cau') return renderLessons();
     if (route === 'ngu-phap') return JA() ? renderLessons() : renderGrammar();
     if (route === 'lo-trinh') return JA() ? renderLessons() : renderRoadmap();   // roadmap.js
+    if (route === 'lo-trinh-n4') return JA() ? renderLessons() : renderRoadmapN4();   // roadmap-n4.js
     if (route === 'kanji') return JA() ? renderLessons() : renderKanji();          // kanji.js
     const tp = route.match(/^chu-de-(\d+)$/); if (tp) return renderTopic(+tp[1]);
     const m = route.match(/^bai-(\d+)$/); if (m) return renderWrite(lessonSet(+m[1]));
@@ -497,7 +499,7 @@ function renderLessons() {
                 '<span class="tm-t"><b>' + esc(topicName(T)) + '</b><span class="tm-s num">' + t('lessonsN', T.ls.length) + ' · ' + (full ? t('topicDone') + ' ✓' : o + '/' + tot) + '</span>' +
                 '<span class="bar"><i style="width:' + (o / tot * 100) + '%"></i></span></span></a>';
         }).join('') + '</div>';
-    if (!JA()) h += rmCourseCard();   // roadmap.js — sau mục Chủ đề (Kanji N5 nằm trong Lộ trình)
+    if (!JA()) h += rmCourseCard() + rmCourseCardN4();   // roadmap.js — sau mục Chủ đề (Kanji N5 nằm trong Lộ trình)
     h += '<p class="hint">' + t('foot') + '</p>';
     $('view').innerHTML = h;
 }
