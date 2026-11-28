@@ -16,12 +16,20 @@ function _ch(x, y, o) {
 const _bubble = (x, y, w, h, tx, lines, tail) => `<g><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="12" fill="#fff" stroke="#9aa9b8" stroke-width="2"/><path d="M${tail[0] - 7} ${y + h - 1}l7 ${tail[1]}l7 -${tail[1]}z" fill="#fff" stroke="#9aa9b8" stroke-width="2"/><rect x="${tail[0] - 8}" y="${y + h - 4}" width="16" height="5" fill="#fff"/>` +
   lines.map((t, i) => `<text x="${x + w / 2}" y="${y + 20 + i * 17}" text-anchor="middle" font-size="13" font-weight="700" fill="#2b3a4a" font-family="sans-serif">${t}</text>`).join('') + '</g>';
 
+const _EF2 = 'font-family="Apple Color Emoji, Segoe UI Emoji, Noto Color Emoji, sans-serif"';
+// bong bóng chỉ chứa biểu tượng, không ghi chữ Nhật trên tranh; tail = [x, độ dài] nếu có đuôi trỏ xuống nhân vật
+const _bubI = (x, y, w, h, icon, tail) => {
+  let b = _bubble(x, y, w, h, 0, [''], tail || [0, 0]);
+  if (!tail) b = b.replace(/<path d="M-?\d+[^"]*" fill="#fff" stroke="#9aa9b8" stroke-width="2"\/><rect[^>]*\/>/, '');
+  return b.replace(/<text[\s\S]*?<\/text>/g, '') + `<text x="${x + w / 2}" y="${y + h / 2 + 1}" font-size="28" text-anchor="middle" dominant-baseline="central" ${_EF2}>${icon}</text>`;
+};
+
 const RM_PICS_THEME = {
 1: [{ title: 'Buổi gặp gỡ ở trường đại học',
   svg: `<defs><linearGradient id="tS" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bfe3f7"/><stop offset="1" stop-color="#eaf7ff"/></linearGradient></defs><rect width="400" height="440" fill="url(#tS)"/>` +
     `<circle cx="350" cy="40" r="22" fill="#ffd54a"/><g fill="#fff"><ellipse cx="60" cy="52" rx="32" ry="12"/><ellipse cx="86" cy="44" rx="22" ry="12"/><ellipse cx="290" cy="80" rx="28" ry="10"/></g>` +
     // tòa nhà đại học
-    `<rect x="84" y="86" width="232" height="168" fill="#e6d3b4" stroke="#b79d74" stroke-width="3"/><path d="M70 90l130-52 130 52z" fill="#c9b08a" stroke="#b79d74" stroke-width="3"/><rect x="150" y="56" width="100" height="30" rx="5" fill="#2f4f9a"/><text x="200" y="79" text-anchor="middle" font-size="22" font-weight="700" fill="#fff" font-family="sans-serif">大学</text>` +
+    `<rect x="84" y="86" width="232" height="168" fill="#e6d3b4" stroke="#b79d74" stroke-width="3"/><path d="M70 90l130-52 130 52z" fill="#c9b08a" stroke="#b79d74" stroke-width="3"/><rect x="150" y="56" width="100" height="30" rx="5" fill="#2f4f9a"/><text x="200" y="70" font-size="22" text-anchor="middle" dominant-baseline="central" ${_EF2}>🎓</text>` +
     `<g fill="#fff6dc" stroke="#b79d74" stroke-width="2"><rect x="100" y="110" width="30" height="40"/><rect x="146" y="110" width="30" height="40"/><rect x="224" y="110" width="30" height="40"/><rect x="270" y="110" width="30" height="40"/></g><rect x="176" y="168" width="48" height="86" fill="#8a5a35"/><path d="M200 168v86" stroke="#6b4423" stroke-width="2"/><circle cx="192" cy="214" r="2.5" fill="#e6c34a"/><circle cx="208" cy="214" r="2.5" fill="#e6c34a"/>` +
     `<g fill="#cdb98f"><rect x="88" y="170" width="12" height="84"/><rect x="300" y="170" width="12" height="84"/></g>` +
     // dây cờ
@@ -39,7 +47,7 @@ const RM_PICS_THEME = {
     _ch(282, 388, { hair: '#3a2a22', top: '#f4a259', bottom: '#4b5c70', armL: [-30, -48], armR: [38, -60], mid: '<rect x="-24" y="-74" width="48" height="7" fill="#fff" opacity=".85"/><rect x="-24" y="-56" width="48" height="7" fill="#fff" opacity=".85"/>', front: '<path d="M-29 -118a29 26 0 0 1 58 0z" fill="#ffd23f" stroke="#e0b92c" stroke-width="2"/><rect x="-32" y="-120" width="64" height="7" rx="3" fill="#e0b92c"/><rect x="-5" y="-146" width="10" height="12" rx="3" fill="#e0b92c"/>', hand: '<path d="M38 -60l16 -22" stroke="#888" stroke-width="5" stroke-linecap="round"/><circle cx="56" cy="-86" r="8" fill="none" stroke="#888" stroke-width="5"/>' }) +
     _ch(342, 388, { style: 'bun', hair: '#4a2f22', top: '#ffffff', bottom: '#5b6b7a', armL: [-30, -48], armR: [32, -56], mid: '<path d="M-24 -92h48l4 78H-28z" fill="#fff" stroke="#d6dde4" stroke-width="2"/><path d="M-12 -92q-6 30 12 40q18-10 12-40" stroke="#555" stroke-width="3" fill="none"/><circle cx="0" cy="-50" r="4" fill="#777"/><rect x="10" y="-76" width="10" height="10" fill="#fff" stroke="#e0443e"/><path d="M15 -75v8M11 -71h8" stroke="#e0443e" stroke-width="2.5"/>', hand: '<rect x="26" y="-74" width="22" height="30" rx="3" fill="#8fd0f5" stroke="#5b9ac0" stroke-width="2"/><path d="M31 -66h12M31 -60h12M31 -54h8" stroke="#fff" stroke-width="2"/>' }) +
     ``,
-  pins: [[2, 62, 400, 'b'], [4, 140, 400, 'b'], [3, 215, 400, 'b'], [5, 282, 400, 'b'], [6, 342, 400, 'b'], [7, 48, 126, 'b'], [8, 352, 126, 'b'], [9, 200, 66, 'b']] },
+  pins: [[2, 62, 410, 'b'], [4, 140, 410, 'b'], [3, 215, 410, 'b'], [5, 282, 410, 'b'], [6, 342, 410, 'b'], [7, 48, 166, 'b'], [8, 352, 166, 'b'], [9, 200, 108, 'b']] },
   { title: 'Tự giới thiệu và chào hỏi',
   svg: `<defs><linearGradient id="tW" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fbf0dc"/><stop offset="1" stop-color="#f1dcba"/></linearGradient></defs><rect width="400" height="440" fill="url(#tW)"/><rect y="388" width="400" height="52" fill="#d9b98c"/><rect y="384" width="400" height="8" fill="#c9a572"/>` +
     `<rect x="150" y="14" width="100" height="70" rx="6" fill="#fff"/><rect x="156" y="20" width="88" height="58" fill="#cfe8f7"/><path d="M200 20v58M156 49h88" stroke="#fff" stroke-width="4"/><circle cx="224" cy="36" r="8" fill="#ffd54a"/>` +
@@ -53,11 +61,8 @@ const RM_PICS_THEME = {
     _ch(300, 388, { style: 'bun', hair: '#4a2f22', top: '#e07a9b', bottom: '#5b4a8a', armL: [-48, -86], armR: [34, -52], mid: '<rect x="-12" y="-78" width="26" height="16" rx="2" fill="#fff" stroke="#9aa9b8"/><path d="M-7 -72h16M-7 -67h10" stroke="#9aa9b8" stroke-width="2"/>', hand: '<path d="M-48 -86l-12 -4" stroke="#f6d3b0" stroke-width="5" stroke-linecap="round"/>' }) +
     `<path d="M330 252q8-10 0-20M338 256q12-14 2-30" stroke="#9aa9b8" stroke-width="2" fill="none" stroke-linecap="round"/>` +
     // các câu nói
-    _bubble(44, 100, 120, 32, 0, ['はじめまして'], [0, 0]).replace(/<path d="M-?\d+[^"]*" fill="#fff" stroke="#9aa9b8" stroke-width="2"\/><rect[^>]*\/>/, '') +
-    _bubble(44, 140, 120, 32, 0, ['私は ナムです。'], [0, 0]).replace(/<path d="M-?\d+[^"]*" fill="#fff" stroke="#9aa9b8" stroke-width="2"\/><rect[^>]*\/>/, '') +
-    _bubble(44, 180, 120, 32, 0, ['20歳です。'], [100, 22]) +
-    _bubble(224, 100, 148, 32, 0, ['よろしく お願いします'], [0, 0]).replace(/<path d="M-?\d+[^"]*" fill="#fff" stroke="#9aa9b8" stroke-width="2"\/><rect[^>]*\/>/, '') +
-    _bubble(224, 180, 120, 32, 0, ['あなたは？'], [300, 22]),
-  pins: [[11, 24, 116, 'l'], [0, 24, 156, 'l'], [10, 24, 196, 'l'], [12, 386, 116, 'l'], [1, 356, 196, 'l']] }
+    _bubI(44, 104, 84, 38, '🙇') + _bubI(44, 148, 84, 38, '🙋') + _bubI(44, 192, 84, 38, '🎂20', [96, 22]) +
+    _bubI(264, 104, 84, 38, '🙇‍♀️') + _bubI(264, 192, 84, 38, '👉❓', [300, 22]),
+  pins: [[11, 24, 123, 'l'], [0, 24, 167, 'l'], [10, 24, 211, 'l'], [12, 366, 123, 'l'], [1, 366, 211, 'l']] }
 ],
 };
