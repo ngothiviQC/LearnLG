@@ -239,3 +239,33 @@
 .rm-gram li { display: flex; flex-direction: column; gap: 3px; padding: 8px 12px; border-left: 3px solid var(--ai); background: var(--sunken); border-radius: 0 8px 8px 0; }
 .rm-gram li > b.jp { font-size: 16px; line-height: 1.9; }
 .rm-gx { font-size: 13.5px; color: var(--muted); }
+
+/* ===== Tổng quan ngữ pháp N5 ===== */
+.ov-list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.ov-item { display: flex; gap: 12px; align-items: flex-start; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--sunken); }
+.ov-p { font-size: 26px; font-weight: 700; min-width: 54px; text-align: center; color: var(--ai); line-height: 1.5; }
+.ov-b { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.ov-b p { margin: 0; font-size: 14px; }
+.ov-pat { font-size: 16px; }
+.ov-ex { display: flex; gap: 8px; align-items: flex-start; }
+.ov-chang { margin-top: 12px; }
+.ov-ch { display: flex; justify-content: space-between; align-items: baseline; }
+.ov-ch h3 { margin: 0; font-size: 16px; }
+.ov-conf, .ov-use { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.ov-conf li, .ov-use li { display: flex; flex-direction: column; font-size: 13.5px; padding: 8px 12px; border-left: 3px solid var(--ai); background: var(--sunken); border-radius: 0 8px 8px 0; }
+.ov-conf li span, .ov-use li span { color: var(--muted); }
+.ov-groups { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-bottom: 8px; }
+.ov-groups > div { display: flex; flex-direction: column; gap: 4px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--sunken); font-size: 13.5px; }
+.ov-scroll { overflow-x: auto; margin-bottom: 8px; }
+.ov-tab { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+.ov-tab th, .ov-tab td { border: 1px solid var(--line); padding: 6px 8px; text-align: left; vertical-align: top; }
+.ov-tab thead th { background: var(--sunken); }
+.ov-verbs td .jp { white-space: nowrap; }
+.ov-verbs tr.on { background: var(--ok-soft); }
+.ov-pract { padding-left: 20px; display: flex; flex-direction: column; gap: 4px; }
+.rm-mini { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--muted); cursor: pointer; width: fit-content; }
+.rm-mini input { position: absolute; opacity: 0; pointer-events: none; }
+.rm-mini.on { color: var(--ok); }
+@media (max-width: 720px) { .ov-groups { grid-template-columns: 1fr; } .ov-p { min-width: 40px; font-size: 22px; } }
+.rm-mini.on .rm-box { background: var(--ok); border-color: var(--ok); color: var(--paper); }
+.rm-mini input:focus-visible + .rm-box { outline: 2px solid var(--ai); outline-offset: 2px; }

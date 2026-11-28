@@ -14,7 +14,7 @@ const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } cat
 // Dữ liệu lớn (1500 câu, ghi chú ngữ pháp, file nghe, Lộ trình, Kanji) không nạp sẵn trong index.html:
 // chỉ tải khi rời màn chào (Tiếp tục học, chọn xuất thân) hoặc khi mở link có #. Tải song song, chạy theo đúng thứ tự.
 const DATA_FILES = ['data/lessons.js', 'data/grammar.js'].concat([1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(n => 'data/notes-' + n + '.js'),
-    ['data/clips.js', 'data/clips-vi.js', 'data/roadmap-lessons.js', 'data/roadmap-n4.js', 'data/kanji-viet.js', 'data/roadmap-audio.js', 'data/roadmap-listen-audio.js', 'data/kanji-story.js']);
+    ['data/clips.js', 'data/clips-vi.js', 'data/roadmap-lessons.js', 'data/roadmap-n4.js', 'data/kanji-viet.js', 'data/n5-overview.js', 'data/roadmap-audio.js', 'data/roadmap-listen-audio.js', 'data/kanji-story.js']);
 const DATA_VER = (() => { try { const s = document.currentScript && document.currentScript.src; return s && s.includes('?') ? s.slice(s.indexOf('?')) : ''; } catch (e) { return ''; } })();
 const dataReady = () => typeof LESSONS !== 'undefined';
 let dataP = null;

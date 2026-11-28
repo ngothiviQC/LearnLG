@@ -185,6 +185,9 @@ function renderRoadmap() {
             '<span class="rm-fprog num' + (ko === KJ_ALL.length ? ' ok-t' : '') + '">' + ko + '/' + KJ_ALL.length + '</span></summary>' + kjBody() + '</details>';
     }
 
+    // Tổng quan ngữ pháp N5 (roadmap-ov.js): trợ từ, chia động từ, 61 mẫu
+    if (typeof rmOverview === 'function') h += rmOverview();
+
     // Giai đoạn 2
     const qd = RM_TYPES.reduce((n, g) => n + g[1].filter(([id]) => rm.t[rmK(id)]).length, 0);
     h += rmStageHead('02', 'Giai đoạn 2 · tới ngày thi', 'Luyện đề và sửa lỗi sai', fmtD(addDays(rmDue(25), 1)) + ' → ' + fmtD(parseYmd(rm.exam)), qd, RM_TYPE_N);
@@ -458,6 +461,8 @@ function rmBind() {
         if (c) rmPlaySeg('rm/l.mp3', c[0], c[1], b, () => { });
     });
     v.querySelectorAll('[data-rmpreset]').forEach(b => b.onclick = () => { const id = rmK(b.dataset.rmpreset); Object.keys(rmPrep).forEach(k => { if (k.startsWith(id + '-')) delete rmPrep[k]; }); rmRe(); });
+    v.querySelectorAll('[data-ovq]').forEach(b => b.onclick = () => { const [i, oi] = b.dataset.ovq.split(':').map(Number); rmOv[i] = oi; rmMarkDay(); rmRe(); });
+    v.querySelectorAll('[data-ovreset]').forEach(b => b.onclick = () => { rmOv = {}; rmRe(); });
     v.querySelectorAll('[data-rmday]').forEach(b => b.onclick = () => {
         const k = b.dataset.rmday;
         rmT = rmT.k === k ? { k: null } : { k, q: rmTodayItems(k).map((_, i) => i), i: 0, flip: false, said: {} };
