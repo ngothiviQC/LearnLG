@@ -256,6 +256,10 @@ function rmTalkVid(n) {
         '<div class="rm-tv-sub" aria-live="polite"><div class="rm-tv-jp jp" lang="ja">Bấm ▶ để xem video tình huống</div><div class="rm-tv-vi"></div></div>' +
         '<div class="rm-tv-ctl"><button type="button" class="btn pri sm" data-rmtvbtn="1">▶ Phát</button><div class="rm-tv-bar" role="slider" aria-label="Tiến độ" tabindex="0"><i></i></div><span class="rm-tv-time num">0:00</span></div></div>';
 }
+function rmTalkVidBlock(n) {
+    const v = rmTalkVid(n); if (!v) return '';
+    return '<div class="rm-kaiwa rm-tvblock"><div class="rm-kaiwa-h"><span class="rm-kaiwa-ico" aria-hidden="true">🎭</span><div><b>Video tình huống · bài ' + n + '</b><span class="rm-vi">Tranh vẽ + giọng nam/nữ + phụ đề furigana, dựng từ Hội thoại mẫu của trạm.</span></div></div>' + v + '</div>';
+}
 function rmTvInit(box) {
     const n = +box.dataset.rmtv, T = RM_TALKVID[n], L = rmL(n).talk, svg = box.querySelector('svg'), jp = box.querySelector('.rm-tv-jp'), vi = box.querySelector('.rm-tv-vi'),
         btn = box.querySelector('[data-rmtvbtn]'), bar = box.querySelector('.rm-tv-bar'), fill = bar.querySelector('i'), tm = box.querySelector('.rm-tv-time');
@@ -307,14 +311,14 @@ function rmLessonContent(n) {
     const L = rmL(n); if (!L) return '';
     const gi = typeof GRAMMAR === 'object' ? GRAMMAR.find(G => G.no === n) : null;
     let h = '<div class="rm-goalline"><span class="lbl">Học xong trạm này bạn có thể</span><p>' + esc(L.goal) + '</p>' +
-        (gi ? '<p class="hint">Chủ đề ngữ pháp: <b>' + esc(gi.vi) + '</b> — ' + gi.items.map(it => rmJa(it.p)).join('、') + '</p>' : '') + '</div>' + (rmLv !== 4 ? rmKaiwaSec(n) : '');
+        (gi ? '<p class="hint">Chủ đề ngữ pháp: <b>' + esc(gi.vi) + '</b> — ' + gi.items.map(it => rmJa(it.p)).join('、') + '</p>' : '') + '</div>' + (rmLv !== 4 ? rmKaiwaSec(n) : '') + (rmLv !== 4 ? rmTalkVidBlock(n) : '');
     if (L.gram) h += rmSec('gm', 'Ngữ pháp chính (' + L.gram.length + ' mẫu)', '<ul class="rm-gram">' + L.gram.map(([p, e, ja, vi]) =>
         '<li><b class="jp" lang="ja">' + rubyHtml(p) + '</b><span class="rm-gx">' + esc(plainJa(e)) + '</span><span class="rm-ex">' + rmJa(ja) + ' — ' + esc(vi) + '</span></li>').join('') + '</ul>');
     if (typeof rmPicSec === 'function') h += rmPicSec(n);   // tranh từ vựng (roadmap-pic.js)
     h += rmSec('v', 'Từ vựng chính (' + L.vocab.length + ' từ)', '<ul class="rm-vocab">' + L.vocab.map(([ja, vi]) =>
         '<li>' + rmSay(ja) + rmJa(ja) + '<span class="rm-vi">' + esc(vi) + '</span></li>').join('') + '</ul>');
     h += rmSec('k', 'Kanji (' + L.kanji.length + ' chữ)', rmStationKanji(L.kanji));
-    h += rmSec('t', 'Hội thoại mẫu', rmTalkVid(n) + '<ol class="rm-lines rm-talk">' + L.talk.map(([who, ja, vi]) =>
+    h += rmSec('t', 'Hội thoại mẫu', '<ol class="rm-lines rm-talk">' + L.talk.map(([who, ja, vi]) =>
         '<li>' + rmSay(ja) + '<span class="rm-who jp" lang="ja">' + rubyHtml(who) + '</span><div>' + rmJa(ja) + '<span class="rm-vi">' + esc(vi) + '</span></div></li>').join('') + '</ol>' +
         '<p class="hint">Shadowing: bấm 🔊, nghe rồi nói đuổi theo từng câu. Nút nghe dùng giọng đọc của máy.</p>');
     const ok = L.quiz.filter((q, qi) => rmQuiz[n + '-' + qi] === 0).length, done = L.quiz.filter((q, qi) => rmQuiz[n + '-' + qi] != null).length;
