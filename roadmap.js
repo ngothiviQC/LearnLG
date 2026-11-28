@@ -25,17 +25,19 @@ let rmStageTabs = { 5: [], 4: [] };
 const RM_STAGE_SHORT = { '00': 'Khởi động', '01': '25 trạm', '02': 'Luyện đề' };
 const rmWrapStages = (h, lv) => {
     lv = lv || rmLv;
-    const p = h.split('<!--stage-->'), tabs = [], boxes = [];
+    // Tab "Khởi động" = tổng quan lộ trình (mục tiêu, kế hoạch, bài hôm nay) + Giai đoạn 0 nếu có; các tab khác chỉ hiện khung của chúng
+    const p = h.split('<!--stage-->'), tabs = [['00', 'Khởi động']], boxes = { '00': '' };
     p.slice(1).forEach(x => {
         const sn = x.match(/class="rm-sn">(\d+)</), ov = !sn && /Tổng quan ngữ pháp/.test(x), kj = !sn && /data-rmstage="kanji"/.test(x), id = sn ? sn[1] : kj ? 'kanji' : ov ? 'ov' : 'later';
-        tabs.push([id, kj ? 'Kanji N' + lv : ov ? 'Tổng quan ngữ pháp' : sn ? 'Giai đoạn ' + (+sn[1]) + ' · ' + (sn[1] === '00' && lv === 4 ? 'Ôn nền tảng' : RM_STAGE_SHORT[sn[1]] || '') : 'Sau N' + lv]);
-        boxes.push(x);
+        if (id === '00') { boxes['00'] = x; return; }
+        tabs.push([id, kj ? 'Kanji N' + lv : ov ? 'Tổng quan ngữ pháp' : sn ? 'Giai đoạn ' + (+sn[1]) + ' · ' + (RM_STAGE_SHORT[sn[1]] || '') : 'Sau N' + lv]);
+        boxes[id] = x;
     });
     rmStageTabs[lv] = tabs;
-    let cur = tabs.findIndex(t => t[0] === rm['stab' + lv]); if (cur < 0) cur = tabs.findIndex(t => t[0] === '01'); if (cur < 0) cur = 0;
-    return p[0] + (boxes.length ? '<section class="rm-stagebox">' + boxes[cur] + '</section>' : '');
+    let cur = rm['stab' + lv]; if (!tabs.some(t => t[0] === cur)) cur = '00';
+    return (cur === '00' ? p[0] : '') + (boxes[cur] ? '<section class="rm-stagebox">' + boxes[cur] + '</section>' : '');
 };
-const rmStageTabsHtml = lv => { const cur = rm['stab' + lv]; const arr = rmStageTabs[lv] || []; const on = arr.findIndex(t => t[0] === cur) >= 0 ? cur : (arr.find(t => t[0] === '01') || arr[0] || [])[0];
+const rmStageTabsHtml = lv => { const arr = rmStageTabs[lv] || [], cur = rm['stab' + lv], on = arr.some(t => t[0] === cur) ? cur : '00';
     return arr.map(([id, label]) => '<button type="button" class="tab" data-rmstab="' + lv + ':' + id + '"' + (id === on ? ' aria-current="page"' : '') + '>' + label + '</button>').join(''); };
 const rmK = id => rmLv === 4 ? 'n4' + id : id;   // mã việc ở Giai đoạn 2 tách riêng theo cấp
 const rmTests = () => rmLv === 4 ? (rm.tests4 = rm.tests4 || []) : rm.tests;
