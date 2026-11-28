@@ -213,7 +213,7 @@ const rmStageHead = (no, when, title, range, d, tot) => '<!--stage--><div class=
 const rmL = n => (typeof RM_LESSONS === 'object' && RM_LESSONS[n]) || (typeof RM_N4 === 'object' && RM_N4[n]) || null;
 const rmJa = s => '<span class="jp" lang="ja">' + rubyHtml(s) + '</span>';
 const rmSay = s => '<button type="button" class="rm-say" data-rmsay="' + esc(s) + '" aria-label="Nghe">🔊</button>';
-let rmOpen = { 'L-goal': true };   // các mục <details> đang mở (giữ khi vẽ lại trang)
+let rmOpen = { 'L-goal': true, pic: true };   // các mục <details> đang mở (giữ khi vẽ lại trang)
 let rmQuiz = {};                   // { 'trạm-câu': lựa chọn đã bấm }
 // chk: mã việc → thêm ô đánh dấu “đã học xong” ngay trên tiêu đề (bấm ô không mở/đóng mục)
 const rmSec = (id, title, body, chk) => '<details class="rm-sec' + (chk && rm.t[chk] ? ' done' : '') + '" data-rmsec="' + id + '"' + (rmOpen[id] ? ' open' : '') + '><summary>' +
@@ -228,6 +228,7 @@ function rmLessonContent(n) {
         (gi ? '<p class="hint">Chủ đề ngữ pháp: <b>' + esc(gi.vi) + '</b> — ' + gi.items.map(it => rmJa(it.p)).join('、') + '</p>' : '') + '</div>';
     if (L.gram) h += rmSec('gm', 'Ngữ pháp chính (' + L.gram.length + ' mẫu)', '<ul class="rm-gram">' + L.gram.map(([p, e, ja, vi]) =>
         '<li><b class="jp" lang="ja">' + rubyHtml(p) + '</b><span class="rm-gx">' + esc(plainJa(e)) + '</span><span class="rm-ex">' + rmJa(ja) + ' — ' + esc(vi) + '</span></li>').join('') + '</ul>');
+    if (typeof rmPicSec === 'function') h += rmPicSec(n);   // tranh từ vựng (roadmap-pic.js)
     h += rmSec('v', 'Từ vựng chính (' + L.vocab.length + ' từ)', '<ul class="rm-vocab">' + L.vocab.map(([ja, vi]) =>
         '<li>' + rmSay(ja) + rmJa(ja) + '<span class="rm-vi">' + esc(vi) + '</span></li>').join('') + '</ul>');
     h += rmSec('k', 'Kanji (' + L.kanji.length + ' chữ)', '<div class="rm-kanji">' + L.kanji.map(([k, hv, rd, m, ex, exv]) =>
@@ -463,6 +464,8 @@ function rmBind() {
         if (c) rmPlaySeg('rm/l.mp3', c[0], c[1], b, () => { });
     });
     v.querySelectorAll('[data-rmpreset]').forEach(b => b.onclick = () => { const id = rmK(b.dataset.rmpreset); Object.keys(rmPrep).forEach(k => { if (k.startsWith(id + '-')) delete rmPrep[k]; }); rmRe(); });
+    v.querySelectorAll('[data-pic]').forEach(b => b.onclick = () => rmPicPick(b.dataset.pic));
+    v.querySelectorAll('[data-pichide]').forEach(b => b.onclick = () => { rmPicHide = !rmPicHide; rmRe(); });
     v.querySelectorAll('[data-ovq]').forEach(b => b.onclick = () => { const [i, oi] = b.dataset.ovq.split(':').map(Number); rmOv[i] = oi; rmMarkDay(); rmRe(); });
     v.querySelectorAll('[data-ovreset]').forEach(b => b.onclick = () => { rmOv = {}; rmRe(); });
     v.querySelectorAll('[data-rmday]').forEach(b => b.onclick = () => {
