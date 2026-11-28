@@ -238,8 +238,7 @@ const RM_KAIWA = ["1FXjNfrms0pPUpAtgJU7q-DE91d_ctyXD","1MQTWYhojLBoQ5i93comicg1b
 const rmKaiwaSec = n => {
     const id = n >= 1 && n <= 25 ? RM_KAIWA[n - 1] : null; if (!id) return '';
     return '<div class="rm-kaiwa"><div class="rm-kaiwa-h"><span class="rm-kaiwa-ico" aria-hidden="true">🎬</span><div><b>Video hội thoại (Kaiwa) · bài ' + n + '</b><span class="rm-vi">Xem, nghe rồi nói theo (shadowing).</span></div></div>' +
-        '<div class="rm-kv" data-rmkvbox="' + id + '"><button type="button" class="btn pri" data-rmkv="' + id + '">▶ Xem video</button> ' +
-        '<a class="btn sm" href="https://drive.google.com/file/d/' + id + '/view" target="_blank" rel="noopener">Mở trong Google Drive ↗</a></div></div>';
+        '<div class="rm-kv" data-rmkvbox="' + id + '"><button type="button" class="btn pri" data-rmkv="' + id + '">▶ Xem video</button></div></div>';
 };
 const rmLessonNext = () => LESSON_ORDER.find(no => okCount(keyOf(no)) < 30) || LESSON_ORDER[0];
 const rmStageHead = (no, when, title, range, d, tot) => '<!--stage--><div class="rm-stage"><span class="rm-sn">' + no + '</span><div><span class="lbl">' + when + ' · ' + range + '</span><h2>' + title + '</h2></div>' +
@@ -482,7 +481,7 @@ function rmBind() {
     v.querySelectorAll('[data-pic]').forEach(b => b.onclick = () => rmPicPick(b.dataset.pic));
     if (typeof rmMockBind === 'function') rmMockBind(v);
     v.querySelectorAll('[data-picsc]').forEach(b => b.onclick = () => rmPicScene(b.dataset.picsc));
-    v.querySelectorAll('[data-rmkv]').forEach(b => b.onclick = () => { const box = b.closest('.rm-kv'); box.innerHTML = '<div class="rm-kv-frame"><iframe src="https://drive.google.com/file/d/' + b.dataset.rmkv + '/preview" allow="autoplay; fullscreen" allowfullscreen loading="lazy" title="Video hội thoại"></iframe></div><a class="btn sm" href="https://drive.google.com/file/d/' + b.dataset.rmkv + '/view" target="_blank" rel="noopener">Mở trong Google Drive ↗</a>'; });
+    v.querySelectorAll('[data-rmkv]').forEach(b => b.onclick = () => { const box = b.closest('.rm-kv'); box.innerHTML = '<div class="rm-kv-frame"><iframe src="https://drive.google.com/file/d/' + b.dataset.rmkv + '/preview" allow="autoplay; fullscreen" allowfullscreen loading="lazy" title="Video hội thoại"></iframe><span class="rm-kv-cover" aria-hidden="true"></span></div>'; });
     v.querySelectorAll('[data-ovq]').forEach(b => b.onclick = () => { const k = b.dataset.ovq.split(':'); rmOv[k[0]] = +k[1]; rmMarkDay(); rmRe(); });
     v.querySelectorAll('[data-ovreset]').forEach(b => b.onclick = () => { const w = b.dataset.ovreset; Object.keys(rmOv).forEach(k => { if (w === '1' ? !/^g/.test(k) : k.startsWith(w + '_')) delete rmOv[k]; }); rmRe(); });
     v.querySelectorAll('[data-rmday]').forEach(b => b.onclick = () => {
