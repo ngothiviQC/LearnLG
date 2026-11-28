@@ -48,7 +48,10 @@ function kjInfo() {
         // N4: danh sách 200 chữ theo sách luyện viết; chữ nào có trong trạm thì ghi số trạm
         if (lv === 4 && typeof KJ_N4 === 'object') Object.keys(KJ_N4.info).forEach(k => {
             const [hv, m, rd, ex, exv] = KJ_N4.info[k], at = C[k];
-            C[k] = { k, hv, rd, m, ex: ex || (at && at.ex) || '', exv: exv || (at && at.exv) || '', n: at ? at.n : 0 };
+            let e2 = ex || (at && at.ex) || '', v2 = exv || (at && at.exv) || '';
+            const mm = /^(.+?)（([぀-ゟー]+)）$/.exec(e2);
+            if (mm && /[぀-ゟ].*[一-鿿]/.test(mm[1])) { e2 = mm[1]; v2 = mm[2] + ' — ' + v2; }
+            C[k] = { k, hv, rd, m, ex: e2, exv: v2, n: at ? at.n : 0 };
         });
     }
     return kjInfoCache[lv];
@@ -173,8 +176,8 @@ function kjDetail(k) {
         '<h3>' + esc(x.hv) + ' <span class="kj-m">· ' + esc(x.m) + '</span></h3>' +
         '<p class="kj-rd"><span class="lbl">Âm On / âm Kun</span><span class="jp" lang="ja">' + esc(x.rd) + '</span></p>' +
         '<p class="kj-ex">' + rmSay(x.ex) + '<span>' + rmJa(x.ex) + '<span class="rm-vi">' + esc(x.exv) + '</span></span></p>' +
-        (rmLv === 4 && typeof KJ4_STORY === 'object' && KJ4_STORY[k] ? '<div class="kj-story"><p><b>📜 Ý nghĩa & nguồn gốc</b>' + kjTxt(KJ4_STORY[k][0]) + '</p><p><b>💡 Mẹo nhớ</b>' + kjTxt(KJ4_STORY[k][1]) + '</p></div>' : '') +
         kjWriteHtml(k) +
+        (rmLv === 4 && typeof KJ4_STORY === 'object' && KJ4_STORY[k] ? '<div class="kj-story"><p><b>📜 Ý nghĩa & nguồn gốc</b>' + kjTxt(KJ4_STORY[k][0]) + '</p><p><b>💡 Mẹo nhớ</b>' + kjTxt(KJ4_STORY[k][1]) + '</p></div>' : '') +
         (rmLv !== 4 && typeof KJ_STORY === 'object' && KJ_STORY[k] ? '<div class="kj-story"><p><b>📜 Ý nghĩa & nguồn gốc</b>' + kjTxt(KJ_STORY[k][0]) + '</p><p><b>💡 Mẹo nhớ</b>' + kjTxt(KJ_STORY[k][1]) + '</p>' +
             (KJ_STORY[k][2] ? '<p class="kj-cul"><b>🎎 Văn hóa</b>' + kjTxt(KJ_STORY[k][2]) + '</p>' : '') + '</div>' : '') +
         '</div></div>';
