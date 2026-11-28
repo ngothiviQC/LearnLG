@@ -289,25 +289,61 @@ const keyOf = no => (pref.dir === 'jv' ? 'r' : 'l') + no;
 let helloOn = false;   // đang mở lại màn chào từ nút Trang chủ
 $('homeBtn').onclick = () => { stopAudio(); helloOn = true; render(); window.scrollTo(0, 0); };
 $('goResume').onclick = () => withData(() => { helloOn = false; render(); window.scrollTo(0, 0); });
+/* ===== Thanh điều hướng: tiêu đề đúng vị trí, nút Quay lại (nhớ các trang đã xem), tab nhớ trang gần nhất của từng mục ===== */
+const SOLO = document.documentElement.classList.contains('mk-solo');   // trang làm bài thi thử mở ở tab riêng
+let navStack = [];                                  // các trang đã xem trong phiên này (cuối = trang hiện tại)
+let lastIn = load('hvn.last', {});                  // trang gần nhất trong từng mục: { course, n5, n4 }
+const sectionOf = r => r === 'lo-trinh-n4' ? 'n4' : (r === 'lo-trinh' || /^thi-thu-/.test(r)) ? 'n5' : 'course';
+const sectionRoot = { course: 'luyen-cau', n5: 'lo-trinh', n4: 'lo-trinh-n4' };
+function routeInfo(r) {
+    const ja = JA(), course = { kicker: t('kicker'), h1: t('h1'), label: t('course'), parent: null };
+    if (r === 'luyen-cau') return course;
+    if (r === 'ngu-phap') return ja ? course : { kicker: t('course'), h1: t('gramTab'), label: t('gramTab'), parent: 'luyen-cau' };
+    let m = r.match(/^chu-de-(\d+)$/); if (m && TOPICS[m[1] - 1]) return { kicker: t('course'), h1: topicName(TOPICS[m[1] - 1]), label: topicName(TOPICS[m[1] - 1]), parent: 'luyen-cau' };
+    m = r.match(/^bai-(\d+)$/); if (m) { const k = topicOf(+m[1]); return { kicker: TOPICS[k - 1] ? topicName(TOPICS[k - 1]) : t('course'), h1: t('lesson', dispNo(+m[1])), label: t('lesson', dispNo(+m[1])), parent: 'chu-de-' + k }; }
+    if (ja) return course;
+    if (r === 'lo-trinh') return { kicker: 'Luyện thi JLPT', h1: 'Lộ trình chinh phục N5', label: 'Lộ trình N5', parent: null };
+    if (r === 'lo-trinh-n4') return { kicker: 'Luyện thi JLPT', h1: 'Lộ trình chinh phục N4', label: 'Lộ trình N4', parent: null };
+    m = typeof MK_RE !== 'undefined' ? r.match(MK_RE) : null; if (m) return { kicker: 'Luyện thi JLPT · Lộ trình N5', h1: 'Thi thử JLPT N5 · Đề ' + m[1], label: 'Thi thử · Đề ' + m[1], parent: 'lo-trinh' };
+    return course;
+}
+function trackRoute(r) {
+    if (navStack[navStack.length - 1] === r) return;
+    if (navStack.length > 1 && navStack[navStack.length - 2] === r) navStack.pop(); else navStack.push(r);   // bấm Quay lại / nút Back của trình duyệt: lùi một bước
+    if (navStack.length > 40) navStack.shift();
+    if (!/^thi-thu-/.test(r)) { lastIn[sectionOf(r)] = r; save('hvn.last', lastIn); }
+}
+function backTarget() {
+    if (SOLO) return { href: 'index.html#lo-trinh', label: 'Lộ trình N5' };
+    if (navStack.length > 1) { const p = navStack[navStack.length - 2]; return { route: p, label: routeInfo(p).label }; }
+    const par = routeInfo(route).parent; return par ? { route: par, label: routeInfo(par).label } : null;
+}
 function renderHeader() {
     document.documentElement.lang = JA() ? 'ja' : 'vi';
-    // Trang Lộ trình N5 có tiêu đề riêng (roadmap.js)
-    const own = !JA() && pref.ui && !helloOn, rmPage = own && (route === 'lo-trinh' || route === 'lo-trinh-n4' || /^thi-thu-/.test(route)), kjPage = own && route === 'kanji';   // trang Kanji N5: kanji.js
-    $('kicker').textContent = rmPage || kjPage ? 'Luyện thi JLPT' : t('kicker'); $('h1').textContent = rmPage ? (route === 'lo-trinh-n4' ? 'Lộ trình chinh phục N4' : /^thi-thu-/.test(route) ? 'Thi thử JLPT N5' : 'Lộ trình chinh phục N5') : kjPage ? 'Kanji N5 · 103 chữ' : t('h1');
+    const info = routeInfo(route);
+    $('kicker').textContent = info.kicker; $('h1').textContent = info.h1;
+    try { document.title = info.h1 + ' · ' + (JA() ? '日越学習' : 'Học Việt - Nhật'); } catch (e) { }
     $('homeTxt').textContent = t('home');
+    const bt = backTarget(), bb = $('backBtn');
+    bb.hidden = !bt; if (bt) $('backTxt').textContent = (JA() ? '戻る · ' : 'Quay lại · ') + bt.label;
 }
+$('backBtn').onclick = () => {
+    const bt = backTarget(); if (!bt) return; stopAudio();
+    if (bt.href) { location.href = bt.href; return; }
+    go(bt.route);
+};
 function renderNav() {
     if (!pref.ui || !dataReady()) { $('sub').innerHTML = ''; return; }
-    const done = LESSONS.reduce((n, L) => n + okCount(keyOf(L[0])), 0);
-    const tab = (href, label, on) => '<a class="tab" href="#' + href + '"' + (on ? ' aria-current="page"' : '') + '>' + label + '</a>';
-    // Chỉ còn một tab Khóa học; chủ đề, bài và ngữ pháp nằm bên trong (có đường dẫn ở đầu trang).
-    $('sub').innerHTML = /^thi-thu-/.test(route) && !JA() ? tab(route, 'Thi thử N5 · làm bài như thi thật', true)
-        : route === 'lo-trinh-n4' && !JA() ? tab('lo-trinh-n4', 'Lộ trình N4 · đã qua ' + rm4DoneCount() + '/25 trạm', true)
-        : route === 'lo-trinh' && !JA() ? tab('lo-trinh', 'Lộ trình N5 · đã qua ' + rmDoneCount() + '/25 trạm', true)
-        : route === 'kanji' && !JA() ? tab('kanji', 'Kanji N5 · đã thuộc ' + kjOkCount() + '/' + KJ_ALL.length, true)
-        : tab('luyen-cau', t('course') + ' · ' + t('reached', done, LESSONS.length * 30), true);
+    const done = LESSONS.reduce((n, L) => n + okCount(keyOf(L[0])), 0), sec = sectionOf(route);
+    const tab = (href, label, on, title) => '<a class="tab" href="' + (/^index\.html/.test(href) ? href : '#' + href) + '"' + (on ? ' aria-current="page"' : '') + (title ? ' title="' + esc(title) + '"' : '') + '>' + label + '</a>';
+    if (SOLO) { const info = routeInfo(route); $('sub').innerHTML = tab('index.html#lo-trinh', 'Lộ trình N5', false) + tab(route, esc(info.label), true); return; }
+    // các mục chính; bấm vào mục khác sẽ về trang bạn xem gần nhất của mục đó, bấm lại mục đang đứng để về đầu mục
+    const go1 = k => sec === k ? sectionRoot[k] : (lastIn[k] || sectionRoot[k]);
+    let h = tab(go1('course'), t('course') + ' · ' + done + '/' + LESSONS.length * 30, sec === 'course', t('course'));
+    if (!JA()) h += tab(go1('n5'), 'Lộ trình N5 · ' + rmDoneCount() + '/25', sec === 'n5', 'Lộ trình chinh phục N5') + tab(go1('n4'), 'Lộ trình N4 · ' + rm4DoneCount() + '/25', sec === 'n4', 'Lộ trình chinh phục N4');
+    $('sub').innerHTML = h;
     // trên điện thoại thanh tab cuộn ngang: đưa tab đang chọn vào tầm nhìn (chỉ cuộn thanh tab, không cuộn trang)
-    const cur = $('sub').querySelector('[aria-current="page"]:last-child') || $('sub').querySelector('[aria-current="page"]');
+    const cur = $('sub').querySelector('[aria-current="page"]');
     if (cur) $('sub').scrollLeft = Math.max(0, cur.offsetLeft + cur.offsetWidth - $('sub').clientWidth + 16);
 }
 const topicName = T => JA() ? T.ja : T.vi;
@@ -320,7 +356,7 @@ function crumbs(items) {
 }
 const lessonCrumbs = no => { const k = topicOf(no); return crumbs([['chu-de-' + k, topicName(TOPICS[k - 1])], ['bai-' + no, t('lesson', dispNo(no))]]); };
 function render() {
-    renderHeader(); renderNav();
+    trackRoute(route); renderHeader(); renderNav();
     document.body.classList.toggle('nofuri', !pref.furi);
     const hello = !pref.ui || helloOn;
     showHello(hello); $('goResume').hidden = !pref.ui;

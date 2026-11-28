@@ -450,3 +450,9 @@ textarea.inp:focus { border-color: var(--ai); outline: none; box-shadow: 0 0 0 3
 .qa-layer { position: fixed; inset: 0; z-index: 1000; background: #f8f4f6; }
 .qa-layer iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: block; }
 .qa-close { position: absolute; right: calc(14px + env(safe-area-inset-right, 0px)); bottom: calc(14px + env(safe-area-inset-bottom, 0px)); width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(0, 0, 0, .15); background: rgba(255, 255, 255, .92); color: #22161c; font-size: 22px; line-height: 1; cursor: pointer; box-shadow: 0 4px 14px rgba(0, 0, 0, .18); }
+
+/* Thanh điều hướng đầu trang: Quay lại + Trang chủ */
+.navrow { display: flex; flex-wrap: wrap; gap: 6px 18px; align-items: center; margin-bottom: 6px; }
+.navrow .go { margin-bottom: 0; }
+.navrow .go[hidden] { display: none; }
+.go.back #backTxt { max-width: 46vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
