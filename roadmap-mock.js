@@ -48,7 +48,7 @@ function renderMockExam(num, mode) {
 const rmMkHead = () => '<nav class="crumbs"><a href="#lo-trinh">Lộ trình N5</a><span class="sep" aria-hidden="true">›</span><span aria-current="page">Thi thử · ' + esc(N5_MOCK[rmMk.t].name) + ' · ' + MK_MODE[rmMk.mode] + '</span></nav>';
 function rmMkQuestion(p, qi, shown, qs) {
     const [type, stem, opts, , psg] = qs[qi], pick = rmMk.ans[p][qi], prev = shown;
-    return (psg && (!prev || prev[4] !== psg) ? rmPassage(psg) : '') + '<div class="rm-q"><span class="rm-qtype">' + esc(N5_MOCK_TYPES[type]) + '</span><p class="rm-qq">' + rmMkNo(p, qi) + '. ' + rmJaU(stem).replace(/★/g, '<b class="rm-star">★</b>') + '</p><div class="rm-opts">' +
+    return (psg && (!prev || prev[4] !== psg) ? rmPassage(psg) : '') + '<div class="rm-q"><p class="rm-qq">' + rmMkNo(p, qi) + '. ' + rmJaU(stem).replace(/★/g, '<b class="rm-star">★</b>') + '</p><div class="rm-opts">' +
         rmMkOrder(rmMk.t, p, qi).map(oi => '<button type="button" class="rm-opt' + (pick === oi ? ' mk-sel' : '') + '" data-mkans="' + p + ':' + qi + ':' + oi + '">' + rmJa(opts[oi]) + '</button>').join('') + '</div></div>';
 }
 function rmMkDraw() {
@@ -100,7 +100,7 @@ function rmMkReview(items) {
     const T = N5_MOCK[rmMk.t]; let h = '', prev = null;
     items.forEach(([p, qi]) => {
         const [type, stem, opts, why, psg] = T.parts[p].qs[qi], pick = rmMk.ans[p][qi], ok = pick === 0;
-        h += (psg && !(prev && prev.p === p && prev.qi === qi - 1 && T.parts[p].qs[qi - 1][4] === psg) ? rmPassage(psg) : '') + '<div class="rm-q"><span class="rm-qtype">' + esc(N5_MOCK_TYPES[type]) + '</span><p class="rm-qq">' + rmMkNo(p, qi) + '. ' + rmJaU(stem).replace(/★/g, '<b class="rm-star">★</b>') + '</p><div class="rm-opts">' +
+        h += (psg && !(prev && prev.p === p && prev.qi === qi - 1 && T.parts[p].qs[qi - 1][4] === psg) ? rmPassage(psg) : '') + '<div class="rm-q"><p class="rm-qq">' + rmMkNo(p, qi) + '. ' + rmJaU(stem).replace(/★/g, '<b class="rm-star">★</b>') + '</p><div class="rm-opts">' +
             rmMkOrder(rmMk.t, p, qi).map(oi => '<button type="button" class="rm-opt' + (oi === 0 ? ' right' : oi === pick ? ' wrong' : '') + '" disabled>' + rmJa(opts[oi]) + '</button>').join('') + '</div>' +
             '<p class="rm-why ' + (ok ? 'ok-t' : 'ng-t') + '">' + (ok ? '✓ Đúng. ' : pick == null ? '✗ Chưa trả lời. ' : '✗ Chưa đúng. ') + '<span>' + rmKanaTip(why) + '</span></p></div>';
         prev = { p, qi };
