@@ -96,6 +96,13 @@ function renderRoadmapN4() {
     }
     h += '</div>' + (rm.sel4 ? rmStationPanel(rm.sel4) : '<p class="hint rm-pickhint">Bấm vào một trạm để xem nội dung bài học; bấm lần nữa để ẩn.</p>') + '</section>';
 
+    // Kanji N4 (kanji.js): bảng chữ, luyện nhanh, file luyện viết — thẻ thu gọn trong Giai đoạn 1
+    if (typeof kjBody === 'function') {
+        const ko = kjOkCount(), kn = kjAll().length;
+        h += '<details class="card rm-fold kj-fold' + (ko === kn ? ' done' : '') + '" data-rmsec="kanji4"' + (rmOpen.kanji4 ? ' open' : '') + '><summary><span class="rm-ft"><b>Kanji N4</b> <span class="jp" lang="ja">漢字</span><span class="rm-fsub">' + kn + ' chữ · bảng chữ, luyện nhanh, file luyện viết</span></span>' +
+            '<span class="rm-fprog num' + (ko === kn ? ' ok-t' : '') + '">' + ko + '/' + kn + '</span></summary>' + kjBody() + '</details>';
+    }
+
     // Giai đoạn 2
     const qd = RM_TYPES.reduce((n, g) => n + g[1].filter(([id]) => rm.t[rmK(id)]).length, 0);
     h += rmStageHead('02', 'Giai đoạn 2 · tới ngày thi', 'Luyện đề và sửa lỗi sai', fmtD(addDays(rmDue4(50), 1)) + ' → ' + fmtD(parseYmd(rm.exam4)), qd, RM_TYPE_N);
