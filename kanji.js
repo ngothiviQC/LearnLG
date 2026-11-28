@@ -21,6 +21,7 @@ const KJ_ALL = KJ_GROUPS.reduce((a, g) => a.concat([...g[1]]), []);
 let kj4Groups = null;
 function kjG() {
     if (rmLv !== 4) return KJ_GROUPS;
+    if (!kj4Groups && typeof KJ_N4 === 'object') kj4Groups = KJ_N4.groups;
     if (!kj4Groups || !kj4Groups.length) {
         kj4Groups = []; const seen = {};
         for (let c = 0; c < 5; c++) {
@@ -44,6 +45,11 @@ function kjInfo() {
     if (!kjInfoCache[lv]) {
         const C = kjInfoCache[lv] = {}, lo = lv === 4 ? 26 : 1;
         for (let n = lo; n < lo + 25; n++) { const L = rmL(n); (L ? L.kanji : []).forEach(([k, hv, rd, m, ex, exv]) => { if (!C[k]) C[k] = { k, hv, rd, m, ex, exv, n }; }); }
+        // N4: danh sách 200 chữ theo sách luyện viết; chữ nào có trong trạm thì ghi số trạm
+        if (lv === 4 && typeof KJ_N4 === 'object') Object.keys(KJ_N4.info).forEach(k => {
+            const [hv, m, rd, ex, exv] = KJ_N4.info[k], at = C[k];
+            C[k] = { k, hv, rd, m, ex: ex || (at && at.ex) || '', exv: exv || (at && at.exv) || '', n: at ? at.n : 0 };
+        });
     }
     return kjInfoCache[lv];
 }
@@ -79,12 +85,14 @@ const kjRe = () => { const y = window.scrollY; if (route === 'kanji') renderKanj
 // Phần thân Kanji: dùng trong thẻ “Kanji N5” của Lộ trình N5
 function kjBody() {
     kjSync();
+    if (!kjInfoCache || !kjInfoCache[rmLv === 4 ? 4 : 5]) { }
     const I = kjInfo(), ok = kjOkCount(), ALL = kjAll();
     let h = '';
     h += '<div class="kj-hero"><div class="kj-hero-t"><p class="hint">Bấm vào một chữ để xem Hán Việt, cách đọc và từ ví dụ; bấm lại để đóng. Thuộc chữ nào thì đánh dấu “Đã thuộc”. Kanji của từng bài cũng nằm trong trạm tương ứng ở trên.' + (rmLv === 4 ? ' Chữ được chia theo 5 chặng của Lộ trình N4.' : '') + '</p>' +
         '<div class="prog"><span class="num">Đã thuộc ' + ok + '/' + ALL.length + '</span><div class="bar"><i style="width:' + (ok / ALL.length * 100) + '%;background:var(--ok)"></i></div></div></div>' +
         '<div class="kj-actions"><button type="button" class="btn pri" data-kj="quiz">⚡ Luyện nhanh 10 câu</button>' +
         '<button type="button" class="btn" data-kj="pick" aria-pressed="' + !!kjPick + '">✍ Tạo file luyện viết</button></div></div>';
+    h += kjRulesHtml();
     if (kjQuiz) h += kjQuizHtml();
     if (kjPick) {
         const n = Object.keys(kjPick).length;
@@ -104,8 +112,55 @@ function kjBody() {
                     (kjPick ? ' aria-pressed="' + on + '"' : '') + ' title="' + esc((x.hv || '') + ' · ' + (x.m || '')) + '"><span class="kj-c jp" lang="ja">' + k + '</span><span class="kj-hv">' + esc(x.hv || '') + '</span></button>';
             }).join('') + '</div>' + (kjSel && arr.includes(kjSel) && !kjPick ? kjDetail(kjSel) : '') + '</section>';
     });
-    h += '<p class="hint">Danh sách ' + ALL.length + ' chữ Kanji ' + kjName() + (rmLv === 4 ? ' xuất hiện trong 25 trạm' : ' thường gặp') + '; thông tin chữ và từ ví dụ do Claude soạn. Mỗi chữ có ghi trạm tương ứng trong Lộ trình ' + kjName() + '.</p>';
+    h += '<p class="hint">Danh sách ' + ALL.length + ' chữ Kanji ' + kjName() + (rmLv === 4 ? ' theo sách luyện viết hinelearn' : ' thường gặp') + '; số nét và bộ thủ đối chiếu với sách luyện viết hinelearn, nét viết từ KanjiVG (CC BY-SA 3.0); thông tin chữ và từ ví dụ do Claude soạn. Mỗi chữ có ghi trạm tương ứng trong Lộ trình ' + kjName() + '.</p>';
     return h;
+}
+
+/* ----- Hướng dẫn viết: sơ đồ từng nét (KJ_STROKES, KanjiVG CC BY-SA 3.0), số nét, bộ thủ, cấu tạo ----- */
+const KJ_RULES = [
+    ['Trên trước, dưới sau', '三, 工, 見: viết từ trên xuống dưới.'],
+    ['Trái trước, phải sau', '休, 明, 村: viết phần bên trái trước.'],
+    ['Ngang trước, sổ sau', 'Khi ngang cắt sổ như 十, 土, 木: viết nét ngang rồi mới sổ.'],
+    ['Phẩy trước, mác sau', '人, 文, 父: nét phẩy (／) đi trước nét mác (＼).'],
+    ['Chữ đối xứng: giữa, trái, phải', '小, 水, 少: nét sổ giữa trước, rồi bên trái, rồi bên phải.'],
+    ['Khung ngoài trước, đóng đáy sau cùng', '国, 回, 田: viết khung trái – trên – phải, điền phần trong, đóng nét đáy sau cùng.'],
+    ['Nét sổ xuyên suốt viết cuối', '中, 車, 事: nét sổ cắt qua nhiều phần thì viết sau.'],
+    ['Chấm nhỏ viết cuối; bộ 辶 viết cuối', '犬, 玉: chấm viết sau. 道, 進, 送: phần bên trong viết trước, 辶 (bước đi) kéo dài ở cuối.'],
+];
+function kjRulesHtml() {
+    return '<details class="kj-rules"><summary>✍ Quy tắc thứ tự nét (8 quy tắc)</summary><ol>' + KJ_RULES.map(([a, b]) => '<li><b>' + a + '</b><span>' + b + '</span></li>').join('') + '</ol>' +
+        '<p class="hint">Học đúng thứ tự nét giúp chữ cân đối và dễ nhớ; trong sơ đồ bên dưới, nét màu đậm là nét đang viết, số là thứ tự.</p></details>';
+}
+const kjStrokeStart = d => { const m = /M\s*([\d.]+)[ ,]([\d.]+)/.exec(d); return m ? [+m[1], +m[2]] : [10, 10]; };
+function kjWriteHtml(k) {
+    const P = typeof KJ_STROKES === 'object' ? KJ_STROKES[k] : null, F = typeof KJ_FACT === 'object' ? KJ_FACT[k] : null;
+    if (!P || !F) return '';
+    const [n, bo, bon, cau] = F;
+    const cells = P.map((d, i) => {
+        const [x, y] = kjStrokeStart(d);
+        return '<div class="kj-st" title="Nét ' + (i + 1) + '"><svg viewBox="0 0 109 109" aria-hidden="true">' + P.slice(0, i).map(q => '<path class="past" d="' + q + '"/>').join('') +
+            '<path class="now" d="' + d + '"/><text x="' + Math.max(6, x - 7) + '" y="' + Math.max(12, y - 3) + '">' + (i + 1) + '</text></svg></div>';
+    }).join('');
+    return '<div class="kj-write"><span class="lbl">Cách viết</span>' +
+        '<p class="kj-facts"><b>' + n + ' nét</b> · Bộ <span class="jp" lang="ja">' + esc(bo) + '</span> ' + esc(bon) + (cau ? ' · <span class="jp-mix">' + kjTxt(cau) + '</span>' : '') + '</p>' +
+        '<div class="kj-strokes" data-kjw="' + esc(k) + '">' + cells + '</div>' +
+        '<div class="row"><button type="button" class="btn sm" data-kj="anim">▶ Xem nét chạy</button><span class="hint kj-animhint">Nét viết: KanjiVG, CC BY-SA 3.0.</span></div>' +
+        '<div class="kj-anim" hidden><svg viewBox="0 0 109 109" aria-label="Nét chạy">' + P.map(d => '<path d="' + d + '"/>').join('') + '</svg></div></div>';
+}
+let kjAnimTimer = 0;
+function kjAnimate() {
+    const box = document.querySelector('.kj-anim'); if (!box) return;
+    box.hidden = false;
+    const ps = [...box.querySelectorAll('path')], len = ps.map(p => { try { return p.getTotalLength(); } catch (e) { return 100; } });
+    ps.forEach((p, i) => { p.style.transition = 'none'; p.style.strokeDasharray = len[i]; p.style.strokeDashoffset = len[i]; });
+    let i = 0; clearTimeout(kjAnimTimer);
+    const step = () => {
+        if (!box.isConnected || i >= ps.length) return;
+        const p = ps[i], ms = 250 + Math.min(len[i] * 9, 700);
+        void p.getBoundingClientRect(); p.style.transition = 'stroke-dashoffset ' + ms + 'ms linear'; p.style.strokeDashoffset = 0;
+        i++; kjAnimTimer = setTimeout(step, ms + 150);
+    };
+    kjAnimTimer = setTimeout(step, 150);
 }
 
 // Đoạn giải thích tiếng Việt có chữ Nhật xen kẽ: chữ Nhật dùng font Nhật, furigana hiện như ruby
@@ -114,10 +169,12 @@ function kjDetail(k) {
     const x = kjInfo()[k]; if (!x) return '';
     const ALL = kjAll(), i = ALL.indexOf(k);
     return '<div class="kj-detail"><div class="kj-big jp" lang="ja">' + k + '</div><div class="kj-dt">' +
-        '<span class="lbl">Chữ ' + (i + 1) + '/' + ALL.length + ' · Trạm ' + x.n + ' Lộ trình ' + kjName() + '</span>' +
+        '<span class="lbl">Chữ ' + (i + 1) + '/' + ALL.length + (x.n ? ' · Trạm ' + x.n + ' Lộ trình ' + kjName() : ' · ' + kjName()) + '</span>' +
         '<h3>' + esc(x.hv) + ' <span class="kj-m">· ' + esc(x.m) + '</span></h3>' +
         '<p class="kj-rd"><span class="lbl">Âm On / âm Kun</span><span class="jp" lang="ja">' + esc(x.rd) + '</span></p>' +
         '<p class="kj-ex">' + rmSay(x.ex) + '<span>' + rmJa(x.ex) + '<span class="rm-vi">' + esc(x.exv) + '</span></span></p>' +
+        (rmLv === 4 && typeof KJ4_STORY === 'object' && KJ4_STORY[k] ? '<div class="kj-story"><p><b>📜 Ý nghĩa & nguồn gốc</b>' + kjTxt(KJ4_STORY[k][0]) + '</p><p><b>💡 Mẹo nhớ</b>' + kjTxt(KJ4_STORY[k][1]) + '</p></div>' : '') +
+        kjWriteHtml(k) +
         (rmLv !== 4 && typeof KJ_STORY === 'object' && KJ_STORY[k] ? '<div class="kj-story"><p><b>📜 Ý nghĩa & nguồn gốc</b>' + kjTxt(KJ_STORY[k][0]) + '</p><p><b>💡 Mẹo nhớ</b>' + kjTxt(KJ_STORY[k][1]) + '</p>' +
             (KJ_STORY[k][2] ? '<p class="kj-cul"><b>🎎 Văn hóa</b>' + kjTxt(KJ_STORY[k][2]) + '</p>' : '') + '</div>' : '') +
         '<div class="row"><button type="button" class="btn' + (kjOk()[k] ? ' kj-okbtn' : ' pri') + '" data-kj="toggle-ok">' + (kjOk()[k] ? '✓ Đã thuộc' : 'Đánh dấu đã thuộc') + '</button>' +
@@ -208,6 +265,7 @@ function kjAct(a) {
     }
     else if (a === 'toggle-ok') { if (kjOk()[kjSel]) delete kjOk()[kjSel]; else { kjOk()[kjSel] = true; try { rmMarkDay(); } catch (e) { } } kjSave(); }
     else if (a === 'prev' || a === 'next') { const A = kjAll(), i = A.indexOf(kjSel) + (a === 'next' ? 1 : -1); if (A[i]) kjSel = A[i]; }
+    else if (a === 'anim') { kjAnimate(); return; }
     else if (a === 'close') kjSel = null;
     kjRe(); if (kjSheet) kjShowSheet();
     if (a === 'quiz' || a === 'pick') { const el = document.querySelector('.kj-quiz, .kj-pickbar'); if (el) el.scrollIntoView({ block: 'nearest' }); else window.scrollTo(0, y); }
