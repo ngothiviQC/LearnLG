@@ -247,6 +247,46 @@ const rmKaiwaSec = n => {
     return '<div class="rm-kaiwa"><div class="rm-kaiwa-h"><span class="rm-kaiwa-ico" aria-hidden="true">🎬</span><div><b>Video hội thoại (Kaiwa) · bài ' + n + '</b><span class="rm-vi">Xem, nghe rồi nói theo (shadowing).</span></div></div>' +
         '<div class="rm-kv" data-rmkvbox="' + id + '"><button type="button" class="btn pri" data-rmkv="' + id + '">▶ Xem video</button></div>' + (RM_KAIWA_SHOW_TEXT ? rmKaiwaText(n) : '') + '</div>';
 };
+/* ----- Video tình huống (Hội thoại mẫu): tranh + giọng nam/nữ + phụ đề (data/roadmap-talkvid.js) ----- */
+let rmTvAu = null;
+function rmTalkVid(n) {
+    const T = typeof RM_TALKVID === 'object' ? RM_TALKVID[n] : null, L = rmL(n); if (!T || !L || typeof rmMkScene !== 'function') return '';
+    const svg = rmMkScene((T.g[0] === 'm' ? '男：\n' : '女：\n') + (T.g[1] === 'm' ? '男：' : '女：'), T.hint || '', 'l1');
+    return '<div class="rm-tv" data-rmtv="' + n + '"><div class="rm-tv-stage">' + svg + '</div>' +
+        '<div class="rm-tv-sub" aria-live="polite"><div class="rm-tv-jp jp" lang="ja">Bấm ▶ để xem video tình huống</div><div class="rm-tv-vi"></div></div>' +
+        '<div class="rm-tv-ctl"><button type="button" class="btn pri sm" data-rmtvbtn="1">▶ Phát</button><div class="rm-tv-bar" role="slider" aria-label="Tiến độ" tabindex="0"><i></i></div><span class="rm-tv-time num">0:00</span></div></div>';
+}
+function rmTvInit(box) {
+    const n = +box.dataset.rmtv, T = RM_TALKVID[n], L = rmL(n).talk, svg = box.querySelector('svg'), jp = box.querySelector('.rm-tv-jp'), vi = box.querySelector('.rm-tv-vi'),
+        btn = box.querySelector('[data-rmtvbtn]'), bar = box.querySelector('.rm-tv-bar'), fill = bar.querySelector('i'), tm = box.querySelector('.rm-tv-time');
+    const order = []; L.forEach(l => { if (!order.includes(l[0])) order.push(l[0]); });
+    let au = null, raf = 0, cur = -2;
+    const fmt = s => Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0');
+    const show = i => {
+        if (i === cur) return; cur = i;
+        if (i < 0) { svg.dataset.speaker = '-1'; return; }
+        const [who, ja, vt] = L[i]; svg.dataset.speaker = String(order.indexOf(who) % 2);
+        jp.innerHTML = '<b class="rm-tv-who jp" lang="ja">' + rubyHtml(who) + '</b> ' + rmJa(ja); vi.textContent = vt;
+    };
+    const tick = () => {
+        if (!au) return; const t = au.currentTime;
+        let i = T.t.findIndex(([s, e]) => t >= s - 0.05 && t < e + 0.4); show(i);
+        fill.style.width = Math.min(100, t / (au.duration || T.dur) * 100) + '%'; tm.textContent = fmt(t);
+        if (!au.paused && !au.ended) raf = requestAnimationFrame(tick);
+    };
+    const stop = () => { cancelAnimationFrame(raf); btn.textContent = '▶ Phát'; };
+    btn.onclick = () => {
+        if (!au) {
+            if (rmTvAu && rmTvAu !== au) { try { rmTvAu.pause(); } catch (e) { } }
+            au = new Audio(T.audio); rmTvAu = au;
+            au.onended = () => { stop(); show(-1); jp.textContent = 'Hết. Bấm ▶ để xem lại.'; vi.textContent = ''; cur = -2; fill.style.width = '0%'; tm.textContent = '0:00'; au.currentTime = 0; };
+            au.onerror = () => { stop(); jp.textContent = 'Không phát được âm thanh; kiểm tra mạng rồi thử lại.'; };
+        }
+        if (au.paused) { if (rmTvAu && rmTvAu !== au) { try { rmTvAu.pause(); } catch (e) { } } rmTvAu = au; au.play().then(() => { btn.textContent = '⏸ Tạm dừng'; tick(); }).catch(() => { jp.textContent = 'Không phát được âm thanh.'; }); }
+        else { au.pause(); stop(); }
+    };
+    bar.onclick = e => { if (!au) return; const r = bar.getBoundingClientRect(); au.currentTime = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * (au.duration || T.dur); tick(); };
+}
 const rmLessonNext = () => LESSON_ORDER.find(no => okCount(keyOf(no)) < 30) || LESSON_ORDER[0];
 const rmStageHead = (no, when, title, range, d, tot) => '<!--stage--><div class="rm-stage"><span class="rm-sn">' + no + '</span><div><span class="lbl">' + when + ' · ' + range + '</span><h2>' + title + '</h2></div>' +
     '<span class="rm-sp num' + (d >= tot ? ' ok-t' : '') + '">' + d + '/' + tot + (d >= tot ? ' ✓' : '') + '</span></div>';
@@ -274,7 +314,7 @@ function rmLessonContent(n) {
     h += rmSec('v', 'Từ vựng chính (' + L.vocab.length + ' từ)', '<ul class="rm-vocab">' + L.vocab.map(([ja, vi]) =>
         '<li>' + rmSay(ja) + rmJa(ja) + '<span class="rm-vi">' + esc(vi) + '</span></li>').join('') + '</ul>');
     h += rmSec('k', 'Kanji (' + L.kanji.length + ' chữ)', rmStationKanji(L.kanji));
-    h += rmSec('t', 'Hội thoại mẫu', '<ol class="rm-lines rm-talk">' + L.talk.map(([who, ja, vi]) =>
+    h += rmSec('t', 'Hội thoại mẫu', rmTalkVid(n) + '<ol class="rm-lines rm-talk">' + L.talk.map(([who, ja, vi]) =>
         '<li>' + rmSay(ja) + '<span class="rm-who jp" lang="ja">' + rubyHtml(who) + '</span><div>' + rmJa(ja) + '<span class="rm-vi">' + esc(vi) + '</span></div></li>').join('') + '</ol>' +
         '<p class="hint">Shadowing: bấm 🔊, nghe rồi nói đuổi theo từng câu. Nút nghe dùng giọng đọc của máy.</p>');
     const ok = L.quiz.filter((q, qi) => rmQuiz[n + '-' + qi] === 0).length, done = L.quiz.filter((q, qi) => rmQuiz[n + '-' + qi] != null).length;
@@ -488,6 +528,8 @@ function rmBind() {
     v.querySelectorAll('[data-pic]').forEach(b => b.onclick = () => rmPicPick(b.dataset.pic));
     if (typeof rmMockBind === 'function') rmMockBind(v);
     v.querySelectorAll('[data-picsc]').forEach(b => b.onclick = () => rmPicScene(b.dataset.picsc));
+    if (rmTvAu) { try { rmTvAu.pause(); } catch (e) { } }
+    v.querySelectorAll('[data-rmtv]').forEach(rmTvInit);
     v.querySelectorAll('[data-rmkv]').forEach(b => b.onclick = () => { const box = b.closest('.rm-kv'); box.innerHTML = '<div class="rm-kv-frame"><iframe src="https://drive.google.com/file/d/' + b.dataset.rmkv + '/preview" allow="autoplay; fullscreen" allowfullscreen loading="lazy" title="Video hội thoại"></iframe><span class="rm-kv-cover" aria-hidden="true"></span></div>'; });
     v.querySelectorAll('[data-ovq]').forEach(b => b.onclick = () => { const k = b.dataset.ovq.split(':'); rmOv[k[0]] = +k[1]; rmMarkDay(); rmRe(); });
     v.querySelectorAll('[data-ovreset]').forEach(b => b.onclick = () => { const w = b.dataset.ovreset; Object.keys(rmOv).forEach(k => { if (w === '1' ? !/^g/.test(k) : k.startsWith(w + '_')) delete rmOv[k]; }); rmRe(); });

@@ -58,18 +58,18 @@
     const icon = (n, x, y, s) => '<g transform="translate(' + x + ',' + y + ') scale(' + s + ')" ' + st + '>' + (IC[n] || IC.box) + '</g>';
 
     /* ---- người: chân đứng tại (x,y), cao ≈ 108 ---- */
-    function person(x, y, g, sc, arm) {
+    function person(x, y, g, sc, arm, ix) {
         const hair = g === 'w' ? '<path d="M-17-86a17 17 0 0 1 34 0v20h-7v-18h-20v18h-7z" fill="' + K + '"/>' : '';
         const hair2 = g === 'w' ? '<path d="M-14-94q10-8 22-2q4 3 6 8q-12-6-28-6z" fill="' + K + '"/>' : '<path d="M-15-92a15 15 0 0 1 30-1q-6-7-15-5q-9-2-15 6z" fill="' + K + '"/>';
         const tube = (d, col, w) => '<path d="' + d + '" stroke="' + K + '" stroke-width="' + (w + 3.6) + '" fill="none" stroke-linecap="round"/><path d="' + d + '" stroke="' + col + '" stroke-width="' + w + '" fill="none" stroke-linecap="round"/>';
-        let b = '<g transform="translate(' + x + ',' + y + ') scale(' + sc + ')">';
+        let b = '<g class="mk-pp mk-pp' + (ix || 0) + '"><g transform="translate(' + x + ',' + y + ') scale(' + sc + ')">';
         b += tube('M-6-42V-3', g === 'w' ? '#fff' : '#777', 9) + tube('M6-42V-3', g === 'w' ? '#fff' : '#777', 9);
         b += '<path d="M-14 0h10l1 4h-13zM4 0h10l1 4h-13z" fill="' + K + '" stroke="' + K + '" stroke-width="2"/>';
         b += (g === 'w' ? '<path d="M-14-78h28l9 44h-46z" fill="#eee" stroke="' + K + '" stroke-width="2.4" stroke-linejoin="round"/>' : '<path d="M-15-78h30l2 40h-34z" fill="#ddd" stroke="' + K + '" stroke-width="2.4" stroke-linejoin="round"/><path d="M-5-78l5 9l5-9" fill="#fff" stroke="' + K + '" stroke-width="2"/>');
         b += tube('M-15-74l-8 26', '#fff', 7);
         b += arm ? tube('M15-74l14 4l8-16', '#fff', 7) : tube('M15-74l8 26', '#fff', 7);
         b += hair + '<path d="M-3-80h6v-5h-6z" fill="#fff" stroke="' + K + '" stroke-width="2"/><circle cy="-93" r="14" ' + st + '/>' + hair2 + '<circle cx="-5" cy="-92" r="1.7" fill="' + K + '"/><circle cx="5" cy="-92" r="1.7" fill="' + K + '"/><path d="M-4-85q4 4 8 0" fill="none" stroke="' + K + '" stroke-width="2" stroke-linecap="round"/>';
-        return b + '</g>';
+        return b + '</g></g>';
     }
     const arrow = (x, y, rot) => '<g transform="translate(' + x + ',' + y + ') rotate(' + rot + ')"><path d="M0 0l22-14v9h26v10h-26v9z" fill="' + K + '"/></g>';
     const clock = (x, y) => '<circle cx="' + x + '" cy="' + y + '" r="16" ' + st + '/><path d="M' + x + ' ' + (y - 10) + 'V' + y + 'l7 5" fill="none" stroke="' + K + '" stroke-width="2.4" stroke-linecap="round"/>';
@@ -129,8 +129,8 @@
         // đồ vật ở giữa/bên phải
         const pxs = two ? [165, 200, 235] : [200, 262, 324], py = two ? 150 : 160;
         props.forEach((n, i) => { if (i < (two ? 2 : 3)) s += icon(n, two ? (i ? 235 : 165) : pxs[i], py + (i % 2) * 8, 1.35); });
-        s += person(cx[0], 238, gA, 1.05, type !== 'l3' && two);
-        if (two) s += person(cx[1], 238, gB, 1.05, false);
+        s += person(cx[0], 238, gA, 1.05, type !== 'l3' && two, 0);
+        if (two) s += person(cx[1], 238, gB, 1.05, false, 1);
         if (type === 'l3') s += arrow(cx[0] + 26, 120, -25);
         return s + '</svg>';
     };
