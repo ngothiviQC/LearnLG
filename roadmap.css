@@ -318,3 +318,5 @@
 .pic-pin { width: 26px; height: 26px; }
 .pic-pin > b { line-height: 22px; }
 .pic-chip { font-size: 13px; line-height: 20px; }
+
+.pic-pin { opacity: .92; }

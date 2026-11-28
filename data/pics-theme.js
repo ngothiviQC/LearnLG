@@ -38,6 +38,26 @@ const RM_PICS_THEME = {
     _ch(215, 388, { hair: '#222', top: '#3b4a6b', bottom: '#2c3850', armL: [-30, -48], armR: [34, -40], mid: '<path d="M-9 -94l9 18 9-18z" fill="#fff"/><path d="M-3 -88l3 4 3-4-2 22h-2z" fill="#d9534f"/>', hand: '<rect x="26" y="-42" width="30" height="22" rx="4" fill="#8b5a3c" stroke="#5b3a24" stroke-width="2"/><path d="M34 -42v-6h14v6" stroke="#5b3a24" stroke-width="3" fill="none"/>' }) +
     _ch(282, 388, { hair: '#3a2a22', top: '#f4a259', bottom: '#4b5c70', armL: [-30, -48], armR: [38, -60], mid: '<rect x="-24" y="-74" width="48" height="7" fill="#fff" opacity=".85"/><rect x="-24" y="-56" width="48" height="7" fill="#fff" opacity=".85"/>', front: '<path d="M-29 -118a29 26 0 0 1 58 0z" fill="#ffd23f" stroke="#e0b92c" stroke-width="2"/><rect x="-32" y="-120" width="64" height="7" rx="3" fill="#e0b92c"/><rect x="-5" y="-146" width="10" height="12" rx="3" fill="#e0b92c"/>', hand: '<path d="M38 -60l16 -22" stroke="#888" stroke-width="5" stroke-linecap="round"/><circle cx="56" cy="-86" r="8" fill="none" stroke="#888" stroke-width="5"/>' }) +
     _ch(342, 388, { style: 'bun', hair: '#4a2f22', top: '#ffffff', bottom: '#5b6b7a', armL: [-30, -48], armR: [32, -56], mid: '<path d="M-24 -92h48l4 78H-28z" fill="#fff" stroke="#d6dde4" stroke-width="2"/><path d="M-12 -92q-6 30 12 40q18-10 12-40" stroke="#555" stroke-width="3" fill="none"/><circle cx="0" cy="-50" r="4" fill="#777"/><rect x="10" y="-76" width="10" height="10" fill="#fff" stroke="#e0443e"/><path d="M15 -75v8M11 -71h8" stroke="#e0443e" stroke-width="2.5"/>', hand: '<rect x="26" y="-74" width="22" height="30" rx="3" fill="#8fd0f5" stroke="#5b9ac0" stroke-width="2"/><path d="M31 -66h12M31 -60h12M31 -54h8" stroke="#fff" stroke-width="2"/>' }) +
-    `<g>` + _bubble(8, 196, 108, 34, 0, ['はじめまして'], [62, 12]) + _bubble(102, 148, 128, 50, 0, ['よろしく', 'お願いします'], [140, 14]) + `</g>`,
-  pins: [[2, 62, 400, 'b'], [4, 140, 400, 'b'], [3, 215, 400, 'b'], [5, 282, 400, 'b'], [6, 342, 400, 'b'], [7, 48, 126, 'b'], [8, 352, 126, 'b'], [9, 200, 66, 'b'], [11, 62, 196, 't'], [12, 166, 148, 't']] }],
+    ``,
+  pins: [[2, 62, 400, 'b'], [4, 140, 400, 'b'], [3, 215, 400, 'b'], [5, 282, 400, 'b'], [6, 342, 400, 'b'], [7, 48, 126, 'b'], [8, 352, 126, 'b'], [9, 200, 66, 'b']] },
+  { title: 'Tự giới thiệu và chào hỏi',
+  svg: `<defs><linearGradient id="tW" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fbf0dc"/><stop offset="1" stop-color="#f1dcba"/></linearGradient></defs><rect width="400" height="440" fill="url(#tW)"/><rect y="388" width="400" height="52" fill="#d9b98c"/><rect y="384" width="400" height="8" fill="#c9a572"/>` +
+    `<rect x="150" y="14" width="100" height="70" rx="6" fill="#fff"/><rect x="156" y="20" width="88" height="58" fill="#cfe8f7"/><path d="M200 20v58M156 49h88" stroke="#fff" stroke-width="4"/><circle cx="224" cy="36" r="8" fill="#ffd54a"/>` +
+    `<g transform="translate(366 392)"><rect x="-4" y="-40" width="8" height="40" fill="#8a5a35"/><ellipse cx="-14" cy="-52" rx="16" ry="9" fill="#5aa469" transform="rotate(-30 -14 -52)"/><ellipse cx="14" cy="-52" rx="16" ry="9" fill="#5aa469" transform="rotate(30 14 -52)"/><ellipse cx="0" cy="-62" rx="9" ry="16" fill="#4f9660"/></g>` +
+    `<g transform="translate(36 392)"><rect x="-14" y="-24" width="28" height="24" rx="4" fill="#c9915a"/><ellipse cx="0" cy="-26" rx="12" ry="8" fill="#5aa469"/><circle cx="-6" cy="-34" r="6" fill="#e0527a"/><circle cx="6" cy="-32" r="5" fill="#f6d44b"/></g>` +
+    `<ellipse cx="200" cy="404" rx="52" ry="8" fill="#000" opacity=".1"/><rect x="170" y="350" width="60" height="8" rx="4" fill="#a56d3f"/><rect x="196" y="358" width="8" height="40" fill="#8a5a35"/><g><rect x="178" y="334" width="18" height="16" rx="3" fill="#fff" stroke="#bbb"/><path d="M196 338h5q4 0 4 5t-4 5h-5" fill="none" stroke="#bbb" stroke-width="2"/><rect x="206" y="334" width="18" height="16" rx="3" fill="#fff" stroke="#bbb"/><path d="M224 338h5q4 0 4 5t-4 5h-5" fill="none" stroke="#bbb" stroke-width="2"/></g>` +
+    // Nam (trái): chỉ vào mình
+    _ch(100, 388, { hair: '#2a2a2a', top: '#4d9de0', bottom: '#3b4a6b', armR: [4, -66], armL: [-34, -52], mid: '<rect x="-14" y="-78" width="26" height="16" rx="2" fill="#fff" stroke="#9aa9b8"/><path d="M-9 -72h16M-9 -67h10" stroke="#9aa9b8" stroke-width="2"/>' }) +
+    `<path d="M70 252q-8-10 0-20M62 256q-12-14 -2-30" stroke="#9aa9b8" stroke-width="2" fill="none" stroke-linecap="round"/>` +
+    // Tanaka (phải): chỉ về phía Nam
+    _ch(300, 388, { style: 'bun', hair: '#4a2f22', top: '#e07a9b', bottom: '#5b4a8a', armL: [-48, -86], armR: [34, -52], mid: '<rect x="-12" y="-78" width="26" height="16" rx="2" fill="#fff" stroke="#9aa9b8"/><path d="M-7 -72h16M-7 -67h10" stroke="#9aa9b8" stroke-width="2"/>', hand: '<path d="M-48 -86l-12 -4" stroke="#f6d3b0" stroke-width="5" stroke-linecap="round"/>' }) +
+    `<path d="M330 252q8-10 0-20M338 256q12-14 2-30" stroke="#9aa9b8" stroke-width="2" fill="none" stroke-linecap="round"/>` +
+    // các câu nói
+    _bubble(44, 100, 120, 32, 0, ['はじめまして'], [0, 0]).replace(/<path d="M-?\d+[^"]*" fill="#fff" stroke="#9aa9b8" stroke-width="2"\/><rect[^>]*\/>/, '') +
+    _bubble(44, 140, 120, 32, 0, ['私は ナムです。'], [0, 0]).replace(/<path d="M-?\d+[^"]*" fill="#fff" stroke="#9aa9b8" stroke-width="2"\/><rect[^>]*\/>/, '') +
+    _bubble(44, 180, 120, 32, 0, ['20歳です。'], [100, 22]) +
+    _bubble(224, 100, 148, 32, 0, ['よろしく お願いします'], [0, 0]).replace(/<path d="M-?\d+[^"]*" fill="#fff" stroke="#9aa9b8" stroke-width="2"\/><rect[^>]*\/>/, '') +
+    _bubble(224, 180, 120, 32, 0, ['あなたは？'], [300, 22]),
+  pins: [[11, 24, 116, 'l'], [0, 24, 156, 'l'], [10, 24, 196, 'l'], [12, 386, 116, 'l'], [1, 356, 196, 'l']] }
+],
 };

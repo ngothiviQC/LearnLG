@@ -1,6 +1,6 @@
 /* ===================== Tranh từ vựng (mục “Tranh từ vựng” trong trạm của Lộ trình N5) =====================
    Tranh SVG + số đánh trên từng đồ vật (data/pics.js: RM_PICS). Chạm số trên tranh (hoặc chip bên dưới) để xem và nghe từ;
-   nút “Che chữ” ẩn chữ trên tranh để tự kiểm tra trí nhớ. Lưu trong hvn.rm.pic = { số trạm: [chỉ số từ đã xem] }. Phải nạp SAU roadmap.js. */
+   trên tranh chỉ có số; nút “Che chữ” làm mờ từ ở danh sách để tự kiểm tra trí nhớ. Lưu trong hvn.rm.pic = { số trạm: [chỉ số từ đã xem] }. Phải nạp SAU roadmap.js. */
 let rmPicSel = {};      // số trạm → số thứ tự pin đang chọn (trong tranh đang xem)
 let rmPicCur = {};      // số trạm → chỉ số tranh đang xem (0, 1, …)
 let rmPicHide = false;  // true = che chữ trên tranh
@@ -22,11 +22,11 @@ function rmPicSec(n) {
     const pins = P.pins.map((p, i) => {
         const [vi, x, y, side] = p, cls = 'pic-pin s-' + side + (seen.includes(vi) ? ' seen' : '') + (sel === i ? ' sel' : '');
         return '<button type="button" class="' + cls + '" style="left:' + ((x - vx) / vw * 100) + '%;top:' + ((y - vy) / vh * 100) + '%" data-pic="' + n + ':' + i + '" aria-label="' + (i + 1) + '. ' + esc(plainJa(word(i)[0])) + '">' +
-            '<b>' + (i + 1) + '</b><span class="pic-chip jp" lang="ja">' + esc(plainJa(word(i)[0])) + '</span></button>';
+            '<b>' + (i + 1) + '</b></button>';
     }).join('');
     // vùng chạm lớn phủ lên đồ vật (pin có phần tử thứ 5 = [tâm x, tâm y, cỡ])
     const hits = P.pins.map((p, i) => !p[4] ? '' : '<button type="button" class="pic-hit' + (sel === i ? ' sel' : '') + '" tabindex="-1" aria-hidden="true" style="left:' + ((p[4][0] - vx) / vw * 100) + '%;top:' + ((p[4][1] - vy) / vh * 100) + '%;width:' + (p[4][2] / vw * 100) + '%;height:' + (p[4][2] / vh * 100) + '%" data-pic="' + n + ':' + i + '"></button>').join('');
-    let card = '<p class="hint pic-card">Chạm vào số trên tranh để xem và nghe từ.</p>';
+    let card = '<p class="hint pic-card">Chạm vào số trên tranh (hoặc vào đồ vật) để xem và nghe từ; từ vựng nằm ở danh sách bên dưới.</p>';
     if (sel != null && P.pins[sel]) {
         const [ja, vi] = word(sel);
         card = '<div class="pic-card on"><span class="pic-no">' + (sel + 1) + '</span>' + rmSay(ja) + '<div>' + rmJa(ja) + '<span class="rm-vi">' + esc(vi) + '</span></div></div>';
