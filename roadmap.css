@@ -443,3 +443,12 @@
 
 .rm-kt .rm-who { font-size: 13px; line-height: 1.5; word-break: keep-all; }
 .rm-kt li { grid-template-columns: 64px minmax(0, 1fr); }
+
+/* Lời thoại của video tình huống: chữ nhỏ hơn, khung cuộn, câu đang nói tự cuộn vào tầm nhìn */
+.rm-tv-list { position: relative; max-height: 270px; overflow-y: auto; overscroll-behavior: contain; scroll-behavior: smooth; padding: 6px 8px; }
+.rm-tv-list li { padding: 4px 6px; gap: 6px; }
+.rm-tv-list .jp { font-size: 15px; line-height: 1.9; }
+.rm-tv-list .rm-vi { font-size: 12.5px; }
+.rm-tv-list .rm-who { font-size: 12px; }
+.rm-tv-list::-webkit-scrollbar { width: 8px; }
+.rm-tv-list::-webkit-scrollbar-thumb { background: var(--line); border-radius: 6px; }

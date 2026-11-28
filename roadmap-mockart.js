@@ -123,8 +123,9 @@
         const listener = /ともだち|せんせい|てんいん|おきゃく|かぞく|おかあさん|おとうさん|ぶちょう|かちょう|うんてんしゅ|おいしゃさん|かんごし/.test(txt);
         let s = '<svg class="mk-pic" viewBox="0 0 400 250" role="img" aria-label="Hình minh hoạ tình huống" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="2" width="396" height="246" rx="6" fill="#fff" stroke="' + K + '" stroke-width="3"/><rect x="2" y="196" width="396" height="52" fill="#eee"/><path d="M2 196h396" stroke="' + K + '" stroke-width="2"/>';
         s += (FIX[th[1]] || FIX.talk)();
-        const two = type === 'l3' ? listener : (men && women);
-        const first = (txt.match(/[男女]：/) || [''])[0], gA = type === 'l3' ? (women && !men ? 'w' : 'm') : (men && women ? (first === '女：' ? 'w' : 'm') : (men ? 'm' : 'w')), gB = gA === 'm' ? 'w' : 'm';
+        const fg = txt.match(/##G([mf])([mf])/), two = fg ? true : (type === 'l3' ? listener : (men && women));
+        const first = (txt.match(/[男女]：/) || [''])[0]; let gA = type === 'l3' ? (women && !men ? 'w' : 'm') : (men && women ? (first === '女：' ? 'w' : 'm') : (men ? 'm' : 'w')), gB = gA === 'm' ? 'w' : 'm';
+        if (fg) { gA = fg[1] === 'm' ? 'm' : 'w'; gB = fg[2] === 'm' ? 'm' : 'w'; }
         const cx = two ? [95, 305] : [100];
         // đồ vật ở giữa/bên phải
         const pxs = two ? [165, 200, 235] : [200, 262, 324], py = two ? 150 : 160;

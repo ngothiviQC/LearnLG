@@ -236,8 +236,8 @@ function rmStationKanji(list) {
 /* Video hội thoại (Kaiwa) của từng trạm N5: tệp mp4 trong thư mục Google Drive của bạn (kaiwa › Minna_Shokyuu_Kaiwa_01…25), phát bằng trình xem của Drive, chỉ tải khi bấm. */
 const RM_KAIWA = ["1FXjNfrms0pPUpAtgJU7q-DE91d_ctyXD","1MQTWYhojLBoQ5i93comicg1bdufpWOPU","1Ha9wk588ocOTm3OvFcmMS8sOu_Aek8aH","1RvoewiuS3NmdJ2Av-6cKG-Yu4FphrG5X","1vHRd_xZnD21LTm_uu0nLr4KaQUft-1vX","1oHjrpBKm2Yz_9F1Azb3LPiWNAckIkXGr","1j4DP-3GQhgGqyzDp--cucVFzhga5niZw","1-aOmoYKDYW6f_mqeSXK3XeQlersEb-UZ","11q-zSujmugGeTmCjrkn4t1hbLGShsSK2","1ZOSv4GL9pZHz8HxZR5UMcl2pR_b4TBGO","1w-sdfGVAHZt7I7QTbsBlAlIIPMgT03il","1Jy0K5rMKC5YWZSeMMdLpykonJQZfddPp","1Xa7mp1bJj1P9NaHu-_ipFFLgizJ6JsG4","16QYWipBV7GJBJkEla8WG2jE4UiJAwp_5","1TqdD6z8zpoCD959frlj_hnecoFLqKGod","1TmZqM2bDbeZuBdEFQuqY43FhFCsAdM-i","1tlGFgixJGo0Z4qEAUT4T7g1JlG0FjyCi","120NVfk3nEKiLaay87k-04aG8LdCv8kpH","1HVl5dWgxwnv98TZZkp75qNCYhXE8Vbja","1Xes8VnV-rXQYTBmjUCInCMyh6Xc3VJsU","1K9AIYxdjiLJPF4h5qwNBTE1UBtRxuVVh","1159I4dl_nWU9sccxTb1p21CFxBbtxgZp","1IEk8E9pouozruDZMHKO7XRLM-EZL4UU_","13elcTFFWuYE11cgRS6cdNA8ZWIeo-Ugc","1ab6aFQ9k5XJyvtDFCKVpn47cW2aNPfE-"];
 /* Lời thoại của video: tiếng Nhật có furigana (cùng kiểu câu dịch) + tiếng Việt (data/roadmap-kaiwa.js) */
-const RM_KAIWA_SHOW_VIDEO = true;   // false = tạm ẩn khối video Kaiwa (Google Drive)
-const RM_KAIWA_SHOW_TEXT = true;   // false = ẩn mục "Lời thoại video"
+const RM_KAIWA_SHOW_VIDEO = false;   // false = tạm ẩn khối video Kaiwa (Google Drive)
+const RM_KAIWA_SHOW_TEXT = false;   // false = ẩn mục "Lời thoại video"
 const rmKaiwaText = n => {
     const T = typeof RM_KAIWA_TEXT === 'object' ? RM_KAIWA_TEXT[n] : null; if (!T) return '';
     return rmSec('kt', 'Lời thoại video (tiếng Nhật · tiếng Việt)', (T.t ? '<p class="hint"><b>' + esc(T.t) + '</b></p>' : '') + (T.g ? '<p class="hint">Ngữ pháp trọng tâm: ' + rmJa(T.g) + '</p>' : '') +
@@ -251,19 +251,19 @@ const rmKaiwaSec = n => {
 /* ----- Video tình huống (Hội thoại mẫu): tranh + giọng nam/nữ + phụ đề (data/roadmap-talkvid.js) ----- */
 let rmTvAu = null;
 function rmTalkVid(n) {
-    const T = typeof RM_TALKVID === 'object' ? RM_TALKVID[n] : null, L = rmL(n); if (!T || !L || typeof rmMkScene !== 'function') return '';
-    const svg = rmMkScene((T.g[0] === 'm' ? '男：\n' : '女：\n') + (T.g[1] === 'm' ? '男：' : '女：'), T.hint || '', 'l1');
+    const T = typeof RM_TALKVID === 'object' ? RM_TALKVID[n] : null, K = typeof RM_KAIWA_TEXT === 'object' ? RM_KAIWA_TEXT[n] : null; if (!T || !K || typeof rmMkScene !== 'function') return '';
+    const svg = rmMkScene('##G' + T.g[0] + T.g[1], T.hint || '', 'l1');
     return '<div class="rm-tv" data-rmtv="' + n + '"><div class="rm-tv-stage">' + svg + '</div>' +
         '<div class="rm-tv-sub" aria-live="polite"><div class="rm-tv-jp jp" lang="ja">Bấm ▶ để xem video tình huống</div><div class="rm-tv-vi"></div></div>' +
         '<div class="rm-tv-ctl"><button type="button" class="btn pri sm" data-rmtvbtn="1">▶ Phát</button><div class="rm-tv-bar" role="slider" aria-label="Tiến độ" tabindex="0"><i></i></div><span class="rm-tv-time num">0:00</span></div>' +
-        '<ol class="rm-lines rm-talk rm-kt rm-tv-list">' + L.talk.map(([who, ja, vi]) => '<li><span class="rm-who jp" lang="ja">' + rubyHtml(who) + '</span><div>' + rmJa(ja) + '<span class="rm-vi">' + esc(vi) + '</span></div></li>').join('') + '</ol></div>';
+        '<ol class="rm-lines rm-talk rm-kt rm-tv-list">' + K.l.map(([who, ja, vi]) => '<li><span class="rm-who jp" lang="ja">' + rubyHtml(who) + '</span><div>' + rmJa(ja) + '<span class="rm-vi">' + esc(vi) + '</span></div></li>').join('') + '</ol></div>';
 }
 function rmTalkVidBlock(n) {
     const v = rmTalkVid(n); if (!v) return '';
-    return '<div class="rm-kaiwa rm-tvblock"><div class="rm-kaiwa-h"><span class="rm-kaiwa-ico" aria-hidden="true">🎭</span><div><b>Video tình huống · bài ' + n + '</b><span class="rm-vi">Tranh vẽ + giọng nam/nữ + phụ đề furigana, dựng từ Hội thoại mẫu của trạm.</span></div></div>' + v + '</div>';
+    return '<div class="rm-kaiwa rm-tvblock"><div class="rm-kaiwa-h"><span class="rm-kaiwa-ico" aria-hidden="true">🎭</span><div><b>Video tình huống · bài ' + n + '</b><span class="rm-vi">' + esc((RM_KAIWA_TEXT[n] || {}).t || 'Tranh vẽ + giọng nam/nữ') + '</span></div></div>' + v + '</div>';
 }
 function rmTvInit(box) {
-    const n = +box.dataset.rmtv, T = RM_TALKVID[n], L = rmL(n).talk, svg = box.querySelector('svg'), jp = box.querySelector('.rm-tv-jp'), vi = box.querySelector('.rm-tv-vi'),
+    const n = +box.dataset.rmtv, T = RM_TALKVID[n], L = RM_KAIWA_TEXT[n].l, svg = box.querySelector('svg'), jp = box.querySelector('.rm-tv-jp'), vi = box.querySelector('.rm-tv-vi'),
         btn = box.querySelector('[data-rmtvbtn]'), bar = box.querySelector('.rm-tv-bar'), fill = bar.querySelector('i'), tm = box.querySelector('.rm-tv-time');
     const order = []; L.forEach(l => { if (!order.includes(l[0])) order.push(l[0]); });
     let au = null, raf = 0, cur = -2;
@@ -272,7 +272,8 @@ function rmTvInit(box) {
         if (i === cur) return; cur = i;
         box.querySelectorAll('.rm-tv-list li').forEach((li, k) => li.classList.toggle('on', k === i));
         if (i < 0) { svg.dataset.speaker = '-1'; return; }
-        const [who, ja, vt] = L[i]; svg.dataset.speaker = String(order.indexOf(who) % 2);
+        const [who, ja, vt] = L[i]; svg.dataset.speaker = String(T.f[i]);
+        const list = box.querySelector('.rm-tv-list'), li = list && list.children[i]; if (li && list.scrollHeight > list.clientHeight) list.scrollTo({ top: Math.max(0, li.offsetTop - 8), behavior: 'smooth' });
         jp.innerHTML = '<b class="rm-tv-who jp" lang="ja">' + rubyHtml(who) + '</b> ' + rmJa(ja); vi.textContent = vt;
     };
     const tick = () => {
