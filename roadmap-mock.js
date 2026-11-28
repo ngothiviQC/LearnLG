@@ -23,7 +23,7 @@ function rmMockCard() {
         const H = rmMkHist(t), last = H[H.length - 1];
         h += '<div class="mk-item"><div><b>' + esc(T.name) + '</b><span class="rm-vi">' + rmMkNq(T) + ' câu · ' + rmMkMin(T) + ' phút' +
             (last ? ' · gần nhất ' + fmtD(parseYmd(last.d)) + ' (' + MK_MODE[last.m] + '): ' + last.c + '/' + last.n + ' ≈ ' + last.s + '/120' : ' · chưa làm') + '</span></div>' +
-            '<div class="mk-go"><a class="btn pri" href="#thi-thu-' + (t + 1) + '-all" target="_blank" rel="noopener">' + (H.length ? 'Làm lại' : 'Làm bài') + ' ↗</a></div></div>';
+            '<div class="mk-go"><a class="btn pri" href="thi-thu-n5.html?de=' + (t + 1) + '" target="_blank" rel="noopener">' + (H.length ? 'Làm lại' : 'Làm bài') + ' ↗</a></div></div>';
     });
     const cnt = k => N5_MOCK[0].parts.reduce((n, P) => n + P.qs.filter(q => q[0] === k).length, 0);
     h += '</div><span class="lbl rm-sub">Đề gồm những dạng câu nào</span><ul class="rm-tips"><li>' + Object.keys(N5_MOCK_TYPES).map(k => N5_MOCK_TYPES[k] + ' ' + cnt(k)).join(' · ') + '</li>' +
@@ -45,7 +45,7 @@ function renderMockExam(num, mode) {
     if (!rmMk || rmMk.t !== t || rmMk.mode !== mode) rmMkStart(t, mode);
     rmMkDraw();
 }
-const rmMkHead = () => '<nav class="crumbs"><a href="#lo-trinh">Lộ trình N5</a><span class="sep" aria-hidden="true">›</span><span aria-current="page">Thi thử · ' + esc(N5_MOCK[rmMk.t].name) + ' · ' + MK_MODE[rmMk.mode] + '</span></nav>';
+const rmMkHead = () => '<nav class="crumbs"><a href="index.html#lo-trinh">Lộ trình N5</a><span class="sep" aria-hidden="true">›</span><span aria-current="page">Thi thử · ' + esc(N5_MOCK[rmMk.t].name) + ' · ' + MK_MODE[rmMk.mode] + '</span></nav>';
 function rmMkQuestion(p, qi, shown, qs) {
     const [type, stem, opts, , psg] = qs[qi], pick = rmMk.ans[p][qi], prev = shown;
     return (psg && (!prev || prev[4] !== psg) ? rmPassage(psg) : '') + '<div class="rm-q"><p class="rm-qq">' + rmMkNo(p, qi) + '. ' + rmJaU(stem).replace(/★/g, '<b class="rm-star">★</b>') + '</p><div class="rm-opts">' +
@@ -62,7 +62,7 @@ function rmMkDraw() {
         '<p class="hint">Đã trả lời ' + answered + '/' + list.length + '.' + (retry ? '' : ' Hết giờ, bài tự nộp.') + ' Không có đáp án cho tới khi nộp bài.</p>';
     let prevQ = null;
     list.forEach(([pp, qi]) => { const qs = T.parts[pp].qs; h += rmMkQuestion(pp, qi, prevQ && prevQ.p === pp && prevQ.qi === qi - 1 ? qs[qi - 1] : null, qs); prevQ = { p: pp, qi }; });
-    h += '<div class="row"><button type="button" class="btn pri" data-mksubmit="1">Nộp bài và xem kết quả</button><a class="btn sm" href="#lo-trinh" data-mkquit="1">Thoát</a></div></section>';
+    h += '<div class="row"><button type="button" class="btn pri" data-mksubmit="1">Nộp bài và xem kết quả</button><a class="btn sm" href="index.html#lo-trinh" data-mkquit="1">Thoát</a></div></section>';
     v.innerHTML = h; rmMkBindPage();
     window.scrollTo(0, 0);
 }
@@ -76,7 +76,7 @@ function rmMkResult() {
     if (rmMk.retry) {
         const items = rmMk.retry, c = items.filter(([p, qi]) => rmMk.ans[p][qi] === 0).length;
         return '<section class="card mk-page"><div class="mk-score"><b class="num">' + c + '/' + items.length + '</b><span>Làm lại các câu sai: đúng ' + c + ' / ' + items.length + ' câu.</span></div>' + rmMkReview(items) +
-            '<div class="row"><button type="button" class="btn pri" data-mkagain="1">Làm lại cả đề này</button><a class="btn sm" href="#lo-trinh">Về Lộ trình N5</a></div></section>';
+            '<div class="row"><button type="button" class="btn pri" data-mkagain="1">Làm lại cả đề này</button><a class="btn sm" href="index.html#lo-trinh">Về Lộ trình N5</a></div></section>';
     }
     const S = rmMkScoreOf(rmMk.steps), pc = S.c / S.n, est = Math.round(pc * 120);
     const floor = est >= 38 ? ['ok-t', 'Vượt điểm sàn 38/120 của phần Kiến thức · Đọc.'] : ['ng-t', 'Dưới điểm sàn 38/120: cần ôn thêm phần này.'];
@@ -88,11 +88,11 @@ function rmMkResult() {
         '<span class="lbl rm-sub">Kết quả theo dạng câu</span><ul class="mk-parts">' + Object.keys(S.byType).map(k => '<li><span>' + esc(N5_MOCK_TYPES[k]) + '</span><span class="mk-bar2"><i style="width:' + (S.byType[k][0] / S.byType[k][1] * 100) + '%"></i></span><b class="num">' + S.byType[k][0] + '/' + S.byType[k][1] + '</b></li>').join('') + '</ul>';
     const bad = [...new Set(wrong.map(([p, qi]) => T.parts[p].qs[qi][0]))];
     if (bad.length) h += '<span class="lbl rm-sub">Ôn lại ở đâu</span><ul class="rm-tips">' +
-        (bad.some(k => 'kwcs'.includes(k)) ? '<li><a href="#lo-trinh">Lộ trình N5 › Giai đoạn 2 › Từ vựng</a> và mục Kanji N5 (từ vựng, chữ Hán, cách viết).</li>' : '') +
-        (bad.some(k => 'go'.includes(k)) ? '<li><a href="#lo-trinh">Lộ trình N5 › Tổng quan ngữ pháp N5</a> (trợ từ, chia động từ, 61 mẫu).</li>' : '') +
-        (bad.some(k => 'frmi'.includes(k)) ? '<li><a href="#lo-trinh">Lộ trình N5 › Giai đoạn 2 › Ngữ pháp · Đọc</a> (cách làm các dạng đọc hiểu).</li>' : '') + '</ul>';
+        (bad.some(k => 'kwcs'.includes(k)) ? '<li><a href="index.html#lo-trinh">Lộ trình N5 › Giai đoạn 2 › Từ vựng</a> và mục Kanji N5 (từ vựng, chữ Hán, cách viết).</li>' : '') +
+        (bad.some(k => 'go'.includes(k)) ? '<li><a href="index.html#lo-trinh">Lộ trình N5 › Tổng quan ngữ pháp N5</a> (trợ từ, chia động từ, 61 mẫu).</li>' : '') +
+        (bad.some(k => 'frmi'.includes(k)) ? '<li><a href="index.html#lo-trinh">Lộ trình N5 › Giai đoạn 2 › Ngữ pháp · Đọc</a> (cách làm các dạng đọc hiểu).</li>' : '') + '</ul>';
     h += '<div class="row">' + (wrong.length ? '<button type="button" class="btn pri" data-mkretry="1">Làm lại ' + wrong.length + ' câu sai</button><button type="button" class="btn" data-mkcopy="1">Chép câu sai để hỏi AI</button>' : '') +
-        '<button type="button" class="btn" data-mkagain="1">Làm lại cả đề</button><button type="button" class="btn sm" data-mkwrong="1" aria-pressed="' + !!rmMk.wrong + '">' + (rmMk.wrong ? 'Xem tất cả câu' : 'Chỉ xem câu sai') + '</button><a class="btn sm" href="#lo-trinh">Về Lộ trình N5</a></div><span class="hint mk-msg" role="status"></span>' +
+        '<button type="button" class="btn" data-mkagain="1">Làm lại cả đề</button><button type="button" class="btn sm" data-mkwrong="1" aria-pressed="' + !!rmMk.wrong + '">' + (rmMk.wrong ? 'Xem tất cả câu' : 'Chỉ xem câu sai') + '</button><a class="btn sm" href="index.html#lo-trinh">Về Lộ trình N5</a></div><span class="hint mk-msg" role="status"></span>' +
         rmMkReview(rmMk.wrong ? wrong : items) + '</section>';
     return h;
 }
