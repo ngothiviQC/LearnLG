@@ -433,3 +433,10 @@
 .rm-tv-list { margin: 0; padding: 10px 12px; list-style: none; border-top: 1px solid var(--line); }
 .rm-tv-list li { padding: 6px 8px; border-radius: 10px; }
 .rm-tv-list li.on { background: var(--ai-soft, #fbe3d2); }
+
+/* Video tình huống: ẩn thanh phụ đề đen, câu đang nói được tô sáng ngay trong danh sách lời thoại */
+.rm-tv-sub { display: none; }
+.rm-tv-list li { border-left: 5px solid transparent; transition: background .15s, border-color .15s; }
+.rm-tv-list li.on { background: #fbd9bf; border-left-color: var(--ai); box-shadow: 0 1px 0 rgba(0, 0, 0, .06); }
+.rm-tv-list li.on .rm-who { color: var(--ai); }
+:root[data-theme="dark"] .rm-tv-list li.on { background: #5a3319; }
