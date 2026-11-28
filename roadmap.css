@@ -342,3 +342,26 @@
 .mk-bar2 { flex: 1; height: 8px; border-radius: 4px; background: var(--line); overflow: hidden; margin: 0 12px; align-self: center; }
 .mk-bar2 > i { display: block; height: 100%; background: var(--ok, #2e8b57); }
 .mk-parts li { align-items: center; }
+
+/* ===== Phiếu trả lời (đề thi thử) ===== */
+.mk-wrap { display: grid; grid-template-columns: minmax(0, 1fr) 270px; gap: 18px; align-items: start; }
+.mk-qs { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.mk-sheet { position: sticky; top: 64px; border: 1px solid var(--line); border-radius: 14px; background: var(--sunken, #f6efe2); padding: 10px 12px; max-height: calc(100vh - 80px); display: flex; flex-direction: column; }
+.mk-sheet-t { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; background: none; border: 0; padding: 4px 2px 8px; font: inherit; color: inherit; cursor: default; text-align: left; }
+.mk-sheet-t span { font-size: 12.5px; color: var(--muted); }
+.mk-sheet-b { overflow-y: auto; border-top: 1px solid var(--line); }
+.mk-row { display: flex; align-items: center; gap: 6px; padding: 5px 0; border-bottom: 1px solid var(--line); }
+.mk-no { width: 30px; text-align: center; font-weight: 700; font-size: 13px; color: var(--muted); text-decoration: none; border-radius: 6px; padding: 3px 0; }
+.mk-no:hover { background: var(--ai-soft, #f9e4da); color: var(--ai, #c0542b); }
+.mk-bub { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--line); background: var(--paper, #fff8ea); font-size: 16px; line-height: 1; color: inherit; cursor: pointer; padding: 0; }
+.mk-bub:hover { border-color: var(--ai, #c0542b); }
+.mk-bub.mk-sel { background: var(--ai, #c0542b); border-color: var(--ai, #c0542b); color: #fff; }
+@media (max-width: 860px) {
+    .mk-wrap { grid-template-columns: 1fr; }
+    .mk-sheet { position: fixed; left: 8px; right: 8px; bottom: calc(8px + env(safe-area-inset-bottom)); top: auto; z-index: 20; max-height: 70vh; box-shadow: 0 6px 24px rgba(0,0,0,.2); }
+    .mk-sheet-t { flex-direction: row; justify-content: space-between; align-items: center; width: 100%; cursor: pointer; padding-bottom: 4px; }
+    .mk-sheet:not(.open) .mk-sheet-b { display: none; }
+    .mk-sheet:not(.open) .mk-sheet-t { padding-bottom: 0; }
+    .mk-sheet.open .mk-sheet-t { padding-bottom: 8px; }
+    .mk-page { padding-bottom: 70px; }
+}

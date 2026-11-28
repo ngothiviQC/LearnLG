@@ -48,8 +48,24 @@ function renderMockExam(num, mode) {
 const rmMkHead = () => '<nav class="crumbs"><a href="index.html#lo-trinh">Lộ trình N5</a><span class="sep" aria-hidden="true">›</span><span aria-current="page">Thi thử · ' + esc(N5_MOCK[rmMk.t].name) + ' · ' + MK_MODE[rmMk.mode] + '</span></nav>';
 function rmMkQuestion(p, qi, shown, qs) {
     const [type, stem, opts, , psg] = qs[qi], pick = rmMk.ans[p][qi], prev = shown;
-    return (psg && (!prev || prev[4] !== psg) ? rmPassage(psg) : '') + '<div class="rm-q"><p class="rm-qq">' + rmMkNo(p, qi) + '. ' + rmJaU(stem).replace(/★/g, '<b class="rm-star">★</b>') + '</p><div class="rm-opts">' +
+    return (psg && (!prev || prev[4] !== psg) ? rmPassage(psg) : '') + '<div class="rm-q" id="mkq-' + p + '-' + qi + '"><p class="rm-qq">' + rmMkNo(p, qi) + '. ' + rmJaU(stem).replace(/★/g, '<b class="rm-star">★</b>') + '</p><div class="rm-opts">' +
         rmMkOrder(rmMk.t, p, qi).map(oi => '<button type="button" class="rm-opt' + (pick === oi ? ' mk-sel' : '') + '" data-mkans="' + p + ':' + qi + ':' + oi + '">' + rmJa(opts[oi]) + '</button>').join('') + '</div></div>';
+}
+const rmMkCirc = ['①', '②', '③', '④'];
+function rmMkSheet(list, answered) {
+    let h = '<aside class="mk-sheet" id="mkSheet"><button type="button" class="mk-sheet-t" data-mksheet="1" aria-expanded="false"><b>Phiếu trả lời</b><span><span id="mkCnt2">' + answered + '</span>/' + list.length + ' câu đã chọn ▾</span></button><div class="mk-sheet-b">';
+    list.forEach(([p, qi]) => {
+        const pick = rmMk.ans[p][qi];
+        h += '<div class="mk-row" id="mkr-' + p + '-' + qi + '"><a class="mk-no" href="#mkq-' + p + '-' + qi + '" data-mkgo="mkq-' + p + '-' + qi + '">' + rmMkNo(p, qi) + '</a>' +
+            rmMkOrder(rmMk.t, p, qi).map((oi, k) => '<button type="button" class="mk-bub' + (pick === oi ? ' mk-sel' : '') + '" data-mkans="' + p + ':' + qi + ':' + oi + '" aria-label="Câu ' + rmMkNo(p, qi) + ' chọn ' + (k + 1) + '">' + rmMkCirc[k] + '</button>').join('') + '</div>';
+    });
+    return h + '</div></aside>';
+}
+function rmMkPick(p, qi, oi) {
+    rmMk.ans[p][qi] = oi;
+    document.querySelectorAll('[data-mkans^="' + p + ':' + qi + ':"]').forEach(b => b.classList.toggle('mk-sel', +b.dataset.mkans.split(':')[2] === oi));
+    const n = document.querySelectorAll('.mk-row').length ? [...document.querySelectorAll('.mk-row')].filter(r => r.querySelector('.mk-sel')).length : 0;
+    ['mkCnt', 'mkCnt2'].forEach(id => { const el = $(id); if (el) el.textContent = n; });
 }
 function rmMkDraw() {
     const T = N5_MOCK[rmMk.t], v = $('view');
@@ -59,10 +75,11 @@ function rmMkDraw() {
     const answered = list.filter(([pp, qi]) => rmMk.ans[pp][qi] != null).length;
     let h = rmMkHead() + '<section class="card mk-page"><div class="mk-bar"><div><b>' + esc(T.name) + '</b>' + (retry ? ' · Làm lại câu sai' : '') + '</div>' +
         (retry ? '' : '<div class="mk-clock" id="mkClock" role="timer">' + rmMkFmt(Math.max(0, Math.round((rmMk.end - Date.now()) / 1000))) + '</div>') + '</div>' +
-        '<p class="hint">Đã trả lời ' + answered + '/' + list.length + '.' + (retry ? '' : ' Hết giờ, bài tự nộp.') + ' Không có đáp án cho tới khi nộp bài.</p>';
+        '<p class="hint">Đã trả lời <b id="mkCnt">' + answered + '</b>/' + list.length + '.' + (retry ? '' : ' Hết giờ, bài tự nộp.') + ' Không có đáp án cho tới khi nộp bài.</p>';
     let prevQ = null;
+    h += '<div class="mk-wrap"><div class="mk-qs">';
     list.forEach(([pp, qi]) => { const qs = T.parts[pp].qs; h += rmMkQuestion(pp, qi, prevQ && prevQ.p === pp && prevQ.qi === qi - 1 ? qs[qi - 1] : null, qs); prevQ = { p: pp, qi }; });
-    h += '<div class="row"><button type="button" class="btn pri" data-mksubmit="1">Nộp bài và xem kết quả</button><a class="btn sm" href="index.html#lo-trinh" data-mkquit="1">Thoát</a></div></section>';
+    h += '<div class="row"><button type="button" class="btn pri" data-mksubmit="1">Nộp bài và xem kết quả</button><a class="btn sm" href="index.html#lo-trinh" data-mkquit="1">Thoát</a></div></div>' + rmMkSheet(list, answered) + '</div></section>';
     v.innerHTML = h; rmMkBindPage();
     window.scrollTo(0, 0);
 }
@@ -121,8 +138,10 @@ function rmMkBindPage() {
         if (left <= 0) rmMkSubmit(true);
     }, 500);
     v.querySelectorAll('[data-mkans]').forEach(b => b.onclick = () => {
-        const [p, qi, oi] = b.dataset.mkans.split(':').map(Number), y = window.scrollY; rmMk.ans[p][qi] = oi; rmMkDrawKeep(y);
+        const [p, qi, oi] = b.dataset.mkans.split(':').map(Number); rmMkPick(p, qi, oi);
     });
+    v.querySelectorAll('[data-mkgo]').forEach(a => a.onclick = e => { e.preventDefault(); e.stopPropagation(); const el = $(a.dataset.mkgo); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); });
+    v.querySelectorAll('[data-mksheet]').forEach(b => b.onclick = () => { const sh = $('mkSheet'), o = sh.classList.toggle('open'); b.setAttribute('aria-expanded', o); });
     v.querySelectorAll('[data-mksubmit]').forEach(b => b.onclick = () => rmMkSubmit(false));
     v.querySelectorAll('[data-mkagain]').forEach(b => b.onclick = () => { rmMkStart(rmMk.t, rmMk.mode); rmMkDraw(); });
     v.querySelectorAll('[data-mkwrong]').forEach(b => b.onclick = () => { rmMk.wrong = !rmMk.wrong; rmMkDraw(); });
