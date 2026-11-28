@@ -98,7 +98,7 @@ function ovVerbs() {
 
 /* ----- 61 mẫu ngữ pháp ----- */
 function ovGrammar() {
-    let h = '<p class="hint">Xếp theo câu chuyện của một năm học tiếng Nhật. Che dòng nghĩa, nhìn mẫu và tự nói nghĩa cùng một câu ví dụ; nói được thì bấm “Nhớ rồi”.</p>';
+    let h = '<p class="hint">Xếp theo chủ đề giao tiếp, từ dễ đến khó. Che dòng nghĩa, nhìn mẫu và tự nói nghĩa cùng một câu ví dụ; nói được thì bấm “Nhớ rồi”.</p>';
     N5_GRAMMAR.forEach(([name, desc, items], ci) => {
         const d = items.filter((_, i) => rm.t['ov-g-' + ci + '-' + i]).length;
         h += '<section class="ov-chang"><div class="ov-ch"><h3>' + esc(name) + '</h3><span class="num hint">' + d + '/' + items.length + '</span></div><p class="hint">' + esc(desc) + '</p><ul class="ov-list">' +

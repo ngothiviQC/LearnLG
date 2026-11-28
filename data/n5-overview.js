@@ -73,7 +73,7 @@ const N5_ADJ = [
 
 /* 61 mẫu ngữ pháp N5 theo 5 chặng */
 const N5_GRAMMAR = [
-  ['Chặng 1 · Người mới', 'Giới thiệu bản thân, hỏi han, mua sắm cơ bản (11 mẫu)', [
+  ['Chặng 1 · Giới thiệu bản thân, hỏi han, mua sắm', 'Câu “A là B”, câu hỏi, cái này / cái đó, hỏi giá và hỏi nơi chốn (11 mẫu)', [
     ['～は～です', 'A là B (lịch sự); は đánh dấu chủ đề.', 'ミンさんは 医者（いしゃ）です。', 'Anh Minh là bác sĩ.'],
     ['～じゃ ありません', 'Phủ định lịch sự của です: không phải là….', '私（わたし）は 先生（せんせい）じゃ ありません。', 'Tôi không phải giáo viên.'],
     ['～か', 'Đặt cuối câu để hỏi.', 'あなたは 学生（がくせい）ですか。', 'Bạn là sinh viên phải không?'],
@@ -86,7 +86,7 @@ const N5_GRAMMAR = [
     ['～は どこですか', 'Ở đâu? Trả lời bằng ここ / そこ / あそこ.', 'トイレは どこですか。', 'Nhà vệ sinh ở đâu?'],
     ['何階・～階', 'Tầng mấy? / tầng….', '食堂（しょくどう）は 三階（さんがい）です。', 'Nhà ăn ở tầng ba.'],
   ]],
-  ['Chặng 2 · Tháng đầu', 'Một ngày sinh hoạt: giờ giấc, đi lại, rủ rê (10 mẫu)', [
+  ['Chặng 2 · Sinh hoạt hằng ngày', 'Động từ lịch sự, giờ giấc, đi lại, quá khứ, rủ rê (10 mẫu)', [
     ['～ます・～ません', 'Động từ lịch sự: làm / không làm.', '毎朝（まいあさ）、パンを 食（た）べます。', 'Sáng nào tôi cũng ăn bánh mì.'],
     ['～時に', 'Lúc… giờ; に đánh dấu mốc giờ cụ thể.', '十一時（じゅういちじ）に 寝（ね）ます。', 'Tôi ngủ lúc mười một giờ.'],
     ['～から～まで', 'Từ… đến….', '九時（くじ）から 五時（ごじ）まで 働（はたら）きます。', 'Tôi làm từ chín đến năm giờ.'],
@@ -98,7 +98,7 @@ const N5_GRAMMAR = [
     ['Nơi + で + động từ', 'で = nơi diễn ra việc.', '公園（こうえん）で 走（はし）ります。', 'Tôi chạy ở công viên.'],
     ['～ませんか・～ましょう', 'Rủ: cùng… không? Hưởng ứng: cùng… nào!', 'いっしょに 帰（かえ）りませんか。', 'Cùng về nhé?'],
   ]],
-  ['Chặng 3 · Mùa hè', 'Miêu tả, cảm xúc, tồn tại, thích ghét, so sánh (15 mẫu)', [
+  ['Chặng 3 · Miêu tả, tồn tại, thích ghét, so sánh', 'Tính từ, có / ở đâu, vị trí, thích – giỏi – hiểu, lý do, so sánh (15 mẫu)', [
     ['Tính từ い + です', 'Tính từ い làm vị ngữ; phủ định ～くないです.', 'この 部屋（へや）は 広（ひろ）いです。', 'Phòng này rộng.'],
     ['Tính từ な + です', 'Tính từ な; trước danh từ thêm な.', '静（しず）かな 町（まち）です。', 'Đó là thị trấn yên tĩnh.'],
     ['とても・あまり～ない・ね・よ', 'Rất · không… lắm · nhỉ · đấy.', 'この 映画（えいが）は あまり 面白（おもしろ）くないです。', 'Phim này không hay lắm.'],
@@ -115,7 +115,7 @@ const N5_GRAMMAR = [
     ['AとBと、どちらが～／Bのほうが～', 'So sánh hai thứ: cái nào hơn? Bên B hơn.', '肉（にく）と 魚（さかな）と、どちらが 好（す）きですか。', 'Thịt với cá, bạn thích cái nào hơn?'],
     ['～で ～が いちばん ～', 'Trong phạm vi X, Y là… nhất.', 'クラスで 彼（かれ）が いちばん 背（せ）が 高（たか）いです。', 'Trong lớp anh ấy cao nhất.'],
   ]],
-  ['Chặng 4 · Mùa thu', 'Nhờ vả, đang làm, xin phép, nối việc (12 mẫu)', [
+  ['Chặng 4 · Nhờ vả, đang làm, xin phép, nối việc', 'Muốn, nhờ, thể て, đang làm, được phép – bị cấm, kể việc theo thứ tự (12 mẫu)', [
     ['～が ほしいです', 'Muốn có (đồ vật).', '新（あたら）しい パソコンが ほしいです。', 'Tôi muốn có máy tính mới.'],
     ['～たいです', 'Muốn làm gì (bỏ ます + たい).', '日本（にほん）へ 行（い）きたいです。', 'Tôi muốn đi Nhật.'],
     ['～に 行きます', 'Đi để làm gì.', '本（ほん）を 買（か）いに 行（い）きます。', 'Tôi đi mua sách.'],
@@ -129,7 +129,7 @@ const N5_GRAMMAR = [
     ['～て、～て、～ます', 'Kể nhiều việc theo thứ tự.', '起（お）きて、顔（かお）を 洗（あら）って、学校（がっこう）へ 行（い）きます。', 'Tôi dậy, rửa mặt rồi đi học.'],
     ['～てから', 'Làm xong A rồi mới B.', '手（て）を 洗（あら）ってから、食（た）べます。', 'Rửa tay xong rồi mới ăn.'],
   ]],
-  ['Chặng 5 · Mùa đông', 'Nói tự nhiên: thể ない, thể từ điển, thể た, thể thông thường (13 mẫu)', [
+  ['Chặng 5 · Thể ngắn và mẫu nâng cao', 'Thể ない, thể từ điển, thể た: phải làm, không cần, từng làm, ý kiến, trích lời (13 mẫu)', [
     ['Thể ない（3 nhóm）', 'Dạng phủ định thân mật; xem phần Chia động từ.', '今日（きょう）は 行（い）かない。', 'Hôm nay tôi không đi.'],
     ['～ないで ください', 'Xin đừng….', 'ここで 写真（しゃしん）を 撮（と）らないで ください。', 'Xin đừng chụp ảnh ở đây.'],
     ['～なければ なりません', 'Phải làm.', '宿題（しゅくだい）を しなければ なりません。', 'Tôi phải làm bài tập.'],
