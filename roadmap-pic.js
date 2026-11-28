@@ -40,7 +40,7 @@ function rmPicSec(n) {
     }).join('') + '</div>' : '';
     return rmSec('pic', 'Tranh từ vựng · ' + esc(S.length > 1 ? S.length + ' tranh' : P.title) + ' (' + total + ' từ)',
         '<div class="pic' + (rmPicHide ? ' pic-hide' : '') + '">' + tabs + '<div class="pic-top"><span class="num hint">Đã xem ' + done + '/' + total + '</span>' +
-        '<button type="button" class="btn sm" data-pichide="1" aria-pressed="' + rmPicHide + '">' + (rmPicHide ? '👁 Hiện chữ' : '🙈 Che chữ để tự kiểm tra') + '</button></div>' +
+        '</div>' +
         '<div class="pic-wrap" style="aspect-ratio:' + vw + '/' + vh + '"><svg viewBox="' + vx + ' ' + vy + ' ' + vw + ' ' + vh + '" role="img" aria-label="' + esc(P.title) + '">' + (P.svg || base) + '</svg>' + hits + pins + '</div>' + card + '<div class="pic-list">' + list + '</div>' +
         '<p class="hint">Mẹo nhớ: nhìn tranh, tự đoán từ rồi mới chạm số để kiểm tra. Các từ còn lại của bài nằm ở mục Từ vựng bên dưới.</p></div>');
 }

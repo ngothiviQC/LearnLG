@@ -465,7 +465,6 @@ function rmBind() {
     v.querySelectorAll('[data-pic]').forEach(b => b.onclick = () => rmPicPick(b.dataset.pic));
     if (typeof rmMockBind === 'function') rmMockBind(v);
     v.querySelectorAll('[data-picsc]').forEach(b => b.onclick = () => rmPicScene(b.dataset.picsc));
-    v.querySelectorAll('[data-pichide]').forEach(b => b.onclick = () => { rmPicHide = !rmPicHide; rmRe(); });
     v.querySelectorAll('[data-ovq]').forEach(b => b.onclick = () => { const [i, oi] = b.dataset.ovq.split(':').map(Number); rmOv[i] = oi; rmMarkDay(); rmRe(); });
     v.querySelectorAll('[data-ovreset]').forEach(b => b.onclick = () => { rmOv = {}; rmRe(); });
     v.querySelectorAll('[data-rmday]').forEach(b => b.onclick = () => {
