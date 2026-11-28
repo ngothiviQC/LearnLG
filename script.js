@@ -324,7 +324,7 @@ function renderHeader() {
     const info = routeInfo(route);
     $('kicker').textContent = info.kicker; $('h1').textContent = info.h1;
     try { document.title = info.h1 + ' · ' + (JA() ? '日越学習' : 'Học Việt - Nhật'); } catch (e) { }
-    $('homeTxt').textContent = t('home'); $('homeBtn').hidden = SOLO;   // trang thi riêng: chỉ giữ nút Quay lại
+    $('homeTxt').textContent = t('home'); $('backbarTxt').textContent = JA() ? 'コースへ戻る' : 'Quay về Khóa học'; $('homeBtn').hidden = SOLO;   // trang thi riêng: chỉ giữ nút Quay lại
     const bt = backTarget(), bb = $('backBtn');
     bb.hidden = !bt; if (bt) $('backTxt').textContent = (JA() ? '戻る · ' : 'Quay lại · ') + bt.label;
 }
