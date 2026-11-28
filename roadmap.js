@@ -465,8 +465,8 @@ function rmBind() {
     v.querySelectorAll('[data-pic]').forEach(b => b.onclick = () => rmPicPick(b.dataset.pic));
     if (typeof rmMockBind === 'function') rmMockBind(v);
     v.querySelectorAll('[data-picsc]').forEach(b => b.onclick = () => rmPicScene(b.dataset.picsc));
-    v.querySelectorAll('[data-ovq]').forEach(b => b.onclick = () => { const [i, oi] = b.dataset.ovq.split(':').map(Number); rmOv[i] = oi; rmMarkDay(); rmRe(); });
-    v.querySelectorAll('[data-ovreset]').forEach(b => b.onclick = () => { rmOv = {}; rmRe(); });
+    v.querySelectorAll('[data-ovq]').forEach(b => b.onclick = () => { const k = b.dataset.ovq.split(':'); rmOv[k[0]] = +k[1]; rmMarkDay(); rmRe(); });
+    v.querySelectorAll('[data-ovreset]').forEach(b => b.onclick = () => { const w = b.dataset.ovreset; Object.keys(rmOv).forEach(k => { if (w === '1' ? !/^g/.test(k) : k.startsWith(w + '_')) delete rmOv[k]; }); rmRe(); });
     v.querySelectorAll('[data-rmday]').forEach(b => b.onclick = () => {
         const k = b.dataset.rmday;
         rmT = rmT.k === k ? { k: null } : { k, q: rmTodayItems(k).map((_, i) => i), i: 0, flip: false, said: {} };

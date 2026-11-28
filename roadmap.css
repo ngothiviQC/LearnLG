@@ -386,3 +386,5 @@
 .mk-script p { margin: 3px 0; }
 .mk-script i { display: inline-block; min-width: 56px; font-style: normal; font-size: 11.5px; font-weight: 700; color: var(--muted, #777); }
 .mk-pic { display: block; width: 100%; max-width: 420px; height: auto; border-radius: 14px; margin: 4px 0 8px; }
+
+.ov-note { margin: 4px 0; padding: 6px 10px; border-radius: 8px; background: var(--ai-soft, #fbe3d2); font-size: 13.5px; }

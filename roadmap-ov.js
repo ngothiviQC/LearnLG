@@ -97,13 +97,28 @@ function ovVerbs() {
 }
 
 /* ----- 61 mẫu ngữ pháp ----- */
+/* Dễ nhầm + thử tay (8 câu) cuối mỗi trạm ngữ pháp (data/n5-grammar-plus.js) */
+function ovGPlus(ci) {
+    const P = typeof N5_GRAMMAR_PLUS === 'object' && N5_GRAMMAR_PLUS[ci]; if (!P) return '';
+    let h = '<span class="lbl rm-sub">Dễ nhầm trong trạm này</span><ul class="ov-conf">' + P.confuse.map(([a, b, ex]) => '<li><b>' + ovTxt(a) + '</b><span>' + ovTxt(b) + '</span><span class="ov-cex">' + ovJp(ex) + '</span></li>').join('') + '</ul>';
+    const keys = P.quiz.map((_, i) => 'g' + ci + '_' + i), ans = keys.map(k => rmOv[k]), done = ans.filter(a => a != null).length, ok = ans.filter(a => a === 0).length;
+    h += '<span class="lbl rm-sub">Thử tay · ' + P.quiz.length + ' câu' + (done ? ' · đúng ' + ok + '/' + done : '') + '</span>' + P.quiz.map(([q, opts, , why], qi) => {
+        const k = keys[qi], pick = rmOv[k];
+        return '<div class="rm-q"><p class="rm-qq">' + (qi + 1) + '. ' + rmJaU(q) + '</p><div class="rm-opts">' + rmHashOrder('ovg' + ci + qi, opts.length).map(oi => {
+            const cls = pick == null ? '' : oi === 0 ? ' right' : oi === pick ? ' wrong' : '';
+            return '<button type="button" class="rm-opt' + cls + '" data-ovq="' + k + ':' + oi + '"' + (pick != null ? ' disabled' : '') + '>' + rmJa(opts[oi]) + '</button>';
+        }).join('') + '</div>' + (pick != null ? '<p class="rm-why ' + (pick === 0 ? 'ok-t' : 'ng-t') + '">' + (pick === 0 ? '✓ Đúng. ' : '✗ Chưa đúng. ') + '<span>' + esc(why) + '</span></p>' : '') + '</div>';
+    }).join('') + (done === P.quiz.length ? '<p class="rm-clear ' + (ok >= 7 ? 'ok-t' : 'mid-t') + '">Kết quả: ' + ok + '/' + P.quiz.length + '</p>' : '') + (done ? '<button type="button" class="btn sm" data-ovreset="g' + ci + '">Làm lại</button>' : '');
+    return h;
+}
 function ovGrammar() {
     let h = '<p class="hint">Xếp theo chủ đề giao tiếp, từ dễ đến khó. Che dòng nghĩa, nhìn mẫu và tự nói nghĩa cùng một câu ví dụ; nói được thì bấm “Nhớ rồi”.</p>';
     N5_GRAMMAR.forEach(([name, desc, items], ci) => {
         const d = items.filter((_, i) => rm.t['ov-g-' + ci + '-' + i]).length;
-        const sid = 'ovG' + ci, isOpen = rmOpen[sid] === undefined ? true : rmOpen[sid];   // mặc định mở, bấm tiêu đề để thu nhỏ
+        const PL = (typeof N5_GRAMMAR_PLUS === 'object' && N5_GRAMMAR_PLUS[ci]) || null, sid = 'ovG' + ci, isOpen = rmOpen[sid] === undefined ? true : rmOpen[sid];   // mặc định mở, bấm tiêu đề để thu nhỏ
         h += '<details class="ov-chang" data-rmsec="' + sid + '"' + (isOpen ? ' open' : '') + '><summary class="ov-ch"><h3>' + esc(name) + '</h3><span class="num hint' + (d >= items.length ? ' ok-t' : '') + '">' + d + '/' + items.length + (d >= items.length ? ' ✓' : '') + '</span></summary><p class="hint">' + esc(desc) + '</p><ul class="ov-list">' +
-            items.map(([p, m, ex, vi], i) => '<li class="ov-item"><div class="ov-b"><b class="ov-pat">' + ovTxt(p) + '</b><p>' + ovTxt(m) + '</p><p class="ov-ex">' + rmSay(ex) + '<span>' + ovJp(ex) + '<span class="rm-vi">' + esc(vi) + '</span></span></p>' + ovTick('ov-g-' + ci + '-' + i) + '</div></li>').join('') + '</ul></details>';
+            items.map(([p, m, ex, vi], i) => { const nt = PL && PL.notes[i]; return '<li class="ov-item"><div class="ov-b"><b class="ov-pat">' + ovTxt(p) + '</b><p>' + ovTxt(m) + '</p><p class="ov-ex">' + rmSay(ex) + '<span>' + ovJp(ex) + '<span class="rm-vi">' + esc(vi) + '</span></span></p>' +
+                (nt ? '<p class="ov-note">💡 ' + ovTxt(nt[0]) + '</p><p class="ov-ex">' + rmSay(nt[1]) + '<span>' + ovJp(nt[1]) + '<span class="rm-vi">' + esc(nt[2]) + '</span></span></p>' : '') + ovTick('ov-g-' + ci + '-' + i) + '</div></li>'; }).join('') + '</ul>' + ovGPlus(ci) + '</details>';
     });
     return h;
 }
@@ -114,5 +129,5 @@ function rmOverview() {
     return '<!--stage--><div class="sec-h"><h2>Tổng quan ngữ pháp N5</h2><span class="hint">Xem lại trước khi luyện đề.</span></div>' +
         ovFold('ovP', 'Trợ từ N5', '助詞', nP + ' nhãn · 4 cặp hay nhầm · 10 câu thử tay', ovCount('ov-p-'), nP, ovParticles()) +
         ovFold('ovV', 'Chia động từ N5', '動詞', '3 nhóm · 4 dạng · 34 động từ chia sẵn', ovCount('ov-v-'), nV, ovVerbs()) +
-        ovFold('ovG', 'Toàn bộ mẫu ngữ pháp N5', '文法', nG + ' mẫu · 5 trạm', ovCount('ov-g-'), nG, ovGrammar());
+        ovFold('ovG', 'Toàn bộ mẫu ngữ pháp N5', '文法', nG + ' mẫu · 5 trạm · ghi chú, chỗ dễ nhầm, 40 câu thử tay', ovCount('ov-g-'), nG, ovGrammar());
 }
