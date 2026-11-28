@@ -95,7 +95,6 @@ function kjBody() {
         '<div class="prog"><span class="num">Đã thuộc ' + ok + '/' + ALL.length + '</span><div class="bar"><i style="width:' + (ok / ALL.length * 100) + '%;background:var(--ok)"></i></div></div></div>' +
         '<div class="kj-actions"><button type="button" class="btn pri" data-kj="quiz">⚡ Luyện nhanh 10 câu</button>' +
         '<button type="button" class="btn" data-kj="pick" aria-pressed="' + !!kjPick + '">✍ Tạo file luyện viết</button></div></div>';
-    h += kjRulesHtml();
     if (kjQuiz) h += kjQuizHtml();
     if (kjPick) {
         const n = Object.keys(kjPick).length;
@@ -135,19 +134,11 @@ function kjRulesHtml() {
 }
 const kjStrokeStart = d => { const m = /M\s*([\d.]+)[ ,]([\d.]+)/.exec(d); return m ? [+m[1], +m[2]] : [10, 10]; };
 function kjWriteHtml(k) {
-    const P = typeof KJ_STROKES === 'object' ? KJ_STROKES[k] : null, F = typeof KJ_FACT === 'object' ? KJ_FACT[k] : null;
-    if (!P || !F) return '';
+    const F = typeof KJ_FACT === 'object' ? KJ_FACT[k] : null;
+    if (!F) return '';
     const [n, bo, bon, cau] = F;
-    const cells = P.map((d, i) => {
-        const [x, y] = kjStrokeStart(d);
-        return '<div class="kj-st" title="Nét ' + (i + 1) + '"><svg viewBox="0 0 109 109" aria-hidden="true">' + P.slice(0, i).map(q => '<path class="past" d="' + q + '"/>').join('') +
-            '<path class="now" d="' + d + '"/><text x="' + Math.max(6, x - 7) + '" y="' + Math.max(12, y - 3) + '">' + (i + 1) + '</text></svg></div>';
-    }).join('');
-    return '<div class="kj-write"><span class="lbl">Cách viết</span>' +
-        '<p class="kj-facts"><b>' + n + ' nét</b> · Bộ <span class="jp" lang="ja">' + esc(bo) + '</span> ' + esc(bon) + (cau ? ' · <span class="jp-mix">' + kjTxt(cau) + '</span>' : '') + '</p>' +
-        '<div class="kj-strokes" data-kjw="' + esc(k) + '">' + cells + '</div>' +
-        '<div class="row"><button type="button" class="btn sm" data-kj="anim">▶ Xem nét chạy</button></div>' +
-        '<div class="kj-anim" hidden><svg viewBox="0 0 109 109" aria-label="Nét chạy">' + P.map(d => '<path d="' + d + '"/>').join('') + '</svg></div></div>';
+    return '<div class="kj-write"><span class="lbl">Cấu tạo chữ</span>' +
+        '<p class="kj-facts"><b>' + n + ' nét</b> · Bộ <span class="jp" lang="ja">' + esc(bo) + '</span> ' + esc(bon) + (cau ? ' · <span class="jp-mix">' + kjTxt(cau) + '</span>' : '') + '</p></div>';
 }
 let kjAnimTimer = 0;
 function kjAnimate() {
