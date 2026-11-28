@@ -17,7 +17,7 @@ const rmMkMin = T => T.parts.reduce((n, p) => n + p.min, 0);
 function rmMockCard() {
     if (typeof N5_MOCK !== 'object') return '';
     const done = N5_MOCK.filter((x, t) => rmMkHist(t).length).length;
-    let h = '<p class="hint">Mỗi đề <b>' + rmMkNq(N5_MOCK[0]) + ' câu · ' + rmMkMin(N5_MOCK[0]) + ' phút</b> theo cấu trúc JLPT N5: Phần A <b>Chữ – Từ</b> (' + N5_MOCK[0].parts[0].qs.length + ' câu · ' + N5_MOCK[0].parts[0].min + '′) và Phần B <b>Ngữ pháp + Đọc hiểu</b> (' + N5_MOCK[0].parts[1].qs.length + ' câu · ' + N5_MOCK[0].parts[1].min + '′). ' +
+    let h = '<p class="hint">Mỗi đề <b>' + rmMkNq(N5_MOCK[0]) + ' câu · ' + rmMkMin(N5_MOCK[0]) + ' phút</b> theo cấu trúc JLPT N5 (chữ – từ vựng, ngữ pháp, đọc hiểu), làm liền một mạch với một đồng hồ. ' +
         'Bấm nút để mở bài thi ở <b>trang mới</b>; nộp bài rồi mới thấy điểm và lời giải. Đề do Claude tự soạn, không chép đề thật (JLPT không công bố đề các năm). Chưa có phần Nghe.</p><div class="mk-list">';
     N5_MOCK.forEach((T, t) => {
         const H = rmMkHist(t), last = H[H.length - 1];
@@ -25,8 +25,8 @@ function rmMockCard() {
             (last ? ' · gần nhất ' + fmtD(parseYmd(last.d)) + ' (' + MK_MODE[last.m] + '): ' + last.c + '/' + last.n + ' ≈ ' + last.s + '/120' : ' · chưa làm') + '</span></div>' +
             '<div class="mk-go"><a class="btn pri" href="#thi-thu-' + (t + 1) + '-all" target="_blank" rel="noopener">' + (H.length ? 'Làm lại' : 'Làm bài') + ' ↗</a></div></div>';
     });
-    h += '</div><span class="lbl rm-sub">Đề gồm những dạng câu nào</span><ul class="rm-tips"><li><b>Phần A</b>: ' + ['k', 'w', 'c', 's'].map(k => N5_MOCK_TYPES[k] + ' ' + N5_MOCK[0].parts[0].qs.filter(q => q[0] === k).length).join(' · ') + '</li>' +
-        '<li><b>Phần B</b>: ' + ['g', 'o', 'f', 'r', 'm', 'i'].map(k => N5_MOCK_TYPES[k] + ' ' + N5_MOCK[0].parts[1].qs.filter(q => q[0] === k).length).join(' · ') + '</li>' +
+    const cnt = k => N5_MOCK[0].parts.reduce((n, P) => n + P.qs.filter(q => q[0] === k).length, 0);
+    h += '</div><span class="lbl rm-sub">Đề gồm những dạng câu nào</span><ul class="rm-tips"><li>' + Object.keys(N5_MOCK_TYPES).map(k => N5_MOCK_TYPES[k] + ' ' + cnt(k)).join(' · ') + '</li>' +
         '<li>Thang điểm phần này là 120, điểm sàn 38 (đề thật còn phần Nghe 60 điểm, sàn 19; đậu khi tổng từ 80/180). Điểm ở đây là <b>ước tính theo tỉ lệ câu đúng</b>.</li></ul>';
     return '<details class="card rm-fold" data-rmsec="mock"' + (rmOpen.mock ? ' open' : '') + '><summary><span class="rm-ft"><b>Bộ đề thi thử N5</b> <span class="jp" lang="ja">模擬試験</span>' +
         '<span class="rm-fsub">' + N5_MOCK.length + ' đề · ' + rmMkNq(N5_MOCK[0]) + ' câu · mở ở trang mới</span></span><span class="rm-fprog num' + (done >= N5_MOCK.length ? ' ok-t' : '') + '">' + done + '/' + N5_MOCK.length + '</span></summary>' + h + '</details>';
@@ -35,8 +35,8 @@ function rmMockBind() { }   // (giữ để roadmap.js gọi nếu còn; trang l
 
 /* ----- Trang làm bài ----- */
 function rmMkStart(t, mode) {
-    const T = N5_MOCK[t], steps = mode === 'all' ? [0, 1] : mode === 'a' ? [0] : [1];
-    rmMk = { t, mode, steps, si: 0, ans: T.parts.map(() => ({})), end: Date.now() + T.parts[steps[0]].min * 60000, done: false, wrong: false, retry: null };
+    const T = N5_MOCK[t];
+    rmMk = { t, mode, steps: T.parts.map((P, i) => i), si: 0, ans: T.parts.map(() => ({})), end: Date.now() + rmMkMin(T) * 60000, done: false, wrong: false, retry: null };
 }
 function renderMockExam(num, mode) {
     clearInterval(rmMkTick);
@@ -54,16 +54,15 @@ function rmMkQuestion(p, qi, shown, qs) {
 function rmMkDraw() {
     const T = N5_MOCK[rmMk.t], v = $('view');
     if (rmMk.done) { v.innerHTML = rmMkHead() + rmMkResult(); rmMkBindPage(); return; }
-    const retry = rmMk.retry, p = retry ? null : rmMk.steps[rmMk.si];
-    let list = retry ? retry.map(([pp, qi]) => [pp, qi]) : T.parts[p].qs.map((q, qi) => [p, qi]);
+    const retry = rmMk.retry;
+    const list = retry ? retry.map(([pp, qi]) => [pp, qi]) : [].concat(...T.parts.map((P, pp) => P.qs.map((q, qi) => [pp, qi])));
     const answered = list.filter(([pp, qi]) => rmMk.ans[pp][qi] != null).length;
-    let h = rmMkHead() + '<section class="card mk-page"><div class="mk-bar"><div><b>' + esc(T.name) + '</b> · ' + (retry ? 'Làm lại câu sai' : 'Phần ' + T.parts[p].key.toUpperCase() + ': ' + esc(T.parts[p].title)) + '</div>' +
+    let h = rmMkHead() + '<section class="card mk-page"><div class="mk-bar"><div><b>' + esc(T.name) + '</b>' + (retry ? ' · Làm lại câu sai' : '') + '</div>' +
         (retry ? '' : '<div class="mk-clock" id="mkClock" role="timer">' + rmMkFmt(Math.max(0, Math.round((rmMk.end - Date.now()) / 1000))) + '</div>') + '</div>' +
-        '<p class="hint">Đã trả lời ' + answered + '/' + list.length + '.' + (retry ? '' : ' Hết giờ, phần này tự nộp.') + ' Không có đáp án cho tới khi nộp bài.</p>';
-    let prevPsg = null;
-    list.forEach(([pp, qi]) => { const qs = T.parts[pp].qs; h += rmMkQuestion(pp, qi, prevPsg && prevPsg.p === pp && prevPsg.qi === qi - 1 ? qs[qi - 1] : null, qs); prevPsg = { p: pp, qi }; });
-    const last = retry || rmMk.si + 1 >= rmMk.steps.length;
-    h += '<div class="row"><button type="button" class="btn pri" data-mksubmit="1">' + (last ? 'Nộp bài và xem kết quả' : 'Nộp phần ' + T.parts[p].key.toUpperCase() + ', sang phần ' + T.parts[rmMk.steps[rmMk.si + 1]].key.toUpperCase()) + '</button><a class="btn sm" href="#lo-trinh" data-mkquit="1">Thoát</a></div></section>';
+        '<p class="hint">Đã trả lời ' + answered + '/' + list.length + '.' + (retry ? '' : ' Hết giờ, bài tự nộp.') + ' Không có đáp án cho tới khi nộp bài.</p>';
+    let prevQ = null;
+    list.forEach(([pp, qi]) => { const qs = T.parts[pp].qs; h += rmMkQuestion(pp, qi, prevQ && prevQ.p === pp && prevQ.qi === qi - 1 ? qs[qi - 1] : null, qs); prevQ = { p: pp, qi }; });
+    h += '<div class="row"><button type="button" class="btn pri" data-mksubmit="1">Nộp bài và xem kết quả</button><a class="btn sm" href="#lo-trinh" data-mkquit="1">Thoát</a></div></section>';
     v.innerHTML = h; rmMkBindPage();
     window.scrollTo(0, 0);
 }
@@ -110,7 +109,6 @@ function rmMkReview(items) {
 }
 function rmMkSubmit(auto) {
     const T = N5_MOCK[rmMk.t];
-    if (!rmMk.retry && rmMk.si + 1 < rmMk.steps.length) { rmMk.si++; rmMk.end = Date.now() + T.parts[rmMk.steps[rmMk.si]].min * 60000; rmMkDraw(); return; }
     clearInterval(rmMkTick); rmMk.done = true;
     if (!rmMk.retry) { const S = rmMkScoreOf(rmMk.steps); rmMkHist(rmMk.t).push({ d: ymd(new Date()), m: rmMk.mode, c: S.c, n: S.n, s: Math.round(S.c / S.n * 120) }); rmSave(); try { rmMarkDay(); } catch (e) { } }
     rmMkDraw(); window.scrollTo(0, 0);
