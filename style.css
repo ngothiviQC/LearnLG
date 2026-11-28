@@ -462,3 +462,5 @@ textarea.inp:focus { border-color: var(--ai); outline: none; box-shadow: 0 0 0 3
 .course-frame > * { margin-top: 0; margin-bottom: 0; }
 @media (max-width: 720px) { .course-frame { padding: 12px; border-radius: 14px; } }
 .on-home #backBtn, .on-home .brandcol .kicker, .on-home #h1, .on-home #sub { display: none !important; }
+/* Trang con (chủ đề, bài, lộ trình): bỏ hàng nút Quay lại / Trang chủ, đã có thanh tab Khóa học · N5 · N4 luôn hiển thị */
+html:not(.mk-solo) body:not(.on-home) .navrow { display: none; }
