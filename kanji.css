@@ -109,3 +109,10 @@ body.kjs-open { overflow: hidden; }
 .kj-rules ol { margin: 8px 0 4px; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
 .kj-rules li { display: flex; flex-direction: column; font-size: 13.5px; }
 .kj-rules li span { color: var(--muted); }
+
+.kj-kinds { list-style: none; padding: 0; margin: 4px 0 8px; display: flex; flex-wrap: wrap; gap: 6px; }
+.kj-kinds li { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px 3px 4px; border: 1.5px solid var(--line); border-radius: 999px; background: var(--paper); font-size: 13px; font-weight: 600; }
+.kj-kinds li b { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%; background: var(--ai); color: var(--ai-ink); font-size: 11px; }
+.kj-kindlist { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.kj-kindlist li { display: flex; gap: 10px; align-items: baseline; font-size: 13.5px; }
+.kj-kindlist li > b { font-size: 20px; width: 28px; text-align: center; color: var(--ai); }

@@ -95,6 +95,7 @@ function kjBody() {
         '<div class="prog"><span class="num">Đã thuộc ' + ok + '/' + ALL.length + '</span><div class="bar"><i style="width:' + (ok / ALL.length * 100) + '%;background:var(--ok)"></i></div></div></div>' +
         '<div class="kj-actions"><button type="button" class="btn pri" data-kj="quiz">⚡ Luyện nhanh 10 câu</button>' +
         '<button type="button" class="btn" data-kj="pick" aria-pressed="' + !!kjPick + '">✍ Tạo file luyện viết</button></div></div>';
+    h += kjRulesHtml();
     if (kjQuiz) h += kjQuizHtml();
     if (kjPick) {
         const n = Object.keys(kjPick).length;
@@ -117,7 +118,7 @@ function kjBody() {
     return h;
 }
 
-/* ----- Hướng dẫn viết: sơ đồ từng nét (KJ_STROKES, KanjiVG CC BY-SA 3.0), số nét, bộ thủ, cấu tạo ----- */
+/* ----- Nét chữ: giải thích tên từng nét, sơ đồ thứ tự nét (KJ_STROKES do Claude tự vẽ, data/kanji-strokes.js), số nét, bộ thủ, cấu tạo ----- */
 const KJ_RULES = [
     ['Trên trước, dưới sau', '三, 工, 見: viết từ trên xuống dưới.'],
     ['Trái trước, phải sau', '休, 明, 村: viết phần bên trái trước.'],
@@ -128,17 +129,75 @@ const KJ_RULES = [
     ['Nét sổ xuyên suốt viết cuối', '中, 車, 事: nét sổ cắt qua nhiều phần thì viết sau.'],
     ['Chấm nhỏ viết cuối; bộ 辶 viết cuối', '犬, 玉: chấm viết sau. 道, 進, 送: phần bên trong viết trước, 辶 (bước đi) kéo dài ở cuối.'],
 ];
+const KJ_KINDS = [
+    ['Ngang', '一', 'nét đi từ trái sang phải, gần như nằm ngang.'],
+    ['Sổ', '丨', 'nét đi từ trên xuống dưới theo chiều thẳng đứng.'],
+    ['Phẩy', '丿', 'nét kéo từ trên-phải xuống dưới-trái.'],
+    ['Mác', '㇏', 'nét kéo từ trên-trái xuống dưới-phải, thường kết thúc bằng một đoạn nhấn.'],
+    ['Chấm', '丶', 'nét rất ngắn, như một dấu chấm hơi xiên.'],
+    ['Hất', '㇀', 'nét đi chếch lên về phía phải, thường là nét cuối của bộ như 氵, 土.'],
+    ['Gập', '𠃍', 'nét đổi hướng giữa chừng (ví dụ ngang rồi sổ như góc của 口).'],
+    ['Móc', '亅', 'nét kết thúc bằng một cái móc nhỏ hất sang bên (はね).']
+];
 function kjRulesHtml() {
     return '<details class="kj-rules"><summary>✍ Quy tắc thứ tự nét (8 quy tắc)</summary><ol>' + KJ_RULES.map(([a, b]) => '<li><b>' + a + '</b><span>' + b + '</span></li>').join('') + '</ol>' +
-        '<p class="hint">Học đúng thứ tự nét giúp chữ cân đối và dễ nhớ; trong sơ đồ bên dưới, nét màu đậm là nét đang viết, số là thứ tự.</p></details>';
+        '<span class="lbl rm-sub">Tên các nét thường gặp</span><ul class="kj-kindlist">' + KJ_KINDS.map(([n, mk, d]) => '<li><b class="jp" lang="ja">' + mk + '</b><span><b>' + n + '</b> — ' + d + '</span></li>').join('') + '</ul>' +
+        '<p class="hint">Học đúng thứ tự nét giúp chữ cân đối và dễ nhớ; trong sơ đồ ở từng chữ, nét màu đậm là nét đang viết, số là thứ tự.</p></details>';
 }
 const kjStrokeStart = d => { const m = /M\s*([\d.]+)[ ,]([\d.]+)/.exec(d); return m ? [+m[1], +m[2]] : [10, 10]; };
+// đọc đường path (M L C Q tuyệt đối) → danh sách điểm
+function kjPts(d) {
+    const t = d.match(/[MLCQ]|-?\d+(?:\.\d+)?/g) || [], out = []; let cmd = '', i = 0, cur = [0, 0];
+    const n = () => +t[i++];
+    while (i < t.length) {
+        if (/[MLCQ]/.test(t[i])) cmd = t[i++];
+        if (cmd === 'M' || cmd === 'L') { cur = [n(), n()]; out.push(cur); }
+        else if (cmd === 'Q') { const c = [n(), n()], e = [n(), n()]; for (let s = 1; s <= 8; s++) { const u = s / 8, a = (1 - u) * (1 - u), b = 2 * u * (1 - u), z = u * u; out.push([a * cur[0] + b * c[0] + z * e[0], a * cur[1] + b * c[1] + z * e[1]]); } cur = e; }
+        else if (cmd === 'C') { const c1 = [n(), n()], c2 = [n(), n()], e = [n(), n()]; for (let s = 1; s <= 10; s++) { const u = s / 10, a = (1 - u) ** 3, b = 3 * u * (1 - u) ** 2, z = 3 * u * u * (1 - u), w = u ** 3; out.push([a * cur[0] + b * c1[0] + z * c2[0] + w * e[0], a * cur[1] + b * c1[1] + z * c2[1] + w * e[1]]); } cur = e; }
+        else break;
+    }
+    return out;
+}
+const KJ_SHOW_DIAGRAM = false;   // false = ẩn sơ đồ vẽ từng nét và nút "Xem nét chạy"
+const KJ_SHOW_KINDS = false;     // false = ẩn dòng "Tên các nét theo thứ tự" (cần dữ liệu data/kanji-strokes.js, hiện chưa dùng)
+// tên nét: ngang / sổ / phẩy / mác / chấm / hất / gập / móc
+function kjStrokeKind(d) {
+    const P = kjPts(d); if (P.length < 2) return 'chấm';
+    const ang = (a, b) => Math.atan2(b[1] - a[1], b[0] - a[0]) * 180 / Math.PI, dist = (a, b) => Math.hypot(b[0] - a[0], b[1] - a[1]);
+    let len = 0; for (let q = 1; q < P.length; q++) len += dist(P[q - 1], P[q]);
+    // điểm gập: đổi hướng > 55° giữa hai đoạn đủ dài
+    const dirs = []; let acc = 0;
+    for (let q = 1; q < P.length; q++) { const l = dist(P[q - 1], P[q]); if (l > 0.01) dirs.push([ang(P[q - 1], P[q]), l, acc += l]); }
+    let turnAt = -1, turn = 0;
+    for (let q = 1; q < dirs.length; q++) { let df = Math.abs(dirs[q][0] - dirs[q - 1][0]); if (df > 180) df = 360 - df; if (df > turn) { turn = df; turnAt = q; } }
+    if (len < 11) return 'chấm';
+    if (turn > 55 && turnAt > 0) { const after = len - dirs[turnAt - 1][2]; return after / len <= 0.28 ? 'móc' : 'gập'; }
+    const th = ang(P[0], P[P.length - 1]);
+    if (th >= -25 && th <= 25) return 'ngang';
+    if (th < -25 && th > -75) return 'hất';
+    if (th >= 62 && th <= 118) return 'sổ';
+    if (th > 118 || th < -105) return 'phẩy';
+    return len < 18 ? 'chấm' : 'mác';
+}
+const kjStrokeCls = { 'ngang': 'ngang', 'sổ': 'sổ', 'phẩy': 'phẩy', 'mác': 'mác', 'chấm': 'chấm', 'hất': 'hất', 'gập': 'gập', 'móc': 'móc' };
 function kjWriteHtml(k) {
-    const F = typeof KJ_FACT === 'object' ? KJ_FACT[k] : null;
+    const P = typeof KJ_STROKES === 'object' ? KJ_STROKES[k] : null, F = typeof KJ_FACT === 'object' ? KJ_FACT[k] : null;
     if (!F) return '';
     const [n, bo, bon, cau] = F;
-    return '<div class="kj-write"><span class="lbl">Cấu tạo chữ</span>' +
-        '<p class="kj-facts"><b>' + n + ' nét</b> · Bộ <span class="jp" lang="ja">' + esc(bo) + '</span> ' + esc(bon) + (cau ? ' · <span class="jp-mix">' + kjTxt(cau) + '</span>' : '') + '</p></div>';
+    let h = '<div class="kj-write"><span class="lbl">Cấu tạo chữ</span>' +
+        '<p class="kj-facts"><b>' + n + ' nét</b> · Bộ <span class="jp" lang="ja">' + esc(bo) + '</span> ' + esc(bon) + (cau ? ' · <span class="jp-mix">' + kjTxt(cau) + '</span>' : '') + '</p>';
+    if (P && P.length && (KJ_SHOW_DIAGRAM || KJ_SHOW_KINDS)) {
+        const cells = P.map((d, i) => {
+            const [x, y] = kjStrokeStart(d);
+            return '<div class="kj-st" title="Nét ' + (i + 1) + ': ' + kjStrokeKind(d) + '"><svg viewBox="0 0 109 109" aria-hidden="true">' + P.slice(0, i).map(q => '<path class="past" d="' + q + '"/>').join('') +
+                '<path class="now" d="' + d + '"/><text x="' + Math.max(6, x - 7) + '" y="' + Math.max(12, y - 3) + '">' + (i + 1) + '</text></svg></div>';
+        }).join('');
+        h += (KJ_SHOW_KINDS ? '<span class="lbl">Tên các nét theo thứ tự</span><ol class="kj-kinds">' + P.map((d, i) => '<li><b>' + (i + 1) + '</b>' + kjStrokeKind(d) + '</li>').join('') + '</ol>' : '') +
+            (KJ_SHOW_DIAGRAM ? '<div class="kj-strokes" data-kjw="' + esc(k) + '">' + cells + '</div>' +
+            '<div class="row"><button type="button" class="btn sm" data-kj="anim">▶ Xem nét chạy</button></div>' +
+            '<div class="kj-anim" hidden><svg viewBox="0 0 109 109" aria-label="Nét chạy">' + P.map(d => '<path d="' + d + '"/>').join('') + '</svg></div>' : '');
+    }
+    return h + '</div>';
 }
 let kjAnimTimer = 0;
 function kjAnimate() {
