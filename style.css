@@ -464,3 +464,5 @@ textarea.inp:focus { border-color: var(--ai); outline: none; box-shadow: 0 0 0 3
 .on-home #backBtn, .on-home .brandcol .kicker, .on-home #h1, .on-home #sub { display: none !important; }
 /* Trang con (chủ đề, bài, lộ trình): bỏ hàng nút Quay lại / Trang chủ, đã có thanh tab Khóa học · N5 · N4 luôn hiển thị */
 html:not(.mk-solo) body:not(.on-home) .navrow { display: none; }
+/* Thanh tab cố định ở đầu màn hình: luôn thấy Khóa học · N5 · N4 khi cuộn */
+.tabs { position: sticky; top: 0; z-index: 30; background: var(--bg); box-shadow: 0 1px 0 var(--line); padding-top: env(safe-area-inset-top, 0px); }
