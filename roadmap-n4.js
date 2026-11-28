@@ -108,7 +108,6 @@ function renderRoadmapN4() {
     h += rmStageHead('02', 'Giai đoạn 2 · tới ngày thi', 'Luyện đề và sửa lỗi sai', fmtD(addDays(rmDue4(50), 1)) + ' → ' + fmtD(parseYmd(rm.exam4)), qd, RM_TYPE_N);
     h += '<p class="hint rm-s2hint">Đề N4 có 3 phần: Từ vựng 25 phút, Ngữ pháp · Đọc 55 phút, Nghe 35 phút. Mỗi nhóm có cách làm cho từng dạng; dạng nào có câu luyện thì đúng từ 80% sẽ tự được đánh dấu, dạng chưa có thì bạn tự đánh dấu sau khi luyện đề thật.</p>';
     h += RM_PREP_GROUPS.map(rmPrepCard).join('');
-    h += rmTestsCard();
 
     // Sau N4
     h += '<!--stage--><div class="sec-h"><h2>Sau N4</h2><span class="hint">Thời gian là ước tính, tùy tốc độ của bạn.</span></div><div class="topics">' +

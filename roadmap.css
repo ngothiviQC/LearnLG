@@ -334,3 +334,11 @@
 .mk-score b { font-size: 30px; }
 .mk-parts { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 4px; }
 .mk-parts li { display: flex; justify-content: space-between; padding: 6px 12px; border: 1px solid var(--line); border-radius: 8px; }
+
+.mk-go { display: flex; flex-wrap: wrap; gap: 6px; }
+.mk-go .btn { text-decoration: none; }
+.mk-page { display: flex; flex-direction: column; gap: 12px; }
+.rm-qtype { align-self: flex-start; font-size: 11px; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+.mk-bar2 { flex: 1; height: 8px; border-radius: 4px; background: var(--line); overflow: hidden; margin: 0 12px; align-self: center; }
+.mk-bar2 > i { display: block; height: 100%; background: var(--ok, #2e8b57); }
+.mk-parts li { align-items: center; }

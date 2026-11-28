@@ -196,7 +196,6 @@ function renderRoadmap() {
     h += '<p class="hint rm-s2hint">Mỗi nhóm có cách làm và câu luyện cho từng dạng; đúng từ 80% thì dạng đó tự được đánh dấu. Bấm vào tên nhóm để mở.</p>';
     h += RM_PREP_GROUPS.map(rmPrepCard).join('');
     if (typeof rmMockCard === 'function') h += rmMockCard();   // bộ đề thi thử tự soạn (roadmap-mock.js)
-    h += rmTestsCard();
 
     // Sau N5
     h += '<!--stage--><div class="sec-h"><h2>Sau N5</h2><span class="hint">Thời gian là ước tính, tùy tốc độ của bạn.</span></div><div class="topics">' +
@@ -393,25 +392,6 @@ function rmPrepCard(G) {
     return h;
 }
 
-function rmTestsCard() {
-    const T = rmTests(), N4 = rmLv === 4, PASS = N4 ? 90 : 80, SAFE = N4 ? 130 : 120;
-    const rows = T.slice().reverse().map((x, j) => {
-        const i = T.length - 1 - j, tot = x.k + x.l, pass = tot >= PASS && x.k >= 38 && x.l >= 19;
-        return '<li><span class="num">' + fmtD(parseYmd(x.d)) + '</span><span class="num">Kiến thức + Đọc <b>' + x.k + '</b>/120 · Nghe <b>' + x.l + '</b>/60 · Tổng <b>' + tot + '</b>/180</span>' +
-            '<span class="rm-badge ' + (pass ? (tot >= SAFE ? 'ok' : 'mid') : 'ng') + '">' + (pass ? (tot >= SAFE ? 'Đậu an toàn' : 'Đậu sát nút') : 'Chưa đạt') + '</span>' +
-            '<button type="button" class="btn sm" data-rmdel="' + i + '" aria-label="Xóa kết quả">✕</button></li>';
-    }).join('');
-    const n = T.length, last = T[n - 1];
-    return '<details class="card rm-fold" data-rmsec="tests"' + (rmOpen.tests ? ' open' : '') + '><summary><span class="rm-ft"><b>Đề thi thử</b><span class="rm-fsub">bấm giờ thật ' + (N4 ? '25 + 55 + 35' : '20 + 40 + 30') + ' phút · nên làm 20 đề</span></span>' +
-        '<span class="rm-fprog num">' + n + '/20' + (last ? ' · gần nhất ' + (last.k + last.l) + '/180' : '') + '</span></summary>' +
-        '<p class="hint">Điều kiện đậu: tổng từ ' + PASS + '/180, Kiến thức + Đọc từ 38/120, Nghe từ 19/60. Nên nhắm ' + SAFE + '/180. Sau mỗi đề, ôn lại phần sai rồi mới làm đề tiếp.</p>' +
-        '<form class="rm-form" id="rmTest"><label class="set"><span class="lbl">Kiến thức + Đọc (/120)</span><input class="rm-num" type="number" min="0" max="120" name="k" required></label>' +
-        '<label class="set"><span class="lbl">Nghe (/60)</span><input class="rm-num" type="number" min="0" max="60" name="l" required></label>' +
-        '<button class="btn pri" type="submit">Lưu kết quả</button></form>' +
-        (rows ? '<ol class="rm-tests">' + rows + '</ol>' : '<p class="hint">Chưa có đề nào. Mục tiêu: 20 đề trước ngày thi.</p>') +
-        '</details>';
-}
-
 /* Âm thanh: file rm/aN.mp3 tạo sẵn (data/roadmap-audio.js); câu nào không có file thì dùng giọng của máy */
 const RM_AUD = new Audio(); RM_AUD.preload = 'none';
 const rmBlob = {};
@@ -495,12 +475,5 @@ function rmBind() {
     });
     v.querySelectorAll('[data-rmd]').forEach(i => i.onchange = () => { if (i.value) { rm[i.dataset.rmd] = i.value; rmSave(); const y = window.scrollY; rmRender(); window.scrollTo(0, y); } });
     const k = v.querySelector('[data-rmkana]'); if (k) k.onclick = () => { rm.kana = !rm.kana; rmSave(); const y = window.scrollY; rmRender(); window.scrollTo(0, y); };
-    v.querySelectorAll('[data-rmdel]').forEach(b => b.onclick = () => { rmTests().splice(+b.dataset.rmdel, 1); rmSave(); const y = window.scrollY; rmRender(); window.scrollTo(0, y); });
     v.querySelectorAll('[data-gto]').forEach(a => a.addEventListener('click', () => { window.hvnGramJump = +a.dataset.gto; }, true));
-    const f = $('rmTest'); if (f) f.onsubmit = e => {
-        e.preventDefault();
-        const kk = Math.max(0, Math.min(120, +f.k.value || 0)), ll = Math.max(0, Math.min(60, +f.l.value || 0));
-        rmTests().push({ d: ymd(new Date()), k: kk, l: ll }); rmSave(); rmMarkDay();
-        const y = window.scrollY; rmRender(); window.scrollTo(0, y);
-    };
 }
