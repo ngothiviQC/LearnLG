@@ -33,7 +33,7 @@ function ovParticles() {
     let h = '<p class="hint">Mỗi trợ từ là một “nhãn” trả lời một câu hỏi. は đọc là wa, へ đọc là e, を đọc là o khi làm trợ từ. Thuộc 16 nhãn này là đọc được hầu hết câu N5.</p><ul class="ov-list">';
     N5_PARTICLES.forEach(([p, g, q, use, ex, vi], i) => {
         h += '<li class="ov-item"><span class="ov-p jp" lang="ja">' + p + '</span><div class="ov-b"><span class="lbl">' + esc(g) + ' · ' + esc(q) + '</span><p>' + esc(use) + '</p>' +
-            '<p class="ov-ex">' + rmSay(ex.replace(/ \/ .*$/, '')) + '<span>' + ovJp(ex) + '<span class="rm-vi">' + esc(vi) + '</span></span></p>' + ovTick('ov-p-' + i) + '</div></li>';
+            '<p class="ov-ex"><span>' + ovJp(ex) + '<span class="rm-vi">' + esc(vi) + '</span></span></p></div></li>';
     });
     h += '</ul><span class="lbl rm-sub">Bốn cặp hay nhầm</span><ul class="ov-conf">' + N5_CONFUSE.map(([a, b, ex]) => '<li><b>' + esc(a) + '</b><span>' + esc(b) + '</span><span class="ov-cex">' + ovJp(ex) + '</span></li>').join('') + '</ul>';
     const ans = N5_PQUIZ.map((q, i) => rmOv[i]), done = ans.filter(a => a != null).length, ok = ans.filter(a => a === 0).length;
@@ -68,12 +68,10 @@ function ovVerbs() {
             return '<tr><td>' + ovJp(e) + '</td><td>' + ovJp(OV_E[e][0] + 'ます') + '</td><td>' + ovJp('〜' + OV_E[e][1]) + '</td><td>' + ovJp('〜' + OV_E[e][2] + 'ない') + '</td><td>' + ovJp(c.dict + ' → ' + c.te + ' · ' + c.nai) + '</td></tr>';
         }).join('') + '</tbody></table></div>';
     // 34 động từ
-    const done = ovCount('ov-v-');
-    h += '<span class="lbl rm-sub">34 động từ N5 chia sẵn · đã nhớ ' + done + '/' + N5_VERBS.length + '</span><div class="ov-scroll"><table class="ov-tab ov-verbs"><thead><tr><th>ます</th><th>Nghĩa · nhóm</th><th>て</th><th>ない</th><th>Từ điển</th><th>た</th><th></th></tr></thead><tbody>' +
+    h += '<span class="lbl rm-sub">34 động từ N5 chia sẵn</span><div class="ov-scroll"><table class="ov-tab ov-verbs"><thead><tr><th>ます</th><th>Nghĩa · nhóm</th><th>て</th><th>ない</th><th>Từ điển</th><th>た</th></tr></thead><tbody>' +
         N5_VERBS.map((v, i) => {
-            const c = ovConj(v), on = rm.t['ov-v-' + i];
-            return '<tr class="' + (on ? 'on' : '') + '"><td>' + ovJp(c.masu) + '</td><td>' + esc(v[2]) + ' · ' + v[3] + '</td><td>' + ovJp(c.te) + '</td><td>' + ovJp(c.nai) + '</td><td>' + ovJp(c.dict) + '</td><td>' + ovJp(c.ta) + '</td>' +
-                '<td><label class="rm-mini' + (on ? ' on' : '') + '"><input type="checkbox" data-rmt="ov-v-' + i + '"' + (on ? ' checked' : '') + ' aria-label="Nhớ rồi"><span class="rm-box" aria-hidden="true">✓</span></label></td></tr>';
+            const c = ovConj(v);
+            return '<tr><td>' + ovJp(c.masu) + '</td><td>' + esc(v[2]) + ' · ' + v[3] + '</td><td>' + ovJp(c.te) + '</td><td>' + ovJp(c.nai) + '</td><td>' + ovJp(c.dict) + '</td><td>' + ovJp(c.ta) + '</td></tr>';
         }).join('') + '</tbody></table></div>';
     // dùng ở đâu
     h += '<span class="lbl rm-sub">Dạng nào dùng ở đâu</span><ul class="ov-use">' + N5_VERB_USE.map(([a, b]) => '<li><b>' + esc(a) + '</b><span>' + ovTxt(b) + '</span></li>').join('') + '</ul>';
@@ -117,8 +115,8 @@ function ovGrammar() {
         const d = items.filter((_, i) => rm.t['ov-g-' + ci + '-' + i]).length;
         const PL = (typeof N5_GRAMMAR_PLUS === 'object' && N5_GRAMMAR_PLUS[ci]) || null, sid = 'ovG' + ci, isOpen = rmOpen[sid] === undefined ? true : rmOpen[sid];   // mặc định mở, bấm tiêu đề để thu nhỏ
         h += '<details class="ov-chang" data-rmsec="' + sid + '"' + (isOpen ? ' open' : '') + '><summary class="ov-ch"><h3>' + esc(name) + '</h3><span class="num hint">' + items.length + ' mẫu</span></summary><p class="hint">' + esc(desc) + '</p><ul class="ov-list">' +
-            items.map(([p, m, ex, vi], i) => { const nt = PL && PL.notes[i]; return '<li class="ov-item"><div class="ov-b"><b class="ov-pat">' + ovTxt(p) + '</b><p>' + ovTxt(m) + '</p><p class="ov-ex">' + rmSay(ex) + '<span>' + ovJp(ex) + '<span class="rm-vi">' + esc(vi) + '</span></span></p>' +
-                (nt ? '<p class="ov-note"><b class="ov-tip">Mẹo</b>' + ovTxt(nt[0]) + '</p><p class="ov-ex">' + rmSay(nt[1]) + '<span>' + ovJp(nt[1]) + '<span class="rm-vi">' + esc(nt[2]) + '</span></span></p>' : '') + '</div></li>'; }).join('') + '</ul>' + ovGPlus(ci) + '</details>';
+            items.map(([p, m, ex, vi], i) => { const nt = PL && PL.notes[i]; return '<li class="ov-item"><div class="ov-b"><b class="ov-pat">' + ovTxt(p) + '</b><p>' + ovTxt(m) + '</p><p class="ov-ex"><span>' + ovJp(ex) + '<span class="rm-vi">' + esc(vi) + '</span></span></p>' +
+                (nt ? '<p class="ov-note"><b class="ov-tip">Mẹo</b>' + ovTxt(nt[0]) + '</p><p class="ov-ex"><span>' + ovJp(nt[1]) + '<span class="rm-vi">' + esc(nt[2]) + '</span></span></p>' : '') + '</div></li>'; }).join('') + '</ul>' + ovGPlus(ci) + '</details>';
     });
     return h;
 }
@@ -127,7 +125,7 @@ function rmOverview() {
     if (typeof N5_PARTICLES !== 'object') return '';
     const nP = N5_PARTICLES.length, nV = N5_VERBS.length, nG = N5_GRAMMAR.reduce((n, g) => n + g[2].length, 0);
     return '<!--stage--><div class="sec-h"><h2>Tổng quan ngữ pháp N5</h2><span class="hint">Xem lại trước khi luyện đề.</span></div>' +
-        ovFold('ovP', 'Trợ từ N5', '助詞', nP + ' nhãn · 4 cặp hay nhầm · 10 câu luyện tập', ovCount('ov-p-'), nP, ovParticles()) +
-        ovFold('ovV', 'Chia động từ N5', '動詞', '3 nhóm · 4 dạng · 34 động từ chia sẵn', ovCount('ov-v-'), nV, ovVerbs()) +
+        ovFold('ovP', 'Trợ từ N5', '助詞', nP + ' nhãn · 4 cặp hay nhầm · 10 câu luyện tập', 0, 0, ovParticles()) +
+        ovFold('ovV', 'Chia động từ N5', '動詞', '3 nhóm · 4 dạng · 34 động từ chia sẵn', 0, 0, ovVerbs()) +
         ovFold('ovG', 'Toàn bộ mẫu ngữ pháp N5', '文法', nG + ' mẫu · 5 trạm · mẹo, chỗ dễ nhầm, 40 câu luyện tập', 0, 0, ovGrammar());
 }
