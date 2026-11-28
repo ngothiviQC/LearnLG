@@ -111,10 +111,10 @@ function renderRoadmapN4() {
     h += rmTestsCard();
 
     // Sau N4
-    h += '<div class="sec-h"><h2>Sau N4</h2><span class="hint">Thời gian là ước tính, tùy tốc độ của bạn.</span></div><div class="topics">' +
+    h += '<!--stage--><div class="sec-h"><h2>Sau N4</h2><span class="hint">Thời gian là ước tính, tùy tốc độ của bạn.</span></div><div class="topics">' +
         '<div class="topic rm-later"><span class="tp-mark" aria-hidden="true">N3</span><span class="tp-n">Khoảng 8–10 tháng sau N4</span><b>Chinh phục N3</b><span class="tp-d">' +
         'Bộ Shin Kanzen Master hoặc Soumatome N3; đọc NHK News Web Easy, xem anime có phụ đề tiếng Nhật.</span></div></div>';
     h += '<p class="hint">Mẹo: ở N4, kính ngữ (bài 49–50) và các thể bị động / sai khiến (bài 37, 48) là phần dễ mất điểm nhất; hãy đọc to ví dụ mỗi ngày.</p>';
-    $('view').innerHTML = h;
+    $('view').innerHTML = rmWrapStages(h);
     rmBind();
 }

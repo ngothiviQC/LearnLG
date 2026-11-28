@@ -269,3 +269,9 @@
 @media (max-width: 720px) { .ov-groups { grid-template-columns: 1fr; } .ov-p { min-width: 40px; font-size: 22px; } }
 .rm-mini.on .rm-box { background: var(--ok); border-color: var(--ok); color: var(--paper); }
 .rm-mini input:focus-visible + .rm-box { outline: 2px solid var(--ai); outline-offset: 2px; }
+
+/* ===== Khung bọc mỗi giai đoạn ===== */
+.rm-stagebox { border: 1.5px solid var(--line); border-radius: 18px; padding: 16px; margin: 20px 0; background: color-mix(in srgb, var(--sunken) 55%, transparent); display: flex; flex-direction: column; gap: 12px; }
+.rm-stagebox > * { margin-top: 0; margin-bottom: 0; }
+.rm-stagebox > .rm-stage { padding-bottom: 10px; border-bottom: 1px dashed var(--line); }
+@media (max-width: 720px) { .rm-stagebox { padding: 12px; border-radius: 14px; } }

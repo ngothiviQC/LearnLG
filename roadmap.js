@@ -19,6 +19,8 @@ let rm = Object.assign({ start: ymd(new Date()), exam: '2027-07-04', kana: false
 let rmDays = rmLoad('hvn.days', {});
 let rmLv = 5;   // trang đang vẽ: 5 = Lộ trình N5, 4 = Lộ trình N4 (roadmap-n4.js)
 const rmMin = t => rmLv === 4 ? t.replace('20 phút', '25 phút').replace('40 phút', '55 phút').replace('30 phút', '35 phút') : t;   // N4: 25 + 55 + 35 phút
+// Bọc mỗi giai đoạn (đánh dấu bằng <!--stage-->) vào một khung riêng
+const rmWrapStages = h => { const p = h.split('<!--stage-->'); return p[0] + p.slice(1).map(x => '<section class="rm-stagebox">' + x + '</section>').join(''); };
 const rmK = id => rmLv === 4 ? 'n4' + id : id;   // mã việc ở Giai đoạn 2 tách riêng theo cấp
 const rmTests = () => rmLv === 4 ? (rm.tests4 = rm.tests4 || []) : rm.tests;
 const rmRender = () => route === 'lo-trinh-n4' && typeof renderRoadmapN4 === 'function' ? renderRoadmapN4() : renderRoadmap();
@@ -196,15 +198,15 @@ function renderRoadmap() {
     h += rmTestsCard();
 
     // Sau N5
-    h += '<div class="sec-h"><h2>Sau N5</h2><span class="hint">Thời gian là ước tính, tùy tốc độ của bạn.</span></div><div class="topics">' +
+    h += '<!--stage--><div class="sec-h"><h2>Sau N5</h2><span class="hint">Thời gian là ước tính, tùy tốc độ của bạn.</span></div><div class="topics">' +
         RM_LATER.map(([lv, when, d]) => (lv === 'N4' ? '<a class="topic rm-later" href="#lo-trinh-n4">' : '<div class="topic rm-later">') + '<span class="tp-mark" aria-hidden="true">' + lv + '</span><span class="tp-n">' + when + '</span><b>Chinh phục ' + lv + '</b><span class="tp-d">' + d + (lv === 'N4' ? ' <b>Mở lộ trình N4 →</b>' : '') + '</span>' + (lv === 'N4' ? '</a>' : '</div>')).join('') + '</div>';
     h += '<p class="hint">Mẹo: học cùng một khung giờ mỗi ngày, bật chế độ Không làm phiền, và mỗi tháng ghi âm lại cùng một đoạn để nghe mình tiến bộ.</p>';
-    $('view').innerHTML = h;
+    $('view').innerHTML = rmWrapStages(h);
     rmBind();
 }
 
 const rmLessonNext = () => LESSON_ORDER.find(no => okCount(keyOf(no)) < 30) || LESSON_ORDER[0];
-const rmStageHead = (no, when, title, range, d, tot) => '<div class="rm-stage"><span class="rm-sn">' + no + '</span><div><span class="lbl">' + when + ' · ' + range + '</span><h2>' + title + '</h2></div>' +
+const rmStageHead = (no, when, title, range, d, tot) => '<!--stage--><div class="rm-stage"><span class="rm-sn">' + no + '</span><div><span class="lbl">' + when + ' · ' + range + '</span><h2>' + title + '</h2></div>' +
     '<span class="rm-sp num' + (d >= tot ? ' ok-t' : '') + '">' + d + '/' + tot + (d >= tot ? ' ✓' : '') + '</span></div>';
 
 /* ----- Nội dung bài học (data/roadmap-lessons.js) ----- */
