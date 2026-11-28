@@ -195,6 +195,7 @@ function renderRoadmap() {
     h += rmStageHead('02', 'Giai đoạn 2 · tới ngày thi', 'Luyện đề và sửa lỗi sai', fmtD(addDays(rmDue(25), 1)) + ' → ' + fmtD(parseYmd(rm.exam)), qd, RM_TYPE_N);
     h += '<p class="hint rm-s2hint">Mỗi nhóm có cách làm và câu luyện cho từng dạng; đúng từ 80% thì dạng đó tự được đánh dấu. Bấm vào tên nhóm để mở.</p>';
     h += RM_PREP_GROUPS.map(rmPrepCard).join('');
+    if (typeof rmMockCard === 'function') h += rmMockCard();   // bộ đề thi thử tự soạn (roadmap-mock.js)
     h += rmTestsCard();
 
     // Sau N5
@@ -465,6 +466,7 @@ function rmBind() {
     });
     v.querySelectorAll('[data-rmpreset]').forEach(b => b.onclick = () => { const id = rmK(b.dataset.rmpreset); Object.keys(rmPrep).forEach(k => { if (k.startsWith(id + '-')) delete rmPrep[k]; }); rmRe(); });
     v.querySelectorAll('[data-pic]').forEach(b => b.onclick = () => rmPicPick(b.dataset.pic));
+    if (typeof rmMockBind === 'function') rmMockBind(v);
     v.querySelectorAll('[data-picsc]').forEach(b => b.onclick = () => rmPicScene(b.dataset.picsc));
     v.querySelectorAll('[data-pichide]').forEach(b => b.onclick = () => { rmPicHide = !rmPicHide; rmRe(); });
     v.querySelectorAll('[data-ovq]').forEach(b => b.onclick = () => { const [i, oi] = b.dataset.ovq.split(':').map(Number); rmOv[i] = oi; rmMarkDay(); rmRe(); });
