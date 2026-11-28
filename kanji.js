@@ -172,7 +172,7 @@ function kjDetail(k) {
     const x = kjInfo()[k]; if (!x) return '';
     const ALL = kjAll(), i = ALL.indexOf(k);
     return '<div class="kj-detail"><div class="kj-big jp" lang="ja">' + k + '</div><div class="kj-dt">' +
-        '<span class="lbl">Chữ ' + (i + 1) + '/' + ALL.length + '' + '</span>' +
+        '<span class="lbl">' + (i >= 0 ? 'Chữ ' + (i + 1) + '/' + ALL.length : 'Kanji trong bài') + '</span>' +
         '<h3>' + esc(x.hv) + ' <span class="kj-m">· ' + esc(x.m) + '</span></h3>' +
         '<p class="kj-rd"><span class="lbl">Âm On / âm Kun</span><span class="jp" lang="ja">' + esc(x.rd) + '</span></p>' +
         '<p class="kj-ex">' + rmSay(x.ex) + '<span>' + rmJa(x.ex) + '<span class="rm-vi">' + esc(x.exv) + '</span></span></p>' +

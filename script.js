@@ -259,13 +259,13 @@ let route = 'luyen-cau';
 function parseHash() {
     const h = location.hash.slice(1);
     if (h === 'ngu-phap' || h === 'lo-trinh' || h === 'lo-trinh-n4' || (typeof MK_RE !== 'undefined' && MK_RE.test(h))) return h;
-    if (h === 'kanji') { try { rmOpen.kanji = true; } catch (e) { } return 'lo-trinh'; }   // Kanji N5 nằm trong Lộ trình N5
+    if (h === 'kanji') { try { rm.stab5 = 'kanji'; rmSave(); } catch (e) { } return 'lo-trinh'; }   // Kanji N5 nằm trong Lộ trình N5
     if (h === 'kana') return 'ngu-phap';   // link cũ của mục Bảng Kana
     const tp = h.match(/^chu-de-(\d+)$/); if (tp && +tp[1] >= 1 && +tp[1] <= TOPICS.length) return h;
     const m = h.match(/^bai-(\d+)$/); if (m && +m[1] >= 1 && +m[1] <= LESSONS.length) return h;
     return 'luyen-cau';
 }
-function go(r) { if (r === 'kanji') { try { rmOpen.kanji = true; } catch (e) { } r = 'lo-trinh'; }   // Kanji N5 nằm trong Lộ trình N5 (giống parseHash)
+function go(r) { if (r === 'kanji') { try { rm.stab5 = 'kanji'; rmSave(); } catch (e) { } r = 'lo-trinh'; }   // Kanji N5 nằm trong Lộ trình N5 (giống parseHash)
     if (location.hash.slice(1) !== r) { try { location.hash = r; } catch (e) { } } route = r; render(); window.scrollTo(0, 0); }
 document.addEventListener('click', e => { const a = e.target.closest('a[href^="#"]'); if (!a || a.target === '_blank') return; e.preventDefault(); stopAudio(); go(a.getAttribute('href').slice(1)); });
 window.addEventListener('hashchange', () => withData(() => { const r = parseHash(); if (r !== route) { route = r; render(); } }));

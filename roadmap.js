@@ -27,8 +27,8 @@ const rmWrapStages = (h, lv) => {
     lv = lv || rmLv;
     const p = h.split('<!--stage-->'), tabs = [], boxes = [];
     p.slice(1).forEach(x => {
-        const sn = x.match(/class="rm-sn">(\d+)</), ov = !sn && /Tổng quan ngữ pháp/.test(x), id = sn ? sn[1] : ov ? 'ov' : 'later';
-        tabs.push([id, ov ? 'Tổng quan ngữ pháp' : sn ? 'Giai đoạn ' + (+sn[1]) + ' · ' + (sn[1] === '00' && lv === 4 ? 'Ôn nền tảng' : RM_STAGE_SHORT[sn[1]] || '') : 'Sau N' + lv]);
+        const sn = x.match(/class="rm-sn">(\d+)</), ov = !sn && /Tổng quan ngữ pháp/.test(x), kj = !sn && /data-rmstage="kanji"/.test(x), id = sn ? sn[1] : kj ? 'kanji' : ov ? 'ov' : 'later';
+        tabs.push([id, kj ? 'Kanji N' + lv : ov ? 'Tổng quan ngữ pháp' : sn ? 'Giai đoạn ' + (+sn[1]) + ' · ' + (sn[1] === '00' && lv === 4 ? 'Ôn nền tảng' : RM_STAGE_SHORT[sn[1]] || '') : 'Sau N' + lv]);
         boxes.push(x);
     });
     rmStageTabs[lv] = tabs;
@@ -196,11 +196,10 @@ function renderRoadmap() {
         h += '</div></div>';
     }
     h += '</div>' + (rm.sel ? rmStationPanel(rm.sel) : '<p class="hint rm-pickhint">Bấm vào một trạm để xem nội dung bài học; bấm lần nữa để ẩn.</p>') + '</section>';
-    // Kanji N5 (kanji.js): bảng 103 chữ, luyện nhanh, file luyện viết — thẻ thu gọn trong Giai đoạn 1
+    // Kanji N5 (kanji.js): bảng 103 chữ, luyện nhanh, file luyện viết — một khung riêng, hiện thành tab "Kanji N5"
     if (typeof kjBody === 'function') {
         const ko = kjOkCount();
-        h += '<details class="card rm-fold kj-fold' + (ko === KJ_ALL.length ? ' done' : '') + '" data-rmsec="kanji"' + (rmOpen.kanji ? ' open' : '') + '><summary><span class="rm-ft"><b>Kanji N5</b> <span class="jp" lang="ja">漢字</span><span class="rm-fsub">103 chữ · bảng chữ, luyện nhanh, file luyện viết</span></span>' +
-            '<span class="rm-fprog num' + (ko === KJ_ALL.length ? ' ok-t' : '') + '">' + ko + '/' + KJ_ALL.length + '</span></summary>' + kjBody() + '</details>';
+        h += '<!--stage--><div class="sec-h" data-rmstage="kanji"><h2>Kanji N5 <span class="jp" lang="ja">漢字</span></h2><span class="hint">' + KJ_ALL.length + ' chữ · đã thuộc ' + ko + '/' + KJ_ALL.length + '</span></div>' + kjBody();
     }
 
     // Tổng quan ngữ pháp N5 (roadmap-ov.js): trợ từ, chia động từ, 61 mẫu
@@ -222,6 +221,16 @@ function renderRoadmap() {
     rmBind();
 }
 
+/* Kanji của một trạm: cùng kiểu với tab Kanji (kanji.js) — bấm một chữ để xem Hán Việt, cách đọc, ví dụ, cách viết; bấm lại để đóng */
+function rmStationKanji(list) {
+    if (typeof kjDetail !== 'function') return '';
+    try { kjSync(); } catch (e) { }
+    const chars = list.map(x => x[0]), I = kjInfo();
+    list.forEach(([k, hv, rd2, mm, ex, exv]) => { if (!I[k]) I[k] = { k, hv, rd: rd2, m: mm, ex, exv, n: 0 }; });
+    return '<p class="hint">Bấm vào một chữ để xem Hán Việt, cách đọc, từ ví dụ và cách viết; bấm lại để đóng.</p><div class="kj-grid">' + chars.map(k => { const x = I[k] || {};
+        return '<button type="button" class="kj-tile' + (kjOk()[k] ? ' ok' : '') + (kjSel === k ? ' sel' : '') + '" data-kjc="' + k + '" title="' + esc((x.hv || '') + ' · ' + (x.m || '')) + '"><span class="kj-c jp" lang="ja">' + k + '</span><span class="kj-hv">' + esc(x.hv || '') + '</span></button>'; }).join('') + '</div>' +
+        (kjSel && chars.includes(kjSel) ? kjDetail(kjSel) : '');
+}
 const rmLessonNext = () => LESSON_ORDER.find(no => okCount(keyOf(no)) < 30) || LESSON_ORDER[0];
 const rmStageHead = (no, when, title, range, d, tot) => '<!--stage--><div class="rm-stage"><span class="rm-sn">' + no + '</span><div><span class="lbl">' + when + ' · ' + range + '</span><h2>' + title + '</h2></div>' +
     '<span class="rm-sp num' + (d >= tot ? ' ok-t' : '') + '">' + d + '/' + tot + (d >= tot ? ' ✓' : '') + '</span></div>';
@@ -248,9 +257,7 @@ function rmLessonContent(n) {
     if (typeof rmPicSec === 'function') h += rmPicSec(n);   // tranh từ vựng (roadmap-pic.js)
     h += rmSec('v', 'Từ vựng chính (' + L.vocab.length + ' từ)', '<ul class="rm-vocab">' + L.vocab.map(([ja, vi]) =>
         '<li>' + rmSay(ja) + rmJa(ja) + '<span class="rm-vi">' + esc(vi) + '</span></li>').join('') + '</ul>');
-    h += rmSec('k', 'Kanji (' + L.kanji.length + ' chữ)', '<div class="rm-kanji">' + L.kanji.map(([k, hv, rd, m, ex, exv]) =>
-        '<div class="rm-kj"><span class="rm-kc jp" lang="ja">' + k + '</span><div><b>' + esc(hv) + '</b> · ' + esc(m) + '<span class="rm-rd jp" lang="ja">' + esc(rd) + '</span>' +
-        '<span class="rm-ex">' + rmJa(ex) + ' — ' + esc(exv) + '</span></div></div>').join('') + '</div>');
+    h += rmSec('k', 'Kanji (' + L.kanji.length + ' chữ)', rmStationKanji(L.kanji));
     h += rmSec('t', 'Hội thoại mẫu', '<ol class="rm-lines rm-talk">' + L.talk.map(([who, ja, vi]) =>
         '<li>' + rmSay(ja) + '<span class="rm-who jp" lang="ja">' + rubyHtml(who) + '</span><div>' + rmJa(ja) + '<span class="rm-vi">' + esc(vi) + '</span></div></li>').join('') + '</ol>' +
         '<p class="hint">Shadowing: bấm 🔊, nghe rồi nói đuổi theo từng câu. Nút nghe dùng giọng đọc của máy.</p>');

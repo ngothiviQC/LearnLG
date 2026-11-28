@@ -96,11 +96,10 @@ function renderRoadmapN4() {
     }
     h += '</div>' + (rm.sel4 ? rmStationPanel(rm.sel4) : '<p class="hint rm-pickhint">Bấm vào một trạm để xem nội dung bài học; bấm lần nữa để ẩn.</p>') + '</section>';
 
-    // Kanji N4 (kanji.js): bảng chữ, luyện nhanh, file luyện viết — thẻ thu gọn trong Giai đoạn 1
+    // Kanji N4 (kanji.js): bảng chữ, luyện nhanh, file luyện viết — một khung riêng, hiện thành tab "Kanji N4"
     if (typeof kjBody === 'function') {
         const ko = kjOkCount(), kn = kjAll().length;
-        h += '<details class="card rm-fold kj-fold' + (ko === kn ? ' done' : '') + '" data-rmsec="kanji4"' + (rmOpen.kanji4 ? ' open' : '') + '><summary><span class="rm-ft"><b>Kanji N4</b> <span class="jp" lang="ja">漢字</span><span class="rm-fsub">' + kn + ' chữ · bảng chữ, luyện nhanh, file luyện viết</span></span>' +
-            '<span class="rm-fprog num' + (ko === kn ? ' ok-t' : '') + '">' + ko + '/' + kn + '</span></summary>' + kjBody() + '</details>';
+        h += '<!--stage--><div class="sec-h" data-rmstage="kanji"><h2>Kanji N4 <span class="jp" lang="ja">漢字</span></h2><span class="hint">' + kn + ' chữ · đã thuộc ' + ko + '/' + kn + '</span></div>' + kjBody();
     }
 
     // Giai đoạn 2
