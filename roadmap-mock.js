@@ -53,12 +53,19 @@ function rmMkQuestion(p, qi, shown, qs) {
 }
 const rmMkCirc = ['①', '②', '③', '④'];
 function rmMkSheet(list, answered) {
-    let h = '<aside class="mk-sheet" id="mkSheet"><button type="button" class="mk-sheet-t" data-mksheet="1" aria-expanded="false"><b>Phiếu trả lời</b><span><span id="mkCnt2">' + answered + '</span>/' + list.length + ' câu đã chọn ▾</span></button><div class="mk-sheet-b">';
+    const T = N5_MOCK[rmMk.t], SEC = ['言語知識（文字・語彙）', '言語知識（文法）・読解'];
+    let h = '<aside class="mk-sheet" id="mkSheet"><button type="button" class="mk-sheet-t" data-mksheet="1" aria-expanded="false"><b>Phiếu trả lời <span class="jp" lang="ja">解答用紙</span></b><span><span id="mkCnt2">' + answered + '</span>/' + list.length + ' câu đã chọn ▾</span></button><div class="mk-sheet-b">' +
+        '<div class="mk-sh-head"><b class="jp" lang="ja">N5 ' + esc(T.name.replace(/\D+/g, '') ? '第' + T.name.replace(/\D+/g, '') + '回' : T.name) + '</b><span class="mk-sh-name"><span class="jp" lang="ja">なまえ</span> Name</span></div>';
+    let curP = -1, curT = null, bn = 0, open = false;
+    const closeBlock = () => { if (open) h += '</div></div>'; open = false; };
     list.forEach(([p, qi]) => {
-        const pick = rmMk.ans[p][qi];
+        const type = T.parts[p].qs[qi][0], pick = rmMk.ans[p][qi];
+        if (p !== curP) { closeBlock(); if (curP >= 0) h += '</div>'; h += '<div class="mk-sec"><div class="mk-sec-t jp" lang="ja">' + SEC[p] + '</div><div class="mk-blocks">'; curP = p; curT = null; bn = 0; }
+        if (type !== curT) { closeBlock(); bn++; curT = type; h += '<div class="mk-blk"><div class="mk-blk-t jp" lang="ja">もんだい' + bn + '</div><div class="mk-blk-b">'; open = true; }
         h += '<div class="mk-row" id="mkr-' + p + '-' + qi + '"><a class="mk-no" href="#mkq-' + p + '-' + qi + '" data-mkgo="mkq-' + p + '-' + qi + '">' + rmMkNo(p, qi) + '</a>' +
             rmMkOrder(rmMk.t, p, qi).map((oi, k) => '<button type="button" class="mk-bub' + (pick === oi ? ' mk-sel' : '') + '" data-mkans="' + p + ':' + qi + ':' + oi + '" aria-label="Câu ' + rmMkNo(p, qi) + ' chọn ' + (k + 1) + '">' + rmMkCirc[k] + '</button>').join('') + '</div>';
     });
+    closeBlock(); if (curP >= 0) h += '</div></div>';
     return h + '</div></aside>';
 }
 function rmMkPick(p, qi, oi) {
