@@ -341,7 +341,10 @@ function renderNav() {
     // các mục chính; bấm vào mục khác sẽ về trang bạn xem gần nhất của mục đó, bấm lại mục đang đứng để về đầu mục
     const go1 = k => sec === k ? sectionRoot[k] : (lastIn[k] || sectionRoot[k]);
     let h = tab('luyen-cau', (JA() ? '文章練習' : 'Luyện câu') + ' · ' + done + '/' + LESSONS.length * 30, sec === 'course', JA() ? '文章練習' : 'Luyện câu song ngữ');
-    if (!JA()) h += tab(go1('n5'), 'Lộ trình N5 · ' + rmDoneCount() + '/25', sec === 'n5', 'Lộ trình chinh phục N5') + tab(go1('n4'), 'Lộ trình N4 · ' + rm4DoneCount() + '/25', sec === 'n4', 'Lộ trình chinh phục N4');
+    const tm = route.match(/^chu-de-(\d+)$/), bm = route.match(/^bai-(\d+)$/), curTopic = tm ? +tm[1] : bm ? topicOf(+bm[1]) : 0;
+    if (curTopic) {   // đang trong mục Luyện câu: các tab bên cạnh là những chủ đề khác
+        h = tab('luyen-cau', (JA() ? '文章練習' : 'Luyện câu') + ' · ' + done + '/' + LESSONS.length * 30, false, JA() ? '文章練習' : 'Luyện câu song ngữ') + TOPICS.map((T, i) => tab('chu-de-' + (i + 1), T.mark + ' ' + esc(topicName(T)), i + 1 === curTopic, JA() ? T.dja : T.dvi)).join('');
+    } else if (!JA()) h += tab(go1('n5'), 'Lộ trình N5 · ' + rmDoneCount() + '/25', sec === 'n5', 'Lộ trình chinh phục N5') + tab(go1('n4'), 'Lộ trình N4 · ' + rm4DoneCount() + '/25', sec === 'n4', 'Lộ trình chinh phục N4');
     $('sub').innerHTML = h;
     // trên điện thoại thanh tab cuộn ngang: đưa tab đang chọn vào tầm nhìn (chỉ cuộn thanh tab, không cuộn trang)
     const cur = $('sub').querySelector('[aria-current="page"]');
