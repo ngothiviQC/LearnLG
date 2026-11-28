@@ -387,4 +387,10 @@
 .mk-script i { display: inline-block; min-width: 56px; font-style: normal; font-size: 11.5px; font-weight: 700; color: var(--muted, #777); }
 .mk-pic { display: block; width: 100%; max-width: 420px; height: auto; border-radius: 14px; margin: 4px 0 8px; }
 
-.ov-note { margin: 4px 0; padding: 6px 10px; border-radius: 8px; background: var(--ai-soft, #fbe3d2); font-size: 13.5px; }
+
+/* Mẹo và chỗ dễ nhầm: nền sáng + viền đậm để nổi bật trên khung màu be */
+.ov-note { margin: 8px 0; padding: 9px 12px; border-radius: 10px; background: var(--paper); border: 1.5px solid var(--ai); border-left-width: 6px; color: var(--ink); font-size: 14px; font-weight: 500; line-height: 1.5; box-shadow: 0 1px 0 rgba(0, 0, 0, .05); }
+.ov-tip { display: inline-block; margin-right: 8px; padding: 1px 9px; border-radius: 999px; background: var(--ai); color: var(--ai-ink); font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; vertical-align: 1px; }
+.ov-chang .ov-conf li { background: var(--paper); border: 1.5px solid var(--line); border-left: 6px solid var(--amber, #d18a45); border-radius: 10px; color: var(--ink); }
+.ov-chang .ov-conf li b { color: var(--ai); }
+.ov-chang .ov-conf li span { color: var(--ink); }
