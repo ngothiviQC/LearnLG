@@ -6,7 +6,11 @@ let rmPicCur = {};      // số trạm → chỉ số tranh đang xem (0, 1, …
 let rmPicHide = false;  // true = che chữ trên tranh
 const rmPicSeen = n => ((rm.pic || {})[n] || []);
 // Một trạm có thể có nhiều tranh (mảng); mỗi lần hiện một tranh, tranh sau không có svg thì dùng lại svg của tranh đầu
-const rmPicScenes = n => { const P = typeof RM_PICS === 'object' ? RM_PICS[n] : null; return !P ? [] : Array.isArray(P) ? P : [P]; };
+const rmPicScenes = n => {
+    const arr = x => !x ? [] : Array.isArray(x) ? x : [x];
+    // tranh có chủ đề (nhân vật, cảnh) hiện trước, rồi tới các tranh đồ vật
+    return arr(typeof RM_PICS_THEME === 'object' ? RM_PICS_THEME[n] : null).concat(arr(typeof RM_PICS === 'object' ? RM_PICS[n] : null));
+};
 
 function rmPicSec(n) {
     const S = rmPicScenes(n), L = rmL(n);
