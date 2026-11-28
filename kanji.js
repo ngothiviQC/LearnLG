@@ -144,7 +144,7 @@ function kjWriteHtml(k) {
     return '<div class="kj-write"><span class="lbl">Cách viết</span>' +
         '<p class="kj-facts"><b>' + n + ' nét</b> · Bộ <span class="jp" lang="ja">' + esc(bo) + '</span> ' + esc(bon) + (cau ? ' · <span class="jp-mix">' + kjTxt(cau) + '</span>' : '') + '</p>' +
         '<div class="kj-strokes" data-kjw="' + esc(k) + '">' + cells + '</div>' +
-        '<div class="row"><button type="button" class="btn sm" data-kj="anim">▶ Xem nét chạy</button><span class="hint kj-animhint">Nét viết: KanjiVG, CC BY-SA 3.0.</span></div>' +
+        '<div class="row"><button type="button" class="btn sm" data-kj="anim">▶ Xem nét chạy</button></div>' +
         '<div class="kj-anim" hidden><svg viewBox="0 0 109 109" aria-label="Nét chạy">' + P.map(d => '<path d="' + d + '"/>').join('') + '</svg></div></div>';
 }
 let kjAnimTimer = 0;
@@ -169,7 +169,7 @@ function kjDetail(k) {
     const x = kjInfo()[k]; if (!x) return '';
     const ALL = kjAll(), i = ALL.indexOf(k);
     return '<div class="kj-detail"><div class="kj-big jp" lang="ja">' + k + '</div><div class="kj-dt">' +
-        '<span class="lbl">Chữ ' + (i + 1) + '/' + ALL.length + (x.n ? ' · Trạm ' + x.n + ' Lộ trình ' + kjName() : ' · ' + kjName()) + '</span>' +
+        '<span class="lbl">Chữ ' + (i + 1) + '/' + ALL.length + '' + '</span>' +
         '<h3>' + esc(x.hv) + ' <span class="kj-m">· ' + esc(x.m) + '</span></h3>' +
         '<p class="kj-rd"><span class="lbl">Âm On / âm Kun</span><span class="jp" lang="ja">' + esc(x.rd) + '</span></p>' +
         '<p class="kj-ex">' + rmSay(x.ex) + '<span>' + rmJa(x.ex) + '<span class="rm-vi">' + esc(x.exv) + '</span></span></p>' +
@@ -177,9 +177,7 @@ function kjDetail(k) {
         kjWriteHtml(k) +
         (rmLv !== 4 && typeof KJ_STORY === 'object' && KJ_STORY[k] ? '<div class="kj-story"><p><b>📜 Ý nghĩa & nguồn gốc</b>' + kjTxt(KJ_STORY[k][0]) + '</p><p><b>💡 Mẹo nhớ</b>' + kjTxt(KJ_STORY[k][1]) + '</p>' +
             (KJ_STORY[k][2] ? '<p class="kj-cul"><b>🎎 Văn hóa</b>' + kjTxt(KJ_STORY[k][2]) + '</p>' : '') + '</div>' : '') +
-        '<div class="row"><button type="button" class="btn' + (kjOk()[k] ? ' kj-okbtn' : ' pri') + '" data-kj="toggle-ok">' + (kjOk()[k] ? '✓ Đã thuộc' : 'Đánh dấu đã thuộc') + '</button>' +
-        '<button type="button" class="btn sm" data-kj="prev"' + (i ? '' : ' disabled') + '>← Chữ trước</button><button type="button" class="btn sm" data-kj="next"' + (i < ALL.length - 1 ? '' : ' disabled') + '>Chữ sau →</button>' +
-        '<button type="button" class="btn sm" data-kj="close">Đóng</button></div></div></div>';
+        '</div></div>';
 }
 
 /* ----- Luyện nhanh: 10 câu, ưu tiên chữ chưa thuộc. Câu chẵn hỏi nghĩa, câu lẻ hỏi cách đọc từ ví dụ ----- */
