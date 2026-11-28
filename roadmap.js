@@ -236,6 +236,7 @@ function rmStationKanji(list) {
 /* Video hội thoại (Kaiwa) của từng trạm N5: tệp mp4 trong thư mục Google Drive của bạn (kaiwa › Minna_Shokyuu_Kaiwa_01…25), phát bằng trình xem của Drive, chỉ tải khi bấm. */
 const RM_KAIWA = ["1FXjNfrms0pPUpAtgJU7q-DE91d_ctyXD","1MQTWYhojLBoQ5i93comicg1bdufpWOPU","1Ha9wk588ocOTm3OvFcmMS8sOu_Aek8aH","1RvoewiuS3NmdJ2Av-6cKG-Yu4FphrG5X","1vHRd_xZnD21LTm_uu0nLr4KaQUft-1vX","1oHjrpBKm2Yz_9F1Azb3LPiWNAckIkXGr","1j4DP-3GQhgGqyzDp--cucVFzhga5niZw","1-aOmoYKDYW6f_mqeSXK3XeQlersEb-UZ","11q-zSujmugGeTmCjrkn4t1hbLGShsSK2","1ZOSv4GL9pZHz8HxZR5UMcl2pR_b4TBGO","1w-sdfGVAHZt7I7QTbsBlAlIIPMgT03il","1Jy0K5rMKC5YWZSeMMdLpykonJQZfddPp","1Xa7mp1bJj1P9NaHu-_ipFFLgizJ6JsG4","16QYWipBV7GJBJkEla8WG2jE4UiJAwp_5","1TqdD6z8zpoCD959frlj_hnecoFLqKGod","1TmZqM2bDbeZuBdEFQuqY43FhFCsAdM-i","1tlGFgixJGo0Z4qEAUT4T7g1JlG0FjyCi","120NVfk3nEKiLaay87k-04aG8LdCv8kpH","1HVl5dWgxwnv98TZZkp75qNCYhXE8Vbja","1Xes8VnV-rXQYTBmjUCInCMyh6Xc3VJsU","1K9AIYxdjiLJPF4h5qwNBTE1UBtRxuVVh","1159I4dl_nWU9sccxTb1p21CFxBbtxgZp","1IEk8E9pouozruDZMHKO7XRLM-EZL4UU_","13elcTFFWuYE11cgRS6cdNA8ZWIeo-Ugc","1ab6aFQ9k5XJyvtDFCKVpn47cW2aNPfE-"];
 /* Lời thoại của video: tiếng Nhật có furigana (cùng kiểu câu dịch) + tiếng Việt (data/roadmap-kaiwa.js) */
+const RM_KAIWA_SHOW_TEXT = false;   // false = ẩn mục "Lời thoại video" (nội dung hiện chưa khớp video)
 const rmKaiwaText = n => {
     const T = typeof RM_KAIWA_TEXT === 'object' ? RM_KAIWA_TEXT[n] : null; if (!T) return '';
     return rmSec('kt', 'Lời thoại video (tiếng Nhật · tiếng Việt)', (T.g ? '<p class="hint">Ngữ pháp trọng tâm: <span class="jp" lang="ja">' + esc(T.g) + '</span></p>' : '') +
@@ -244,7 +245,7 @@ const rmKaiwaText = n => {
 const rmKaiwaSec = n => {
     const id = n >= 1 && n <= 25 ? RM_KAIWA[n - 1] : null; if (!id) return '';
     return '<div class="rm-kaiwa"><div class="rm-kaiwa-h"><span class="rm-kaiwa-ico" aria-hidden="true">🎬</span><div><b>Video hội thoại (Kaiwa) · bài ' + n + '</b><span class="rm-vi">Xem, nghe rồi nói theo (shadowing).</span></div></div>' +
-        '<div class="rm-kv" data-rmkvbox="' + id + '"><button type="button" class="btn pri" data-rmkv="' + id + '">▶ Xem video</button></div>' + rmKaiwaText(n) + '</div>';
+        '<div class="rm-kv" data-rmkvbox="' + id + '"><button type="button" class="btn pri" data-rmkv="' + id + '">▶ Xem video</button></div>' + (RM_KAIWA_SHOW_TEXT ? rmKaiwaText(n) : '') + '</div>';
 };
 const rmLessonNext = () => LESSON_ORDER.find(no => okCount(keyOf(no)) < 30) || LESSON_ORDER[0];
 const rmStageHead = (no, when, title, range, d, tot) => '<!--stage--><div class="rm-stage"><span class="rm-sn">' + no + '</span><div><span class="lbl">' + when + ' · ' + range + '</span><h2>' + title + '</h2></div>' +
