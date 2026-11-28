@@ -456,3 +456,9 @@ textarea.inp:focus { border-color: var(--ai); outline: none; box-shadow: 0 0 0 3
 .navrow .go { margin-bottom: 0; }
 .navrow .go[hidden] { display: none; }
 .go.back #backTxt { max-width: 46vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Trang chủ Khóa học: ba khung học (Luyện câu song ngữ · Lộ trình N5 · Lộ trình N4) */
+.course-frame { border: 1.5px solid var(--line); border-radius: 18px; padding: 16px; margin: 0 0 22px; background: color-mix(in srgb, var(--sunken) 55%, transparent); display: flex; flex-direction: column; gap: 14px; }
+.course-frame > * { margin-top: 0; margin-bottom: 0; }
+@media (max-width: 720px) { .course-frame { padding: 12px; border-radius: 14px; } }
+.on-home #backBtn, .on-home .brandcol .kicker, .on-home #h1, .on-home #sub { display: none !important; }

@@ -356,6 +356,7 @@ function render() {
     document.body.classList.toggle('nofuri', !pref.furi);
     const hello = !pref.ui || helloOn;
     showHello(hello); $('goResume').hidden = !pref.ui;
+    document.body.classList.toggle('on-home', route === 'luyen-cau' && !hello);
     if (hello) return;
     if (route === 'luyen-cau') return renderLessons();
     if (route === 'ngu-phap') return JA() ? renderLessons() : renderGrammar();
@@ -520,7 +521,7 @@ function renderLessons() {
     const ok = LESSONS.reduce((s, L) => s + okCount(K(L)), 0);
     const tried = LESSONS.reduce((s, L) => s + Object.keys(wgr[K(L)] || {}).length, 0);
     const nextL = LESSONS[(LESSON_ORDER.find(no => okCount(keyOf(no)) < 30) || LESSON_ORDER[0]) - 1];
-    let h = '<section class="card course-sum"><div class="sum-main"><span class="lbl">' + t('continueLbl') + '</span>' +
+    let h = '<div class="course-frame"><div class="sec-h"><h2>' + t('kicker') + '</h2><span class="hint">' + (JA() ? '1500文 · ' + TOPICS.length + 'テーマ' : '1500 câu · ' + TOPICS.length + ' chủ đề · ' + LESSONS.length + ' bài') + '</span></div><section class="card course-sum"><div class="sum-main"><span class="lbl">' + t('continueLbl') + '</span>' +
         '<a class="btn pri big" href="#bai-' + nextL[0] + '">' + esc(t('cont', dispNo(nextL[0]), lessonName(nextL))) + ' →</a>' +
         '<span class="hint">' + t('how')[pref.dir][pref.mode] + '</span></div>' +
         '<div class="tiles"><div class="tile"><b>' + ok + '</b><span>' + t('tOk') + total + '</span></div><div class="tile"><b>' + tried + '</b><span>' + t('tTried') + '</span></div><div class="tile"><b>' + LESSONS.filter(L => okCount(K(L)) >= 30).length + '</b><span>' + t('tFull') + '</span></div></div></section>';
@@ -533,8 +534,8 @@ function renderLessons() {
                 '<span class="tm-mark jp" lang="ja" aria-hidden="true">' + T.mark + '</span>' +
                 '<span class="tm-t"><b>' + esc(topicName(T)) + '</b><span class="tm-s num">' + t('lessonsN', T.ls.length) + ' · ' + (full ? t('topicDone') + ' ✓' : o + '/' + tot) + '</span>' +
                 '<span class="bar"><i style="width:' + (o / tot * 100) + '%"></i></span></span></a>';
-        }).join('') + '</div>';
-    if (!JA()) h += rmCourseCard() + rmCourseCardN4();   // roadmap.js — sau mục Chủ đề (Kanji N5 nằm trong Lộ trình)
+        }).join('') + '</div></div>';
+    if (!JA()) h += '<div class="course-frame">' + rmCourseCard() + '</div><div class="course-frame">' + rmCourseCardN4() + '</div>';   // roadmap.js — sau mục Chủ đề (Kanji N5 nằm trong Lộ trình)
     h += '<p class="hint">' + t('foot') + '</p>';
     $('view').innerHTML = h;
 }
