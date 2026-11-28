@@ -1,78 +1,98 @@
-/* Tranh từ vựng cho từng trạm của Lộ trình N5 — tranh SVG do Claude vẽ riêng.
-   RM_PICS[số trạm] = một tranh hoặc MẢNG nhiều tranh (mỗi lần hiện một tranh; tranh sau dùng lại svg của tranh đầu): { title, vb (tùy chọn: vùng cắt 'x y w h'), svg (viewBox 0 0 400 440), pins: [[chỉ số từ trong RM_LESSONS[n].vocab, x, y, hướng nhãn: r | l | t | b], …] }.
-   Số trên tranh = thứ tự trong pins. Bố cục tham khảo ý tưởng “bức tranh có đánh số từ” trên hinelearn (thư viện ảnh). */
+/* Tranh từ vựng cho các trạm của Lộ trình N5.
+   Mỗi tranh = một nền cảnh (SVG) + các đồ vật lớn, dễ nhận ra (emoji màu của thiết bị) đặt trên thẻ tròn; số + nhãn nằm ngay dưới từng đồ vật.
+   RM_PICS[số trạm] = mảng các tranh { title, svg, pins }, mỗi lần hiện một tranh (tối đa ~9 từ / tranh).
+   Item: [chỉ số từ trong RM_LESSONS[n].vocab, emoji | hàm vẽ (x, y, s) → svg]. Vị trí được tự xếp lưới bởi _scene(). */
+const _EF = 'font-family="Apple Color Emoji, Segoe UI Emoji, Noto Color Emoji, sans-serif"';
+const _G = (id, a, b) => `<defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient></defs>`;
+const _BG = {
+  room: _G('gR', '#fbf0dc', '#f1dcba') + '<rect width="400" height="440" fill="url(#gR)"/><rect y="372" width="400" height="68" fill="#d9b98c"/><rect y="368" width="400" height="8" fill="#c9a572"/><g stroke="#c9a572" stroke-width="2" opacity=".5"><path d="M0 396h400M0 420h400"/></g><rect x="150" y="22" width="100" height="64" rx="6" fill="#fff" opacity=".4"/><path d="M200 22v64M150 54h100" stroke="#e7d3b0" stroke-width="3"/>',
+  sky: _G('gS', '#bfe3f7', '#eaf7ff') + '<rect width="400" height="440" fill="url(#gS)"/><circle cx="340" cy="52" r="26" fill="#ffd54a" opacity=".9"/><g fill="#fff"><ellipse cx="70" cy="60" rx="34" ry="14"/><ellipse cx="96" cy="52" rx="24" ry="14"/><ellipse cx="250" cy="96" rx="30" ry="12"/></g><path d="M0 360q100-50 200-14t200-20v114H0z" fill="#a8d08a"/><path d="M0 400q120-30 220-4t180-14v58H0z" fill="#8fc274"/>',
+  street: _G('gT', '#cfe8f7', '#eef7fc') + '<rect width="400" height="440" fill="url(#gT)"/><g fill="#c3ccd6"><rect x="10" y="190" width="60" height="180"/><rect x="80" y="150" width="50" height="220"/><rect x="250" y="170" width="70" height="200"/><rect x="330" y="210" width="60" height="160"/></g><g fill="#e8eef4"><rect x="20" y="206" width="10" height="12"/><rect x="40" y="206" width="10" height="12"/><rect x="90" y="170" width="10" height="12"/><rect x="108" y="170" width="10" height="12"/><rect x="262" y="190" width="10" height="12"/><rect x="284" y="190" width="10" height="12"/></g><rect y="366" width="400" height="74" fill="#8f98a3"/><path d="M0 404h400" stroke="#fff" stroke-width="4" stroke-dasharray="26 18"/>',
+  sea: _G('gSe', '#bfe3f7', '#e8f6ff') + '<rect width="400" height="440" fill="url(#gSe)"/><circle cx="330" cy="56" r="24" fill="#ffd54a"/><rect y="190" width="400" height="150" fill="#4aa8d8"/><path d="M0 220q25-12 50 0t50 0 50 0 50 0 50 0 50 0 50 0 50 0" stroke="#fff" stroke-width="3" fill="none" opacity=".6"/><path d="M0 330q100-30 200-6t200-10v126H0z" fill="#f3dca8"/>',
+  night: _G('gN', '#1f2a4a', '#3b4a7a') + '<rect width="400" height="440" fill="url(#gN)"/><circle cx="330" cy="60" r="24" fill="#ffe9a8"/><g fill="#ffe9a8"><circle cx="60" cy="50" r="2"/><circle cx="120" cy="90" r="2"/><circle cx="220" cy="40" r="2"/><circle cx="280" cy="110" r="2"/><circle cx="40" cy="140" r="2"/></g><rect y="376" width="400" height="64" fill="#2c3a63"/>',
+  office: _G('gO', '#e7edf4', '#d3dde9') + '<rect width="400" height="440" fill="url(#gO)"/><rect y="376" width="400" height="64" fill="#b9c4d1"/><rect x="40" y="26" width="120" height="76" rx="4" fill="#cfe8f7" stroke="#fff" stroke-width="6"/><path d="M100 26v76M40 64h120" stroke="#fff" stroke-width="4"/><rect x="240" y="30" width="110" height="64" rx="3" fill="#fff" stroke="#b9c4d1" stroke-width="3"/>',
+  kitchen: '<rect width="400" height="440" fill="#fff8ec"/><g stroke="#e8dcc4" stroke-width="2"><path d="M0 60h400M0 120h400M0 180h400M0 240h400M0 300h400M0 360h400"/><path d="M60 0v440M140 0v440M220 0v440M300 0v440M380 0v440"/></g><rect y="372" width="400" height="68" fill="#d9b98c"/>',
+  mint: _G('gM', '#eaf7f1', '#d6eee3') + '<rect width="400" height="440" fill="url(#gM)"/><rect y="376" width="400" height="64" fill="#bfe0d0"/><rect x="170" y="22" width="60" height="60" rx="8" fill="#fff"/><path d="M200 32v40M180 52h40" stroke="#e0443e" stroke-width="12"/>',
+  lilac: _G('gL', '#f3effc', '#e3dcf5') + '<rect width="400" height="440" fill="url(#gL)"/><circle cx="60" cy="50" r="22" fill="#fff" opacity=".5"/><circle cx="350" cy="400" r="30" fill="#fff" opacity=".4"/>',
+};
+// Hình minh họa tự vẽ cho những từ không có emoji hợp (cờ, quan hệ vị trí)
+const _flagVN = (x, y, s) => `<g><rect x="${x - s * .45}" y="${y - s * .3}" width="${s * .9}" height="${s * .6}" fill="#da251d" stroke="#ccc"/><path d="M${x} ${y - s * .17}l${s * .05} ${s * .12}h${s * .13}l-${s * .1} ${s * .08} ${s * .04} ${s * .13}-${s * .12}-${s * .08}-${s * .12} ${s * .08} ${s * .04}-${s * .13}-${s * .1}-${s * .08}h${s * .13}z" fill="#ffd400"/></g>`;
+const _flagJP = (x, y, s) => `<g><rect x="${x - s * .45}" y="${y - s * .3}" width="${s * .9}" height="${s * .6}" fill="#fff" stroke="#ccc"/><circle cx="${x}" cy="${y}" r="${s * .18}" fill="#d9253a"/></g>`;
+const _rel = k => (x, y, s) => {
+  const b = s * .42, r = s * .14, box = (cx, cy) => `<rect x="${cx - b / 2}" y="${cy - b / 2}" width="${b}" height="${b}" rx="${s * .05}" fill="#c9915a" stroke="#8a5a35" stroke-width="2.5"/>`;
+  const ball = (cx, cy) => `<circle cx="${cx}" cy="${cy}" r="${r}" fill="#e0443e" stroke="#9b2c28" stroke-width="2.5"/>`;
+  if (k === 'ue') return box(x, y + s * .16) + ball(x, y + s * .16 - b / 2 - r);
+  if (k === 'shita') return box(x, y - s * .16) + ball(x, y - s * .16 + b / 2 + r);
+  if (k === 'tonari') return box(x - s * .22, y + s * .06) + ball(x + s * .22, y + s * .06 + b / 2 - r);
+  if (k === 'aida') return box(x - s * .3, y + s * .06) + box(x + s * .3, y + s * .06) + ball(x, y + s * .06 + b / 2 - r);
+  if (k === 'mae') return box(x, y - s * .1) + `<circle cx="${x}" cy="${y + s * .2}" r="${r * 1.3}" fill="#e0443e" stroke="#9b2c28" stroke-width="2.5"/>`;
+  return ball(x + s * .12, y - s * .12) + box(x - s * .06, y + s * .04);   // ushiro: bóng nằm sau hộp
+};
+
+// Tự xếp lưới: cỡ đồ vật và vị trí theo số lượng
+function _scene(title, bg, items) {
+  const k = items.length, cfg = k <= 3 ? { c: k, ys: [215], s: 100 } : k === 4 ? { c: 2, ys: [130, 300], s: 96 } : k <= 6 ? { c: 3, ys: [130, 300], s: 84 } : { c: 3, ys: [82, 216, 350], s: 66 };
+  const rows = []; for (let i = 0; i < k; i += cfg.c) rows.push(items.slice(i, i + cfg.c));
+  let svg = _BG[bg] || _BG.lilac, pins = [];
+  const gap = cfg.c === 2 ? 180 : 130;
+  rows.forEach((row, ri) => row.forEach(([vi, e], ci) => {
+    const x = 200 + (ci - (row.length - 1) / 2) * gap, y = cfg.ys[ri], s = cfg.s;
+    svg += `<ellipse cx="${x}" cy="${y + s * .56}" rx="${s * .5}" ry="${s * .09}" fill="#000" opacity=".12"/><circle cx="${x}" cy="${y}" r="${s * .68}" fill="#fff" opacity=".62" stroke="#fff" stroke-width="3"/>`;
+    if (typeof e === 'function') svg += e(x, y, s);
+    else { const n = [...e].length, fs = s * (n > 1 ? Math.min(1, 1.5 / n) : 1); svg += `<text x="${x}" y="${y}" font-size="${fs}" text-anchor="middle" dominant-baseline="central" ${_EF}>${e}</text>`; }
+    pins.push([vi, x, y + s * .75, 'b', [x, y, s * 1.3]]);
+  }));
+  return { title, svg, pins };
+}
+
 const RM_PICS = {
-2: [{ title: 'Trên bàn học', vb: '0 140 400 190',
-  svg: `<rect width="400" height="440" fill="#f4e6cf"/><rect y="326" width="400" height="114" fill="#d9b98c"/><rect y="322" width="400" height="6" fill="#c9a572"/>
-<rect x="24" y="28" width="150" height="112" rx="6" fill="#fff"/><rect x="32" y="36" width="134" height="96" fill="#cfe8f7"/><circle cx="144" cy="58" r="12" fill="#ffd966"/>
-<rect x="32" y="106" width="134" height="26" fill="#9aa3ab"/><path d="M32 119h134" stroke="#fff" stroke-width="2" stroke-dasharray="10 8"/>
-<rect x="42" y="108" width="52" height="14" rx="4" fill="#d9534f"/><path d="M52 108l8-10h24l7 10z" fill="#d9534f"/><path d="M58 108l6-8h9v8zM77 108v-8h8l6 8z" fill="#cfe8f7"/><circle cx="55" cy="123" r="5" fill="#333"/><circle cx="84" cy="123" r="5" fill="#333"/>
-<path d="M99 36v96M32 84h134" stroke="#fff" stroke-width="5"/>
-<circle cx="300" cy="72" r="40" fill="#fff" stroke="#8a5a35" stroke-width="6"/><g stroke="#555" stroke-width="2"><path d="M300 38v6M300 100v6M266 72h6M328 72h6"/></g><path d="M300 72V47M300 72l17 9" stroke="#333" stroke-width="3.5" stroke-linecap="round"/><circle cx="300" cy="72" r="3.5" fill="#333"/>
-<rect x="34" y="268" width="14" height="60" fill="#8a5a35"/><rect x="352" y="268" width="14" height="60" fill="#8a5a35"/><rect x="226" y="268" width="104" height="48" rx="3" fill="#b27a47"/><rect x="262" y="288" width="32" height="6" rx="3" fill="#ead2a8"/>
-<rect x="16" y="246" width="368" height="22" fill="#a56d3f"/><rect x="16" y="230" width="368" height="18" rx="4" fill="#c9915a"/>
-<rect x="40" y="212" width="74" height="22" rx="2" fill="#3d7ea6"/><rect x="40" y="212" width="7" height="22" fill="#2c5f82"/><rect x="50" y="229" width="62" height="4" fill="#f6efe0"/>
-<rect x="48" y="194" width="62" height="18" rx="2" fill="#c8553d"/><rect x="54" y="207" width="54" height="3" fill="#f6efe0"/>
-<rect x="124" y="174" width="36" height="60" rx="2" fill="#5b4b8a"/><rect x="130" y="184" width="24" height="14" fill="#f0d27a"/><path d="M133 189h18M133 193h12" stroke="#5b4b8a" stroke-width="1.5"/><rect x="156" y="178" width="4" height="54" fill="#f6efe0"/>
-<path d="M170 238l8-14h64l-8 14z" fill="#e8a33d"/><rect x="190" y="228" width="34" height="3" fill="#fff"/><rect x="190" y="233" width="22" height="2" fill="#fff"/>
-<path d="M246 238l9-20h50l-9 20z" fill="#eceae3" stroke="#b8b4a8" stroke-width="1.5"/><path d="M262 224h34M260 229h34M258 234h30" stroke="#9a968c" stroke-width="1.5"/><path d="M276 218l-9 20" stroke="#cfcac0" stroke-width="1.5"/>
-<rect x="308" y="206" width="44" height="30" rx="2" fill="#7fb77e"/><g fill="#fff"><circle cx="313" cy="212" r="1.8"/><circle cx="313" cy="219" r="1.8"/><circle cx="313" cy="226" r="1.8"/><circle cx="313" cy="233" r="1.8"/></g><rect x="322" y="214" width="24" height="12" fill="#fff"/>
-<rect x="358" y="208" width="20" height="28" rx="3" fill="#e4e4e4" stroke="#aaa"/><path d="M366 208l-4-24" stroke="#2b6cb0" stroke-width="4" stroke-linecap="round"/><path d="M372 208l6-26" stroke="#d9534f" stroke-width="4" stroke-linecap="round"/>
-<path d="M118 248l9-12h42l-9 12z" fill="#fff" stroke="#bbb"/><path d="M134 243h22M134 246h14" stroke="#aaa"/>
-<circle cx="186" cy="243" r="5" fill="none" stroke="#c9a227" stroke-width="3"/><path d="M191 243h24M208 243v6M214 243v5" stroke="#c9a227" stroke-width="3" stroke-linecap="round"/>
-<path d="M385 246C372 268 372 300 378 318h14c6-18 6-50-7-72z" fill="#2f4f9a"/><path d="M385 318v30q0 12-12 12" stroke="#5b3a24" stroke-width="5" fill="none" stroke-linecap="round"/>
-<ellipse cx="112" cy="394" rx="52" ry="7" fill="#000" opacity=".1"/><path d="M96 340v-14q16-10 32 0v14" stroke="#5b3a24" stroke-width="5" fill="none"/><rect x="70" y="338" width="84" height="56" rx="9" fill="#8b5a3c"/><rect x="70" y="338" width="84" height="22" rx="9" fill="#a56d48"/><circle cx="112" cy="362" r="4" fill="#e6c34a"/>`,
-  pins: [[0, 78, 204, 't'], [1, 142, 196, 't'], [2, 205, 228, 't'], [3, 275, 226, 't'], [9, 330, 222, 't'], [10, 364, 196, 't'], [11, 144, 243, 'b'], [7, 200, 243, 'b']] },
-  { title: 'Trong phòng: đồng hồ, xe, ô, cặp', pins: [[6, 300, 72, 'r'], [8, 67, 112, 'b'], [4, 384, 290, 'l'], [5, 112, 368, 'b']] }],
-
-3: [{ title: 'Tầng 1: lễ tân, thang máy, nhà ăn', vb: '30 236 340 170',
-  svg: `<rect width="400" height="440" fill="#dff0fb"/><rect y="400" width="400" height="40" fill="#9bbf7a"/>
-<rect x="130" y="34" width="140" height="46" rx="7" fill="#2f4f9a"/><text x="200" y="68" text-anchor="middle" font-size="28" font-weight="700" fill="#fff" font-family="sans-serif">会社</text>
-<rect x="30" y="90" width="340" height="310" fill="#efe3cf" stroke="#8a7458" stroke-width="3"/><rect x="30" y="243" width="340" height="6" fill="#8a7458"/>
-<text x="38" y="106" font-size="12" font-weight="700" fill="#8a5a35" font-family="sans-serif">2階</text><text x="38" y="262" font-size="12" font-weight="700" fill="#8a5a35" font-family="sans-serif">1階</text>
-<rect x="40" y="114" width="126" height="124" fill="#fff8e8"/><rect x="52" y="124" width="92" height="42" rx="2" fill="#2f5d4b"/><path d="M60 136h40M60 147h58" stroke="#e8f2ea" stroke-width="2"/><rect x="52" y="124" width="92" height="42" rx="2" fill="none" stroke="#a97f4c" stroke-width="3"/>
-<g fill="#c9915a"><rect x="58" y="196" width="26" height="14"/><rect x="96" y="196" width="26" height="14"/><rect x="58" y="220" width="26" height="14"/><rect x="96" y="220" width="26" height="14"/></g><circle cx="148" cy="190" r="7" fill="#f3cfa5"/><rect x="141" y="198" width="14" height="30" rx="4" fill="#d9534f"/>
-<rect x="174" y="150" width="52" height="88" rx="3" fill="#8fc1d9"/><circle cx="200" cy="172" r="15" fill="#fff"/><circle cx="193" cy="167" r="3" fill="#2f4f9a"/><rect x="190" y="171" width="6" height="11" rx="2" fill="#2f4f9a"/><circle cx="207" cy="167" r="3" fill="#d9534f"/><path d="M203 171h8l-1.5 11h-5z" fill="#d9534f"/><rect x="191" y="204" width="18" height="30" fill="#6fa8c2"/>
-<rect x="234" y="114" width="126" height="124" fill="#fff8e8"/><rect x="246" y="196" width="54" height="10" fill="#c9915a"/><rect x="254" y="172" width="30" height="22" rx="2" fill="#333"/><rect x="257" y="175" width="24" height="16" fill="#9fd4f2"/><rect x="316" y="196" width="36" height="10" fill="#c9915a"/><rect x="321" y="176" width="24" height="18" rx="2" fill="#333"/><rect x="324" y="179" width="18" height="12" fill="#9fd4f2"/><circle cx="270" cy="152" r="7" fill="#f3cfa5"/><rect x="263" y="160" width="14" height="14" rx="3" fill="#4d9de0"/>
-<rect x="40" y="258" width="112" height="136" fill="#fff8e8"/><rect x="52" y="338" width="88" height="32" rx="3" fill="#c9915a"/><rect x="52" y="334" width="88" height="6" fill="#a56d3f"/><circle cx="96" cy="316" r="10" fill="#f3cfa5"/><rect x="85" y="326" width="22" height="14" rx="5" fill="#d9534f"/><rect x="62" y="270" width="68" height="20" rx="3" fill="#fff" stroke="#8a5a35" stroke-width="2"/><text x="96" y="285" text-anchor="middle" font-size="14" font-weight="700" fill="#8a5a35" font-family="sans-serif">受付</text>
-<rect x="160" y="270" width="68" height="124" rx="3" fill="#c0c6cc" stroke="#8a929a" stroke-width="2"/><path d="M194 282v112" stroke="#8a929a" stroke-width="2"/><rect x="176" y="256" width="36" height="12" rx="2" fill="#222"/><text x="194" y="266" text-anchor="middle" font-size="10" fill="#ff7b54" font-family="sans-serif">▲ 1</text><circle cx="238" cy="330" r="4" fill="#4d9de0"/><circle cx="238" cy="342" r="4" fill="#d9534f"/>
-<rect x="248" y="258" width="112" height="136" fill="#fff8e8"/><text x="276" y="276" text-anchor="middle" font-size="13" font-weight="700" fill="#8a5a35" font-family="sans-serif">食堂</text><g fill="#c9915a"><rect x="254" y="344" width="46" height="6"/><rect x="262" y="350" width="4" height="40"/><rect x="288" y="350" width="4" height="40"/></g><circle cx="268" cy="338" r="6" fill="#fff" stroke="#bbb"/><circle cx="286" cy="338" r="6" fill="#fff" stroke="#bbb"/>
-<rect x="320" y="288" width="34" height="106" rx="3" fill="#d9534f"/><rect x="324" y="294" width="26" height="14" rx="2" fill="#222"/><text x="337" y="305" text-anchor="middle" font-size="9" font-weight="700" fill="#7fff7f" font-family="sans-serif">120円</text><rect x="324" y="314" width="26" height="36" fill="#f4d9d7"/><rect x="326" y="362" width="22" height="10" fill="#7a2e2c"/>`,
-  pins: [[7, 96, 276, 't'], [8, 194, 350, 'b'], [4, 276, 345, 'b'], [12, 337, 300, 't'], [11, 337, 346, 'b']] },
-  { title: 'Tầng 2 và biển hiệu', vb: '30 30 340 220', pins: [[10, 276, 56, 'r'], [9, 64, 100, 'r'], [3, 98, 148, 'b'], [6, 200, 176, 'b'], [5, 297, 160, 't']] }],
-
-7: { title: 'Bàn ăn và đồ dùng trên bàn',
-  svg: `<rect width="400" height="440" fill="#f6ead7"/><rect y="238" width="400" height="202" fill="#cf9a63"/><g stroke="#bd8650" stroke-width="2" opacity=".6"><path d="M0 290h400M0 350h400M0 410h400"/></g><rect y="234" width="400" height="8" fill="#b57a45"/>
-<rect x="38" y="150" width="130" height="86" rx="6" fill="#3a3a3a"/><rect x="45" y="157" width="116" height="72" fill="#8fd0f5"/><path d="M52 170h60M52 182h80M52 194h50" stroke="#fff" stroke-width="3" opacity=".8"/><path d="M26 244h154l-10 14H36z" fill="#a8adb3"/>
-<path d="M190 250h50l-5-50h-40z" fill="#7bb8c9"/><rect x="204" y="190" width="22" height="12" fill="#7bb8c9"/><path d="M215 190V140M205 190l-14-44M225 190l16-40" stroke="#4f8a4f" stroke-width="3"/><circle cx="215" cy="130" r="13" fill="#e0527a"/><circle cx="215" cy="130" r="5" fill="#f6d44b"/><circle cx="191" cy="142" r="11" fill="#f6d44b"/><circle cx="191" cy="142" r="4" fill="#e0833d"/><circle cx="242" cy="146" r="11" fill="#f2a2c0"/><circle cx="242" cy="146" r="4" fill="#f6d44b"/><path d="M215 170l14-10-2 14zM214 180l-14-8 3 14z" fill="#5aa469"/>
-<rect x="302" y="186" width="70" height="66" rx="4" fill="#e07a9b"/><rect x="332" y="186" width="10" height="66" fill="#f6d44b"/><rect x="302" y="212" width="70" height="10" fill="#f6d44b"/><ellipse cx="327" cy="182" rx="14" ry="9" fill="#f6d44b"/><ellipse cx="347" cy="182" rx="14" ry="9" fill="#f6d44b"/><circle cx="337" cy="184" r="5" fill="#e0b92c"/>
-<rect x="32" y="342" width="62" height="52" rx="18" fill="#f0c9a0" stroke="#c79a6f" stroke-width="2"/><rect x="32" y="290" width="13" height="62" rx="6.5" fill="#f0c9a0" stroke="#c79a6f" stroke-width="2"/><rect x="47" y="280" width="13" height="72" rx="6.5" fill="#f0c9a0" stroke="#c79a6f" stroke-width="2"/><rect x="62" y="278" width="13" height="74" rx="6.5" fill="#f0c9a0" stroke="#c79a6f" stroke-width="2"/><rect x="77" y="286" width="13" height="66" rx="6.5" fill="#f0c9a0" stroke="#c79a6f" stroke-width="2"/><rect x="88" y="332" width="38" height="14" rx="7" fill="#f0c9a0" stroke="#c79a6f" stroke-width="2" transform="rotate(-28 90 338)"/>
-<rect x="118" y="296" width="30" height="52" rx="5" fill="#222"/><rect x="121" y="302" width="24" height="38" rx="2" fill="#7ab8ee"/><circle cx="133" cy="344" r="2" fill="#777"/>
-<path d="M160 346q0 36 40 36t40-36z" fill="#fff" stroke="#9a9a9a" stroke-width="2"/><ellipse cx="200" cy="346" rx="40" ry="10" fill="#fffdf5" stroke="#9a9a9a" stroke-width="2"/><path d="M168 346q32-22 64 0z" fill="#fffdf5"/><rect x="182" y="382" width="36" height="6" rx="3" fill="#9a9a9a"/><path d="M166 328l92 44M174 322l92 42" stroke="#b5651d" stroke-width="4" stroke-linecap="round"/>
-<path d="M298 392l30-84M328 392l-28-84" stroke="#8a929a" stroke-width="7" stroke-linecap="round"/><circle cx="296" cy="398" r="11" fill="none" stroke="#d9534f" stroke-width="6"/><circle cx="330" cy="398" r="11" fill="none" stroke="#d9534f" stroke-width="6"/>`,
-  pins: [[3, 103, 200, 'b'], [6, 215, 128, 'r'], [5, 337, 226, 'b'], [1, 62, 320, 'b'], [4, 133, 322, 't'], [0, 240, 352, 'b'], [2, 314, 340, 'r']] },
-
-10: [{ title: 'Người và thú nuôi (います)',
-  svg: `<rect width="400" height="440" fill="#f6ead7"/><rect y="330" width="400" height="110" fill="#d9b98c"/><rect y="326" width="400" height="6" fill="#c9a572"/>
-<rect x="20" y="40" width="140" height="160" rx="6" fill="#fff"/><rect x="28" y="48" width="124" height="144" fill="#cfe8f7"/><rect x="28" y="168" width="124" height="24" fill="#9bbf7a"/><rect x="82" y="120" width="16" height="52" fill="#8a5a35"/><circle cx="90" cy="100" r="32" fill="#5aa469"/><circle cx="66" cy="120" r="22" fill="#5aa469"/><circle cx="114" cy="120" r="22" fill="#4f9660"/><path d="M90 48v144M28 120h124" stroke="#fff" stroke-width="5" opacity=".95"/>
-<rect x="300" y="108" width="88" height="222" rx="7" fill="#e8eef2" stroke="#b8c4cc" stroke-width="2"/><path d="M300 188h88" stroke="#b8c4cc" stroke-width="3"/><rect x="372" y="130" width="6" height="40" rx="3" fill="#98a5af"/><rect x="372" y="204" width="6" height="52" rx="3" fill="#98a5af"/>
-<rect x="174" y="282" width="100" height="58" fill="#d9b27c" stroke="#b88c55" stroke-width="2"/><rect x="212" y="282" width="22" height="58" fill="#c79f66"/>
-<ellipse cx="224" cy="268" rx="29" ry="18" fill="#f1a25b"/><circle cx="252" cy="254" r="14" fill="#f1a25b"/><path d="M243 244l-2-14 9 8zM258 242l6-13 3 15z" fill="#f1a25b"/><circle cx="248" cy="253" r="2" fill="#333"/><circle cx="257" cy="253" r="2" fill="#333"/><path d="M196 272q-18-6-12-26" stroke="#f1a25b" stroke-width="7" fill="none" stroke-linecap="round"/><path d="M215 262q4 6 0 10M228 262q4 6 0 10" stroke="#d6853e" stroke-width="2" fill="none"/>
-<path d="M190 282V240" stroke="#d9534f" stroke-width="3" stroke-dasharray="4 4"/><path d="M184 246l6-10 6 10z" fill="#d9534f"/>
-<ellipse cx="128" cy="322" rx="28" ry="22" fill="#c98d5a"/><circle cx="112" cy="294" r="17" fill="#c98d5a"/><ellipse cx="100" cy="290" rx="6" ry="11" fill="#8a5a35" transform="rotate(20 100 290)"/><ellipse cx="122" cy="288" rx="6" ry="11" fill="#8a5a35" transform="rotate(-10 122 288)"/><circle cx="108" cy="296" r="2" fill="#222"/><ellipse cx="102" cy="302" rx="6" ry="4" fill="#5b3a24"/><path d="M154 326q14-10 14-28" stroke="#c98d5a" stroke-width="7" fill="none" stroke-linecap="round"/><rect x="108" y="336" width="10" height="14" rx="4" fill="#c98d5a"/><rect x="132" y="336" width="10" height="14" rx="4" fill="#c98d5a"/>
-<path d="M150 360h22" stroke="#4d9de0" stroke-width="3"/><path d="M154 355l-8 5 8 5zM168 355l8 5-8 5z" fill="#4d9de0"/>
-<rect x="36" y="222" width="44" height="60" rx="14" fill="#e07a9b"/><circle cx="58" cy="206" r="15" fill="#f3cfa5"/><path d="M43 204q15-22 30 0q-2-12-15-12t-15 12z" fill="#4a2f22"/><rect x="42" y="280" width="14" height="52" fill="#3b4a6b"/><rect x="60" y="280" width="14" height="52" fill="#3b4a6b"/>
-<rect x="292" y="212" width="48" height="66" rx="14" fill="#4d9de0"/><circle cx="316" cy="196" r="15" fill="#f3cfa5"/><path d="M301 194q15-18 30 0q-4-4-15-4t-15 4z" fill="#2a2a2a"/><rect x="298" y="276" width="16" height="54" fill="#3b4a6b"/><rect x="318" y="276" width="16" height="54" fill="#3b4a6b"/>`,
-  pins: [[3, 58, 250, 'r'], [2, 316, 244, 'l'], [4, 126, 316, 'l'], [5, 224, 266, 't']] },
-  { title: 'Đồ vật và vị trí (あります)', pins: [[6, 90, 96, 'r'], [8, 344, 138, 't'], [7, 224, 322, 'b'], [9, 190, 236, 't'], [13, 160, 360, 'b']] }],
-
-22: { title: 'Trang phục: mặc, đội, đeo',
-  svg: `<rect width="400" height="440" fill="#eef4fb"/><rect y="400" width="400" height="40" fill="#cfdceb"/><ellipse cx="200" cy="402" rx="90" ry="9" fill="#000" opacity=".1"/>
-<rect x="190" y="138" width="20" height="14" fill="#f3cfa5"/><circle cx="200" cy="106" r="38" fill="#f3cfa5"/>
-<path d="M150 78a50 50 0 0 1 100 0z" fill="#e0605b"/><ellipse cx="200" cy="80" rx="62" ry="11" fill="#d9534f"/><rect x="156" y="68" width="88" height="8" fill="#b83e3a" opacity=".5"/>
-<circle cx="186" cy="110" r="12" fill="#cfeaff" fill-opacity=".45" stroke="#333" stroke-width="3"/><circle cx="214" cy="110" r="12" fill="#cfeaff" fill-opacity=".45" stroke="#333" stroke-width="3"/><path d="M198 109h4M162 106l12 2M238 106l-12 2" stroke="#333" stroke-width="3"/><circle cx="186" cy="111" r="2.5" fill="#333"/><circle cx="214" cy="111" r="2.5" fill="#333"/><path d="M188 128q12 10 24 0" stroke="#a5503a" stroke-width="3" fill="none" stroke-linecap="round"/>
-<path d="M150 152h100l14 108H136z" fill="#4d9de0"/><path d="M150 152l-30 82 22 10 24-78zM250 152l30 82-22 10-24-78z" fill="#3f8ccf"/><circle cx="131" cy="246" r="11" fill="#f3cfa5"/><circle cx="269" cy="246" r="11" fill="#f3cfa5"/><path d="M186 152l14 16 14-16" fill="#fff"/><circle cx="200" cy="196" r="3" fill="#fff"/><circle cx="200" cy="218" r="3" fill="#fff"/>
-<path d="M138 260h124l-10 116h-44l-8-76-8 76h-44z" fill="#3b4a6b"/><path d="M200 262v38" stroke="#2c3850" stroke-width="2"/>
-<path d="M146 376h46v12q0 10-12 10h-38q-6 0-6-8z" fill="#6b3e26"/><path d="M254 376h-46v12q0 10 12 10h38q6 0 6-8z" fill="#6b3e26"/><path d="M146 390h54M254 390h-54" stroke="#3d2415" stroke-width="3"/>`,
-  pins: [[2, 164, 60, 'l'], [6, 236, 64, 'r'], [3, 176, 100, 'l'], [5, 224, 100, 'r'], [0, 172, 210, 'l'], [1, 172, 330, 'l'], [7, 232, 388, 'r']] },
+1: [_scene('Gặp gỡ: nghề nghiệp và quốc tịch', 'sky', [[2, '🧑‍🎓'], [3, '🧑‍💼'], [4, '🧑‍🏫'], [5, '👷'], [6, '🧑‍⚕️'], [9, '🏫'], [7, _flagVN], [8, _flagJP]])],
+2: [_scene('Trên bàn học', 'room', [[0, '📖'], [1, '📚'], [2, '📙'], [3, '📰'], [9, '📓'], [10, '🖊️'], [11, '📇']]),
+    _scene('Đồ dùng trong phòng', 'room', [[4, '☂️'], [5, '👜'], [6, '⏰'], [7, '🔑'], [8, '🚗']])],
+3: [_scene('Các nơi trong tòa nhà', 'office', [[3, '🏫'], [4, '🍽️'], [5, '💼'], [6, '🚻'], [7, '🛎️'], [8, '🛗'], [10, '🏢']]),
+    _scene('Chỗ này, chỗ đó, tầng và giá tiền', 'office', [[0, '📍'], [1, '👉'], [2, '🔭'], [9, '🏬'], [11, '🏷️'], [12, '💴']])],
+4: [_scene('Giờ giấc', 'lilac', [[0, '⏰'], [1, '🕐'], [2, '⏱️'], [3, '🕧'], [4, '🌄'], [5, '🌇']]),
+    _scene('Một ngày của bạn', 'room', [[6, '🥱'], [8, '🧑‍💻'], [10, '📚'], [9, '🛋️'], [7, '😴'], [11, '🏁'], [12, '☀️'], [13, '⏪']])],
+5: [_scene('Đi bằng phương tiện gì', 'street', [[3, '🚆'], [4, '🚌'], [5, '✈️'], [6, '🚶'], [0, '➡️'], [2, '🏠']]),
+    _scene('Đi với ai, khi nào', 'sky', [[7, '🧑‍🤝‍🧑'], [8, '👨‍👩‍👧'], [9, '🧍'], [12, '🎂'], [10, '🗓️'], [11, '📆']])],
+6: [_scene('Ăn uống, xem phim, nghe nhạc', 'room', [[0, '😋'], [1, '🥤'], [9, '🍚'], [2, '👀'], [3, '👂'], [10, '🎬']]),
+    _scene('Đọc, viết, mua sắm, chụp ảnh, gặp gỡ', 'street', [[4, '📖'], [5, '✍️'], [6, '🛍️'], [7, '📷'], [11, '🖼️'], [8, '🤝']])],
+7: [_scene('Bàn ăn và đồ dùng trên bàn', 'room', [[0, '🥢'], [1, '✋'], [2, '✂️'], [3, '💻'], [4, '📱'], [5, '🎁'], [6, '💐']])],
+8: [_scene('Đối lập: to – nhỏ, mới – cũ, đắt – rẻ', 'lilac', [[0, '🐘'], [1, '🐭'], [2, '🆕'], [3, '🏚️'], [4, '💎'], [5, '🪙']]),
+    _scene('Cảm giác và tính chất', 'sky', [[7, '🥵'], [8, '🥶'], [6, '😋'], [13, '🌸'], [10, '🤫'], [11, '🎉'], [9, '💪'], [12, '⭐']])],
+9: [_scene('Sở thích và thời gian rảnh', 'room', [[4, '🍳'], [5, '🎵'], [6, '🎤'], [7, '⚽'], [8, (x, y, s) => `<text x="${x}" y="${y}" font-size="${s * .8}" text-anchor="middle" dominant-baseline="central" font-weight="700" fill="#2f5d4b" font-family="sans-serif">字</text>`], [11, '⏳'], [12, '📅']]),
+    _scene('Thích, ghét, giỏi, kém', 'lilac', [[0, '❤️'], [1, '💔'], [2, '👍'], [3, '👎'], [9, '💡'], [13, '❓']])],
+10: [_scene('Ai và cái gì ở đây (います・あります)', 'kitchen', [[2, '👨'], [3, '👩'], [4, '🐕'], [5, '🐈'], [6, '🌳'], [7, '📦'], [8, '🧊']]),
+    _scene('Vị trí: trên, dưới, trước, sau, bên cạnh, giữa', 'lilac', [[9, _rel('ue')], [10, _rel('shita')], [11, _rel('mae')], [12, _rel('ushiro')], [13, _rel('tonari')], [14, _rel('aida')]])],
+11: [_scene('Đếm: cái, người', 'room', [[0, '🍎'], [1, '🍎🍎'], [2, '🍎🍎🍎'], [3, '🧍'], [4, '👫'], [5, '👨‍👩‍👧‍👦']]),
+    _scene('Đếm: tờ, máy, lần, thời gian, gửi thư', 'office', [[6, '📄'], [7, '💻'], [8, '🔁'], [9, '⏳'], [10, '📆'], [11, '📮'], [12, '✉️'], [13, '👬']])],
+12: [_scene('Bốn mùa, thời tiết và du lịch', 'sky', [[10, '🌤️'], [12, '🍂'], [8, '🌷'], [9, '🍃'], [11, '🧳'], [0, '👌'], [1, '🤯']]),
+    _scene('Gần – xa, nhanh – chậm, nhiều – ít', 'lilac', [[4, '🐇'], [5, '🐢'], [2, '🔎'], [3, '🔭'], [6, '📈'], [7, '📉'], [13, '🥇'], [14, '♾️']])],
+13: [_scene('Biển, bơi lội, đi chơi', 'sea', [[10, '🌊'], [2, '🏊'], [1, '🎮'], [8, '🚶'], [9, '🖼️'], [6, '🛒'], [7, '🍽️']]),
+    _scene('Muốn, mệt, khát, đói', 'lilac', [[0, '🤩'], [4, '😩'], [11, '💧'], [12, '🤤'], [5, '💍'], [3, '🤗']])],
+14: [_scene('Cửa sổ, mưa, đèn, cửa', 'room', [[14, '🪟'], [13, '☔'], [12, '🌧️'], [0, '💡'], [1, '🌑'], [2, '🚪'], [3, '🔒']]),
+    _scene('Nhờ vả và làm giúp nhau', 'lilac', [[4, '🏃'], [5, '⏳'], [6, '🤲'], [7, '🤝'], [8, '📣'], [9, '🗣️'], [10, '🙌'], [11, '🛠️']])],
+15: [_scene('Nơi làm việc', 'office', [[6, '📑'], [7, '📦'], [1, '🔨'], [2, '🏪'], [5, '🔬'], [0, '📥']]),
+    _scene('Nơi ở, trạng thái, được phép – bị cấm', 'lilac', [[4, '🏠'], [3, '🧠'], [8, '🙋‍♂️'], [9, '💑'], [10, '🚬'], [11, '🪑'], [12, '🧍']])],
+16: [_scene('Khuôn mặt và tóc', 'lilac', [[12, '💇'], [13, '👁️'], [7, '🧒'], [8, '📏'], [9, '🤏']]),
+    _scene('Đi xe, thang máy, bỏ vào – lấy ra', 'street', [[0, '🚌'], [1, '🚏'], [2, '🔄'], [6, '👆'], [4, '📥'], [5, '📤']]),
+    _scene('Tắm, sáng và tối', 'mint', [[3, '🚿'], [10, '🔆'], [11, '🌑']])],
+17: [_scene('Sức khỏe', 'mint', [[12, '🤒'], [11, '🌡️'], [10, '💊'], [7, '😟'], [6, '🧥'], [13, '💎']]),
+    _scene('Việc hằng ngày và công việc', 'office', [[0, '🧠'], [1, '💭'], [2, '🕵️'], [3, '💳'], [4, '🔙'], [5, '🚶'], [8, '🌃'], [9, '🧳']])],
+18: [_scene('Sở thích và đồ vật', 'room', [[9, '🎨'], [2, '🎹'], [3, '🎤'], [4, '🧲'], [7, '🚗'], [10, '📔'], [11, '💵']]),
+    _scene('Rửa, vứt, đổi, đặt trước', 'kitchen', [[1, '🧼'], [5, '🗑️'], [6, '🔄'], [8, '📞'], [0, '💪'], [13, '🙏']])],
+19: [_scene('Việc nhà, luyện tập, leo núi', 'sky', [[2, '🧹'], [3, '🧺'], [4, '🏋️'], [0, '🧗'], [1, '🏨'], [6, '😪']]),
+    _scene('Thay đổi và tình trạng', 'lilac', [[7, '💪'], [8, '🥀'], [5, '🦋'], [9, '📊'], [10, '1️⃣'], [11, '📈'], [12, '⏳']])],
+20: [_scene('Văn hóa và giấy tờ', 'room', [[9, '👘'], [10, '🛂'], [2, '🔧'], [1, '🔍'], [7, '💬'], [8, '🏷️']]),
+    _scene('Nói chuyện thân mật', 'lilac', [[3, '🧑'], [4, '👉'], [5, '👍'], [6, '👎'], [11, '▶️'], [12, '⏹️'], [0, '🤲']])],
+21: [_scene('Trận đấu, giao thông, ý kiến', 'sky', [[7, '⚽'], [2, '🏆'], [3, '😢'], [10, '🚦'], [8, '🗳️'], [9, '💬']]),
+    _scene('Nghĩ, nói, đánh giá', 'lilac', [[0, '🤔'], [1, '🗨️'], [12, '🤷'], [13, '💯'], [4, '👍'], [5, '💸'], [6, '🚧'], [11, '🆕']])],
+22: [_scene('Trang phục: mặc, đội, đeo', 'room', [[2, '🧢'], [6, '🎩'], [3, '🕶️'], [5, '👓'], [0, '👕'], [1, '👖'], [7, '👟']]),
+    _scene('Nơi ở và đời sống', 'kitchen', [[4, '👶'], [9, '🏢'], [10, '💴'], [11, '🍳'], [12, '✅'], [8, '📝']])],
+23: [_scene('Đường phố: đèn, ngã tư, cầu, rẽ', 'street', [[8, '🚦'], [9, '🔀'], [10, '🌉'], [11, '📐'], [12, '⬆️'], [6, '↪️'], [5, '🚸'], [4, '🚶']]),
+    _scene('Vặn, kéo, đổi, chạm', 'lilac', [[0, '🔃'], [1, '🧲'], [2, '🔁'], [3, '🖐️'], [7, '😔']])],
+24: [_scene('Chuyển nhà, quà bánh, gửi đồ', 'room', [[7, '🚚'], [8, '🍪'], [2, '📤'], [6, '✅'], [0, '🎁'], [1, '🧑‍🤝‍🧑']]),
+    _scene('Giới thiệu, hướng dẫn, giải thích', 'office', [[3, '🤝'], [4, '🚩'], [5, '📣'], [10, '🙋'], [9, '🔢'], [11, '➕']])],
+25: [_scene('Quê, đại sứ quán, du học, thi đỗ', 'sky', [[4, '🌾'], [5, '🏛️'], [2, '🎓'], [12, '💮'], [10, '💪'], [6, '🍀']]),
+    _scene('Suy nghĩ, đến nơi, điều kiện', 'lilac', [[0, '💭'], [1, '🛬'], [3, '🤲'], [9, '🏢'], [11, '⚠️'], [7, '❔'], [8, '💴']])],
 };

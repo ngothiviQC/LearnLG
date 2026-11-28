@@ -20,6 +20,8 @@ function rmPicSec(n) {
         return '<button type="button" class="' + cls + '" style="left:' + ((x - vx) / vw * 100) + '%;top:' + ((y - vy) / vh * 100) + '%" data-pic="' + n + ':' + i + '" aria-label="' + (i + 1) + '. ' + esc(plainJa(word(i)[0])) + '">' +
             '<b>' + (i + 1) + '</b><span class="pic-chip jp" lang="ja">' + esc(plainJa(word(i)[0])) + '</span></button>';
     }).join('');
+    // vùng chạm lớn phủ lên đồ vật (pin có phần tử thứ 5 = [tâm x, tâm y, cỡ])
+    const hits = P.pins.map((p, i) => !p[4] ? '' : '<button type="button" class="pic-hit' + (sel === i ? ' sel' : '') + '" tabindex="-1" aria-hidden="true" style="left:' + ((p[4][0] - vx) / vw * 100) + '%;top:' + ((p[4][1] - vy) / vh * 100) + '%;width:' + (p[4][2] / vw * 100) + '%;height:' + (p[4][2] / vh * 100) + '%" data-pic="' + n + ':' + i + '"></button>').join('');
     let card = '<p class="hint pic-card">Chạm vào số trên tranh để xem và nghe từ.</p>';
     if (sel != null && P.pins[sel]) {
         const [ja, vi] = word(sel);
@@ -34,7 +36,7 @@ function rmPicSec(n) {
     return rmSec('pic', 'Tranh từ vựng · ' + esc(S.length > 1 ? S.length + ' tranh' : P.title) + ' (' + total + ' từ)',
         '<div class="pic' + (rmPicHide ? ' pic-hide' : '') + '">' + tabs + '<div class="pic-top"><span class="num hint">Đã xem ' + done + '/' + total + '</span>' +
         '<button type="button" class="btn sm" data-pichide="1" aria-pressed="' + rmPicHide + '">' + (rmPicHide ? '👁 Hiện chữ' : '🙈 Che chữ để tự kiểm tra') + '</button></div>' +
-        '<div class="pic-wrap" style="aspect-ratio:' + vw + '/' + vh + '"><svg viewBox="' + vx + ' ' + vy + ' ' + vw + ' ' + vh + '" role="img" aria-label="' + esc(P.title) + '">' + (P.svg || base) + '</svg>' + pins + '</div>' + card + '<div class="pic-list">' + list + '</div>' +
+        '<div class="pic-wrap" style="aspect-ratio:' + vw + '/' + vh + '"><svg viewBox="' + vx + ' ' + vy + ' ' + vw + ' ' + vh + '" role="img" aria-label="' + esc(P.title) + '">' + (P.svg || base) + '</svg>' + hits + pins + '</div>' + card + '<div class="pic-list">' + list + '</div>' +
         '<p class="hint">Mẹo nhớ: nhìn tranh, tự đoán từ rồi mới chạm số để kiểm tra. Các từ còn lại của bài nằm ở mục Từ vựng bên dưới.</p></div>');
 }
 function rmPicPick(v) {

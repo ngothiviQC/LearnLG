@@ -312,3 +312,9 @@
 
 .pic-tabs { flex-wrap: wrap; }
 .pic-tabs button { white-space: normal; text-align: left; }
+
+.pic-hit { position: absolute; transform: translate(-50%, -50%); padding: 0; border: 0; border-radius: 50%; background: transparent; cursor: pointer; z-index: 0; }
+.pic-hit.sel { box-shadow: 0 0 0 4px #ffd54a; background: rgba(255, 213, 74, .18); }
+.pic-pin { width: 26px; height: 26px; }
+.pic-pin > b { line-height: 22px; }
+.pic-chip { font-size: 13px; line-height: 20px; }
