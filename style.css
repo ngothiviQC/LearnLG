@@ -174,9 +174,14 @@ rt { font-size: .55em; color: var(--muted); font-weight: 400; }
 .origin b { font-family: var(--f-serif); font-weight: 500; font-size: clamp(22px, 2.6vw, 28px); line-height: 1.15; letter-spacing: -.02em; }
 .origin[lang="ja"] b { font-family: var(--f-jp); font-size: clamp(20px, 2.2vw, 25px); }
 .origin .o-s { font-size: 13.5px; color: var(--muted); }
-.origin:hover, .origin:focus-visible { background: rgba(201, 79, 38, .85); border-color: var(--gold); }
-.origin:hover .o-mark, .origin:focus-visible .o-mark { transform: translateY(-4px) scale(1.04); }
+/* Chỉ làm nổi khi rê chuột thật (máy cảm ứng giữ :hover sau khi chạm → không highlight sẵn) */
+@media (hover: hover) {
+.origin:hover { background: rgba(201, 79, 38, .85); border-color: var(--gold); }
+.origin:hover .o-mark { transform: translateY(-4px) scale(1.04); }
 .origin:hover .o-c, .origin:hover .o-s { color: var(--cream); }
+}
+.origin:focus-visible { background: rgba(201, 79, 38, .85); border-color: var(--gold); }
+.origin:focus-visible .o-mark { transform: translateY(-4px) scale(1.04); }
 .hello .foot { font-size: 12.5px; color: var(--muted); margin: 0; }
 .hello .go.back { font-family: var(--f-caps); font-weight: 500; letter-spacing: .24em; font-size: 10.5px; }
 

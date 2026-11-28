@@ -822,7 +822,7 @@ function showHello(on) {
     if (on && !was) { $('step1').hidden = false; $('step2').hidden = true; }
     helloPetals.show(on); pagePetals.show(!on); Dress.show(on);
 }
-$('goAsk').onclick = () => { $('step1').hidden = true; $('step2').hidden = false; const f = document.querySelector('.origin'); if (f) f.focus({ preventScroll: true }); };
+$('goAsk').onclick = () => { $('step1').hidden = true; $('step2').hidden = false; if (document.activeElement && document.activeElement.blur) document.activeElement.blur(); };
 $('goBack').onclick = () => { $('step2').hidden = true; $('step1').hidden = false; $('goAsk').focus({ preventScroll: true }); };
 
 /* ===================== Khởi động ===================== */
