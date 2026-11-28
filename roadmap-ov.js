@@ -101,8 +101,9 @@ function ovGrammar() {
     let h = '<p class="hint">Xếp theo chủ đề giao tiếp, từ dễ đến khó. Che dòng nghĩa, nhìn mẫu và tự nói nghĩa cùng một câu ví dụ; nói được thì bấm “Nhớ rồi”.</p>';
     N5_GRAMMAR.forEach(([name, desc, items], ci) => {
         const d = items.filter((_, i) => rm.t['ov-g-' + ci + '-' + i]).length;
-        h += '<section class="ov-chang"><div class="ov-ch"><h3>' + esc(name) + '</h3><span class="num hint">' + d + '/' + items.length + '</span></div><p class="hint">' + esc(desc) + '</p><ul class="ov-list">' +
-            items.map(([p, m, ex, vi], i) => '<li class="ov-item"><div class="ov-b"><b class="ov-pat">' + ovTxt(p) + '</b><p>' + ovTxt(m) + '</p><p class="ov-ex">' + rmSay(ex) + '<span>' + ovJp(ex) + '<span class="rm-vi">' + esc(vi) + '</span></span></p>' + ovTick('ov-g-' + ci + '-' + i) + '</div></li>').join('') + '</ul></section>';
+        const sid = 'ovG' + ci, isOpen = rmOpen[sid] === undefined ? true : rmOpen[sid];   // mặc định mở, bấm tiêu đề để thu nhỏ
+        h += '<details class="ov-chang" data-rmsec="' + sid + '"' + (isOpen ? ' open' : '') + '><summary class="ov-ch"><h3>' + esc(name) + '</h3><span class="num hint' + (d >= items.length ? ' ok-t' : '') + '">' + d + '/' + items.length + (d >= items.length ? ' ✓' : '') + '</span></summary><p class="hint">' + esc(desc) + '</p><ul class="ov-list">' +
+            items.map(([p, m, ex, vi], i) => '<li class="ov-item"><div class="ov-b"><b class="ov-pat">' + ovTxt(p) + '</b><p>' + ovTxt(m) + '</p><p class="ov-ex">' + rmSay(ex) + '<span>' + ovJp(ex) + '<span class="rm-vi">' + esc(vi) + '</span></span></p>' + ovTick('ov-g-' + ci + '-' + i) + '</div></li>').join('') + '</ul></details>';
     });
     return h;
 }

@@ -275,3 +275,11 @@
 .rm-stagebox > * { margin-top: 0; margin-bottom: 0; }
 .rm-stagebox > .rm-stage { padding-bottom: 10px; border-bottom: 1px dashed var(--line); }
 @media (max-width: 720px) { .rm-stagebox { padding: 12px; border-radius: 14px; } }
+
+.ov-chang { border: 1px solid var(--line); border-radius: 12px; padding: 8px 12px; margin-top: 10px; background: var(--paper, transparent); }
+.ov-chang > summary { cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.ov-chang > summary::-webkit-details-marker { display: none; }
+.ov-chang > summary::before { content: '▸'; color: var(--muted); margin-right: 8px; transition: transform .15s; }
+.ov-chang[open] > summary::before { transform: rotate(90deg); }
+.ov-chang > summary h3 { flex: 1; }
+.ov-chang[open] > .ov-list { margin-top: 8px; }
