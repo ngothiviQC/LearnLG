@@ -81,60 +81,13 @@ function rmMkScriptHtml(sc) {
     return '<div class="mk-script"><b>Lời nghe</b>' + String(sc).split('\n').filter(Boolean).map(l => { const m = l.match(/^(男|女|問)[：:]\s*(.*)$/); return '<p><i>' + (m ? LB[m[1]] : '') + '</i> ' + rmJa(m ? m[2] : l) + '</p>'; }).join('') + '</div>';
 }
 
-/* ----- Hình minh hoạ cho câu Nghe: cảnh theo chủ đề (dò từ khoá trong lời thoại) + đồ vật nhắc tới; không có chữ trên hình ----- */
-const RM_MK_THEMES = [
-    [/としょかん|ほんや/, '#e9dcc3', '#cdb892', ['📚', '📖', '🪑']],
-    [/えき|でんしゃ|バス|のりば|きっぷ|タクシー/, '#d8e6f2', '#a9c3dc', ['🚉', '🚃', '🎫']],
-    [/びょういん|くすり|いしゃ|ねつ|かぜ|あたまが/, '#f4e1e1', '#e3b9b9', ['🏥', '🩺', '💊']],
-    [/コーヒー|きっさてん|カフェ|こうちゃ/, '#efdcc8', '#d1ad88', ['☕', '🍰', '🪑']],
-    [/レストラン|ちゅうもん|メニュー|おいしい|たべ|ごはん|ラーメン|カレー|のみもの/, '#f6e6c8', '#e4c48a', ['🍽️', '🍜', '🥢']],
-    [/かいしゃ|しごと|かいぎ|コピー|しりょう|ぶちょう|パソコン/, '#e3e8ee', '#bcc7d4', ['🏢', '💻', '🖨️']],
-    [/がっこう|せんせい|きょうしつ|テスト|しゅくだい|クラス|だいがく|べんきょう/, '#e6efd9', '#bdd29b', ['🏫', '📝', '✏️']],
-    [/ゆうびんきょく|てがみ|はがき|にもつ|きって/, '#f3e3d8', '#dfb89d', ['📮', '✉️', '📦']],
-    [/ぎんこう|おかね/, '#e2ece4', '#b4cdb9', ['🏦', '💴', '🧾']],
-    [/ホテル|りょこう|ひこうき|くうこう/, '#dfe9f6', '#b3c8e6', ['🏨', '🧳', '✈️']],
-    [/パーティー|たんじょうび|プレゼント|おいわい/, '#f7e0ec', '#e6b3cf', ['🎂', '🎁', '🎈']],
-    [/スポーツ|テニス|サッカー|やきゅう|およ|うんどう/, '#dff1e3', '#a9d6b3', ['⚽', '🎾', '🏃']],
-    [/えいが|コンサート|おんがく|うた/, '#e5dff2', '#bfb2dc', ['🎬', '🍿', '🎵']],
-    [/こうえん|さんぽ|はな|さくら|いぬ/, '#dff1d6', '#a8d391', ['🌳', '🌸', '🐕']],
-    [/かいもの|うりば|スーパー|デパート|みせ|いくら|レジ/, '#f6e8d0', '#e8c78f', ['🛍️', '🧾', '🏬']],
-    [/てんき|あめ|ゆき|さむ|あつ|はれ|かぜが/, '#dbe9f5', '#a8c8e6', ['☀️', '🌧️', '☂️']],
-    [/でんわ|もしもし/, '#e8eaf2', '#c3c8dc', ['📞', '📱', '💬']],
-    [/うち|へや|いえ|おふろ|だいどころ|あさごはん|ねる|りょうり|そうじ/, '#f2e6d8', '#dcc3a3', ['🏠', '🛋️', '🛏️']]
-];
-const RM_MK_ITEMS = [
-    [/(?<!に)ほん(?!とう)/, '📖'], [/コピー/, '🖨️'], [/でんわ/, '📞'], [/コーヒー/, '☕'], [/おちゃ|こうちゃ/, '🍵'], [/みず/, '💧'], [/ぎゅうにゅう/, '🥛'], [/パン(?!ツ)/, '🍞'],
-    [/ごはん/, '🍚'], [/りんご/, '🍎'], [/さかな/, '🐟'], [/にく/, '🥩'], [/やさい/, '🥬'], [/ケーキ/, '🍰'], [/アイス/, '🍦'], [/たまご/, '🥚'], [/くすり/, '💊'],
-    [/かさ/, '☂️'], [/ゆき/, '❄️'], [/しゃしん|カメラ/, '📷'], [/えいが/, '🎬'], [/おんがく|うた/, '🎵'], [/テスト|しゅくだい/, '📝'], [/じしょ/, '📕'], [/ノート/, '📓'],
-    [/ペン|えんぴつ/, '🖊️'], [/かばん/, '👜'], [/くつ/, '👟'], [/ぼうし/, '🧢'], [/シャツ|ふく/, '👕'], [/てがみ|はがき|きって/, '✉️'], [/おかね|えん(?!ぴつ)/, '💴'],
-    [/でんしゃ/, '🚃'], [/バス/, '🚌'], [/タクシー/, '🚕'], [/じてんしゃ/, '🚲'], [/くるま/, '🚗'], [/ひこうき/, '✈️'], [/とけい/, '⏰'], [/いぬ/, '🐕'], [/ねこ/, '🐈'],
-    [/テニス/, '🎾'], [/サッカー/, '⚽'], [/やきゅう/, '⚾'], [/ジュース/, '🧃'], [/ビール|さけ/, '🍺'], [/ラーメン/, '🍜'], [/カレー/, '🍛'], [/サンドイッチ/, '🥪'],
-    [/パソコン/, '💻'], [/かぎ/, '🔑'], [/ドア/, '🚪'], [/まど/, '🪟'], [/でんき/, '💡'], [/テレビ/, '📺'], [/ラジオ/, '📻'], [/ゲーム/, '🎮'], [/プレゼント/, '🎁'],
-    [/たんじょうび/, '🎂'], [/ホテル/, '🏨'], [/ねつ/, '🌡️'], [/おふろ/, '🛁'], [/ベッド/, '🛏️'], [/そうじ/, '🧹'], [/せんたく/, '🧺'], [/やま/, '⛰️'], [/うみ/, '🌊'],
-    [/はな|さくら/, '🌸'], [/きっぷ/, '🎫'], [/にもつ/, '📦'], [/しりょう/, '📄'], [/ちず/, '🗺️'], [/さいふ/, '👛'], [/めがね/, '👓'], [/かさ/, '☂️']
-];
-let rmMkPicN = 0;
-function rmMkScene(script, stem) {
-    const txt = String(stem || '') + '\n' + String(script || ''), men = /男：/.test(txt), women = /女：/.test(txt);
-    const th = RM_MK_THEMES.find(t => t[0].test(txt)) || [null, '#ece6dc', '#d3c8b6', ['💬', '🪑', '🪴']];
-    const items = []; RM_MK_ITEMS.forEach(([re, e]) => { if (re.test(txt) && !items.includes(e) && !th[3].includes(e)) items.push(e); });
-    const props = items.slice(0, 3); th[3].forEach(e => { if (props.length < 3 && !props.includes(e)) props.push(e); });
-    const people = men && women ? ['👨', '👩'] : men ? ['👨'] : women ? ['👩'] : ['🧑'];
-    const id = 'mkg' + (rmMkPicN++), xs = [118, 180, 242];
-    let g = '<svg class="mk-pic" viewBox="0 0 360 140" role="img" aria-label="Hình minh hoạ tình huống" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="' + id + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + th[1] + '"/><stop offset="1" stop-color="' + th[2] + '"/></linearGradient></defs>' +
-        '<rect width="360" height="140" rx="14" fill="url(#' + id + ')"/><rect y="108" width="360" height="32" fill="rgba(0,0,0,.08)"/><g font-family="\'Segoe UI Emoji\',\'Apple Color Emoji\',\'Noto Color Emoji\',sans-serif" text-anchor="middle">';
-    props.forEach((e, i) => { g += '<text x="' + xs[i] + '" y="' + (i === 1 ? 92 : 104) + '" font-size="' + (i === 1 ? 50 : 42) + '">' + e + '</text>'; });
-    if (people.length === 2) g += '<text x="46" y="122" font-size="60">' + people[0] + '</text><text x="314" y="122" font-size="60">' + people[1] + '</text><text x="68" y="40" font-size="24">💬</text><text x="294" y="40" font-size="24">💬</text>';
-    else g += '<text x="44" y="122" font-size="60">' + people[0] + '</text><text x="70" y="40" font-size="24">💬</text>';
-    return g + '</g></svg>';
-}
 function rmMkAud(p, qi, type) {
     const free = !!rmMk.retry, used = (rmMk.plays || {})[p + ':' + qi] || 0, left = rmMkMax(type) - used;
     return '<div class="mk-aud"><button type="button" class="btn pri mk-play" data-mkplay="' + p + ':' + qi + '"' + (!free && left <= 0 ? ' disabled' : '') + '>▶ Nghe</button><span class="hint mk-left">' + (free ? 'Nghe không giới hạn' : 'Còn ' + Math.max(0, left) + ' lần nghe') + '</span></div>';
 }
 function rmMkQuestion(p, qi, shown, qs) {
     const [type, stem, opts, , psg0] = qs[qi], pick = rmMk.ans[p][qi], prev = shown, L = rmMkIsL(type), psg = L ? null : psg0;
-    return (psg && (!prev || prev[4] !== psg) ? rmPassage(psg) : '') + '<div class="rm-q" id="mkq-' + p + '-' + qi + '"><p class="rm-qq">' + rmMkNo(p, qi) + '. ' + (L ? (stem ? rmJaU(stem) : '<span class="rm-vi">Nghe rồi chọn đáp án đúng.</span>') : rmJaU(stem).replace(/★/g, '<b class="rm-star">★</b>')) + '</p>' + (L ? rmMkScene(psg0, stem) + rmMkAud(p, qi, type) : '') + '<div class="rm-opts">' +
+    return (psg && (!prev || prev[4] !== psg) ? rmPassage(psg) : '') + '<div class="rm-q" id="mkq-' + p + '-' + qi + '"><p class="rm-qq">' + rmMkNo(p, qi) + '. ' + (L ? (stem ? rmJaU(stem) : '<span class="rm-vi">Nghe rồi chọn đáp án đúng.</span>') : rmJaU(stem).replace(/★/g, '<b class="rm-star">★</b>')) + '</p>' + (L ? rmMkScene(psg0, stem, type) + rmMkAud(p, qi, type) : '') + '<div class="rm-opts">' +
         rmMkOrder(rmMk.t, p, qi).map(oi => '<button type="button" class="rm-opt' + (pick === oi ? ' mk-sel' : '') + '" data-mkans="' + p + ':' + qi + ':' + oi + '">' + rmJa(opts[oi]) + '</button>').join('') + '</div></div>';
 }
 const rmMkCirc = ['①', '②', '③', '④'];
@@ -218,7 +171,7 @@ function rmMkReview(items) {
     items.forEach(([p, qi]) => {
         const [type, stem, opts, why, psg0] = T.parts[p].qs[qi], pick = rmMk.ans[p][qi], ok = pick === 0, L = rmMkIsL(type), psg = L ? null : psg0;
         h += (psg && !(prev && prev.p === p && prev.qi === qi - 1 && T.parts[p].qs[qi - 1][4] === psg) ? rmPassage(psg) : '') + '<div class="rm-q"><p class="rm-qq">' + rmMkNo(p, qi) + '. ' + (L ? (stem ? rmJaU(stem) : '<span class="rm-vi">Nghe rồi chọn đáp án đúng.</span>') : rmJaU(stem).replace(/★/g, '<b class="rm-star">★</b>')) + '</p>' +
-            (L ? rmMkScene(psg0, stem) + '<div class="mk-aud"><button type="button" class="btn sm mk-play" data-mkplay="' + p + ':' + qi + '">▶ Nghe lại</button></div>' : '') + '<div class="rm-opts">' +
+            (L ? rmMkScene(psg0, stem, type) + '<div class="mk-aud"><button type="button" class="btn sm mk-play" data-mkplay="' + p + ':' + qi + '">▶ Nghe lại</button></div>' : '') + '<div class="rm-opts">' +
             rmMkOrder(rmMk.t, p, qi).map(oi => '<button type="button" class="rm-opt' + (oi === 0 ? ' right' : oi === pick ? ' wrong' : '') + '" disabled>' + rmJa(opts[oi]) + '</button>').join('') + '</div>' + (L ? rmMkScriptHtml(psg0) : '') +
             '<p class="rm-why ' + (ok ? 'ok-t' : 'ng-t') + '">' + (ok ? '✓ Đúng. ' : pick == null ? '✗ Chưa trả lời. ' : '✗ Chưa đúng. ') + '<span>' + rmKanaTip(why) + '</span></p></div>';
         prev = { p, qi };
