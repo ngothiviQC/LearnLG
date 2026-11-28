@@ -45,7 +45,7 @@ function renderMockExam(num, mode) {
     if (!rmMk || rmMk.t !== t || rmMk.mode !== mode) rmMkStart(t, mode);
     rmMkDraw();
 }
-const rmMkHead = () => '<nav class="crumbs"><a href="index.html#lo-trinh">Lộ trình N5</a><span class="sep" aria-hidden="true">›</span><span aria-current="page">Thi thử · ' + esc(N5_MOCK[rmMk.t].name) + ' · ' + MK_MODE[rmMk.mode] + '</span></nav>';
+const rmMkHead = () => '';   // đường dẫn đã có ở thanh điều hướng đầu trang
 /* ----- Phần Nghe: đọc kịch bản bằng giọng đọc của trình duyệt (speechSynthesis) ----- */
 const rmMkIsL = type => String(type).charAt(0) === 'l';
 const rmMkMax = type => (type === 'l1' || type === 'l2') ? 2 : 1;   // đề thật: dạng 1–2 nghe 2 lần, dạng 3–4 nghe 1 lần
