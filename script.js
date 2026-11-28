@@ -348,12 +348,7 @@ function renderNav() {
 }
 const topicName = T => JA() ? T.ja : T.vi;
 // Đường dẫn Khóa học › Chủ đề › Bài (mục cuối là trang đang xem, không có link)
-function crumbs(items) {
-    const all = [['luyen-cau', t('course')]].concat(items);
-    return '<nav class="crumbs" aria-label="' + t('course') + '">' + all.map(([href, label], i) => i === all.length - 1
-        ? '<span aria-current="page">' + esc(label) + '</span>'
-        : '<a href="#' + href + '">' + esc(label) + '</a><span class="sep" aria-hidden="true">›</span>').join('') + '</nav>';
-}
+function crumbs() { return ''; }   // đường dẫn đã có ở đầu trang (nút Quay lại, tiêu đề, tab) nên không vẽ thêm thanh thứ hai
 const lessonCrumbs = no => { const k = topicOf(no); return crumbs([['chu-de-' + k, topicName(TOPICS[k - 1])], ['bai-' + no, t('lesson', dispNo(no))]]); };
 function render() {
     trackRoute(route); renderHeader(); renderNav();
